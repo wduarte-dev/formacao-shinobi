@@ -5,7 +5,7 @@ const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos
 const N={
  kaen:{name:'Kaen',el:'Fogo',c:'#e5533d',role:'Atacante',hp:950,atk:135,def:20,
   normal:{name:'Corte Ardente',mult:1,target:'front'},
-  jutsu:{name:'Dragão de Brasa',cost:40,cd:3,mult:1.5,target:'row',cause:'R',dot:{mult:.35,rounds:2},desc:'queima a fileira'},
+  jutsu:{name:'Dragão de Brasa',cost:40,cd:3,mult:1.5,target:'row',cause:'R',an:'atk2',dot:{mult:.35,rounds:2},desc:'queima a fileira'},
   chase:{name:'Chute Meteoro',on:'L',cause:'D',mult:.7}},
  mizuha:{name:'Mizuha',el:'Água',c:'#3d8fe5',role:'Suporte',hp:900,atk:95,def:25,
   normal:{name:"Jato d'Água",mult:.9,target:'front',ranged:true},
