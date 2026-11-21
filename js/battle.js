@@ -3,7 +3,7 @@
 function startBattle(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart();
   U={p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  chakra={p:40,e:40}; round=0; mark=null; paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; hitsR={p:0,e:0};
+  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');

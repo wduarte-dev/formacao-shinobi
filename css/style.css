@@ -116,6 +116,10 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .field .bgi{transition:filter .2s}
 .field.dim .bgi{filter:brightness(.22) saturate(.6)}
 .field.shake{animation:fsh .28s}
+/* campo Noite de Névoa: escurece e passa névoa em movimento (só código, sem sprite) */
+#fog{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .9s;background:radial-gradient(ellipse at 50% 65%,rgba(200,175,240,.5),transparent 68%),radial-gradient(ellipse at 50% 35%,rgba(125,106,168,.5),transparent 70%),rgba(24,12,50,.5);background-size:100% 100%,100% 100%,auto;background-repeat:repeat-x,repeat-x,repeat;animation:fogm 16s linear infinite;z-index:9}
+#fog.on{opacity:1}
+@keyframes fogm{from{background-position:0 0,50% 0,0 0}to{background-position:-100% 0,150% 0,0 0}}
 @keyframes fsh{20%{margin-left:-12px}40%{margin-left:12px;margin-top:7px}60%{margin-left:-7px}80%{margin-left:5px;margin-top:-5px}}
 #cam{position:absolute;inset:0;transition:transform .16s ease-out;will-change:transform}
 #cam.slow{transition:transform .3s ease-out}

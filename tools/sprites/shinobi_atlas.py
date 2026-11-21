@@ -177,7 +177,7 @@ class Sheet:
         # sobras/frames fantasma: frame muito menor que a mediana da linha
         if out:
             med = np.median([f['body']['area'] for f in out])
-            keep = [f for f in out if f['body']['area'] >= med * 0.35]
+            keep = [f for f in out if f['body']['area'] >= med * s.sc.get('ghost', 0.35)]
             s.dropped = getattr(s, 'dropped', []) + [(r, f['col']) for f in out if f not in keep]
             out = keep
         for f in out:

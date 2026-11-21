@@ -51,7 +51,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 | Mayoi | Névoa | Esquiva/campo | Noite de Névoa (campo 3 rodadas) | Tempestade de Mariposas L→R |
 | Hiyori | Gelo | Controle | Prisão de Gelo (alvo único, D + atordoa) | Pilar de Gelo D→L |
 | Doku | Veneno | Desgaste | Névoa Tóxica (todos, R + veneno) | Ferrão L→D |
-(No código o Mayoi ainda aparece como `kuro`, sprite antigo, até a Onda 2. Fuuka, Hiyori, Kuro e Doku ainda usam os sprites antigos 96x64.) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
+(Só o Doku ainda usa sprite antigo 96x64. Mayoi/Fuuka/Hiyori já são atlas v2; o campo da Mayoi está implementado.) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
 
 ## Sprites
 Ele gera os sheets numa IA de imagem e manda (anexo no chat ou commit em `tools/sprites/src/<ninja>/`). Eu recorto com o pipeline (`docs/pipeline-sprites.md`) e integro. Prompts de ninja novo: `docs/prompts-sprites.md` (template v2 + lições). Fundo verde chapado #00FF00, sem xadrez, sem moldura, sem sombra, nada turquesa no personagem.

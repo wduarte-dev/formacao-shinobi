@@ -16,7 +16,7 @@ function fxStep(k){
   c.globalAlpha=1;
 }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
-  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#d9f59a','#9bc53d','#4d6a1f']};
+  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#d9f59a','#9bc53d','#4d6a1f']};
 function elFx(u,ts){
   const el=u.d.el, pal=PAL[el], dir=u.side==='p'?1:-1;
   for(const t of ts){ const p=cur(t), x=p.x, y=p.y;
