@@ -2,7 +2,7 @@
 
 Por quê: as 18 animações antigas do `spr/kaen_atlas.png` têm manchas cinza escuras (atrás das pernas, perto da espada/cabeça), resto de fundo do molde antigo. Só o lote E (rise/meteor) está limpo. Cada prompt já pede "verde chapado preenchendo os vãos".
 Ordem e anexos: **A1** (sem anexo; o visual vem da descrição) → **A2** (anexar A1) → **B1** (anexar A2) → **B2** (anexar B1) → **C** (anexar B2) → **D** (anexar qualquer sheet, só paleta).
-Salvar em `tools/sprites/src/kaen/` como `A1, A2, B1, B2, C, D`. Depois: escrever `config/kaen.json` (A1 idle 6/walk 8/dash 8/attack 7 · A2 strong 7/guard 4/hurt 3/dodge 6 · B1 seals 6/jutsu 8/buff 6 · B2 stun 4/victory 6/defeat 8 · C knockback 8/launched 8/knockdown 8/chase 8) e trocar o `KANIM` do Kaen por entrada em `V2`.
+Salvar em `tools/sprites/src/kaen/` como `A1, A2, B1, B2, C, E, D`. **Lote E novo** = perseguição inteira com a descida do chute até o chão (a atual fica parada no ar; o `chase` do C vira reserva). Depois: escrever `config/kaen.json` (A1 idle 6/walk 8/dash 8/attack 7 · A2 strong 7/guard 4/hurt 3/dodge 6 · B1 seals 6/jutsu 8/buff 6 · B2 stun 4/victory 6/defeat 8 · C knockback 8/launched 8/knockdown 8/chase 8) e trocar o `KANIM` do Kaen por entrada em `V2`.
 Paleta: vermelho escuro, laranja, âmbar, amarelo claro, marrom brasa. Nada de verde/turquesa.
 
 ---
@@ -129,6 +129,32 @@ Row 1: KNOCKED BACK (repelled), 8 frames: hit from the front, body pushed backwa
 Row 2: LAUNCHED, 8 frames: thrown into the air, rises, tumbles at the top, body arched, begins to fall, arms flailing (full 8 columns).
 Row 3: KNOCKED DOWN, 8 frames: falls from standing and lies FLAT on the ground, body horizontal and parallel to the ground (never vertical), stays flat in the last frames (full 8 columns).
 Row 4: PURSUIT "Chute Meteoro", 8 frames: leaps high, flips in the air, dives DOWNWARD diagonally with one leg extended in a flying kick, the foot wrapped in a SMALL flame, impacts, lands crouched, rises (full 8 columns).
+```
+
+---
+## LOTE E (3 linhas) — Chute Meteoro completo: sobe, desce e acerta no chão — anexar C (ou B2)
+```
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 3 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 3 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Always facing RIGHT, side view. Feet on the same baseline in every cell, character centered.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: deep red, orange, amber, pale yellow, dark ember brown, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "KAEN - LOTE E" on a thin dark strip above the grid.
+
+CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, about 3 heads tall): KAEN, a young fire ninja. Messy spiky red-orange hair. A long red scarf around the neck with a tail that flutters behind him. Black sleeveless tunic, a dark red sash tied at the waist, gray cloth wraps on both forearms, dark baggy pants, red leg wraps over dark boots. A katana in a black sheath on his back, the hilt clearly visible over his right shoulder, identical in every frame. Calm confident face.
+
+Attached image is the ABSOLUTE source of truth for the character: copy exactly hair, outfit, colors, accessories, face, proportions and pixel scale. Do NOT redesign or recolor. The scarf, sash, forearm wraps and the katana on the back stay clearly visible and identical in every frame.
+
+ROWS:
+Row 1: PURSUIT PART 1, LEAP: 8 frames: crouches, jumps straight up with great power, rises very high, flips and tumbles at the top of the jump, scarf trailing, body curled, ready to dive (full 8 columns). Show the height by the pose only, no ground.
+Row 2: PURSUIT PART 2, METEOR DIVE: 8 frames: from the top he straightens into a diagonal dive, one leg extended forward in a FLYING KICK with the foot and shin wrapped in fire, falls fast and steeper each frame, the last 3 frames show the kick landing on an invisible target at ground level with a small flame burst at the foot (full 8 columns). Both feet end near the ground line.
+Row 3: PURSUIT PART 3, LANDING: 6 frames: after the kick he lands in a deep crouch with one hand on the ground, small embers around the foot, holds, slowly rises and returns to a relaxed standing pose (cells 7 to 8 EMPTY).
+Do not draw the enemy. Do not draw a ground line or shadow.
 ```
 
 ---
