@@ -28,5 +28,8 @@ Fluxo de sprite combinado: todo lote A de ninja novo vai com **ref de idle limpa
 ### Atualização (chat seguinte, 21/11/2026)
 Feito: **desempenho** (drop-shadow do `.fxi` removido, névoa `#fog` animada por `transform`, teto de partículas e de efeitos desenhados simultâneos, canvas não redesenha vazio, **modo leve** no menu salvo em `lite`), **hit-stop bem menor e efeitos/partículas não congelam mais nele** (era a "trava" de fluidez), **golpes de vários socos** (`hits:[frações]` em `data.js`: dano dividido, faísca e número por soco; Kaen, Raiden e Hiyori configurados; perseguição também aceita `hits`). Doku: ref limpa em `docs/refs/doku_ref.png` + prompt do lote D em `docs/refs/doku_D_prompt.txt`; aguardando o D pra Onda 3. Ícones de jutsu: `docs/refs/icones_jutsu_prompt.txt`.
 
+Também feito (mesmo dia): Onda da Mizuha brota aos poucos (`mv:'surge'`) com 25% de **Tsunami** no time todo; clique em inimigo liberado durante cenas; barra de jutsus persistente (não perde clique); morto no ar cai no chão; vitória por tempo avisada na tela. Pendente: Esmagar (Iwao) e Redemoinho (Fuuka) com dinâmica de salto/subida; janela pra armar jutsu antes do golpe; escudo do Iwao deixa luta chegar a 20 rodadas (balancear?).
+**Ideia nova — ninjas desproporcionais:** `size` por ninja em `data.js` (multiplicador no `mkSpr`, `--h` da barra, alcance de `dashTo`); sprites gerados já na proporção (gigante, baixinho, inseto...). Entra como onda futura.
+
 ## Ideias em aberto (não pedidas)
 Ninjas mais legíveis no campo, ícones de jutsu e retratos, parallax, cenários gerados na IA no estilo dos sprites novos (os atuais destoam), níveis, recrutamento, chefes, invocações, "planos" de campo por elemento, ninja de Distorção/Espaço (segurado).
