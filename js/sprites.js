@@ -9,20 +9,38 @@ const ANIM=ANIM0;
 // Kaen: atlas novo (192x160 por quadro, 18 animações)
 const KANIM={idle:[0,0,6,1,7],walk:[1,0,8,1,10],move:[2,0,8,1,16],atk1:[3,0,6,0,14,'idle'],atk2:[8,0,5,0,12,'idle'],atk3:[4,0,6,0,14,'idle'],
   guard:[5,0,4,0,8,'idle'],hurt:[6,0,3,0,10,'idle'],cast:[7,0,8,1,12],buff:[9,0,6,0,10,'idle'],knockback:[10,0,8,0,11],launched:[11,0,8,0,10],
-  knockdown:[12,0,4,0,10],down:[12,0,4,0,10],stun:[13,0,4,1,8],appear:[14,0,4,0,10,'idle'],chase:[15,0,8,0,16,'idle'],victory:[16,0,5,1,7],die:[17,0,8,0,10]};
+  knockdown:[12,0,4,0,10],down:[12,0,4,0,10],stun:[13,0,4,1,8],appear:[14,0,4,0,10,'idle'],chase:[15,0,8,0,16,'idle'],victory:[16,0,5,1,7],die:[17,0,8,0,10],
+  rise:[18,0,10,0,16],meteor:[19,0,9,0,16]};   // lote E (perseguição aérea), 10 colunas
 SPR.kaen='url(spr/kaen_atlas.png)';
-SH.kaen={cw:192,ch:160,ax:96,ay:150,W:1536,H:2880,k:1/3,hd:[96,52],anim:KANIM,rowmap:{0:0,6:7}};
+SH.kaen={cw:192,ch:160,ax:96,ay:150,W:1920,H:3200,k:1/3,hd:[96,52],anim:KANIM,rowmap:{0:0,6:7}};
+// atlas v2 (pipeline tools/sprites, gerado de out/<ninja>_atlas.json): nome:[linha, quadros, fps, loop, pingpong]
+const V2={
+ mizuha:{H:2720,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],seals:[7,8,12,0,0],jutsu:[8,7,12,0,0],buff:[9,7,10,0,0],stun:[10,4,8,1,0],victory:[11,6,8,1,0],defeat:[12,8,8,0,0],knockback:[13,8,10,0,0],launched:[14,8,10,0,0],knockdown:[15,8,8,0,0],chase:[16,8,12,0,0]}},
+ raiden:{H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,8,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],seals:[6,6,12,0,0],jutsu:[7,8,12,0,0],buff:[8,7,10,0,0],stun:[9,4,8,1,0],victory:[10,7,8,1,0],defeat:[11,7,8,0,0],knockback:[12,8,10,0,0],launched:[13,8,10,0,0],knockdown:[14,8,8,0,0],chase:[15,8,12,0,0],hurt:[16,3,10,0,0],dodge:[17,5,12,0,0]}},
+ iwao:{H:2720,a:{idle:[0,3,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,12,0,0],strong:[4,6,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],seals:[7,8,12,0,0],jutsu:[8,4,12,0,0],buff:[9,7,10,0,0],stun:[10,4,8,1,0],victory:[11,6,8,1,0],defeat:[12,8,8,0,0],knockback:[13,8,10,0,0],launched:[14,8,10,0,0],knockdown:[15,8,8,0,0],chase:[16,8,12,0,0]}}
+};
+// nomes do jogo -> nomes do pipeline; golpes voltam pro idle; sem 'hurt' usa 'guard'
+const V2MAP={move:'dash',atk1:'attack',atk2:'jutsu',atk3:'strong',cast:'seals',die:'defeat',down:'knockdown',hurt:'guard'};
+const V2BACK=['attack','strong','jutsu','guard','hurt','buff','dodge'];
+for(const [id,v] of Object.entries(V2)){
+  const T={}; for(const [n,[r,f,fps,l,pp]] of Object.entries(v.a)) T[n]=[r,0,f,l,fps,V2BACK.includes(n)?'idle':undefined,pp];
+  for(const [g,p] of Object.entries(V2MAP)) if(!T[g]&&T[p])T[g]=T[p];
+  SPR[id]=`url(spr/${id}_atlas.png)`;
+  SH[id]={cw:192,ch:160,ax:96,ay:150,W:1536,H:v.H,k:1/3,hd:[96,50],anim:T,rowmap:{0:T.idle[0],6:T.seals[0]}};
+}
 const an_of=u=>SH[u.id].anim||ANIM0;
+// quantos passos tem a anim (pingpong vai e volta sem repetir as pontas)
+const seqN=a=>a[6]&&a[2]>2?a[2]*2-2:a[2];
 const stAnim=(u,s)=>{const A=an_of(u); return s&&A.knockback?{R:'knockback',L:'launched',D:'knockdown'}[s]:(s?'down':'idle');};
 // duração real de uma animação (quadros / fps) e o momento do impacto (metade dela, com limites)
-const animMs=(u,n)=>{const a=an_of(u)[n]; return a?a[2]*1000/a[4]:0;};
+const animMs=(u,n)=>{const a=an_of(u)[n]; return a?seqN(a)*1000/a[4]:0;};
 const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));
 let ACT=[];                                   // tudo que está sendo animado na tela
 function mkSpr(id,scale){ const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
   spr.style.cssText=`left:${-S.ax*e}px;top:${-S.ay*e}px;width:${S.cw*e}px;height:${S.ch*e}px;background-image:${SPR[id]};background-size:${S.W*e}px ${S.H*e}px;transform-origin:${S.ax*e}px ${S.ay*e}px`;
   return {id,spr,sc:scale,an:'idle',af:0,at:0,hold:false}; }
-function setAnim(u,n,f,hold){u.an=n;u.af=f||0;u.at=0;u.hold=!!hold;drawFrame(u);}
-function drawFrame(u){const S=SH[u.id], a=an_of(u)[u.an], e=u.sc*S.k; u.spr.style.backgroundPosition=`${-(a[1]+u.af)*S.cw*e}px ${-a[0]*S.ch*e}px`;}
+function setAnim(u,n,f,hold){const a=an_of(u)[n]; if(!a)n='idle'; u.an=n;u.af=(f||0)%seqN(an_of(u)[n]);u.at=0;u.hold=!!hold;drawFrame(u);}
+function drawFrame(u){const S=SH[u.id], a=an_of(u)[u.an], e=u.sc*S.k, f=u.af<a[2]?u.af:2*a[2]-2-u.af; u.spr.style.backgroundPosition=`${-(a[1]+f)*S.cw*e}px ${-a[0]*S.ch*e}px`;}
 function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.createElement('div'); el.className='sp'+(flip?' flip':''); el.style.left=x+'px'; el.style.top=y+'px';
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // recorte do sprite para retratos: centraliza o ponto (fx,fy) do quadro numa caixa w x h
@@ -38,7 +56,7 @@ function tick(ts){
   if(!(battleOn&&(frozen||paused))){
     for(const u of ACT){ const a=an_of(u)[u.an], per=1000/a[4]; u.at+=dt;
       while(u.at>=per){ u.at-=per;
-        if(u.af<a[2]-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
+        if(u.af<seqN(a)-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
         drawFrame(u);} }
     if(battleOn)fxStep(dt/16.7);
   }

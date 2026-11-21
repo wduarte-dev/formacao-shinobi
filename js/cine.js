@@ -48,8 +48,8 @@ function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
 function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
 async function evade(t){ sfx.swing();
-  if(an_of(t).dodge){ setAnim(t,'dodge'); await sleep(animMs(t,'dodge')); }
-  else{ retrig(t.st,'dodge'); await sleep(320); t.st.classList.remove('dodge'); }
+  retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
+  await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
   if(t.alive&&!t.state)setAnim(t,'idle'); }
 // espera os efeitos de partícula acabarem (cada jutsu dura o que o efeito dele dura), entre min e max ms
 async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.length||BOLT.length);t+=60)await sleep(60); }
@@ -64,8 +64,8 @@ async function cine(u,sk,ts){
   ts.forEach(sceneAdd);
 }
 function endCine(){ $('jtag').classList.remove('on'); }
-async function dashTo(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
-  setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
+async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
+  if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}
 async function shoot(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
   e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);

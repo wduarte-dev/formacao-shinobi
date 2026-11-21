@@ -78,7 +78,11 @@ async function chain(side,t,count,src){
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c);   // perseguição também é cena isolada; quem entra fica visível
   c.chaseUsed=true; count++; if(side==='p')maxCombo=Math.max(maxCombo,count);
   const cause=c.d.chase.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
-  sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); sfx.chase(); spark(t,c.d.c,10);
+  if(an_of(c).rise&&t.state==='L'){   // perseguição aérea (lote E): pula até o alvo no ar e desce no chute
+    setAnim(c,'rise',0,true); sfx.swing(); await dashTo(c,t,true); await sleep(animMs(c,'rise')*.45);
+    setAnim(c,'meteor',0,true); await sleep(animMs(c,'meteor')*.7);
+  }else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); }
+  sfx.chase(); spark(t,c.d.c,10);
   const d=hurt(t,dmgOf(c,t,c.d.chase.mult*(1+.1*(count-1))),'chase'); comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(t.alive)await smash(c,t,cause); else await hitstop(90);

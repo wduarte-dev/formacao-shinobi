@@ -20,4 +20,7 @@ Dependências: `pip install numpy pillow scipy`.
 - **`ref` por sheet** quando não há pose de pé limpa (lote C!): frames retos, ex. `["launched:0,1"]`, `["knockdown:5,6,7","chase:0,7"]`. Pose agachada como ref = boneco gigante.
 - `use` / `drop` por anim (índices dos frames detectados), `scale_mul` por sheet, `fps`/`loop`/`anchor`/`air`/`breathe` por anim, `fx.use_cols`, `key_t` (padrão 38), `teal_fix`.
 
-Configs validados: `config/hiyori.json`, `config/fuuka.json`, `config/mizuha.json`. O pipeline antigo (fundo xadrez, sheets antigos do Kaen) não foi migrado.
+Configs validados: `config/hiyori.json`, `config/fuuka.json`, `config/mizuha.json`, `config/raiden.json`, `config/iwao.json`, `config/kaen_e.json` (lote extra, rodar com `--src src/kaen --no-fx`).
+- `cols_out` no config: colunas do atlas de saída (padrão 8). Use quando o sheet tem mais frames por linha (ex.: lote E do Kaen, 10).
+- Rótulo numa faixa escura da largura toda (Raiden) também é apagado.
+- Integração: copiar `out/<ninja>_atlas.png` pra `spr/` e colar a linha do ninja no objeto `V2` de `js/sprites.js` (`nome:[linha, quadros, fps, loop, pingpong]`, gerado do JSON). Nomes do pipeline viram nomes do jogo via `V2MAP` (dash→move, attack→atk1, jutsu→atk2, strong→atk3, seals→cast, defeat→die). O pipeline antigo (fundo xadrez, sheets antigos do Kaen) não foi migrado.
