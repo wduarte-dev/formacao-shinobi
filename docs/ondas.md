@@ -17,8 +17,13 @@ Regra: "próxima onda" (ou só "próximo") = executar a primeira ⬜. Uma por ve
 
 - ✅ **Efeitos do lote D no jogo (21/11/2026):** `FXA`/`FXUSE`/`FXMOVE` + `fxSpr`/`fxAt`/`fxShot` em `js/fx.js`. Cada golpe toca o efeito do ninja (básico, jutsu, perseguição, esquiva da Mayoi), faísca de impacto em todo acerto, aura no selo, projétil desenhado no lugar da bolinha. Nada parado: cada efeito tem movimento (desliza, mergulha, sobe, cai, gira, flutua), entra crescendo e some esmaecendo. Retratos e corte do jutsu reenquadrados com `hd` por ninja (centro do rosto medido no idle). Barra de jutsus estilo NO: ícone = centro do efeito do jutsu (`fxIcon`), animado em loop quando dá pra usar, cinza parado quando não; retratinho redondo no canto e bolinha de chakra no custo. Doku ainda sem lote D (usa o retrato no botão).
 
-## Estado ao fim do chat de sprites (21/11/2026)
-Ondas 0b e 1 prontas na branch `claude/adoring-bell-6o86n4` (cena isolada, hover/marca, esquiva, tempos por anim; Mizuha/Iwao/Raiden via `V2` em `js/sprites.js`; Raiden com lote F, esquiva base 0; Kaen com perseguição aérea do lote E e atlas de 10 colunas; log minimizável). Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py . /tmp/shots N` (se faltar: `pip install playwright==1.63.0`). **Próxima: Onda 3 (Doku).**
+## Estado ao fim do chat da Onda 2 + Kaen v2 + efeitos (21/11/2026)
+Tudo na `main`. Feito: Onda 2 (Mayoi/Fuuka/Hiyori + campo de névoa), esquiva de Mizuha/Iwao, **Kaen completo no v2** (atlas 12 colunas, `KANIM` removido, perseguição com pouso), lote D da Mizuha, **efeitos do lote D ligados em todos os golpes** com movimento, faísca de impacto, aura no selo, projétil desenhado, **barra de jutsus estilo NO** (ícone animado + retratinho), corte do jutsu reenquadrado (`hd` por ninja).
+**Próximo chat, nesta ordem:**
+1. **Desempenho:** o jogo trava no note dele. Suspeitos: `filter:drop-shadow` em `.fxi` (css), muitos `.fxs` ao mesmo tempo (golpe em área = 4 efeitos + 4 impactos), atlas de efeito grande (Kaen 3456x1152), névoa `#fog` com gradiente animado, canvas de partículas junto. Plano: tirar/limitar o drop-shadow, teto de efeitos simultâneos, **modo leve** no menu (salvo no save).
+2. **Doku:** gerar o lote D (prompt em `docs/prompts-doku.md`; mandar ref limpa do idle + prompt) e fazer a Onda 3.
+3. Opcional: sheet com 8 ícones de jutsu desenhados (mais legíveis que o recorte do efeito).
+Fluxo de sprite combinado: todo lote A de ninja novo vai com **ref de idle limpa (fundo verde, sem cinza) + prompt** (`docs/refs/`); ele gera e anexa os gerados nos lotes seguintes. Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py . /tmp/shots N` (N de 0 a 4; se faltar: `pip install playwright==1.63.0`).
 
 ## Ideias em aberto (não pedidas)
 Ninjas mais legíveis no campo, ícones de jutsu e retratos, parallax, cenários gerados na IA no estilo dos sprites novos (os atuais destoam), níveis, recrutamento, chefes, invocações, "planos" de campo por elemento, ninja de Distorção/Espaço (segurado).
