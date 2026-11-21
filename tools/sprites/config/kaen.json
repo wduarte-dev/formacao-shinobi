@@ -1,5 +1,1 @@
-{"name": "kaen", "body_h": 115, "cols_out": 10,
- "sheets": [
-  {"file": "A1.jpg", "rows": 4, "cols": 10, "anims": ["idle", "walk", "dash", "attack"]}
- ]
-}
+{"name": "kaen", "body_h": 115, "cols_out": 10, "sheets": [{"file": "A1.jpg", "rows": 4, "cols": 10, "anims": ["idle", "walk", "dash", "attack"]}, {"file": "A2.jpg", "rows": 4, "cols": 10, "anims": [{"name": "strong", "use": [0, 1, 2, 3, 4, 5, 6, 7]}, {"name": "guard", "use": [0, 1, 2, 3]}, {"name": "hurt", "use": [0, 1, 2]}, "dodge"]}]}
