@@ -122,6 +122,8 @@ def erase_label(fg, H, W):
     lab, k = ndi.label(fg, structure=np.ones((3, 3)))
     for i, sl in enumerate(ndi.find_objects(lab), 1):
         # rótulo curto no canto OU faixa escura da largura toda no topo
+        if sl[0].stop < H * 0.03 and sl[1].stop < W * 0.5:   # texto do rótulo solto no topo (faixa verde-escura)
+            fg[lab == i] = False; continue
         if sl[0].start <= 2 and sl[0].stop < H * 0.07 and (sl[1].stop < W * 0.5 or sl[1].stop - sl[1].start > W * 0.9):
             fg[lab == i] = False
     return fg

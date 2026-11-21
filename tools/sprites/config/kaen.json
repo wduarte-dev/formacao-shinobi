@@ -1,0 +1,5 @@
+{"name": "kaen", "body_h": 115, "cols_out": 10,
+ "sheets": [
+  {"file": "A1.jpg", "rows": 4, "cols": 10, "anims": ["idle", "walk", "dash", "attack"]}
+ ]
+}
