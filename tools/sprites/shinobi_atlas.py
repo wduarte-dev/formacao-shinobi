@@ -351,6 +351,10 @@ def build_fx(cfg, src, out, name):
     a = np.array(Image.open(os.path.join(src, fc['file'])).convert('RGB')).astype(np.float32)
     H, W = a.shape[:2]
     F, al = key_soft(a, cfg)
+    # faixa escura do rótulo no topo: apaga as linhas de cima até a primeira linha majoritariamente verde
+    gm = (a[:, :, 1] > 170) & (a[:, :, 0] < 120) & (a[:, :, 2] < 120)
+    top = next((y for y in range(int(H * 0.08)) if gm[y].mean() > 0.6), 0)
+    if top: al[:top + 2] = 0
     hard = al > 0.3
     hard = erase_label(hard, H, W)
     lbl = (al > 0.3) & ~hard
