@@ -47,7 +47,7 @@ async function doSkill(u,sk,isJ){
       if(isJ)await cine(u,sk,al);
       setAnim(u,'cast');
       if(sk.field){setField(u,sk.field); log(`${nm(u)} usa <b>${sk.name}</b>: névoa por ${sk.field} rodadas`);}
-      al.forEach(a=>{ const p=pos(a); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
+      al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
         if(sk.heal){sfx.heal(); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
         if(sk.shield){sfx.shield(); a.shield+=Math.round(u.atk*sk.shield); fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
@@ -71,7 +71,7 @@ async function doSkill(u,sk,isJ){
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
     if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
     else{ let tot=0;
-      ts.forEach(t=>{ if(dodgedSet.has(t))return; tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
+      ts.forEach(t=>{ if(dodgedSet.has(t))return; fxAt(u,isJ?'jutsu':'hit',t,isJ?1.3:sk.target==='all'?.7:.85); tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
         if(t.alive){ if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0)}; if(sk.stun&&t===main)t.stunned=true; upd(t);} });
       if(sk.dispel)clearField();
       if(isJ){shake();flash();sfx.heavy();}else sfx.hit();
@@ -97,7 +97,7 @@ async function chain(side,t,count,src){
     setAnim(c,'meteor',0,true); await sleep(animMs(c,'meteor')*.7);
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(hitAt(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); }
-  sfx.chase(); spark(t,c.d.c,10);
+  sfx.chase(); spark(t,c.d.c,10); fxAt(c,'chase',t,1.25);
   const d=hurt(t,dmgOf(c,t,c.d.chase.mult*(1+.1*(count-1))),'chase'); comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(t.alive)await smash(c,t,cause); else await hitstop(90);

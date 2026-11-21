@@ -47,7 +47,7 @@ function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().fo
 function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
 function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
-async function evade(t){ sfx.swing();
+async function evade(t){ sfx.swing(); fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
   await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
   if(t.alive&&!t.state)setAnim(t,'idle'); }

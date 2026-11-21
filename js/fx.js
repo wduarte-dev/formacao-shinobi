@@ -34,3 +34,29 @@ function elFx(u,ts){
 }
 function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.2,1.5),.12,R(10,18),3,0,pk([col,'#ffffff'])));}
 
+
+/* ---- efeitos desenhados (lote D de cada ninja): atlas de 288x192 por quadro, 6 linhas ---- */
+// gerado de tools/sprites/out/<ninja>_fx.json: nome:[linha, quadros]
+const FXA={
+ kaen:{c:12,a:{crescent:[0,6],slash:[1,6],dragon:[2,6],meteor:[3,6],impact:[4,6],aura:[5,6]}},
+ mizuha:{c:8,a:{jet:[0,6],splash:[1,6],rain:[2,6],wave:[3,6],impact:[4,6],aura:[5,6]}},
+ raiden:{c:8,a:{bolt:[0,6],chain:[1,6],burst:[2,6],ground:[3,6],orb:[4,6],spark:[5,5]}},
+ iwao:{c:8,a:{dust:[0,7],crack:[1,7],rocks:[2,6],fist:[3,7],dome:[4,7],impact:[5,6]}},
+ hiyori:{c:8,a:{blade:[0,7],crescents:[1,7],prison:[2,7],pillar:[3,7],impact:[4,7],aura:[5,7]}},
+ fuuka:{c:8,a:{crescent:[0,6],gust:[1,6],tornado:[2,6],whirlwind:[3,6],impact:[4,6],aura:[5,6]}},
+ mayoi:{c:8,a:{swarm:[0,6],cloud:[1,6],wave:[2,6],impact:[3,6],aura:[4,6],flash:[5,6]}}
+};
+// qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva
+const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor'}, mizuha:{hit:'splash',jutsu:'rain',chase:'wave'},
+  raiden:{hit:'spark',jutsu:'burst',chase:'chain'}, iwao:{hit:'rocks',jutsu:'dome',chase:'crack'},
+  hiyori:{hit:'blade',jutsu:'prison',chase:'pillar'}, fuuka:{hit:'gust',jutsu:'tornado',chase:'whirlwind'},
+  mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud'}};
+// toca um efeito do atlas em (x,y) do palco; flip espelha (inimigo ataca da direita). Devolve a duração em ms.
+function fxSpr(id,name,x,y,flip,sc){ const A=FXA[id]; if(!A||!A.a[name])return 0;
+  const [r,n]=A.a[name], w=288*(sc||1), h=192*(sc||1), e=document.createElement('div'), tk=token;
+  e.className='fxs'; e.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px;background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(flip?';transform:scaleX(-1)':'');
+  $('fx').appendChild(e); let f=0;
+  const step=()=>{ if(f>=n||tk!==token){e.remove();return;} if(!paused&&!frozen){e.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;} setTimeout(step,1000/12/speed); };
+  step(); return n*1000/12; }
+// efeito do ninja u (tipo kind) em cima do alvo t
+function fxAt(u,kind,t,sc){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t); return fxSpr(u.id,nm,p.x,p.y-62,u.side==='e',sc); }
