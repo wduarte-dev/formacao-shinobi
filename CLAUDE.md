@@ -8,7 +8,8 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 - **Ondas:** quando ele mandar "próxima onda", executar a primeira ⬜ de `docs/ondas.md`. Uma onda por vez. Ao terminar: testar, commitar, marcar ✅ e atualizar os docs afetados.
 - **Edição por trecho:** nunca reescrever arquivo inteiro sem necessidade. Cada módulo tem uma responsabilidade (tabela abaixo); mexer só nos módulos da tarefa.
 - **Testar sempre antes de commitar:** `python3 tools/test_battle.py . /tmp/shots [missao]` (na nuvem, se faltar: `pip install playwright==<versão do playwright global do npm>` e rodar com `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`) (sobe servidor local, roda batalha automática com Auto + 2x, salva prints, lista erros do console; o erro da fonte do Google é esperado sem internet). Conferir os prints.
-- **Commits** pequenos e descritivos em português. Push na `main` só se ele pedir ou se a onda foi aprovada.
+- **Commits** pequenos e descritivos em português. **Tudo vai direto pra `main`** (regra dele, 21/11/2026: se der problema é só reverter): commitar e dar `git push origin HEAD:main` ao terminar, sem PR, sem esperar aprovação. Antes de começar, `git fetch origin && git merge origin/main` pra pegar o que o outro chat fez.
+- **Prompts de sprite:** ler `docs/prompts-sprites.md`, seção "Diretrizes de criatividade" (ritmo livre por ninja, idle livre, sem regras de "não pode" além das técnicas do pipeline).
 - **Doc mudou de fato (ninja integrado, mecânica nova, decisão de design)?** Atualizar o doc certo em `docs/` no mesmo commit.
 
 ## Estrutura
