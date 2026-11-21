@@ -305,10 +305,10 @@ def build_character(cfg, src):
                 cv.paste(sp_im, (px, py), sp_im)
                 if px < 0 or py < 0 or px + spr.shape[1] > CW or py + spr.shape[0] > CH: clipped.append(ci)
                 imgs.append(cv)
-            if (sp.get('breathe') == 'auto' and is_static(imgs)) or sp.get('breathe') is True:
+            if (sp.get('breathe') == 'auto' and is_static(imgs)) or sp.get('breathe') in (True, 'first'):
                 n = max(len(imgs), 6); bp = cfg.get('breathe_px', 3)
                 wave = [int(round((1 - np.cos(2 * np.pi * i / n)) / 2 * bp)) for i in range(n)]
-                base_imgs = imgs; imgs = []
+                base_imgs = imgs[:1] if sp.get('breathe') == 'first' else imgs; imgs = []
                 for i in range(n):
                     b = base_imgs[i % len(base_imgs)]
                     imgs.append(breathe(b)(wave[i]) if wave[i] else b)

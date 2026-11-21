@@ -25,3 +25,4 @@ Configs validados: `config/hiyori.json`, `config/fuuka.json`, `config/mizuha.jso
 - `cols_out` no config: colunas do atlas de saída (padrão 8). Use quando o sheet tem mais frames por linha (ex.: lote E do Kaen, 10).
 - Rótulo numa faixa escura da largura toda (Raiden) também é apagado.
 - Integração: copiar `out/<ninja>_atlas.png` pra `spr/` e colar a linha do ninja no objeto `V2` de `js/sprites.js` (`nome:[linha, quadros, fps, loop, pingpong]`, gerado do JSON). Nomes do pipeline viram nomes do jogo via `V2MAP` (dash→move, attack→atk1, jutsu→atk2, strong→atk3, seals→cast, defeat→die). O pipeline antigo (fundo xadrez, sheets antigos do Kaen) não foi migrado.
+- `breathe: "first"` (idle): usa só o 1º frame e aplica a respiração vertical (metade de cima sobe 3 px). Usar quando o idle gerado balança de lado (Mizuha e Iwao usam).

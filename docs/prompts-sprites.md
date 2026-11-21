@@ -16,7 +16,7 @@ STRICT RULES (highest priority, never break):
 2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
 3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
 4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
-5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Always facing RIGHT, side view. Feet on the same baseline in every cell, character centered.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
 6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
 7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
 8. No big effects. Only small glows or thin element lines near the body. Effect colors: <paleta>, NEVER a color outside the palette.
@@ -45,3 +45,9 @@ Linhas típicas: 1 projétil/lâmina, 2 onda do básico, 3 efeito do jutsu, 4 ef
 
 ## Fluxo de entrega pro Wellington (decidido 21/11/2026)
 Em todo lote **A** (sem anexo no fluxo normal) mandar **1 imagem de referência + o prompt pronto** (arquivos em `docs/refs/`: `<ninja>_ref.png` = frame de idle do atlas em fundo verde 4x, `<ninja>_esquiva_prompt.txt`). Ele gera, e depois anexa os gerados nos lotes seguintes.
+
+## Diretrizes de criatividade (decididas 21/11/2026)
+- **Sem padronizar ritmo:** cada ninja tem tempo próprio. Uns golpes demoram mais, outros menos, e um ninja pode atacar mais de uma vez (combos de vários hits). Foco em criatividade e personalidade, não em simetria entre personagens.
+- **Idle livre:** o Raiden é só **referência de que o idle pode ter vida**, NÃO um molde. Cada ninja inventa o que combina com ele (respirar, trocar o peso, mexer na arma, flutuar, deslizar, balançar o corpo, fazer pose de luta etc.). **Sem regras de "não pode isso, não pode aquilo":** o corpo pode se deslocar, deslizar, mudar de posição na célula. Quem quiser preservar esse movimento no recorte usa `anchor: "cell"` no idle do config (em vez do alinhamento por pé). `breathe: "first"` só pra idle que o ninja gerou quase parado (Mizuha e Iwao).
+- **Princípio geral:** prompts descrevem a ideia e a personalidade, não proibições. Só ficam as regras técnicas que o pipeline exige (grade, contagem de frames, fundo verde, sem verde no personagem).
+- **Regra 5 afrouxada (21/11/2026):** não exige mais pés na mesma linha nem personagem centrado; só mesmo personagem, virado pra direita, dentro da célula. No config, anims com movimento livre usam `anchor: "cell"`. Doku A1–C foi gerado com a regra antiga (funcionou bem).
