@@ -94,17 +94,30 @@ async function chain(side,t,count,src){
   c.chaseUsed=true; count++; if(side==='p')maxCombo=Math.max(maxCombo,count);
   const cause=c.d.chase.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
   const air=!!an_of(c).rise&&t.state==='L';
-  if(air){   // perseguição aérea (lote E): pula até o alvo no ar e desce no chute
-    setAnim(c,'rise',0,true); sfx.swing(); await dashTo(c,t,true); await sleep(animMs(c,'rise')*.45);
-    setAnim(c,'meteor',0,true); await sleep(animMs(c,'meteor')*.7);
+  const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
+  const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
+  if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
+    setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
+    put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,'transform .34s cubic-bezier(.2,.8,.3,1)');
+    await sleep(Math.max(340,animMs(c,'rise')*.8));
+    setAnim(c,'meteor',0,true); fxAt(c,'chase',t,1.25);
+    put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,'transform .13s ease-in'); await sleep(130);
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(hitAt(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); }
-  sfx.chase(); spark(t,c.d.c,10); fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
+  sfx.chase(); spark(t,c.d.c,10); if(!air)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const d=hurt(t,dmgOf(c,t,c.d.chase.mult*(1+.1*(count-1))),'chase'); comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
-  if(t.alive)await smash(c,t,cause); else await hitstop(90);
-  if(air&&an_of(c).landing){const a=pos(c),b=pos(t),dir=side==='p'?1:-1;   // desce até o chão e pousa agachado
-    c.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y}px)`; setAnim(c,'landing',0,true); await sleep(animMs(c,'landing')*.7);}
+  if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
+    await hitstop(70); const g=pos(t), fall='transform .3s cubic-bezier(.55,0,.9,.55)';
+    zoomTo(tb.x,(tb.y+g.y)/2-60,1.22); speedLines('D'); t.el.style.zIndex=55;
+    t.off.y=-26; put(t,t.off.x,t.off.y,fall); put(c,tb.x-dir*72-h0.x,g.y-50-h0.y,fall);
+    em(10,()=>prt(tb.x,tb.y,R(-10,10),-30,R(-1,1),R(1.5,3),0,R(12,20),R(4,7),0,pk(PAL.Fogo)));
+    await sleep(300); t.mv.style.transition=''; c.mv.style.transition='';
+    await smash(c,t,'D');
+  }else if(t.alive)await smash(c,t,cause); else await hitstop(90);
+  if(air&&an_of(c).landing){ const g=pos(t);   // pousa agachado do lado do alvo e levanta
+    put(c,cur(t).x-dir*82-h0.x,g.y-h0.y,'transform .12s ease-in'); setAnim(c,'landing',0,true); dust(c,10);
+    await sleep(animMs(c,'landing')*.7); c.mv.style.transition=''; }
   await sleep(110); home(c);
   if(t.alive)await chain(side,t,count);
 }
