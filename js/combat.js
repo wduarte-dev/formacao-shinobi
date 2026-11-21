@@ -71,7 +71,7 @@ async function doSkill(u,sk,isJ){
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
     if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
     else{ let tot=0;
-      ts.forEach(t=>{ if(dodgedSet.has(t))return; fxAt(u,isJ?'jutsu':'hit',t,isJ?1.3:sk.target==='all'?.7:.85); tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
+      ts.forEach(t=>{ if(dodgedSet.has(t))return; fxAt(u,isJ?'jutsu':'hit',t,isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8); tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
         if(t.alive){ if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0)}; if(sk.stun&&t===main)t.stunned=true; upd(t);} });
       if(sk.dispel)clearField();
       if(isJ){shake();flash();sfx.heavy();}else sfx.hit();
@@ -97,7 +97,7 @@ async function chain(side,t,count,src){
     setAnim(c,'meteor',0,true); await sleep(animMs(c,'meteor')*.7);
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(hitAt(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); }
-  sfx.chase(); spark(t,c.d.c,10); fxAt(c,'chase',t,1.25);
+  sfx.chase(); spark(t,c.d.c,10); fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const d=hurt(t,dmgOf(c,t,c.d.chase.mult*(1+.1*(count-1))),'chase'); comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(t.alive)await smash(c,t,cause); else await hitstop(90);

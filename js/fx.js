@@ -46,17 +46,56 @@ const FXA={
  fuuka:{c:8,a:{crescent:[0,6],gust:[1,6],tornado:[2,6],whirlwind:[3,6],impact:[4,6],aura:[5,6]}},
  mayoi:{c:8,a:{swarm:[0,6],cloud:[1,6],wave:[2,6],impact:[3,6],aura:[4,6],flash:[5,6]}}
 };
-// qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva
-const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor'}, mizuha:{hit:'splash',jutsu:'rain',chase:'wave'},
-  raiden:{hit:'spark',jutsu:'burst',chase:'chain'}, iwao:{hit:'rocks',jutsu:'dome',chase:'crack'},
-  hiyori:{hit:'blade',jutsu:'prison',chase:'pillar'}, fuuka:{hit:'gust',jutsu:'tornado',chase:'whirlwind'},
-  mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud'}};
-// toca um efeito do atlas em (x,y) do palco; flip espelha (inimigo ataca da direita). Devolve a duração em ms.
-function fxSpr(id,name,x,y,flip,sc){ const A=FXA[id]; if(!A||!A.a[name])return 0;
-  const [r,n]=A.a[name], w=288*(sc||1), h=192*(sc||1), e=document.createElement('div'), tk=token;
-  e.className='fxs'; e.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px;background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(flip?';transform:scaleX(-1)':'');
-  $('fx').appendChild(e); let f=0;
-  const step=()=>{ if(f>=n||tk!==token){e.remove();return;} if(!paused&&!frozen){e.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;} setTimeout(step,1000/12/speed); };
-  step(); return n*1000/12; }
-// efeito do ninja u (tipo kind) em cima do alvo t
-function fxAt(u,kind,t,sc){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t); return fxSpr(u.id,nm,p.x,p.y-62,u.side==='e',sc); }
+// qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva,
+// imp = faísca de impacto em todo acerto, aura = em volta do conjurador na hora do selo, proj = projétil que viaja
+const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'aura',proj:'crescent'},
+  mizuha:{hit:'splash',jutsu:'rain',chase:'wave',imp:'impact',aura:'aura',proj:'jet'},
+  raiden:{hit:'spark',jutsu:'burst',chase:'chain',imp:'orb',aura:'ground',proj:'bolt'},
+  iwao:{hit:'rocks',jutsu:'dome',chase:'crack',imp:'impact',aura:'dust',proj:'fist'},
+  hiyori:{hit:'blade',jutsu:'prison',chase:'pillar',imp:'impact',aura:'aura',proj:'crescents'},
+  fuuka:{hit:'gust',jutsu:'tornado',chase:'whirlwind',imp:'impact',aura:'aura',proj:'crescent'},
+  mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud',imp:'flash',aura:'aura',proj:'swarm'}};
+// como cada efeito se mexe (nada fica parado feito PNG colado):
+// slide = entra deslizando a partir do atacante · dive = desce na diagonal de cima · rise = sobe do chão
+// fall = cai de cima · spin = gira leve · float = sobe flutuando · drift = escorrega devagar pra frente
+const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
+  meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',burst:'spin',
+  impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise'};
+// toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
+// mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
+function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0;
+  const [r,n]=A.a[name], sc=o.sc||1, w=288*sc, h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
+  const box=document.createElement('div'), img=document.createElement('div');
+  let x=o.x, y=o.y, tx=o.x, ty=o.y, rot=0, rot2=0, s0=.55;
+  const mv=o.to?'travel':(o.mv||FXMOVE[name]||'pop');
+  if(o.to){tx=o.to.x; ty=o.to.y; s0=.8;}
+  else if(mv==='slide'){x-=d*110*sc; tx+=d*26*sc;}
+  else if(mv==='dive'){x-=d*140*sc; y-=150*sc; tx+=d*10; ty+=10;}
+  else if(mv==='rise'){y+=46*sc; ty-=16*sc; s0=.7;}
+  else if(mv==='fall'){y-=90*sc; ty+=6; s0=.85;}
+  else if(mv==='drift'){x-=d*30*sc; tx+=d*50*sc;}
+  else if(mv==='float'){y+=18; ty-=40*sc;}
+  else if(mv==='spin'){rot=R(-25,25); rot2=rot+d*R(30,60);}
+  else {rot=R(-6,6); rot2=rot;}
+  box.className='fxs'; img.className='fxi';
+  box.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg) scale(${s0});opacity:0`;
+  img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(o.flip?';transform:scaleX(-1)':'');
+  box.appendChild(img); $('fx').appendChild(box); void box.offsetWidth;
+  const ms=dur/speed;
+  // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
+  box.style.transition=`left ${ms*.85}ms cubic-bezier(.2,.7,.3,1),top ${ms*.85}ms cubic-bezier(.2,.7,.3,1),transform ${ms*.9}ms cubic-bezier(.2,1.4,.4,1),opacity ${Math.min(120,ms*.25)}ms`;
+  box.style.left=(tx-w/2)+'px'; box.style.top=(ty-h/2)+'px'; box.style.opacity=1;
+  box.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
+  let f=0;
+  const step=()=>{ if(f>=n||tk!==token){box.remove();return;}
+    if(!paused&&!frozen){ img.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;
+      if(f===n-1){box.style.transition=`opacity ${1000/fps/speed*1.4}ms linear,transform ${1000/fps/speed*1.4}ms`; box.style.opacity=0; box.style.transform+=' scale(1.06)';} }
+    setTimeout(step,1000/fps/speed); };
+  step(); return dur; }
+// efeito do ninja u (tipo kind) em cima do alvo t; sobra (dy) sobe ou desce o ponto
+function fxAt(u,kind,t,sc,dy){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
+  return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc}); }
+// projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
+function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; const a=cur(u), b=cur(t), d=u.side==='p'?1:-1;
+  fxSpr(u.id,nm,{x:a.x+d*60,y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:.75,fps:6/(ms/1000)});
+  return true; }

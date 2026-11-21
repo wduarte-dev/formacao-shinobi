@@ -186,7 +186,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 @keyframes up{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-50px}}
 .field.hs .fl{animation-play-state:paused}
 #fx{position:absolute;inset:0;pointer-events:none;z-index:65}
-.fxs{position:absolute;pointer-events:none;background-repeat:no-repeat;image-rendering:pixelated}
+.fxs{position:absolute;pointer-events:none;will-change:transform,left,top,opacity}
+.fxi{position:absolute;inset:0;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(255,255,255,.35))}
 .proj{position:absolute;width:16px;height:16px;margin:-8px;background:#fff;box-shadow:0 0 0 4px var(--c),0 0 18px 7px var(--c);transition:left .18s linear,top .18s linear}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:95;pointer-events:none}
 #flash.on{animation:flz .3s ease-out}

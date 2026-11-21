@@ -56,7 +56,7 @@ async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.lengt
 
 async function cine(u,sk,ts){
   const tag=$('jtag'), c=$('cut'), cp=$('cutP');
-  sceneOn([u]); setAnim(u,'cast'); sfx.cast();
+  sceneOn([u]); setAnim(u,'cast'); sfx.cast(); fxAt(u,'aura',u,1.05,18);
   tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=sk.name; void tag.offsetWidth; tag.classList.add('on');
   await sleep(260);
   c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,6,0,28,26);
@@ -67,7 +67,8 @@ function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}
-async function shoot(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
+async function shoot(u,t){ if(fxShot(u,t,320)){ await sleep(320); return; }
+  const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
   e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
   void e.offsetWidth; e.style.left=b.x+'px'; e.style.top=(b.y-68)+'px'; try{await sleep(190);}finally{e.remove();}}
 
