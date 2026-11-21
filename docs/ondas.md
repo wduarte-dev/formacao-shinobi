@@ -11,13 +11,18 @@ Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py .
 - ⬜ **Ninjas desproporcionais:** o `size` já existe (`N[id].size`: `mkSpr`, `--h` da barra, alcance do `dashTo`; Poko usa 1.2). Falta: ninja novo gigante/baixinho gerado já na proporção, e o `portrait` levar o `size` em conta (o retrato do Poko corta a asa).
 - ⬜ **Idle gerado da Mizuha e do Iwao:** hoje é respiração em código (`breathe: "first"`). Prompts prontos em `docs/prompts-idle-mizuha-iwao.md`; aguardando ele gerar `src/<ninja>/I.png`.
 - ⬜ **Balancear o escudo do Iwao** se ainda arrastar a luta: agora não acumula, dura 2 rodadas e custa 30 (missão 2: 12 rodadas, missão 4: 15 no teste). Ajustar `shield` (2.5) ou `shR` se precisar.
+- ⬜ **Combo na tela (ref. vídeo de NO):** contador "N Hit" na lateral (um por lado, zera a cada rodada), faixa "MAIS DE 10 COMBO", etiqueta do estado do alvo a cada golpe ("Lançado", "Derrubado", "Repelido") e rótulo "Perseguição" quando entra o follow-up. Só HUD/feedback, sem mexer em dano.
+- ⬜ **Triângulo elemental:** vantagem/desvantagem entre os 9 elementos, com texto flutuante ("Fogo vence Vento") e dano maior/menor. Definir a tabela com ele antes (AskUserQuestion).
+- ⬜ **Perseguição por gatilho (combo e/ou estado):** hoje todo ninja persegue só por estado (`on`→`cause`). Passar a ter 3 tipos em `chase`: **só estado** (D/L/R, como hoje), **só combo** (dispara quando o combo do alvo chega a N hits, ex. 5x) e **os dois** (estado ou combo). Depende do contador de combo da onda acima. Decidir com ele quais ninjas ficam com qual tipo e se o combo conta hits do time todo ou só do alvo.
+- ⬜ **Cut-in de ultimate:** faixa diagonal escura com retrato grande do ninja (`portrait`) e nome do jutsu em letra grande ao armar um jutsu/perseguição forte; opcional fundo temático durante a `cine`.
+- ⬜ **Rótulos de jutsu e resistência:** legenda lateral com o nome do jutsu a cada uso e texto "Resistiu" quando atordoar/veneno/etc. falha. Banner "Rodada N / LUTAR" na abertura.
 - ⬜ **Opcional — ícones de jutsu desenhados:** sheet com 8 ícones (prompt em `docs/refs/icones_jutsu_prompt.txt`), mais legível que o recorte do efeito (`fxIcon`).
 - ⬜ **Opcional — cenário em camadas** (céu/fundo/frente separados) pra parallax.
 
 Regra de sprite que vale pra todo ninja novo (ref de idle etc.): `docs/prompts-sprites.md`, seção "Fluxo de entrega".
 
 ## Ideias em aberto (não pedidas)
-Níveis, recrutamento, chefes, invocações, "planos" de campo por elemento (só a Mayoi tem), ninja de Distorção/Espaço (segurado), animação de ambiente nos menus.
+Níveis, recrutamento, chefes, invocações (ref. vídeo de NO: criatura que surge no meio da luta e ataca; buffs/clones de abertura de batalha como passiva), "planos" de campo por elemento (só a Mayoi tem), ninja de Distorção/Espaço (segurado), animação de ambiente nos menus.
 
 ## Feitas
 - ✅ **0a — pipeline de sprites:** `tools/sprites/shinobi_atlas.py` + configs. Lição: no lote C, o `ref` de escala tem que ser frame reto.
