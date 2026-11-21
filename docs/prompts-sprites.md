@@ -43,14 +43,13 @@ Linhas típicas: 1 projétil/lâmina, 2 onda do básico, 3 efeito do jutsu, 4 ef
 ## Lições (resumo)
 1. Prompt pronto, sem placeholder. 2. Repetir contagem + "EMPTY". 3. Máx. 4 linhas (6 linhas → retrato e contagens erradas). 5. "No big effects" funciona nos A–C. 6. Frase do derrubado funciona. 7. Errou linhas → regerar. 8. Autoavaliação da IA gratuita é genérica; 2ª imagem alucinada → descartar. 9. Idle/repelido quase parados e buff sutil: resolver em código. 10. Anexar o sheet anterior mantém o personagem; escala varia (normalizar no recorte). 11. D sai ~3:2, franja verde → despill. 12. Turquesa some no key; usar marinho/azul-gelo. 13. Frames fantasma: descartar no recorte, só regerar se faltar frame. 14. Grade visível em IA de baixa resolução: o pipeline apaga. 15. Acessório pequeno some em movimento: descrever "identical in every frame". 16. D pode vir com 8 colunas: usar os 7 primeiros. 17. Rótulo com caractere quebrado: só descartar. 18. Mais frames por linha (10) é ok e fica mais fluido: usar `cols_out` no config. 19. Lote só de pulo/aéreo: alinhar pelo pé (`anchor: feet`); a altura no ar vem do código.
 
-## Fluxo de entrega pro Wellington (decidido 21/11/2026)
-Em todo lote **A** (sem anexo no fluxo normal) mandar **1 imagem de referência + o prompt pronto** (arquivos em `docs/refs/`: `<ninja>_ref.png` = frame de idle do atlas em fundo verde 4x, `<ninja>_esquiva_prompt.txt`). Ele gera, e depois anexa os gerados nos lotes seguintes.
+## Fluxo de entrega pro Wellington (regra da ref de idle, 21/11/2026)
+- Todo lote **A** de ninja novo vai com **1 imagem de referência + o prompt pronto** (em `docs/refs/`: `<ninja>_ref.png` + `<ninja>_A1_prompt.txt`). Ele gera e depois anexa os gerados nos lotes seguintes (A2←A1, B1←A2…).
+- A ref é um **frame de idle de um atlas que já existe** (fundo verde chapado, sem cinza, ampliado 4x), nunca desenhada do zero: mantém o estilo do jogo.
+- **Exceção:** o primeiro de uma **espécie nova** (ex.: Poko, louva-a-deus) vai **sem ref**, senão a IA copia o ninja usado como ref. Os seguintes da mesma espécie usam ele como ref.
 
 ## Diretrizes de criatividade (decididas 21/11/2026)
 - **Sem padronizar ritmo:** cada ninja tem tempo próprio. Uns golpes demoram mais, outros menos, e um ninja pode atacar mais de uma vez (combos de vários hits). Foco em criatividade e personalidade, não em simetria entre personagens.
 - **Idle livre:** o Raiden é só **referência de que o idle pode ter vida**, NÃO um molde. Cada ninja inventa o que combina com ele (respirar, trocar o peso, mexer na arma, flutuar, deslizar, balançar o corpo, fazer pose de luta etc.). **Sem regras de "não pode isso, não pode aquilo":** o corpo pode se deslocar, deslizar, mudar de posição na célula. Quem quiser preservar esse movimento no recorte usa `anchor: "cell"` no idle do config (em vez do alinhamento por pé). `breathe: "first"` só pra idle que o ninja gerou quase parado (Mizuha e Iwao).
 - **Princípio geral:** prompts descrevem a ideia e a personalidade, não proibições. Só ficam as regras técnicas que o pipeline exige (grade, contagem de frames, fundo verde, sem verde no personagem).
 - **Regra 5 afrouxada (21/11/2026):** não exige mais pés na mesma linha nem personagem centrado; só mesmo personagem, virado pra direita, dentro da célula. No config, anims com movimento livre usam `anchor: "cell"`. Doku A1–C foi gerado com a regra antiga (funcionou bem).
-
-## Ref de idle (regra 21/11/2026, 2ª decisão)
-Ninja novo humano/ninja: a ref limpa vem de **sprite que já existe** (frame de idle de um atlas), nunca desenhada do zero, pra manter o estilo. **Exceção:** primeiro de uma espécie nova (ex.: Poko, louva-a-deus) vai **sem ref**, senão a IA copia o ninja usado de ref.

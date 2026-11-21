@@ -1,5 +1,7 @@
 # Prompts finais do Kaen — REGERAR no template v2 (corrige as manchas cinza do atlas antigo)
 
+> ✅ **Concluído (21/11/2026):** todos os lotes gerados e integrados (`config/kaen.json`, atlas de 12 colunas). Fica de referência/arquivo.
+
 Por quê: as 18 animações antigas do `spr/kaen_atlas.png` têm manchas cinza escuras (atrás das pernas, perto da espada/cabeça), resto de fundo do molde antigo. Só o lote E (rise/meteor) está limpo. Cada prompt já pede "verde chapado preenchendo os vãos".
 Ordem e anexos: **A1** (sem anexo; o visual vem da descrição) → **A2** (anexar A1) → **B1** (anexar A2) → **B2** (anexar B1) → **C** (anexar B2) → **D** (anexar qualquer sheet, só paleta).
 Salvar em `tools/sprites/src/kaen/` como `A1, A2, B1, B2, C, E, D`. **Lote E novo** = perseguição inteira com a descida do chute até o chão (a atual fica parada no ar; o `chase` do C vira reserva). Depois: escrever `config/kaen.json` (A1 idle 6/walk 8/dash 8/attack 7 · A2 strong 7/guard 4/hurt 3/dodge 6 · B1 seals 6/jutsu 8/buff 6 · B2 stun 4/victory 6/defeat 8 · C knockback 8/launched 8/knockdown 8/chase 8) e trocar o `KANIM` do Kaen por entrada em `V2`.

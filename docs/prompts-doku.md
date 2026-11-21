@@ -1,5 +1,7 @@
 # Prompts finais do Doku (template v2) — colar cada bloco inteiro na IA de imagem
 
+> ✅ **Concluído (Onda 3):** todos os lotes gerados e integrados. Fica de referência/arquivo.
+
 Ordem e anexos: **A1** (nenhum) → **A2** (anexar A1) → **B1** (anexar A2) → **B2** (anexar B1) → **C** (anexar B2) → **D** (anexar qualquer sheet, só paleta).
 Contagem errada de linhas → regerar. Salvar em `tools/sprites/src/doku/` como `A1, A2, B1, B2, C, D`.
 
