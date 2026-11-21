@@ -75,6 +75,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   else if(mv==='dive'){x-=d*140*sc; y-=150*sc; tx+=d*10; ty+=10;}
   else if(mv==='rise'){y+=46*sc; ty-=16*sc; s0=.7;}
   else if(mv==='fall'){y-=90*sc; ty+=6; s0=.85;}
+  else if(mv==='surge'){x-=d*190*sc; tx+=d*30*sc; s0=.18;}   // vai brotando e crescendo aos poucos
   else if(mv==='drift'){x-=d*30*sc; tx+=d*50*sc;}
   else if(mv==='float'){y+=18; ty-=40*sc;}
   else if(mv==='spin'){rot=R(-25,25); rot2=rot+d*R(30,60);}
@@ -85,7 +86,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   box.appendChild(img); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
-  box.style.transition=`left ${ms*.85}ms cubic-bezier(.2,.7,.3,1),top ${ms*.85}ms cubic-bezier(.2,.7,.3,1),transform ${ms*.9}ms cubic-bezier(.2,1.4,.4,1),opacity ${Math.min(120,ms*.25)}ms`;
+  box.style.transition=`left ${ms*.85}ms cubic-bezier(.2,.7,.3,1),top ${ms*.85}ms cubic-bezier(.2,.7,.3,1),transform ${ms*(mv==='surge'?1:.9)}ms ${mv==='surge'?'cubic-bezier(.25,.6,.35,1)':'cubic-bezier(.2,1.4,.4,1)'},opacity ${Math.min(120,ms*.25)}ms`;
   box.style.left=(tx-w/2)+'px'; box.style.top=(ty-h/2)+'px'; box.style.opacity=1;
   box.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
   let f=0;
@@ -95,8 +96,8 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
     setTimeout(step,1000/fps/speed); };
   step(); return dur; }
 // efeito do ninja u (tipo kind) em cima do alvo t; sobra (dy) sobe ou desce o ponto
-function fxAt(u,kind,t,sc,dy){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
-  return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc,lo:kind==='imp'||kind==='dodge'}); }
+function fxAt(u,kind,t,sc,dy,ex){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
+  return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc,lo:kind==='imp'||kind==='dodge',...(ex||{})}); }
 // projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
 function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; const a=cur(u), b=cur(t), d=u.side==='p'?1:-1;
   fxSpr(u.id,nm,{x:a.x+d*60,y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:.75,fps:6/(ms/1000)});

@@ -11,7 +11,7 @@ const N={
  mizuha:{name:'Mizuha',el:'Água',c:'#3d8fe5',role:'Suporte',hp:900,atk:95,def:25,
   normal:{name:"Jato d'Água",mult:.9,target:'front',ranged:true},
   jutsu:{name:'Chuva Serena',cost:40,cd:3,target:'allies',heal:2.5,desc:'cura o time'},
-  chase:{name:'Onda',on:'D',cause:'R',mult:.7}},
+  chase:{name:'Onda',on:'D',cause:'R',mult:.7,surge:1,tsunami:.25}},
  raiden:{name:'Raiden',el:'Raio',c:'#e5c33d',role:'Atacante',hp:850,atk:125,def:15,
   normal:{name:'Faísca',mult:1,target:'front',hits:[.3,.6]},
   jutsu:{name:'Lâmina Trovão',cost:40,cd:3,mult:1.7,target:'front',cause:'L',stun:true,desc:'paralisa o alvo'},

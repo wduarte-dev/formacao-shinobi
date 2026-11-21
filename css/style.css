@@ -163,7 +163,6 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .u .spr{pointer-events:none}
 .hb{position:absolute;left:-32px;top:calc(var(--h)*-1 + 6px);width:64px;height:76px;cursor:pointer}
 .u.p .hb,.u.dead .hb{display:none}
-.u.ghost .hb{pointer-events:none}
 .u.mk .st{filter:drop-shadow(0 0 3px #3d9bff) drop-shadow(0 0 8px #3d9bff)}
 .u.mk .sh{background:#3d9bffcc;box-shadow:0 0 16px #3d9bff}
 .u.hov .st{filter:drop-shadow(0 0 3px #5fe06a) drop-shadow(0 0 8px #5fe06a)}
@@ -241,6 +240,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .sk{display:block;margin:0 auto 2px;width:72px;height:72px;position:relative;background:url(../ui/skill_slot.png) center/100% 100%;border:0;margin-bottom:2px}
 .sk .kp{position:absolute;inset:7px;background-repeat:no-repeat;background-color:var(--c)}
 .sk .cost{position:absolute;left:10px;bottom:6px;font-weight:700;font-size:22px;color:#bfe6ff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000}
+.sk .cdv:empty{display:none}
 .sk .cdv{position:absolute;inset:7px;background:#000b;display:grid;place-content:center;font-weight:700;font-size:38px;color:#fff}
 .sk.armed{background-image:url(../ui/skill_slot_active.png);filter:drop-shadow(0 0 8px #ffd24a)}
 .sk.off .kp{filter:grayscale(.9) brightness(.5)}

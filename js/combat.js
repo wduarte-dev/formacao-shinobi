@@ -2,18 +2,25 @@
 "use strict";
 function drawJ(){
   for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.width=chakra[s]+'%'; $('ckn'+s.toUpperCase()).textContent='Chakra '+chakra[s];}
-  const b=$('sbar'); b.innerHTML='';
-  U.p.forEach(u=>{const j=u.d.jutsu, w=document.createElement('div'), x=document.createElement('button');
+  const b=$('sbar');
+  // os botões nascem uma vez por batalha e só mudam de estado depois: assim nenhum clique se perde quando a barra atualiza no meio da ação
+  if(b.dataset.t!==String(token)){ b.dataset.t=token; b.innerHTML='';
+    U.p.forEach(u=>{const j=u.d.jutsu, w=document.createElement('div'), x=document.createElement('button');
+      w.className='skw'; x.className='sk'; x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
+      const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
+      const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
+      if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
+      x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
+      const lb=document.createElement('span'); lb.className='lb';
+      x.onclick=()=>{ if(!u.alive||u.cd>0)return;
+        if(u.armed){u.armed=false;chakra.p+=j.cost;} else if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
+        sfx.arm(); upd(u); drawJ(); };
+      w.appendChild(x); w.appendChild(lb); b.appendChild(w); u.sk=x; u.skl=lb; u.skc=x.querySelector('.cdv'); }); }
+  U.p.forEach(u=>{const j=u.d.jutsu, x=u.sk; if(!x)return;
     const can=u.alive&&u.cd===0&&(u.armed||chakra.p>=j.cost);
-    w.className='skw'; x.className='sk'+(u.armed?' armed':'')+(can?'':' off'); x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
-    const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
-    const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
-    if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
-    x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span>${u.alive&&u.cd>0?`<span class="cdv">${u.cd}</span>`:!u.alive?'<span class="cdv">✕</span>':''}`);
-    x.onclick=()=>{ if(!u.alive||u.cd>0)return;
-      if(u.armed){u.armed=false;chakra.p+=j.cost;} else if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
-      sfx.arm(); upd(u); drawJ(); };
-    w.appendChild(x); w.appendChild(document.createTextNode(u.armed?'preparado':j.name)); b.appendChild(w);});
+    x.classList.toggle('armed',!!u.armed); x.classList.toggle('off',!can);
+    u.skc.textContent=u.alive&&u.cd>0?u.cd:!u.alive?'✕':'';
+    u.skl.textContent=u.armed?'preparado':j.name; });
 }
 // campo Noite de Névoa: Gelo aliado +15% no básico; Fogo inimigo -15% de dano
 function fieldMul(a,t,m){ if(!fieldA)return 1; const mine=a.side===fieldA.side;
@@ -28,6 +35,7 @@ function hurt(t,d,cls){
   t.spr.classList.add('hit'); setTimeout(()=>t.spr.classList.remove('hit'),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.hp<=0&&t.alive){t.alive=false; t.dot=null; if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
+    if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; setTimeout(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
     if(t.armed){t.armed=false; chakra.p=Math.min(100,chakra.p+t.d.jutsu.cost);}}
   else if(t.alive&&!t.state)setAnim(t,'hurt');
   upd(t); return r;
@@ -110,10 +118,14 @@ async function chain(side,t,count,src){
     put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,'transform .13s ease-in'); await sleep(130);
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
-  sfx.chase(); spark(t,c.d.c,10); if(!air)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
+  const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;
+  if(tsu){ ink('TSUNAMI!'); shake(); sfx.heavy(); fxSpr(c.id,'wave',{x:576,y:330,sc:4.4,mv:'surge',fps:5,dir:dir,flip:dir<0}); await sleep(900); shake(); }   // enche a tela e pega o time inteiro
+  else if(CH0.surge){ fxAt(c,'chase',t,1.35,0,{mv:'surge',fps:7}); await sleep(560); }   // a onda brota aos poucos e só então bate
+  sfx.chase(); spark(t,c.d.c,10); if(!air&&!CH0.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const CH=c.d.chase, ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     d+=hurt(t,dmgOf(c,t,cm/ch.length),'chase'); }
+  if(tsu){ for(const o of foes(c)){ if(o===t)continue; fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,8); hurt(o,dmgOf(c,o,CH.mult*.6),'chase'); } }
   comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
@@ -143,7 +155,7 @@ async function intro(){
   ink('LUTAR!'); sfx.start(); await sleep(1000);
 }
 async function run(){
-  let res=null;
+  let res=null, byTime=false;
   try{
     await intro();
     outer: while(true){
@@ -171,7 +183,7 @@ async function run(){
         drawJ();
         if((res=result()))break outer;
       }
-      if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=s('p')>s('e')?'win':'lose'; break;}
+      if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=s('p')>s('e')?'win':'lose'; byTime=true; break;}
     }
     musStop(); await sleep(350); $('flash').className='long'; sfx.end(); ink('FIM DO COMBATE',true); await sleep(1500);
   }catch(e){ if(e===ABORT)return; throw e; }
@@ -180,7 +192,7 @@ async function run(){
   if(res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
   $('ink').className=''; $('clist').innerHTML='';
   $('ovT').textContent=res==='win'?'Vitória':'Derrota';
-  $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`;
+  $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`+(byTime?' · decidido por tempo (mais vida restante)':'');
   $('ovQ').textContent=`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'');
   $('ovN').classList.toggle('hide',!hasNext);
   $('resWin').classList.remove('hide');
