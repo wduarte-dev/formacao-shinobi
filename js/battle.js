@@ -7,7 +7,7 @@ function startBattle(){
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
-  $('bbg').style.backgroundImage=`url(bg/${foe.bg}.png)`;
+  $('bbg').style.backgroundImage=`url(bg/${foe.bg}.png)`; ambStart(foe.bg);
   portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
   for(const u of all()){
     const p=pos(u), e=document.createElement('div'); e.className='u '+u.side+(an_of(u).knockback?' v2':''); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);

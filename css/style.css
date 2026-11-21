@@ -138,6 +138,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .u.flyL .spr{filter:drop-shadow(0 40px 0 #fff9) drop-shadow(0 70px 0 #fff5)}
 .u.flyD .spr{filter:drop-shadow(0 -40px 0 #fff9) drop-shadow(0 -70px 0 #fff5)}
 .u.fly .mv{transition:transform .24s cubic-bezier(.15,.85,.3,1)}
+#ambb,#ambf{position:absolute;left:0;top:0;width:1152px;height:648px;pointer-events:none;image-rendering:pixelated}
+#ambb{z-index:8}#ambf{z-index:64}
 #fxc{position:absolute;left:0;top:0;width:1152px;height:648px;z-index:66;pointer-events:none}
 .u{position:absolute;width:0;height:0;--h:124px;transition:opacity .18s}
 .u.p{--d:-1}.u.e{--d:1}
