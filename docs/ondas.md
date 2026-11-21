@@ -35,5 +35,5 @@ Também feito (mesmo dia): Onda da Mizuha brota aos poucos (`mv:'surge'`) com 25
 ## Ideias em aberto (não pedidas)
 Ninjas mais legíveis no campo, ícones de jutsu e retratos, parallax, cenários gerados na IA no estilo dos sprites novos (os atuais destoam), níveis, recrutamento, chefes, invocações, "planos" de campo por elemento, ninja de Distorção/Espaço (segurado).
 
-## Cenários novos (21/11/2026)
-`bg/sakura.png` (missão 1) integrado; prompts dos outros 4 em `docs/prompts-cenarios.md` (ref: `docs/refs/cenario_ref_sakura.png`). **Pendente (decidido: fazer quando chegarem mais cenários):** animação de ambiente por cenário, camadas em código por cima da imagem estática: partículas (pétalas, chuva, neve, vagalumes, brasas), névoa/nuvem deslizando, pulso de luz nas lanternas, zoom leve. Config por `bg` em `data.js`, respeitando modo leve e teto de partículas.
+## Cenários novos (21/11/2026) ✅
+Os 5 fundos gerados na IA estão integrados (`bg/sakura|santuario|noite|floresta|cinzas.png`, uma por missão; prompts em `docs/prompts-cenarios.md`, ref `docs/refs/cenario_ref_sakura.png`). **Animação de ambiente** em `js/ambient.js` (config por cenário na tabela `AMB`): pétalas+lanternas (sakura), chuva+relâmpago (santuário), neve+janelas (noite), vagalumes+névoa (floresta), cinzas+brasas+brilho do vulcão (cinzas). Respeita pausa e modo leve (40% das partículas, sem névoa/brilho). `vila.png` antigo segue nos menus. Ideia: cenário em camadas separadas (céu/fundo/frente) pra parallax.

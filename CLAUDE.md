@@ -23,6 +23,7 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 | `js/screens.js` | telas: título, hub, formação (arrastar), mapa, galeria |
 | `js/state.js` | estado da batalha, `pos`/`cur`, `sleep`/`gate` |
 | `js/fx.js` | partículas em canvas, paletas por elemento |
+| `js/ambient.js` | vida nos cenários: partículas, névoa, brilho e relâmpago por `foe.bg` (tabela `AMB`), canvas `#ambb` (atrás) e `#ambf` (frente) |
 | `js/battle.js` | `startBattle`, HUD (`upd`), texto flutuante, log, `setState` |
 | `js/cine.js` | câmera (`zoomTo`), `smash`/`knock`, `cine`/`endCine` (cena de jutsu), `dashTo`, `shoot` |
 | `js/combat.js` | botões de jutsu, dano, alvos (`pick`), `doSkill`, perseguição (`chain`), IA, laço `run` |
@@ -39,7 +40,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 - Sprites: atlas em grade + tabela `[linha, colIni, frames, loop, fps, next]`. `SH[id]` = cw, ch, âncora dos pés, tamanho, fator k, `anim` próprio. Atlas v2 se registram no objeto `V2` (`js/sprites.js`); Kaen também é v2 (atlas de 12 colunas, `W` próprio no `V2`; perseguição aérea `rise`→`meteor`→`landing`, o código desce ele até o chão no pouso). Anims com `pingpong` vão e voltam. Atlas novos (pipeline v2): células 192x160, pé em x=96 y=150, 8 colunas, k=1/3, JSON com fps por anim e flag `pingpong`. Efeitos do lote D: atlas próprio 288x192, alpha suave.
 - Mecânicas: chakra +20/rodada, jutsu armado pelo jogador (botão Auto), recargas, estados D (Derrubado) / L (Lançado) / R (Repelido), 1 perseguição por ninja (on→cause, 1x/rodada, +10% de dano por passo do combo), DoT, atordoar, escudo, cura, IA inimiga, esquiva por ninja, alvo marcado por clique (jutsus do jogador), cena isolada em jutsu e perseguição.
 - Impacto: `smash()` = zoom + corte + linhas de velocidade + flash + hit-stop; `knock()` (R voa até a borda e racha, L sobe, D cai com poeira).
-- Save em `localStorage` chave `shinobi-save` (`placed`, `unlocked`, `lite`, `own`, `dev`). 5 missões; no teste automático o time base vence 1–3 e perde 4–5.
+- Save em `localStorage` chave `shinobi-save` (`placed`, `unlocked`, `lite`, `own`, `dev`). 5 missões (cenários `sakura`, `santuario`, `noite`, `floresta`, `cinzas` em `bg/`, 1152x648 gerados na IA); no teste automático o time base vence 1–3 e perde 4–5.
 
 ## Elenco
 | Ninja | Elemento | Papel | Jutsu | Perseguição |
