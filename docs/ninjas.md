@@ -42,11 +42,11 @@ Números são sugestão inicial, ajustar no teste. Design completo e prompts de 
 - **Perseguição — Ferrão:** L→D, mergulho de cima com agulha gigante.
 - dodge a definir (sugestão 5%). Sinergia: Fuuka/Mayoi (L) → Ferrão (L→D).
 
-## Poko (Som, Velocista/combo, GRANDALHÃO) — ref e prompt A1 prontos, sheets ainda não gerados
-- Visual: tanuki gigante (criatura, não humano), pelo marrom, barriga = tambor taiko (anel + tachinhas vermelhas + marca dourada), folha laranja na cabeça, duas baquetas, cauda listrada. Paleta de som: dourado, laranja-avermelhado, creme (nada verde/turquesa). Ref: `docs/refs/poko_ref.png` (gerada por `tools/sprites/make_poko_ref.py`), prompt: `docs/refs/poko_A1_prompt.txt`.
-- **Tamanho:** primeiro ninja com `size` (~1.4–1.6): multiplicador no `mkSpr`, `--h` da barra e alcance de `dashTo`. Sprites já gerados na proporção.
-- **Básico — Rufo de Baquetas:** corpo a corpo, alvo único, ~5 hits de ~20% (`hits`), sem estado.
-- **Forte — Barrigada de Taiko:** onda sonora em arco à frente, dano alto, **R**. Desviável.
-- **Jutsu — Rufo de Guerra:** todos, 3 pulsos de som, dano médio, **atordoa 1 rodada**, não desviável. Recarga 4.
-- **Perseguição:** a definir na integração (combo longo, 1x/rodada como as demais).
-- dodge 5% (grande e pesado). Foco: abrir combos com vários passos.
+## Poko (Som, Velocista/combo, GRANDALHÃO) — prompt A1 pronto (sem ref, de propósito), sheets ainda não gerados
+- Visual: **louva-a-deus alto e veloz** (criatura), corpo âmbar/ocre/ferrugem com placas cremes (SEM verde), duas foices serrilhadas, asas translúcidas que vibram e fazem som, discos dourados no peito tipo alto-falante. Paleta de som: dourado, laranja-avermelhado, creme. Prompt: `docs/refs/poko_A1_prompt.txt`. Sem ref no A1 porque é o primeiro bicho: a IA copiaria o ninja usado como ref.
+- **Tamanho:** primeiro ninja com `size` (~1.4–1.6): multiplicador no `mkSpr`, `--h` da barra e alcance de `dashTo`. Sprites já gerados na proporção. A onda de `size` vem antes de ele entrar no jogo.
+- **Básico — Rufo de Foices:** corpo a corpo, alvo único, ~5 hits de ~20% (`hits`), sem estado.
+- **Forte — Estridulação:** onda sonora em arco à frente (atrito das asas), dano alto, **R**. Desviável.
+- **Jutsu — Zumbido Ensurdecedor:** todos, pulsos de som, dano médio, **atordoa 1 rodada**, não desviável. Recarga 4.
+- **Perseguição:** a definir na integração (combo longo, 1x/rodada).
+- dodge a definir (velocista: sugestão 15%). Foco: abrir combos com vários passos.
