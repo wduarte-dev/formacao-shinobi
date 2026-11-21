@@ -34,5 +34,10 @@ Números são sugestão inicial, ajustar no teste. Design completo e prompts de 
 - dodge 15% base. Esquiva = corpo vira mariposas e se refaz (anim `dodge`).
 - Sheets (molde antigo): A = 8 linhas (idle 6, walk 8, dash 8, básico 7, forte 7, guard 4, hurt 3, dodge 8); B = 6 linhas (seals, jutsu, buff, stun, victory, defeat); C = 4 linhas (knockback, launched, knockdown, chase); D = efeitos 6 linhas (enxame, nuvem que se desfaz/refaz, onda de névoa, impacto, aura, flash pequeno).
 
-## Doku (Veneno, Desgaste) — sheets ainda não gerados
-Jutsu Névoa Tóxica (todos, R + veneno), perseguição Ferrão L→D. Definir básico/forte com jeito próprio antes de gerar os prompts.
+## Doku (Veneno, Desgaste) — prompts prontos em `docs/prompts-doku.md`, sheets ainda não gerados
+- Visual: boticário/alquimista, capuz ameixa, máscara de pano, bandoleira com 5 frascos violeta, luvas de couro, estojo de agulhas no antebraço. Veneno é ROXO (verde some no chroma key).
+- **Básico — Arremesso de Frascos:** à distância, alvo único, 2 hits baixos, veneno fraco 1 rodada. Desviável.
+- **Forte — Agulhas:** corpo a corpo, dano alto, veneno forte 2 rodadas. Desviável.
+- **Jutsu — Névoa Tóxica:** todos, **R + veneno**, não desviável. Recarga 4.
+- **Perseguição — Ferrão:** L→D, mergulho de cima com agulha gigante.
+- dodge a definir (sugestão 5%). Sinergia: Fuuka/Mayoi (L) → Ferrão (L→D).
