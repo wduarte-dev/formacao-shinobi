@@ -48,8 +48,8 @@ function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
 function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
 async function evade(t){ sfx.swing();
-  if(an_of(t).dodge){ setAnim(t,'dodge'); await sleep(animMs(t,'dodge')); }
-  else{ retrig(t.st,'dodge'); await sleep(320); t.st.classList.remove('dodge'); }
+  retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
+  await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
   if(t.alive&&!t.state)setAnim(t,'idle'); }
 // espera os efeitos de partícula acabarem (cada jutsu dura o que o efeito dele dura), entre min e max ms
 async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.length||BOLT.length);t+=60)await sleep(60); }
