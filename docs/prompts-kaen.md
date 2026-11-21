@@ -23,7 +23,7 @@ LABEL: top-left corner only, small plain white pixel text "KAEN - LOTE A1" on a 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, about 3 heads tall): KAEN, a young fire ninja. Messy spiky red-orange hair. A long red scarf around the neck with a tail that flutters behind him. Black sleeveless tunic, a dark red sash tied at the waist, gray cloth wraps on both forearms, dark baggy pants, red leg wraps over dark boots. A katana in a black sheath on his back, the hilt clearly visible over his right shoulder, identical in every frame. Calm confident face.
 
 ROWS:
-Row 1: IDLE, 6 frames, a lively ready stance: knees bend and straighten, weight shifts down and up, shoulders bob, scarf tail swaying. Feet stay planted on the SAME spot in every frame, the body moves only up and down, never drifting left or right (cells 7 to 8 EMPTY).
+Row 1: IDLE, 6 frames, relaxed but alert: one hand rests near the katana hilt over his shoulder, he rolls his shoulders and shifts his head slightly, the scarf tail flutters in a nonstop breeze. Feet stay planted on the SAME spot in every frame, the body never drifts left or right (cells 7 to 8 EMPTY).
 Row 2: WALK, 8 frames, walking cycle to the right, full 8 columns.
 Row 3: DASH, 8 frames, fast low sprint forward, body leaning, a thin ember speed line at most, full 8 columns.
 Row 4: BASIC ATTACK "Corte Ardente", 7 frames: draws the katana, winds up, slashes forward in a horizontal arc leaving a SMALL thin fire line along the blade, follow-through, sheathes, returns to stance (cell 8 EMPTY).
