@@ -3,7 +3,7 @@
 Números são sugestão inicial, ajustar no teste. Design completo e prompts de cada um ficam no Project "GAME" do claude.ai (`claude/ninja-<nome>.md`); aqui está o que a integração precisa.
 
 ## Regras gerais
-- **Esquiva (`dodge`):** % por ninja (padrão 0). Desviável: básico, forte, jutsu de alvo único. Não desviável: jutsu de "todos", DoT, cura, perseguição em andamento. Combo de vários golpes = 1 teste só. Sucesso: anim `dodge`, sem número/texto, sem dano, sem mudar estado; combo em andamento para. Não gasta nem dá chakra.
+- **Esquiva (`dodge`):** % por ninja (padrão 0). Desviável: básico, forte, jutsu de alvo único. Não desviável: jutsu de "todos", DoT, cura, perseguição em andamento. Combo de vários golpes = 1 teste só. Sucesso: anim `dodge`, sem número/texto, sem dano, sem mudar estado; combo em andamento para. Não gasta nem dá chakra. Jutsu de fileira também não é desviável; paralisado não desvia. **Implementado na Onda 0b** (`dodge` em `js/data.js`, rolagem em `doSkill`, `evade` em `js/cine.js`: usa anim `dodge` se o atlas tiver, senão passo pra trás translúcido em CSS). Hoje: kuro (Mayoi) 15, Hiyori 10, Fuuka 8.
 - **Campo/"plano":** um ativo por vez (novo substitui). Overlay em código (escurecer + névoa em movimento), nunca sprite. Regras por elemento.
 - Cena de jutsu/perseguição isolada (ver `docs/ondas.md`, 0b).
 

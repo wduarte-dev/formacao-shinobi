@@ -1,6 +1,6 @@
 // state.js — estado da batalha e posições
 "use strict";
-let U=null, chakra, round, autoP=false, token=0, maxCombo, foe, hitsR={p:0,e:0}, curSide='p';
+let U=null, chakra, round, autoP=false, token=0, maxCombo, foe, hitsR={p:0,e:0}, curSide='p', mark=null;
 const ABORT={};
 function sleep(ms){const t=token;return new Promise((res,rej)=>setTimeout(()=>t===token?res():rej(ABORT),ms/speed));}
 async function gate(){const t=token;while(paused){await new Promise(r=>setTimeout(r,120));if(t!==token)throw ABORT;}}

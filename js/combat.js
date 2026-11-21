@@ -19,13 +19,15 @@ function hurt(t,d,cls){
   t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',cls);
   t.spr.classList.add('hit'); setTimeout(()=>t.spr.classList.remove('hit'),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
-  if(t.hp<=0&&t.alive){t.alive=false; t.dot=null; t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
+  if(t.hp<=0&&t.alive){t.alive=false; t.dot=null; if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
     if(t.armed){t.armed=false; chakra.p=Math.min(100,chakra.p+t.d.jutsu.cost);}}
   else if(t.alive&&!t.state)setAnim(t,'hurt');
   upd(t); return r;
 }
-function pick(u,mode){
+function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
+  // inimigo marcado (clique) só vale pros jutsus do jogador sem restrição de alvo
+  if(isJ&&u.side==='p'&&mark&&mark.alive&&(mode==='front'||mode==='row'))return mark;
   if(mode==='weak')return fs.reduce((a,b)=>b.hp<a.hp?b:a);
   for(const r of [0,1,2].sort((a,b)=>Math.abs(a-u.row)-Math.abs(b-u.row))){
     const c=fs.filter(x=>x.row===r).sort((a,b)=>a.depth-b.depth); if(c.length)return c[0]; }
@@ -42,34 +44,41 @@ async function doSkill(u,sk,isJ){
         if(sk.heal){sfx.heal(); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
         if(sk.shield){sfx.shield(); a.shield+=Math.round(u.atk*sk.shield); fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
-      log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(650); setAnim(u,'idle'); return;
+      log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }
-    const main=pick(u,sk.target); if(!main)return;
+    const main=pick(u,sk.target,isJ); if(!main)return;
     const area=sk.target==='row'||sk.target==='all';
     const ts=sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):[main];
+    // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
+    const dodged=(sk.target==='front'||sk.target==='weak')&&!main.stunned&&!main.state&&Math.random()*100<(main.d.dodge||0);
     if(isJ)await cine(u,sk,ts);
-    if(area){u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,'atk3',0,true); await sleep(200);}
-    else if(sk.ranged&&!isJ){setAnim(u,'atk2',0,true); sfx.shoot(); await sleep(170); await shoot(u,main);}
-    else{sfx.swing(); await dashTo(u,main); setAnim(u,isJ?'atk3':'atk1',0,true); await sleep(190);}
+    let an, hit;
+    if(area){an='atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=hitAt(u,an));}
+    else if(sk.ranged&&!isJ){an='atk2'; setAnim(u,an,0,true); sfx.shoot(); await sleep(hit=hitAt(u,an)*.9); await shoot(u,main); hit+=190;}
+    else{an=isJ?'atk3':'atk1'; sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=hitAt(u,an));}
     if(isJ)elFx(u,ts);
-    let tot=0;
-    ts.forEach(t=>{ tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
-      if(t.alive){ if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds}; if(sk.stun&&t===main)t.stunned=true; upd(t);} });
-    if(isJ){shake();flash();sfx.heavy();}else sfx.hit();
-    log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>: ${tot} de dano`);
-    const ko=sk.cause&&main.alive;
-    if(ko){ endCine(); await smash(u,main,sk.cause); } else await hitstop(isJ?140:60);
-    await sleep(ko?120:isJ?520:260); endCine(); home(u);
-    if(ko){await chain(u.side,main,1); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
+    if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
+    else{ let tot=0;
+      ts.forEach(t=>{ tot+=hurt(t,dmgOf(u,t,sk.mult),isJ?'big':''); spark(t,u.d.c,isJ?10:6);
+        if(t.alive){ if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds}; if(sk.stun&&t===main)t.stunned=true; upd(t);} });
+      if(isJ){shake();flash();sfx.heavy();}else sfx.hit();
+      log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>: ${tot} de dano`); }
+    const ko=!dodged&&sk.cause&&main.alive;
+    if(ko){ endCine(); await smash(u,main,sk.cause); } else if(!dodged)await hitstop(isJ?140:60);
+    // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
+    await sleep(Math.max(ko?120:isJ?0:200, animMs(u,an)-hit)); if(isJ&&!ko)await fxWait(420,1400);
+    endCine(); home(u);
+    if(ko){await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
     await sleep(160);
-  }finally{ endCine(); }
+  }finally{ endCine(); sceneOff(); }
 }
-async function chain(side,t,count){
+async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase.on===t.state);
   if(!c)return;
+  if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c);   // perseguição também é cena isolada; quem entra fica visível
   c.chaseUsed=true; count++; if(side==='p')maxCombo=Math.max(maxCombo,count);
-  const cause=c.d.chase.cause;
-  sfx.swing(); await dashTo(c,t); setAnim(c,an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause],0,true); await sleep(190); sfx.chase(); spark(t,c.d.c,10);
+  const cause=c.d.chase.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
+  sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(hitAt(c,an)); sfx.chase(); spark(t,c.d.c,10);
   const d=hurt(t,dmgOf(c,t,c.d.chase.mult*(1+.1*(count-1))),'chase'); comboLine(c.d.chase.name,count);
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(t.alive)await smash(c,t,cause); else await hitstop(90);
