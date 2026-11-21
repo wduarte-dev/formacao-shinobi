@@ -3,6 +3,9 @@
 Regra: "próxima onda" (ou só "próximo") = executar a primeira ⬜ da seção **Pendências**. Uma por vez. Antes: avisar modelo/esforço e esperar; perguntas clicáveis. Depois: teste automático + prints, commit, marcar ✅, atualizar docs.
 Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py . /tmp/shots N` (N de 0 a 4; cada missão usa a porta 8765+N, então dá pra rodar as 5 em paralelo; se faltar: `pip install playwright==1.63.0`). Esperado: o time base vence 1–3 e perde 4–5, sem erro além da fonte do Google.
 
+## Retomar daqui (fim do chat de 21/11/2026)
+Último chat: acabamento (golpe Forte a cada 3ª ação, perseguições com salto `chase.mv`, janela pra armar jutsu, escudo do Iwao que não acumula) + correções de sprite (pipeline: grade fina/contínua, `erase`/`color_ref`/`outline`; `seq` no `V2` pro Gigante de Pedra; Zumbido do Poko em código; hover/marcação no sprite inteiro). **Próximo:** regerar o Forte do Iwao (1ª pendência abaixo). Ficou de ele mandar print se ainda achar faixa no Doku ou anim bem pior que o idle em algum ninja. Pedir pra ele testar se o Forte a cada 3 ações não ficou frequente demais.
+
 ## Pendências (lista única)
 - ⬜ **Regerar o Forte do Iwao** (linha `strong` do lote A): a IA desenhou ele com os leques e o arco d'água da Mizuha. Tirado do registro `V2` até lá (o jogo não usa o Forte dele; a galeria esconde o botão).
 - ⬜ **Ninjas desproporcionais:** o `size` já existe (`N[id].size`: `mkSpr`, `--h` da barra, alcance do `dashTo`; Poko usa 1.2). Falta: ninja novo gigante/baixinho gerado já na proporção, e o `portrait` levar o `size` em conta (o retrato do Poko corta a asa).
