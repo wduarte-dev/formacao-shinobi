@@ -1,0 +1,18 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 3 rows and EXACTLY 8 columns (not 9), a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 3 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, bounce, slide, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground. NO text of any kind except the single label: NEVER write row names, captions or words inside the cells.
+8. No big effects. Only small glows or thin sound-wave rings near the body. Effect colors: warm gold, orange-red, cream, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
+LABEL: top-left corner only, small plain white pixel text "POKO - LOTE B2" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character: copy exactly the amber/ochre/rust body, cream plates, head, eyes, antennae, serrated scythe-arms, ribbed cream-gold wings, tympanum discs, proportions and pixel scale. Do NOT redesign or recolor.
+
+ROWS:
+Row 1: STUN, 4 frames: dazed, wobbling on his thin legs, head lolling, antennae drooping and spinning, wings twitching out of rhythm, scythes hanging loose, a few tiny gold stars near the head (cells 5 to 8 EMPTY).
+Row 2: VICTORY, 6 frames: triumphant, he leaps, spreads his wings wide with a loud buzz, strikes a proud pose with both scythes crossed overhead, small gold sound rings pulse around him, holds the pose (cells 7 to 8 EMPTY).
+Row 3: DEFEAT, 8 frames: exhausted, wings droop and fold, scythes drop, he staggers, his thin legs buckle, he falls to his knees, topples forward and lies defeated on the ground, body horizontal and flat, antennae limp, last frames hold the lying pose, full 8 columns.
