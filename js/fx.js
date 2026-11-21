@@ -1,12 +1,13 @@
 // fx.js — partículas e efeitos de elemento (canvas)
 "use strict";
-const FX=[], BOLT=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
+let fxDirty=false; const FX=[], BOLT=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
 const R=(a,b)=>a+Math.random()*(b-a), pk=a=>a[Math.random()*a.length|0];
-function em(n,f){for(let i=0;i<n;i++)FX.push(f(i));}
+// teto de partículas: no modo leve nasce menos e o limite é menor
+function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;i<n&&FX.length<cap;i++)FX.push(f(i));}
 // valores em "unidades de efeito": o K converte para o tamanho do palco
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
 function fxStep(k){
-  const c=fxc; c.clearRect(0,0,384,216);
+  const c=fxc; if(!FX.length&&!BOLT.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}
     c.globalAlpha=Math.min(1,p.life/p.max*1.6)*(p.round?.7:1); c.fillStyle=p.col;
     if(p.round){c.beginPath();c.arc(p.x/3,p.y/3,p.w/6,0,7);c.fill();}
@@ -63,7 +64,8 @@ const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'s
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
 // mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
-function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0;
+let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem
+function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
   const [r,n]=A.a[name], sc=o.sc||1, w=288*sc, h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
   const box=document.createElement('div'), img=document.createElement('div');
   let x=o.x, y=o.y, tx=o.x, ty=o.y, rot=0, rot2=0, s0=.55;
@@ -80,21 +82,21 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0;
   box.className='fxs'; img.className='fxi';
   box.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg) scale(${s0});opacity:0`;
   img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(o.flip?';transform:scaleX(-1)':'');
-  box.appendChild(img); $('fx').appendChild(box); void box.offsetWidth;
+  box.appendChild(img); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
   box.style.transition=`left ${ms*.85}ms cubic-bezier(.2,.7,.3,1),top ${ms*.85}ms cubic-bezier(.2,.7,.3,1),transform ${ms*.9}ms cubic-bezier(.2,1.4,.4,1),opacity ${Math.min(120,ms*.25)}ms`;
   box.style.left=(tx-w/2)+'px'; box.style.top=(ty-h/2)+'px'; box.style.opacity=1;
   box.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
   let f=0;
-  const step=()=>{ if(f>=n||tk!==token){box.remove();return;}
-    if(!paused&&!frozen){ img.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;
+  const step=()=>{ if(f>=n||tk!==token){box.remove();fxLive--;return;}
+    if(!paused){ img.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;
       if(f===n-1){box.style.transition=`opacity ${1000/fps/speed*1.4}ms linear,transform ${1000/fps/speed*1.4}ms`; box.style.opacity=0; box.style.transform+=' scale(1.06)';} }
     setTimeout(step,1000/fps/speed); };
   step(); return dur; }
 // efeito do ninja u (tipo kind) em cima do alvo t; sobra (dy) sobe ou desce o ponto
 function fxAt(u,kind,t,sc,dy){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
-  return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc}); }
+  return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc,lo:kind==='imp'||kind==='dodge'}); }
 // projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
 function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; const a=cur(u), b=cur(t), d=u.side==='p'?1:-1;
   fxSpr(u.id,nm,{x:a.x+d*60,y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:.75,fps:6/(ms/1000)});

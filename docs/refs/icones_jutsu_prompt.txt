@@ -1,0 +1,17 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: EXACTLY 2 rows and EXACTLY 4 columns = 8 square icons, identical square cells, no border between them.
+2. Each icon is ONE jutsu emblem, centered, filling about 80% of its square, readable at 58x58 pixels: bold shapes, strong silhouette, dark 1px outline, max 12 colors, pixel art.
+3. NO character, NO person, NO text, NO numbers. Only the symbol of the technique.
+4. Each icon on its own flat dark rounded-square backdrop tinted with the element color, so the 8 icons look like one set.
+5. No green anywhere on the icons. Outside the 8 squares: solid flat pure green #00FF00.
+LABEL: top-left corner only, small plain white pixel text "ICONES DE JUTSU" on a thin dark strip above the grid.
+
+ICONS (left to right, top to bottom):
+1 KAEN - Brasa Dragon: a fire dragon head biting forward, flames red/orange/yellow.
+2 MIZUHA - Chuva Serena: a rain cloud pouring glowing droplets, blues and white.
+3 RAIDEN - Lamina Trovao: a lightning-wrapped blade, yellow and white on dark.
+4 IWAO - Muralha de Pedra: a thick cracked stone wall shield, browns and tan.
+5 FUUKA - Tufao Cortante: a spinning tornado with crescent wind blades, mint and white.
+6 MAYOI - Noite de Nevoa: a crescent moon over drifting mist with two moths, lilac and violet.
+7 HIYORI - Prisao de Gelo: a block of ice crystal trapping a snowflake, pale blue and white.
+8 DOKU - Nevoa Toxica: a violet poison cloud with a skull-like swirl and bubbles, plum, violet, magenta.

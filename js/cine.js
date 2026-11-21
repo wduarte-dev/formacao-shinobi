@@ -11,7 +11,7 @@ function crack(x,y){ const c=document.createElement('div'); c.className='crack';
 async function smash(att,t,state){
   const p=cur(t);
   zoomTo(p.x,p.y-60,1.5); bigSlash(p.x,p.y-60,att,state); speedLines(state); retrig($('flash'),'soft'); sfx.heavy();
-  await hitstop(190);
+  await hitstop(80);
   zoomOut(true); await knock(t,state);
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Lançado sobe, Derrubado desaba no chão

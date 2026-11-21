@@ -15,6 +15,8 @@ document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.arm();sho
 $('sTitle').onclick=()=>{initAudio(); sfx.start(); show('sHub');};
 $('hMap').onclick=()=>{sfx.arm();show('sMap');}; $('hForm').onclick=()=>{sfx.arm();show('sForm');}; $('hGal').onclick=()=>{sfx.arm();show('sGal');};
 $('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sfx.arm();};
+function liteUi(){document.body.classList.toggle('lite',lite); $('hLite').classList.toggle('on',lite);}
+$('hLite').onclick=()=>{lite=!lite; save(); liteUi();}; liteUi();
 $('hFull').onclick=()=>{try{ if(document.fullscreenElement)document.exitFullscreen(); else $('wrap').requestFullscreen().catch(()=>{}); }catch(e){}};
 
 // posição dos pés de cada casa do tabuleiro (lado do jogador; o inimigo é espelhado)

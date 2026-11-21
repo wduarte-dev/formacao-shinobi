@@ -56,8 +56,8 @@ function tick(ts){
       while(u.at>=per){ u.at-=per;
         if(u.af<seqN(a)-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
         drawFrame(u);} }
-    if(battleOn)fxStep(dt/16.7);
   }
+  if(battleOn&&!paused)fxStep(dt/16.7);
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);

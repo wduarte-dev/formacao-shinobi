@@ -1,10 +1,11 @@
 // data.js — dados: estados, alvos, ninjas (N), missões (FOES), save
 "use strict";
+// hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
 const ST={D:'Derrubado',L:'Lançado',R:'Repelido'};
 const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados'};
 const N={
  kaen:{name:'Kaen',el:'Fogo',c:'#e5533d',role:'Atacante',hp:950,atk:135,def:20,
-  normal:{name:'Corte Ardente',mult:1,target:'front'},
+  normal:{name:'Corte Ardente',mult:1,target:'front',hits:[.3,.7]},
   jutsu:{name:'Dragão de Brasa',cost:40,cd:3,mult:1.5,target:'row',cause:'R',an:'atk2',dot:{mult:.35,rounds:2},desc:'queima a fileira'},
   chase:{name:'Chute Meteoro',on:'L',cause:'D',mult:.7}},
  mizuha:{name:'Mizuha',el:'Água',c:'#3d8fe5',role:'Suporte',hp:900,atk:95,def:25,
@@ -12,7 +13,7 @@ const N={
   jutsu:{name:'Chuva Serena',cost:40,cd:3,target:'allies',heal:2.5,desc:'cura o time'},
   chase:{name:'Onda',on:'D',cause:'R',mult:.7}},
  raiden:{name:'Raiden',el:'Raio',c:'#e5c33d',role:'Atacante',hp:850,atk:125,def:15,
-  normal:{name:'Faísca',mult:1,target:'front'},
+  normal:{name:'Faísca',mult:1,target:'front',hits:[.3,.6]},
   jutsu:{name:'Lâmina Trovão',cost:40,cd:3,mult:1.7,target:'front',cause:'L',stun:true,desc:'paralisa o alvo'},
   chase:{name:'Gancho Relâmpago',on:'R',cause:'L',mult:.7}},
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
@@ -28,7 +29,7 @@ const N={
   jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas'},
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
-  normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front'},
+  normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.25,.5,.75]},
   jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',desc:'paralisa o alvo'},
   chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7}},
  doku:{name:'Doku',el:'Veneno',c:'#9bc53d',role:'Desgaste',hp:900,atk:100,def:20,
@@ -48,9 +49,10 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-let placed=[], unlocked=0, sel='kaen', foeIx=0;
+let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false;
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
-  if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); }}catch(e){}
-function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked}));}catch(e){}}
+  if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); lite=!!s.lite; }}catch(e){}
+function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite}));}catch(e){}}
 
+document.body.classList.toggle('lite',lite);
 /* ================= SPRITES ================= */

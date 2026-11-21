@@ -25,5 +25,8 @@ Tudo na `main`. Feito: Onda 2 (Mayoi/Fuuka/Hiyori + campo de névoa), esquiva de
 3. Opcional: sheet com 8 ícones de jutsu desenhados (mais legíveis que o recorte do efeito).
 Fluxo de sprite combinado: todo lote A de ninja novo vai com **ref de idle limpa (fundo verde, sem cinza) + prompt** (`docs/refs/`); ele gera e anexa os gerados nos lotes seguintes. Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py . /tmp/shots N` (N de 0 a 4; se faltar: `pip install playwright==1.63.0`).
 
+### Atualização (chat seguinte, 21/11/2026)
+Feito: **desempenho** (drop-shadow do `.fxi` removido, névoa `#fog` animada por `transform`, teto de partículas e de efeitos desenhados simultâneos, canvas não redesenha vazio, **modo leve** no menu salvo em `lite`), **hit-stop bem menor e efeitos/partículas não congelam mais nele** (era a "trava" de fluidez), **golpes de vários socos** (`hits:[frações]` em `data.js`: dano dividido, faísca e número por soco; Kaen, Raiden e Hiyori configurados; perseguição também aceita `hits`). Doku: ref limpa em `docs/refs/doku_ref.png` + prompt do lote D em `docs/refs/doku_D_prompt.txt`; aguardando o D pra Onda 3. Ícones de jutsu: `docs/refs/icones_jutsu_prompt.txt`.
+
 ## Ideias em aberto (não pedidas)
 Ninjas mais legíveis no campo, ícones de jutsu e retratos, parallax, cenários gerados na IA no estilo dos sprites novos (os atuais destoam), níveis, recrutamento, chefes, invocações, "planos" de campo por elemento, ninja de Distorção/Espaço (segurado).
