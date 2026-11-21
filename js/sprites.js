@@ -1,11 +1,8 @@
-// sprites.js — atlas/animações (SH, ANIM), atores, loop de animação (tick)
+// sprites.js — atlas/animações (SH, V2), atores, loop de animação (tick)
 "use strict";
-const SPR={}; IDS.forEach(id=>SPR[id]=`url(spr/${id}.png)`);
-// atlas por ninja: tamanho do quadro, âncora (pés), tamanho do atlas e fator de escala
-const SH={}; IDS.forEach(id=>SH[id]={cw:96,ch:64,ax:24,ay:56,W:1536,H:512,k:1,hd:[27,24]});
-// [linha, coluna inicial, quadros, repete, fps, próxima]
-const ANIM0={idle:[0,0,8,1,9],move:[1,0,8,1,14],atk1:[2,0,6,0,16,'idle'],atk2:[3,0,6,0,16,'idle'],atk3:[4,0,6,0,16,'idle'],hurt:[5,0,3,0,10,'idle'],down:[5,1,1,1,1],cast:[6,0,8,1,10],die:[7,8,8,0,12]};
-const ANIM=ANIM0;
+// SPR[id] = imagem do atlas; SH[id] = célula, âncora dos pés, tamanho do atlas, fator k e tabela de anims
+// (anim: nome -> [linha, coluna inicial, quadros, repete, fps, próxima, pingpong]). Todos vêm do registro V2 abaixo.
+const SPR={}, SH={};
 // atlas v2 (pipeline tools/sprites, gerado de out/<ninja>_atlas.json): nome:[linha, quadros, fps, loop, pingpong]
 // hd = centro do rosto no quadro do idle (enquadra retratos e o corte do jutsu)
 const V2={
@@ -26,12 +23,12 @@ for(const [id,v] of Object.entries(V2)){
   const T={}; for(const [n,[r,f,fps,l,pp]] of Object.entries(v.a)) T[n]=[r,0,f,l,fps,V2BACK.includes(n)?'idle':undefined,pp];
   for(const [g,p] of Object.entries(V2MAP)) if(!T[g]&&T[p])T[g]=T[p];
   SPR[id]=`url(spr/${id}_atlas.png)`;
-  SH[id]={cw:192,ch:160,ax:96,ay:150,W:v.W||1536,H:v.H,k:1/3,hd:v.hd||[96,50],anim:T,rowmap:{0:T.idle[0],6:T.seals[0]}};
+  SH[id]={cw:192,ch:160,ax:96,ay:150,W:v.W||1536,H:v.H,k:1/3,hd:v.hd||[96,50],anim:T};
 }
-const an_of=u=>SH[u.id].anim||ANIM0;
+const an_of=u=>SH[u.id].anim;
 // quantos passos tem a anim (pingpong vai e volta sem repetir as pontas)
 const seqN=a=>a[6]&&a[2]>2?a[2]*2-2:a[2];
-const stAnim=(u,s)=>{const A=an_of(u); return s&&A.knockback?{R:'knockback',L:'launched',D:'knockdown'}[s]:(s?'down':'idle');};
+const stAnim=(u,s)=>s?{R:'knockback',L:'launched',D:'knockdown'}[s]:'idle';
 // duração real de uma animação (quadros / fps) e o momento do impacto (metade dela, com limites)
 const animMs=(u,n)=>{const a=an_of(u)[n]; return a?seqN(a)*1000/a[4]:0;};
 const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));
@@ -43,11 +40,10 @@ function setAnim(u,n,f,hold){const a=an_of(u)[n]; if(!a)n='idle'; u.an=n;u.af=(f
 function drawFrame(u){const S=SH[u.id], a=an_of(u)[u.an], e=u.sc*S.k, f=u.af<a[2]?u.af:2*a[2]-2-u.af; u.spr.style.backgroundPosition=`${-(a[1]+f)*S.cw*e}px ${-a[0]*S.ch*e}px`;}
 function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.createElement('div'); el.className='sp'+(flip?' flip':''); el.style.left=x+'px'; el.style.top=y+'px';
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
-// recorte do sprite para retratos: centraliza o ponto (fx,fy) do quadro numa caixa w x h
-function portrait(el,id,scale,w,h,row,col,fx,fy){ const S=SH[id]; let e=scale*S.k;
-  if(S.rowmap){ e=Math.min(scale*0.62,5); row=S.rowmap[row||0]||0; fx=S.hd[0]; fy=S.hd[1]; }
+// retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
+function portrait(el,id,scale,w,h,an){ const S=SH[id], e=Math.min(scale*0.62,5), row=S.anim[an||'idle'][0];
   el.style.backgroundImage=SPR[id]; el.style.backgroundSize=`${S.W*e}px ${S.H*e}px`;
-  el.style.backgroundPosition=`${-(((col||0)*S.cw+(fx||S.hd[0]))*e-w/2)}px ${-(((row||0)*S.ch+(fy||S.hd[1]))*e-h/2)}px`; }
+  el.style.backgroundPosition=`${-(S.hd[0]*e-w/2)}px ${-((row*S.ch+S.hd[1])*e-h/2)}px`; }
 
 /* ================= LAÇO DE ANIMAÇÃO ================= */
 let speed=1, paused=false, frozen=false, battleOn=false, lastT=0;
@@ -64,4 +60,3 @@ function tick(ts){
 }
 requestAnimationFrame(tick);
 
-/* ================= SOM (gerado por código, WebAudio) ================= */

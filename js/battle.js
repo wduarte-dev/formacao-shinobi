@@ -10,7 +10,7 @@ function startBattle(){
   $('bbg').style.backgroundImage=`url(bg/${foe.bg}.png)`; ambStart(foe.bg);
   portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
   for(const u of all()){
-    const p=pos(u), e=document.createElement('div'); e.className='u '+u.side+(an_of(u).knockback?' v2':''); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
+    const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
     e.style.setProperty('--c',u.d.c); e.style.setProperty('--h',Math.round(124*(u.d.size||1))+'px');
     e.innerHTML=`<div class="mv"><div class="sh"></div><div class="st"></div><div class="tg"></div><div class="hpb"><i></i></div><div class="hpn"></div><div class="hb"></div></div>`;
     if(u.side==='e'){const hb=e.querySelector('.hb'); hb.onmouseenter=()=>e.classList.add('hov'); hb.onmouseleave=()=>e.classList.remove('hov'); hb.onclick=()=>markFoe(u);}
@@ -34,4 +34,3 @@ const nm=u=>`<span style="color:${u.d.c}">${u.d.name}</span>`;
 function setState(t,s){t.state=s; t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
   if(!s){t.off={x:0,y:0}; t.mv.style.transform='';}}
 function dust(t,n){const p=cur(t); em(n,()=>prt(p.x,p.y,R(-8,8),-R(0,6),R(-2.6,2.6),R(-1.6,-.2),.03,R(14,26),R(4,8),0,pk(['#ffffff','#e8d8b8','#bfae8e']),1));}
-/* ---- câmera e impacto cinematográfico ---- */

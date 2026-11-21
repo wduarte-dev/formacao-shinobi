@@ -23,12 +23,12 @@ function drawJ(){
     u.skl.textContent=u.armed?'preparado':j.name; });
 }
 // campo Noite de Névoa: Gelo aliado +15% no básico; Fogo inimigo -15% de dano
-function fieldMul(a,t,m){ if(!fieldA)return 1; const mine=a.side===fieldA.side;
-  if(mine&&a.d.el==='Gelo'&&m===a.d.normal.mult)return 1.15; if(!mine&&a.d.el==='Fogo')return .85; return 1;}
+function fieldMul(a,basic){ if(!fieldA)return 1; const mine=a.side===fieldA.side;
+  if(mine&&a.d.el==='Gelo'&&basic)return 1.15; if(!mine&&a.d.el==='Fogo')return .85; return 1;}
 function dodgeOf(t){return (t.d.dodge||0)+(fieldA&&t.side===fieldA.side&&t.id==='mayoi'?25:0);}
 function setField(u,rounds){ fieldA={side:u.side,rounds}; $('fog').classList.add('on'); }
 function clearField(){ if(!fieldA)return; fieldA=null; $('fog').classList.remove('on'); log('O campo de névoa se dissipa'); }
-function dmgOf(a,t,m){return Math.max(1,Math.round(a.atk*m*fieldMul(a,t,m)*(.92+Math.random()*.16)*100/(100+t.def)));}
+function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
 function hurt(t,d,cls){
   let r=d; if(t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab;}
   t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',cls);
@@ -59,7 +59,7 @@ async function doSkill(u,sk,isJ){
       if(sk.field){setField(u,sk.field); log(`${nm(u)} usa <b>${sk.name}</b>: névoa por ${sk.field} rodadas`);}
       al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
         if(sk.heal){sfx.heal(); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
-        if(sk.shield){sfx.shield(); a.shield+=Math.round(u.atk*sk.shield); fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
+        if(sk.shield){sfx.shield(); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
       if(!sk.field)log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }
@@ -75,7 +75,7 @@ async function doSkill(u,sk,isJ){
     let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
     const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    else if(sk.ranged&&!isJ){an=sk.target==='all'?'atk1':'atk2'; setAnim(u,an,0,true); sfx.shoot(); await sleep(hit=HA(u,an)*.9); await shoot(u,main); hit+=190;}
+    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(); await sleep(hit=HA(u,an)*.9); await shoot(u,main); hit+=190;}
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     if(isJ)elFx(u,ts);
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
@@ -84,7 +84,7 @@ async function doSkill(u,sk,isJ){
       for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
         if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(!ts.some(t=>t.alive&&!dodgedSet.has(t)))break; }
         ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
-          tot+=hurt(t,dmgOf(u,t,sk.mult/nh),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
+          tot+=hurt(t,dmgOf(u,t,sk.mult/nh,sk===u.d.normal),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
         if(nh>1&&k<nh-1)sfx.hit(); }
       ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return;
         if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0)}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
@@ -116,6 +116,11 @@ async function chain(side,t,count,src){
     await sleep(Math.max(340,animMs(c,'rise')*.8));
     setAnim(c,'meteor',0,true); fxAt(c,'chase',t,1.25);
     put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,'transform .13s ease-in'); await sleep(130);
+  }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
+    setAnim(c,'move',0,true); sfx.swing(); c.el.style.zIndex=60;
+    put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,'transform .3s cubic-bezier(.2,.9,.35,1)'); await sleep(300);
+    setAnim(c,an,0,true); put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)'); await sleep(130);
+    dust(c,14); shake(); sfx.thud(); await sleep(Math.max(60,CHA(c,an)-130));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
   const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;
@@ -135,7 +140,12 @@ async function chain(side,t,count,src){
     em(10,()=>prt(tb.x,tb.y,R(-10,10),-30,R(-1,1),R(1.5,3),0,R(12,20),R(4,7),0,pk(PAL.Fogo)));
     await sleep(300); t.mv.style.transition=''; c.mv.style.transition='';
     await smash(c,t,'D');
-  }else if(t.alive)await smash(c,t,cause); else await hitstop(40);
+  }else if(t.alive){
+    if(CH.mv==='rise'&&cause==='L'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
+      put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
+    await smash(c,t,cause);
+    if(CH.mv==='rise'&&cause==='L'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
+  }else await hitstop(40);
   if(air&&an_of(c).landing){ const g=pos(t);   // pousa agachado do lado do alvo e levanta
     put(c,cur(t).x-dir*82-h0.x,g.y-h0.y,'transform .12s ease-in'); setAnim(c,'landing',0,true); dust(c,10);
     await sleep(animMs(c,'landing')*.7); c.mv.style.transition=''; }
@@ -163,7 +173,7 @@ async function run(){
       if(round>1){
         chakra.p=Math.min(100,chakra.p+20); chakra.e=Math.min(100,chakra.e+20);
         if(fieldA&&--fieldA.rounds<=0)clearField();
-        for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--;
+        for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
           if(u.dot){sfx.dot(); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
       all().forEach(u=>u.chaseUsed=false);
@@ -175,10 +185,15 @@ async function run(){
         await gate();
         if(u.stunned){u.stunned=false; fl(u,'paralisado','info2'); upd(u); log(`${nm(u)} está paralisado`); await sleep(450); continue;}
         let sk=u.d.normal,isJ=false; const j=u.d.jutsu;
+        if(u.side==='p'&&!autoP&&!u.armed&&u.cd===0&&chakra.p>=j.cost){   // janela pra armar o jutsu: o botão pulsa um instante antes do golpe
+          u.el.classList.add('turn'); u.sk.classList.add('ready');
+          for(let w=0;w<1100&&!u.armed&&u.alive;w+=60){ await gate(); await sleep(60); }
+          u.sk.classList.remove('ready'); }
         if(u.side==='p'){
           if(!u.armed&&autoP&&u.cd===0&&chakra.p>=j.cost&&wants(u,1)){u.armed=true;chakra.p-=j.cost;}
           if(u.armed){u.armed=false;u.cd=j.cd;sk=j;isJ=true;upd(u);} }
         else if(u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
+        if(!isJ&&u.d.strong&&++u.nc%3===0)sk=u.d.strong;   // toda 3ª ação sem jutsu vira o golpe Forte
         u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn');
         drawJ();
         if((res=result()))break outer;

@@ -1,8 +1,5 @@
 // screens.js — telas: título, hub, formação, mapa, galeria
 "use strict";
-async function hitstop(ms){const f=$('field'); f.classList.add('hs'); frozen=true; try{await sleep(ms);}finally{frozen=false; f.classList.remove('hs');}}
-
-
 /* ================= TELAS ================= */
 const SCR=['sTitle','sHub','sForm','sMap','sGal','sBattle'];
 function show(id){ SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[]; battleOn=false;
@@ -43,7 +40,7 @@ function drawForm(){
     hit.onpointerdown=e=>startDrag(e,p.id,true); });
   const R=$('fRoster'); R.innerHTML='';
   IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'')+(have(id)?'':' lockd');
-    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66,0,0,29,33);
+    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
     const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
@@ -54,6 +51,7 @@ function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
   return `<b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span><br>
   Vida ${d.hp} · Ataque ${d.atk} · Defesa ${d.def}<br>
   <u>Normal:</u> ${n.name} (${TG[n.target]})${n.cause?' → '+ST[n.cause]:''}${n.dot?' + veneno':''}<br>
+  ${d.strong?`<u>Forte</u> (toda 3ª ação): ${d.strong.name}${d.strong.cause?' → '+ST[d.strong.cause]:''}${d.strong.stun?' + paralisa':''}${d.strong.dot?' + veneno':''}<br>`:''}
   <u>Jutsu:</u> ${j.name}, ${j.cost} de chakra: ${j.desc}${j.cause?' → '+ST[j.cause]:''}<br>
   <u>Combo:</u> persegue ${ST[d.chase.on]} → deixa ${ST[d.chase.cause]}`; }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
@@ -97,22 +95,23 @@ function drawMap(){
 let gal=null;
 function drawGal(){
   const L=$('gList'); L.innerHTML=''; ACT=[];
-  IDS.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66,0,0,29,33);
+  IDS.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
     const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.arm();drawGal();}; L.appendChild(b); });
-  const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,SH[sel].k<1?170:120,SH[sel].k<1?290:318,V);
-  const A=$('gAn'); A.innerHTML=''; A.className=an_of(gal).knockback?'many':'';
-  [['Parado','idle'],['Correr','move'],['Ataque','atk1'],['Combo','atk2'],['Jutsu','atk3'],['Dano','hurt']].forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t; b.onclick=()=>{setAnim(gal,an); if(an!=='idle'&&an!=='move'&&an!=='hurt')sfx.swing();}; A.appendChild(b); });
-  if(an_of(gal).knockback)[['Repelido','knockback'],['Lançado','launched'],['Derrubado','knockdown'],['Perseguição','chase'],['Defesa','guard'],['Buff','buff'],['Atordoado','stun'],['Vitória','victory'],['Derrota','die']].forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t; b.onclick=()=>{setAnim(gal,an); if(['chase','knockback','launched'].includes(an))sfx.swing();}; A.appendChild(b); });
-  const d=N[sel], j=d.jutsu, n=d.normal, causes=[n.cause,j.cause,d.chase.cause].filter(Boolean);
+  const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,170,290,V);
+  const A=$('gAn'); A.innerHTML=''; A.className='many';
+  [['Parado','idle'],['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Lançado','launched'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Vitória','victory'],['Derrota','die']]
+   .filter(([,an])=>an_of(gal)[an]).forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t;
+    b.onclick=()=>{setAnim(gal,an); if(['atk1','atk2','atk3','chase','dodge'].includes(an))sfx.swing();}; A.appendChild(b); });
+  const d=N[sel], j=d.jutsu, n=d.normal, causes=[n.cause,j.cause,d.chase.cause,d.strong&&d.strong.cause].filter(Boolean);
   const after=IDS.filter(o=>o!==sel&&causes.includes(N[o].chase.on)).map(o=>N[o].name);
-  const before=IDS.filter(o=>o!==sel&&[N[o].normal.cause,N[o].jutsu.cause,N[o].chase.cause].includes(d.chase.on)).map(o=>N[o].name);
+  const before=IDS.filter(o=>o!==sel&&[N[o].normal.cause,N[o].jutsu.cause,N[o].chase.cause,N[o].strong&&N[o].strong.cause].includes(d.chase.on)).map(o=>N[o].name);
   const st=(t,v,m,c)=>`<div class="stt"><span>${t}</span><div class="bar ${c}"><i style="width:${Math.round(v/m*100)}%"></i></div><b>${v}</b></div>`;
   $('gInfo').innerHTML=`<h4 style="color:${shade(d.c)}">${d.name}</h4><span class="chip" style="margin:0">${d.el}</span><span class="chip">${d.role}</span>
    <div style="height:8px"></div>${st('Vida',d.hp,1500,'g')}${st('Ataque',d.atk,140,'r')}${st('Defesa',d.def,50,'b')}
    <p><u>Normal:</u> ${n.name}. Alvo: ${TG[n.target]}${n.cause?'. Deixa '+ST[n.cause]:''}${n.dot?'. Envenena':''}.</p>
+   ${d.strong?`<p><u>Forte</u> (toda 3ª ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
    <p><u>Jutsu:</u> ${j.name} (${j.cost} de chakra, recarga ${j.cd}). Alvo: ${TG[j.target]}; ${j.desc}${j.cause?'. Deixa '+ST[j.cause]:''}.</p>
    <p><u>Combo:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>
    <p><u>Abre combo para:</u> ${after.join(', ')||'ninguém'}.<br><u>Continua o combo de:</u> ${before.join(', ')||'ninguém'}.</p>`;
 }
 
-/* ================= BATALHA ================= */

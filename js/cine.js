@@ -33,6 +33,8 @@ async function knock(t,state){
   else if(state==='D'){ sfx.thud(); dust(t,wasAir?22:12); shake(); if(wasAir){zoomTo(p.x,p.y,1.14); await sleep(110); zoomOut(true);} }
   await sleep(150); t.el.classList.remove('fly');
 }
+// hit-stop: congela anims (não os efeitos) por um instante no impacto
+async function hitstop(ms){const f=$('field'); f.classList.add('hs'); frozen=true; try{await sleep(ms);}finally{frozen=false; f.classList.remove('hs');}}
 function retrig(el,cls){el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);}
 function flash(){retrig($('flash'),'on');}
 function shake(){retrig($('field'),'shake');}
@@ -59,7 +61,7 @@ async function cine(u,sk,ts){
   sceneOn([u]); setAnim(u,'cast'); sfx.cast(); fxAt(u,'aura',u,1.05,18);
   tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=sk.name; void tag.offsetWidth; tag.classList.add('on');
   await sleep(260);
-  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,6,0,28,26);
+  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,'cast');
   retrig(c,'on'); await sleep(640);
   ts.forEach(sceneAdd);
 }

@@ -104,11 +104,11 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #gAn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 #gAn.many{grid-template-columns:1fr 1fr 1fr;gap:4px}#gAn.many .btn.sm{font-size:13px;border-width:8px;border-image-width:8px;height:30px}
 #gMid:has(#gAn.many) #gView{height:320px}
-#gInfo{flex:1;font-size:17px;line-height:1.25;padding:0 6px}
+#gInfo{flex:1;font-size:16px;line-height:1.2;padding:0 6px;overflow-y:auto}
 #gInfo h4{margin:0 0 2px;font-size:30px}
 #gInfo .stt{display:grid;grid-template-columns:76px 1fr 44px;gap:6px;align-items:center;margin:3px 0}
-#gInfo .bar{height:26px}
-#gInfo p{margin:7px 0}
+#gInfo .bar{height:22px}
+#gInfo p{margin:5px 0}
 #gInfo u{text-decoration:none;font-weight:700;color:#8a1f10}
 
 /* ---- batalha ---- */
@@ -147,9 +147,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .mv{position:absolute;left:0;top:0;transition:transform .17s ease-out}
 .sh{position:absolute;left:-34px;top:-9px;width:68px;height:18px;background:#0007;border-radius:50%}
 .st{position:absolute;left:0;top:0;transition:transform .2s ease-out;transform-origin:0 -40px}
-.st.L{transform:translate(calc(var(--d)*14px),-72px) rotate(calc(var(--d)*25deg))}
-.st.D{transform:translate(calc(var(--d)*24px),12px) rotate(calc(var(--d)*80deg))}
-.st.R{transform:translateX(calc(var(--d)*34px))}
+.st.L{transform:translate(calc(var(--d)*14px),-72px)}
 .u.e .spr{transform:scaleX(-1)}
 .spr.hit{filter:brightness(5) saturate(0)}
 .u.turn .sh{background:#fff9;box-shadow:0 0 12px #fff}
@@ -171,8 +169,6 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .hpn{display:none;position:absolute;left:-60px;width:120px;top:calc(var(--h)*-1 - 46px);text-align:center;font-weight:700;font-size:20px;color:#7dffa6;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;pointer-events:none}
 .u.hov .hpn{display:block}.u.hov .tg{visibility:hidden}
 .u.dead .hpn{display:none!important}
-/* atlas com anim própria de caído/lançado/repelido: sem a rotação feita pros sprites antigos */
-.u.v2 .st.D,.u.v2 .st.R{transform:none}.u.v2 .st.L{transform:translate(calc(var(--d)*14px),-72px)}
 .st.dodge{animation:dodge .32s ease-out}
 @keyframes dodge{0%{transform:none;opacity:1}35%{transform:translate(calc(var(--d)*56px),-14px);opacity:.35}70%{transform:translate(calc(var(--d)*56px),-4px);opacity:.6}100%{transform:none;opacity:1}}
 .fl{position:absolute;left:0;top:calc(var(--h)*-1 - 46px);transform:translateX(-50%);font-weight:700;font-size:28px;color:#fff;white-space:nowrap;pointer-events:none;z-index:90;animation:up .9s ease-out forwards;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
@@ -244,6 +240,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .sk .cost{position:absolute;left:10px;bottom:6px;font-weight:700;font-size:22px;color:#bfe6ff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000}
 .sk .cdv:empty{display:none}
 .sk .cdv{position:absolute;inset:7px;background:#000b;display:grid;place-content:center;font-weight:700;font-size:38px;color:#fff}
+.sk.ready{animation:skr .5s ease-in-out infinite alternate}
+@keyframes skr{from{transform:scale(1);filter:drop-shadow(0 0 2px #fff)}to{transform:scale(1.1);filter:drop-shadow(0 0 10px #fff)}}
 .sk.armed{background-image:url(../ui/skill_slot_active.png);filter:drop-shadow(0 0 8px #ffd24a)}
 .sk.off .kp{filter:grayscale(.9) brightness(.5)}
 /* ícone do jutsu (frame do efeito, animado quando dá pra usar) + retratinho no canto, como no NO */
@@ -263,7 +261,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #logT{position:absolute;left:278px;bottom:96px;z-index:61;width:30px;height:22px;padding:0;font-size:13px;line-height:20px;background:#000c;color:#eee;border:2px solid #0009;cursor:pointer;transition:bottom .25s ease-out}
 #logT.min{bottom:20px}
 #resWin{left:356px;top:170px;width:440px;height:310px;z-index:120;padding:10px 16px;display:flex;flex-direction:column;gap:10px;text-align:center}
-#resWin p{margin:2px 0;font-size:20px}
+#resWin p{margin:2px 0;font-size:20px;color:#3b2412}
 #resWin .btn{height:50px}
 #rot{display:none;position:fixed;left:0;right:0;bottom:6px;text-align:center;color:#bbb;font:13px system-ui,sans-serif;z-index:5}
 @media (orientation:portrait){#rot{display:block}}

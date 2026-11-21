@@ -1,6 +1,7 @@
 // data.js — dados: estados, alvos, ninjas (N), missões (FOES), save
 "use strict";
 // hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
+// strong = golpe Forte: toda 3ª ação sem jutsu o básico vira ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
 const ST={D:'Derrubado',L:'Lançado',R:'Repelido'};
 const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados'};
 const N={
@@ -18,29 +19,34 @@ const N={
   chase:{name:'Gancho Relâmpago',on:'R',cause:'L',mult:.7}},
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
   normal:{name:'Golpe de Pedra',mult:.9,target:'front',cause:'D'},
-  jutsu:{name:'Muralha de Pedra',cost:20,cd:3,target:'allies',shield:2.5,desc:'escudo para o time'},
-  chase:{name:'Esmagar',on:'R',cause:'D',mult:.7}},
+  jutsu:{name:'Muralha de Pedra',cost:30,cd:3,target:'allies',shield:2.5,desc:'escudo para o time (2 rodadas, não acumula)'},
+  chase:{name:'Esmagar',on:'R',cause:'D',mult:.7,mv:'slam'}},
  fuuka:{name:'Fuuka',el:'Vento',c:'#5fc9a0',role:'Atacante',hp:800,atk:120,def:15,dodge:8,
   normal:{name:'Rajada Leve',mult:.4,target:'all',ranged:true},
   jutsu:{name:'Tufão Cortante',cost:40,cd:4,mult:1,target:'all',cause:'L',dispel:true,an:'atk2',desc:'acerta todos e dissipa o campo'},
-  chase:{name:'Redemoinho',on:'D',cause:'L',mult:.7}},
+  strong:{name:'Corte Giratório',an:'atk3',mult:1.5,target:'front',cause:'D'},
+  chase:{name:'Redemoinho',on:'D',cause:'L',mult:.7,mv:'rise'}},
  mayoi:{name:'Mayoi',el:'Névoa',c:'#b79ae0',role:'Esquiva/campo',hp:780,atk:110,def:15,dodge:15,
   normal:{name:'Bengala e Mariposas',mult:.9,target:'front'},
   jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas'},
+  strong:{name:'Onda de Névoa',an:'atk3',mult:1.3,target:'front',ranged:true},
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
   normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.25,.5,.75]},
   jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',desc:'paralisa o alvo'},
-  chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7}},
+  strong:{name:'Toque Congelante',an:'atk3',mult:1.4,target:'front',stun:true},
+  chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7,mv:'rise'}},
  doku:{name:'Doku',el:'Veneno',c:'#a46be0',role:'Desgaste',hp:900,atk:100,def:20,dodge:5,
   normal:{name:'Arremesso de Frascos',mult:.8,target:'front',ranged:true,hits:[.35,.7],dot:{mult:.2,rounds:1}},
   jutsu:{name:'Névoa Tóxica',cost:40,cd:3,mult:.6,target:'all',cause:'R',dot:{mult:.4,rounds:3},desc:'envenena todos'},
+  strong:{name:'Agulhas',an:'atk3',mult:1.4,target:'front',dot:{mult:.35,rounds:2}},
   chase:{name:'Ferrão',on:'L',cause:'D',mult:.7}},
  // size = multiplicador do sprite (barra de vida, alcance do golpe e retratos acompanham). Poko: louva-a-deus de Som, bloqueado até vencer a missão 3.
  poko:{name:'Poko',el:'Som',c:'#e8b83a',role:'Velocista',hp:820,atk:115,def:15,dodge:15,size:1.2,
   normal:{name:'Rufo de Foices',mult:1.05,target:'front',hits:[.2,.35,.5,.65,.8]},
   jutsu:{name:'Zumbido Ensurdecedor',cost:40,cd:4,mult:.8,target:'all',stun:'all',an:'atk2',desc:'abala e paralisa todos'},
-  chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7}}
+  strong:{name:'Estridulação',an:'atk3',mult:1.4,target:'front',ranged:true,cause:'R'},
+  chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}}
 };
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
 const LOCK={poko:2};
@@ -64,4 +70,3 @@ placed=placed.filter(p=>have(p.id));
 function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite,own,dev}));}catch(e){}}
 
 document.body.classList.toggle('lite',lite);
-/* ================= SPRITES ================= */
