@@ -32,8 +32,8 @@ const N={
   normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.25,.5,.75]},
   jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',desc:'paralisa o alvo'},
   chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7}},
- doku:{name:'Doku',el:'Veneno',c:'#9bc53d',role:'Desgaste',hp:900,atk:100,def:20,
-  normal:{name:'Agulha Tóxica',mult:.8,target:'front',ranged:true,dot:{mult:.25,rounds:2}},
+ doku:{name:'Doku',el:'Veneno',c:'#a46be0',role:'Desgaste',hp:900,atk:100,def:20,dodge:5,
+  normal:{name:'Arremesso de Frascos',mult:.8,target:'front',ranged:true,hits:[.35,.7],dot:{mult:.2,rounds:1}},
   jutsu:{name:'Névoa Tóxica',cost:40,cd:3,mult:.6,target:'all',cause:'R',dot:{mult:.4,rounds:3},desc:'envenena todos'},
   chase:{name:'Ferrão',on:'L',cause:'D',mult:.7}}
 };

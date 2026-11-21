@@ -34,7 +34,7 @@ Números são sugestão inicial, ajustar no teste. Design completo e prompts de 
 - dodge 15% base. Esquiva = corpo vira mariposas e se refaz (anim `dodge`).
 - Sheets (molde antigo): A = 8 linhas (idle 6, walk 8, dash 8, básico 7, forte 7, guard 4, hurt 3, dodge 8); B = 6 linhas (seals, jutsu, buff, stun, victory, defeat); C = 4 linhas (knockback, launched, knockdown, chase); D = efeitos 6 linhas (enxame, nuvem que se desfaz/refaz, onda de névoa, impacto, aura, flash pequeno).
 
-## Doku (Veneno, Desgaste) — prompts prontos em `docs/prompts-doku.md`, sheets ainda não gerados
+## Doku (Veneno, Desgaste) — INTEGRADO (Onda 3); prompts em `docs/prompts-doku.md`
 - Visual: boticário/alquimista, capuz ameixa, máscara de pano, bandoleira com 5 frascos violeta, luvas de couro, estojo de agulhas no antebraço. Veneno é ROXO (verde some no chroma key).
 - **Básico — Arremesso de Frascos:** à distância, alvo único, 2 hits baixos, veneno fraco 1 rodada. Desviável.
 - **Forte — Agulhas:** corpo a corpo, dano alto, veneno forte 2 rodadas. Desviável.
