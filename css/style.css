@@ -161,7 +161,10 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .u.dead .hpb,.u.dead .tg,.u.dead .sh{display:none}
 /* hover (verde + vida exata), marca (azul), esquiva */
 .u .spr{pointer-events:none}
-.hb{position:absolute;left:-32px;top:calc(var(--h)*-1 + 6px);width:64px;height:76px;cursor:pointer}
+.hb{position:absolute;left:calc(var(--h)*-.32);top:calc(var(--h)*-1 + 2px);width:calc(var(--h)*.64);height:calc(var(--h) + 4px);cursor:pointer}   /* sprite inteiro (cabeça ao pé), cresce com o size */
+.swave{position:absolute;border-radius:50%;border:var(--b,9px) double var(--c);pointer-events:none;transform:translate(-50%,-50%) scale(.1);opacity:0;animation:swave var(--t,.9s) cubic-bezier(.2,.7,.4,1) forwards;box-shadow:0 0 14px var(--c),inset 0 0 10px var(--c)}
+@keyframes swave{0%{transform:translate(-50%,-50%) scale(.1);opacity:.95}70%{opacity:.6}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+body.lite .swave{box-shadow:none}
 .u.p .hb,.u.dead .hb{display:none}
 .u.mk .st{filter:drop-shadow(0 0 3px #3d9bff) drop-shadow(0 0 8px #3d9bff)}
 .u.mk .sh{background:#3d9bffcc;box-shadow:0 0 16px #3d9bff}

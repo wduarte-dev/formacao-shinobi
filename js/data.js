@@ -44,7 +44,7 @@ const N={
  // size = multiplicador do sprite (barra de vida, alcance do golpe e retratos acompanham). Poko: louva-a-deus de Som, bloqueado até vencer a missão 3.
  poko:{name:'Poko',el:'Som',c:'#e8b83a',role:'Velocista',hp:820,atk:115,def:15,dodge:15,size:1.2,
   normal:{name:'Rufo de Foices',mult:1.05,target:'front',hits:[.2,.35,.5,.65,.8]},
-  jutsu:{name:'Zumbido Ensurdecedor',cost:40,cd:4,mult:.8,target:'all',stun:'all',an:'atk2',desc:'abala e paralisa todos'},
+  jutsu:{name:'Zumbido Ensurdecedor',cost:40,cd:4,mult:.8,target:'all',stun:'all',an:'atk2',wave:1,desc:'abala e paralisa todos'},
   strong:{name:'Estridulação',an:'atk3',mult:1.4,target:'front',ranged:true,cause:'R'},
   chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}}
 };

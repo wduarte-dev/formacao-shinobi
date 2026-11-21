@@ -4,6 +4,7 @@ Regra: "próxima onda" (ou só "próximo") = executar a primeira ⬜ da seção 
 Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py . /tmp/shots N` (N de 0 a 4; cada missão usa a porta 8765+N, então dá pra rodar as 5 em paralelo; se faltar: `pip install playwright==1.63.0`). Esperado: o time base vence 1–3 e perde 4–5, sem erro além da fonte do Google.
 
 ## Pendências (lista única)
+- ⬜ **Regerar o Forte do Iwao** (linha `strong` do lote A): a IA desenhou ele com os leques e o arco d'água da Mizuha. Tirado do registro `V2` até lá (o jogo não usa o Forte dele; a galeria esconde o botão).
 - ⬜ **Ninjas desproporcionais:** o `size` já existe (`N[id].size`: `mkSpr`, `--h` da barra, alcance do `dashTo`; Poko usa 1.2). Falta: ninja novo gigante/baixinho gerado já na proporção, e o `portrait` levar o `size` em conta (o retrato do Poko corta a asa).
 - ⬜ **Idle gerado da Mizuha e do Iwao:** hoje é respiração em código (`breathe: "first"`). Prompts prontos em `docs/prompts-idle-mizuha-iwao.md`; aguardando ele gerar `src/<ninja>/I.png`.
 - ⬜ **Balancear o escudo do Iwao** se ainda arrastar a luta: agora não acumula, dura 2 rodadas e custa 30 (missão 2: 12 rodadas, missão 4: 15 no teste). Ajustar `shield` (2.5) ou `shR` se precisar.
@@ -33,4 +34,5 @@ Níveis, recrutamento, chefes, invocações, "planos" de campo por elemento (só
   - **Janela pra armar jutsu:** sem Auto, quando é a vez de um ninja com jutsu disponível o botão pulsa ~1s antes do golpe.
   - **Escudo do Iwao** não acumula e expira em 2 rodadas (`shR`), custo 30.
   - Bug: o +15% do campo pro básico de Gelo nunca valia com golpes de vários hits (agora vale).
+  - **Sprites (2ª rodada):** pipeline corrigido (ver `docs/pipeline-sprites.md`): Doku sem a faixa invisível, jutsu da Fuuka inteiro, esquiva da Mizuha sem a barra cinza, Raiden sem cabeça flutuante/borrão, Poko sem a foice do frame vizinho; paleta do Kaen (B2/C) igualada ao A1; Hiyori e Poko com cor e contorno recuperados. Gigante de Pedra do Iwao fica ~2,5s na tela (selos, jutsu, buff, vitória, perseguição) e se desfaz devagar na derrota, via `seq` no `V2`. Marcação/hover do inimigo no sprite inteiro. **Zumbido Ensurdecedor** do Poko desenhado em código (`soundWave` em `js/fx.js`, flag `wave` no jutsu: anéis dourados + alvos vibrando).
   - Limpeza: restos do sprite antigo (`ANIM0`, rotação CSS do caído, ramos mortos do `portrait`, `config/kaen_e.json`, `bg/vila.png`), galeria com rótulos certos, texto do resultado legível, docs consolidados.

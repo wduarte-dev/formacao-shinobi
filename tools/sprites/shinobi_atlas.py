@@ -48,13 +48,22 @@ DEF = {
 def green_excess(a):
     return a[..., 1] - np.maximum(a[..., 0], a[..., 2])
 
-def remove_grid_lines(bgish, keep):
+def remove_grid_lines(bgish, keep, fx=False):
     """Linhas de grade: colunas/linhas finas quase inteiras 'frente'. Retorna keep limpo."""
     for axis in (0, 1):
         frac = keep.mean(axis=axis)
         pad = np.pad(frac, 6, mode='edge')
-        neigh = np.minimum(pad[:-12], pad[12:])
+        # personagem: linha de grade é fina (vazio dos DOIS lados; borda de corpo só tem de um). Efeitos (fx): critério antigo, de um lado só
+        neigh = np.minimum(pad[:-12], pad[12:]) if fx else np.maximum(pad[:-12], pad[12:])
         lines = np.nonzero((frac > 0.6) & (frac - neigh > 0.35))[0]
+        # e CONTÍNUA: uma coluna que atravessa vários corpos empilhados tem verde entre as linhas
+        def run(v):
+            best = cur = 0
+            for x in v:
+                cur = cur + 1 if x else 0; best = max(best, cur)
+            return best
+        L = keep.shape[axis]
+        if not fx: lines = [i for i in lines if run(keep[:, i] if axis == 0 else keep[i, :]) > L * 0.45]
         for i in lines:
             if axis == 0: keep[:, i] = False
             else: keep[i, :] = False
@@ -82,7 +91,7 @@ def key_soft(a, cfg):
     al = np.clip(1.0 - k / (kbg * 0.92), 0, 1)
     al[al < 0.06] = 0
     keep = al > 0.25
-    keep = remove_grid_lines(None, keep.copy())
+    keep = remove_grid_lines(None, keep.copy(), fx=True)
     lines = (al > 0.25) & ~keep & (k > 25)
     al[lines] = 0
     A = np.maximum(al, 1e-3)[..., None]
@@ -96,6 +105,30 @@ def despill(rgb):
     m = np.maximum(out[..., 0], out[..., 2])
     out[..., 1] = np.minimum(out[..., 1], m)
     return out
+
+def to_lab(rgb):
+    from PIL import ImageCms
+    tr = ImageCms.buildTransform(ImageCms.createProfile('sRGB'), ImageCms.createProfile('LAB'), 'RGB', 'LAB')
+    lab = np.array(ImageCms.applyTransform(Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8)), tr))
+    out = lab.astype(np.float32); out[..., 1:] = lab[..., 1:].view(np.int8)   # a/b vêm com sinal dentro do uint8
+    return out
+
+def from_lab(lab):
+    from PIL import ImageCms
+    tr = ImageCms.buildTransform(ImageCms.createProfile('LAB'), ImageCms.createProfile('sRGB'), 'LAB', 'RGB')
+    q = np.empty(lab.shape, np.uint8); q[..., 0] = np.clip(lab[..., 0], 0, 255)
+    q[..., 1:] = np.clip(np.round(lab[..., 1:]), -128, 127).astype(np.int8).view(np.uint8)
+    return np.array(ImageCms.applyTransform(Image.fromarray(q, 'LAB'), tr)).astype(np.float32)
+
+def color_match(rgb, mask, ref_rgb, ref_mask, amt=1.0):
+    """Transferência de cor (Reinhard em Lab) só nos pixels do personagem: média/desvio por canal iguais aos do sheet de referência."""
+    L, R = to_lab(rgb), to_lab(ref_rgb)
+    a, b = L[mask], R[ref_mask]
+    ma, sa, mb, sb = a.mean(0), a.std(0) + 1e-3, b.mean(0), b.std(0) + 1e-3
+    out = L.copy(); out[mask] = (a - ma) * (sb / sa) + mb
+    out = L + (out - L) * amt
+    res = rgb.copy(); res[mask] = from_lab(out)[mask]
+    return res
 
 def teal_fix(rgb, mask):
     """Puxa turquesa/ciano-esverdeado pra azul-gelo (verde passa a ficar abaixo do azul)."""
@@ -125,6 +158,10 @@ def erase_label(fg, H, W):
         if sl[0].stop < H * 0.03 and sl[1].stop < W * 0.5:   # texto do rótulo solto no topo (faixa verde-escura)
             fg[lab == i] = False; continue
         if sl[0].start <= 2 and sl[0].stop < H * 0.07 and (sl[1].stop < W * 0.5 or sl[1].stop - sl[1].start > W * 0.9):
+            fg[lab == i] = False; continue
+        # moldura/faixa fina encostada no topo de cada célula (Mizuha E): baixa e bem mais larga que alta
+        hh, ww = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+        if sl[0].start <= 2 and hh < max(8, H * 0.08) and ww > hh * 3:
             fg[lab == i] = False
     return fg
 
@@ -136,9 +173,14 @@ class Sheet:
         s.H, s.W = s.a.shape[:2]
         fg = key_hard(s.a, ncfg)
         fg = erase_label(fg, s.H, s.W)
+        for x0, y0, x1, y1 in sc.get('erase', []): fg[y0:y1, x0:x1] = False   # lixo que a IA desenhou (retângulos em px do sheet)
         s.fg = fg
         s.rgb = despill(s.a)
         if ncfg.get('teal_fix'): s.rgb = teal_fix(s.rgb, fg)
+        if sc.get('color_ref'):   # sheet com paleta "puxada": iguala média/desvio de cor (Lab) ao sheet de referência
+            ref = np.array(Image.open(os.path.join(os.path.dirname(path), sc['color_ref'])).convert('RGB')).astype(np.float32)
+            rfg = erase_label(key_hard(ref, ncfg), *ref.shape[:2])
+            s.rgb = color_match(s.rgb, fg, despill(ref), rfg, sc.get('color_amt', 1.0))
         rows, cols = sc['rows'], sc.get('cols', 8)
         s.redges = cuts_1d(fg.sum(1), rows, 0, s.H)
         s.lab, _ = ndi.label(fg, structure=np.ones((3, 3)))
@@ -168,8 +210,10 @@ class Sheet:
             comps.sort(key=lambda o: -o['area'])
             body = comps[0]
             parts = [body]
+            e0, e1 = R['cedges'][c], R['cedges'][c + 1]
             for o in comps[1:]:
                 bb, b2 = o['bb'], body['bb']
+                if bb[0] < e0 - 2 or bb[2] > e1 + 2: continue   # pedaço solto que atravessa a divisa: sobra do frame vizinho
                 dx = max(b2[0] - bb[2], bb[0] - b2[2], 0); dy = max(b2[1] - bb[3], bb[1] - b2[3], 0)
                 if (dx * dx + dy * dy) ** .5 < cellw * 0.28 or o['area'] > body['area'] * 0.25:
                     parts.append(o)
@@ -300,6 +344,9 @@ def build_character(cfg, src):
                 m, (x0, y0, x1, y1) = S.frame_mask(f)
                 rgb = S.rgb[y0:y1, x0:x1]
                 spr = resize_rgba(rgb, m.astype(np.float32), scale)
+                if sc.get('outline'):   # sheet sem contorno (IA de resolução menor): devolve a borda escura de 1px do resto do atlas
+                    al = spr[..., 3] > 0; edge = al & ~ndi.binary_erosion(al, structure=np.ones((3, 3)))
+                    spr[edge, :3] = (spr[edge, :3] * float(sc['outline'] if sc['outline'] is not True else 0.3)).astype(np.uint8)
                 ax_src = f['cx_cell'] + off0 if sp.get('anchor', 'feet') == 'cell' else f['feet_x']
                 ref_y = f['bottom'] if abs(f['bottom'] - baseline) <= snap else baseline
                 px = int(round(AX - (ax_src - x0) * scale)); py = int(round(BASE - (ref_y - y0) * scale))

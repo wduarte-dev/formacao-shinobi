@@ -18,6 +18,14 @@ function fxStep(k){
 }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
   Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a']};
+// ondas sonoras desenhadas em código (jutsu com wave): anéis dourados saem do conjurador e cobrem o campo; cada alvo vibra com anéis menores
+function soundWave(u,ts){ const a=cur(u), cy=a.y-58*(u.d.size||1), n=lite?3:6, cols=['#ffd34d','#ff9a3c','#fff0b0'];
+  const ring=(x,y,size,t,delay,c,bw)=>setTimeout(()=>{ const e=document.createElement('div'); e.className='swave'; e.style.left=x+'px'; e.style.top=y+'px'; if(bw)e.style.setProperty('--b',bw+'px');
+    e.style.width=size+'px'; e.style.height=(size*.62)+'px'; e.style.setProperty('--c',c); e.style.setProperty('--t',t+'s'); $('fx').appendChild(e); setTimeout(()=>e.remove(),t*1000+60); },delay/speed);
+  for(let i=0;i<n;i++){ ring(a.x,cy,1400,1.2,i*120,cols[i%3],12); ring(a.x,cy,620,.7,i*120+40,cols[(i+1)%3],8); }   // pulsos grandes + médios
+  ts.forEach((t,j)=>{ const p=cur(t); for(let k=0;k<(lite?2:4);k++)ring(p.x,p.y-56*(t.d.size||1),210,.5,220+j*40+k*130,cols[k%3],9); });   // alvo vibrando
+  em(lite?10:24,()=>prt(a.x,cy,R(-10,10),R(-10,10),R(-3,3),R(-2,2),0,R(18,30),R(3,5),0,pk(cols)));
+}
 function elFx(u,ts){
   const el=u.d.el, pal=PAL[el], dir=u.side==='p'?1:-1;
   for(const t of ts){ const p=cur(t), x=p.x, y=p.y;

@@ -77,13 +77,13 @@ async function doSkill(u,sk,isJ){
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(); await sleep(hit=HA(u,an)*.9); await shoot(u,main); hit+=190;}
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    if(isJ)elFx(u,ts);
+    if(isJ)(sk.wave?soundWave:elFx)(u,ts);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
     if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
     else{ let tot=0;
       for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
         if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(!ts.some(t=>t.alive&&!dodgedSet.has(t)))break; }
-        ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
+        ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; if(!(isJ&&sk.wave))fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
           tot+=hurt(t,dmgOf(u,t,sk.mult/nh,sk===u.d.normal),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
         if(nh>1&&k<nh-1)sfx.hit(); }
       ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return;
