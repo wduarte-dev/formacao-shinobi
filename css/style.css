@@ -271,3 +271,7 @@ body.lite .spr,body.lite .cut .cp,body.lite .u.hov .st,body.lite .sk.armed{filte
 body.lite .u.mk .st{filter:drop-shadow(0 0 4px #3d9bff)}
 body.lite #fog::before,body.lite .cut .lines,body.lite .petal{animation:none}
 body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none}
+
+/* ninja bloqueado (Formação/Galeria): só a silhueta */
+.slot.lockd .por{filter:brightness(0) opacity(.55)}.slot.lockd{cursor:default}
+#hDev.on{background-color:#8a2b2b;box-shadow:0 0 8px #ff6a4a}

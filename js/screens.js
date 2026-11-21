@@ -17,6 +17,8 @@ $('hMap').onclick=()=>{sfx.arm();show('sMap');}; $('hForm').onclick=()=>{sfx.arm
 $('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sfx.arm();};
 function liteUi(){document.body.classList.toggle('lite',lite); $('hLite').classList.toggle('on',lite);}
 $('hLite').onclick=()=>{lite=!lite; save(); liteUi();}; liteUi();
+function devUi(){$('hDev').classList.toggle('on',dev);}
+$('hDev').onclick=()=>{dev=!dev; placed=placed.filter(p=>have(p.id)); save(); devUi(); sfx.arm(); if(!have(sel))sel='kaen'; drawHub();}; devUi();
 $('hFull').onclick=()=>{try{ if(document.fullscreenElement)document.exitFullscreen(); else $('wrap').requestFullscreen().catch(()=>{}); }catch(e){}};
 
 // posição dos pés de cada casa do tabuleiro (lado do jogador; o inimigo é espelhado)
@@ -40,8 +42,9 @@ function drawForm(){
     const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-40px;top:-130px;width:80px;height:134px'; a.el.appendChild(hit);
     hit.onpointerdown=e=>startDrag(e,p.id,true); });
   const R=$('fRoster'); R.innerHTML='';
-  IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'');
+  IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'')+(have(id)?'':' lockd');
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66,0,0,29,33);
+    if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
     const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
   $('fInfo').innerHTML=infoHtml(sel);
@@ -95,7 +98,7 @@ let gal=null;
 function drawGal(){
   const L=$('gList'); L.innerHTML=''; ACT=[];
   IDS.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66,0,0,29,33);
-    const s=document.createElement('small'); s.textContent=N[id].name; b.appendChild(s); b.onclick=()=>{sel=id;sfx.arm();drawGal();}; L.appendChild(b); });
+    const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.arm();drawGal();}; L.appendChild(b); });
   const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,SH[sel].k<1?170:120,SH[sel].k<1?290:318,V);
   const A=$('gAn'); A.innerHTML=''; A.className=an_of(gal).knockback?'many':'';
   [['Parado','idle'],['Correr','move'],['Ataque','atk1'],['Combo','atk2'],['Jutsu','atk3'],['Dano','hurt']].forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t; b.onclick=()=>{setAnim(gal,an); if(an!=='idle'&&an!=='move'&&an!=='hurt')sfx.swing();}; A.appendChild(b); });

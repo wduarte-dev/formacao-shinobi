@@ -17,7 +17,7 @@ function fxStep(k){
   c.globalAlpha=1;
 }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
-  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#d9f59a','#9bc53d','#4d6a1f']};
+  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a']};
 function elFx(u,ts){
   const el=u.d.el, pal=PAL[el], dir=u.side==='p'?1:-1;
   for(const t of ts){ const p=cur(t), x=p.x, y=p.y;
@@ -46,7 +46,8 @@ const FXA={
  hiyori:{c:8,a:{blade:[0,7],crescents:[1,7],prison:[2,7],pillar:[3,7],impact:[4,7],aura:[5,7]}},
  fuuka:{c:8,a:{crescent:[0,6],gust:[1,6],tornado:[2,6],whirlwind:[3,6],impact:[4,6],aura:[5,6]}},
  mayoi:{c:8,a:{swarm:[0,6],cloud:[1,6],wave:[2,6],impact:[3,6],aura:[4,6],flash:[5,6]}},
- doku:{c:8,a:{vial:[0,6],burst:[1,6],mist:[2,6],stinger:[3,6],impact:[4,6],aura:[5,5]}}
+ doku:{c:8,a:{vial:[0,6],burst:[1,6],mist:[2,6],stinger:[3,6],impact:[4,6],aura:[5,5]}},
+ poko:{c:8,a:{arc:[0,6],slash:[1,6],buzz:[2,6],reap:[3,6],impact:[4,6],aura:[5,6]}}
 };
 // qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva,
 // imp = faísca de impacto em todo acerto, aura = em volta do conjurador na hora do selo, proj = projétil que viaja
@@ -57,13 +58,14 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
   hiyori:{hit:'blade',jutsu:'prison',chase:'pillar',imp:'impact',aura:'aura',proj:'crescents'},
   fuuka:{hit:'gust',jutsu:'tornado',chase:'whirlwind',imp:'impact',aura:'aura',proj:'crescent'},
   mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud',imp:'flash',aura:'aura',proj:'swarm'},
-  doku:{hit:'burst',jutsu:'mist',chase:'stinger',imp:'impact',aura:'aura',proj:'vial'}};
+  doku:{hit:'burst',jutsu:'mist',chase:'stinger',imp:'impact',aura:'aura',proj:'vial'},
+  poko:{hit:'slash',jutsu:'buzz',chase:'reap',imp:'impact',aura:'aura',proj:'arc'}};
 // como cada efeito se mexe (nada fica parado feito PNG colado):
 // slide = entra deslizando a partir do atacante · dive = desce na diagonal de cima · rise = sobe do chão
 // fall = cai de cima · spin = gira leve · float = sobe flutuando · drift = escorrega devagar pra frente
 const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
   meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',burst:'spin',
-  impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive'};
+  impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
 // mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
 let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem

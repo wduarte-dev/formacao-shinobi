@@ -16,7 +16,8 @@ const V2={
  fuuka:{hd:[99,65],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,6,12,0,0],jutsu:[9,7,12,0,0],buff:[10,5,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,7,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  hiyori:{hd:[98,63],H:2880,a:{idle:[0,6,6,1,0],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,8,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,6,12,0,0],jutsu:[9,8,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  mayoi:{hd:[85,65],H:2880,a:{idle:[0,5,6,1,1],walk:[1,7,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,8,12,0,0],seals:[8,4,12,0,0],jutsu:[9,8,12,0,0],buff:[10,5,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,7,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
- doku:{hd:[105,48],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,8,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,7,12,0,0],seals:[8,6,12,0,0],jutsu:[9,8,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,7,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}}
+ doku:{hd:[105,48],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,8,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,7,12,0,0],seals:[8,6,12,0,0],jutsu:[9,8,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,7,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
+ poko:{hd:[108,50],H:2880,a:{idle:[0,5,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,7,12,0,0],jutsu:[9,8,12,0,0],buff:[10,7,10,0,0],stun:[11,4,8,1,0],victory:[12,7,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}}
 };
 // nomes do jogo -> nomes do pipeline; golpes voltam pro idle; sem 'hurt' usa 'guard'
 const V2MAP={move:'dash',atk1:'attack',atk2:'jutsu',atk3:'strong',cast:'seals',die:'defeat',down:'knockdown',hurt:'guard'};
@@ -35,7 +36,7 @@ const stAnim=(u,s)=>{const A=an_of(u); return s&&A.knockback?{R:'knockback',L:'l
 const animMs=(u,n)=>{const a=an_of(u)[n]; return a?seqN(a)*1000/a[4]:0;};
 const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));
 let ACT=[];                                   // tudo que está sendo animado na tela
-function mkSpr(id,scale){ const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
+function mkSpr(id,scale){ scale*=(N[id].size||1); const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
   spr.style.cssText=`left:${-S.ax*e}px;top:${-S.ay*e}px;width:${S.cw*e}px;height:${S.ch*e}px;background-image:${SPR[id]};background-size:${S.W*e}px ${S.H*e}px;transform-origin:${S.ax*e}px ${S.ay*e}px`;
   return {id,spr,sc:scale,an:'idle',af:0,at:0,hold:false}; }
 function setAnim(u,n,f,hold){const a=an_of(u)[n]; if(!a)n='idle'; u.an=n;u.af=(f||0)%seqN(an_of(u)[n]);u.at=0;u.hold=!!hold;drawFrame(u);}

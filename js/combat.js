@@ -87,7 +87,7 @@ async function doSkill(u,sk,isJ){
           tot+=hurt(t,dmgOf(u,t,sk.mult/nh),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
         if(nh>1&&k<nh-1)sfx.hit(); }
       ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return;
-        if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0)}; if(sk.stun&&t===main)t.stunned=true; upd(t); });
+        if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0)}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
       if(sk.dispel)clearField();
       if(isJ){shake();flash();sfx.heavy();}else sfx.hit();
       log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`); }
@@ -190,10 +190,11 @@ async function run(){
   sfx[res](); battleOn=false; ACT=[];
   const hasNext=res==='win'&&foeIx<FOES.length-1;
   if(res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
+  const newN=res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save();}
   $('ink').className=''; $('clist').innerHTML='';
   $('ovT').textContent=res==='win'?'Vitória':'Derrota';
   $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`+(byTime?' · decidido por tempo (mais vida restante)':'');
-  $('ovQ').textContent=`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'');
+  $('ovQ').textContent=`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'')+(newN?` · ${N[newN].name} desbloqueado! Ele já está na Formação.`:'');
   $('ovN').classList.toggle('hide',!hasNext);
   $('resWin').classList.remove('hide');
 }
