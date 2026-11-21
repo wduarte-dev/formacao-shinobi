@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formação Shinobi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+<section id="sTitle" class="scr">
+  <div class="bgi" style="background-image:url(bg/vila.png)"></div>
+  <div class="petals"></div>
+  <div class="logo"><div class="blob"><span>FORMAÇÃO</span><b>SHINOBI</b></div></div>
+  <div class="press">Clique para começar</div>
+  <div class="credits">Ninjas: Pixel DarkNinja, por Zhen (zhen.itch.io) · Cenários: Tiny Pixel Japan, por LyniaDesign, e Parallax Forest, por Macrune12 (CC0) · Interface: Pixel UI Fantasy Free by heyheythere - https://heyheythere.itch.io/pixel-ui-fantasy-free - CC BY 4.0</div>
+</section>
+
+<section id="sHub" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/vila.png)"></div>
+  <div class="petals"></div>
+  <div class="ribbon" style="left:60px;top:40px">FORMAÇÃO SHINOBI</div>
+  <div class="win"><h3>Vila Oculta</h3>
+    <button class="btn big" id="hMap"><i class="ic" style="background-image:url(ui/sword.png)"></i>Missões</button>
+    <button class="btn big" id="hForm"><i class="ic" style="background-image:url(ui/shield.png)"></i>Formação</button>
+    <button class="btn big" id="hGal"><i class="ic" style="background-image:url(ui/scroll.png)"></i>Ninjas</button>
+    <div class="row"><button class="btn sm on" id="hSnd">Som</button><button class="btn sm" id="hFull">Tela cheia</button></div>
+  </div>
+  <div id="hubTeam"></div>
+  <div class="hint" id="hubHint" style="left:560px;top:300px"></div>
+</section>
+
+<section id="sForm" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/vila.png)"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="ribbon" style="left:150px;top:16px">Formação</div>
+  <div class="hint" style="left:20px;top:80px;font-size:16px;width:400px;background:#0008;padding:6px 10px;line-height:1.25">Arraste um ninja até uma casa.<br>A ordem de entrada é a ordem de ação.<br>Quem está na frente apanha primeiro.<br>Clique num ninja do campo para tirar.</div>
+  <div id="fTiles"></div><div id="fUnits"></div>
+  <div class="hint" style="left:500px;top:590px;font-size:17px">inimigo ▶</div>
+  <div class="win" id="fWin"><h3>Ninjas</h3>
+    <div id="fRoster"></div>
+    <div class="parch" id="fInfo"></div>
+    <div id="fBtns"><button class="btn" id="fClear">Limpar</button><button class="btn" id="fDone">Pronto</button></div>
+  </div>
+  <div id="drag" class="hide"></div>
+</section>
+
+<section id="sMap" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/vila.png)"></div><div class="shade"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="win" id="mWin"><h3>Mapa de Missões</h3>
+    <div class="parch" id="mMap"></div>
+    <div class="pnl" id="mSide"></div>
+  </div>
+</section>
+
+<section id="sGal" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/vila.png)"></div><div class="shade"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="win" id="gWin"><h3>Ninjas</h3>
+    <div id="gList"></div>
+    <div id="gMid"><div class="inset" id="gView"></div><div id="gAn"></div></div>
+    <div class="parch" id="gInfo"></div>
+  </div>
+</section>
+
+<section id="sBattle" class="scr hide">
+  <div class="field" id="field">
+    <div id="cam"><div class="bgi" id="bbg"></div><div id="units"></div><div id="fx"></div><canvas id="fxc" width="384" height="216"></canvas><div id="slines"></div></div>
+    <div class="hud l"><div class="pf"><i id="hpP" class="por"></i></div><div class="bars"><div class="bar g"><i id="thpP"></i></div><div class="bar b"><i id="tckP"></i></div><div class="ckn" id="cknP"></div></div></div>
+    <div class="hud r"><div class="pf"><i id="hpE" class="por"></i></div><div class="bars"><div class="bar o"><i id="thpE"></i></div><div class="bar b"><i id="tckE"></i></div><div class="ckn" id="cknE"></div></div></div>
+    <div class="ribbon" id="rd">Rodada 1</div>
+    <div id="clist" class="l"></div>
+    <div class="hits" id="hits"></div>
+    <div class="cut" id="cut"><div class="lines"></div><div class="cp" id="cutP"></div></div>
+    <div class="jtag l" id="jtag"><div class="jp" id="jtP"></div><b id="jtN"></b></div>
+    <div id="flash"></div>
+    <div id="ink"><div class="blob"><span id="inkT"></span></div></div>
+  </div>
+  <div id="log"></div>
+  <div id="sbar"></div>
+  <div id="ctl">
+    <button class="btn sm" id="bAuto">Auto</button><button class="btn sm" id="bSpeed">1x</button>
+    <button class="btn sm" id="bPause">Pausar</button><button class="btn sm" id="bQuit">Sair</button>
+  </div>
+  <div class="win hide" id="resWin"><h3 id="ovT"></h3><p id="ovP"></p><p id="ovQ"></p>
+    <button class="btn" id="ovN">Próxima missão</button><button class="btn" id="ovA">Lutar de novo</button><button class="btn" id="ovB">Mapa</button></div>
+</section>
+
+</div></div>
+<div id="rot">Vire o celular de lado para ver maior.</div>
+
+<script src="js/data.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/state.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/cine.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

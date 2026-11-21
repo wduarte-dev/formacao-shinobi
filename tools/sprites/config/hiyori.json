@@ -1,0 +1,10 @@
+{"name": "hiyori", "body_h": 115, "teal_fix": true,
+ "sheets": [
+  {"file": "A1.png", "rows": 4, "cols": 8, "anims": ["idle", "walk", "dash", "attack"]},
+  {"file": "A2.png", "rows": 4, "cols": 8, "anims": ["strong", "guard", {"name": "hurt", "use": [1, 2, 2]}, "dodge"]},
+  {"file": "B1.png", "rows": 3, "cols": 8, "anims": ["seals", "jutsu", "buff"]},
+  {"file": "B2.jpg", "rows": 3, "cols": 8, "anims": [{"name": "stun", "use": [0, 1, 2, 3]}, "victory", "defeat"], "ref": ["defeat:0", "victory:1"]},
+  {"file": "C.jpg", "rows": 4, "cols": 8, "ref": ["knockdown:5,6,7", "chase:0,7"], "anims": ["knockback", "launched", "knockdown", "chase"]}
+ ],
+ "fx": {"file": "D.jpg", "rows": 6, "cols": 8, "use_cols": 7, "fps": 12, "names": ["blade", "crescents", "prison", "pillar", "impact", "aura"]}
+}

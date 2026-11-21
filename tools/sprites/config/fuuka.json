@@ -1,0 +1,9 @@
+{"name": "fuuka", "body_h": 115,
+ "sheets": [
+  {"file": "A1.png", "rows": 4, "cols": 8, "anims": ["idle", "walk", "dash", "attack"]},
+  {"file": "A2.png", "rows": 4, "cols": 8, "anims": ["strong", "guard", "hurt", "dodge"]},
+  {"file": "B.png", "rows": 6, "cols": 7, "ref": ["seals", "stun"], "anims": ["seals", "jutsu", "buff", "stun", "victory", "defeat"]},
+  {"file": "C.png", "rows": 4, "cols": 8, "ref": ["launched:0,1"], "anims": ["knockback", "launched", "knockdown", "chase"]}
+ ],
+ "fx": {"file": "D.png", "rows": 6, "cols": 6, "fps": 12, "names": ["crescent", "gust", "tornado", "whirlwind", "impact", "aura"]}
+}
