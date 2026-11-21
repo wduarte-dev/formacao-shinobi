@@ -42,7 +42,7 @@ Números são sugestão inicial, ajustar no teste. Design completo e prompts de 
 - **Perseguição — Ferrão:** L→D, mergulho de cima com agulha gigante.
 - dodge a definir (sugestão 5%). Sinergia: Fuuka/Mayoi (L) → Ferrão (L→D).
 
-## Poko (Som, Velocista/combo, GRANDALHÃO) — prompt A1 pronto (sem ref, de propósito), A1, A2, B1 e B2 salvos em `tools/sprites/src/poko/` (obs: no B2 só 2 frames bons de stun, usar `pingpong`; B1 e B2 vieram com 9 colunas)
+## Poko (Som, Velocista/combo, GRANDALHÃO) — prompt A1 pronto (sem ref, de propósito), A1, A2, B1, B2 e C salvos (C perfeito; prompt do D em `docs/refs/poko_D_prompt.txt`) em `tools/sprites/src/poko/` (obs: no B2 só 2 frames bons de stun, usar `pingpong`; B1 e B2 vieram com 9 colunas)
 - Visual: **louva-a-deus alto e veloz** (criatura), corpo âmbar/ocre/ferrugem com placas cremes (SEM verde), duas foices serrilhadas, asas translúcidas que vibram e fazem som, discos dourados no peito tipo alto-falante. Paleta de som: dourado, laranja-avermelhado, creme. Prompt: `docs/refs/poko_A1_prompt.txt`. Sem ref no A1 porque é o primeiro bicho: a IA copiaria o ninja usado como ref.
 - **Tamanho:** primeiro ninja com `size` (~1.4–1.6): multiplicador no `mkSpr`, `--h` da barra e alcance de `dashTo`. Sprites já gerados na proporção. A onda de `size` vem antes de ele entrar no jogo.
 - **Básico — Rufo de Foices:** corpo a corpo, alvo único, ~5 hits de ~20% (`hits`), sem estado.
