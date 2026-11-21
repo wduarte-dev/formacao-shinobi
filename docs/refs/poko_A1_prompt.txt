@@ -1,0 +1,19 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, bounce, slide, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin sound-wave rings near the body. Effect colors: warm gold, orange-red, cream, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
+LABEL: top-left corner only, small plain white pixel text "POKO - LOTE A1" on a thin dark strip above the grid.
+
+CHARACTER (original, pixel art, dark 1px outline, max 16 colors): POKO, a HUGE round tanuki (raccoon-dog) ninja-drummer. He is a big chubby non-human creature that fills almost the whole cell height, much bigger and rounder than a normal ninja. Warm brown fur with lighter brown highlights, round ears with cream inner, dark brown eye mask patches, cream muzzle with a dark nose, a big striped bushy tail with a cream tip. A large round cream BELLY that is a taiko drum: thin darker ring on the belly skin and a few small red studs around its edge, a small gold-and-red mark in its center, clearly visible in every frame. A single orange maple leaf sits on top of his head. He holds TWO wooden drumsticks (bachi) with round brown heads, clearly visible in every frame. Tiny stubby feet. Friendly but fierce fighting spirit.
+
+ROWS:
+Row 1: IDLE, 6 frames, he bounces on his stubby feet to a lazy drum beat, belly jiggling, sticks tapping the air, tail swaying (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames, heavy happy waddle to the right, belly bouncing, full 8 columns.
+Row 3: DASH, 8 frames, a surprisingly fast forward roll or rush like a rolling ball, sticks tucked in, a thin gold speed line at most, full 8 columns.
+Row 4: BASIC ATTACK, 7 frames: DRUM ROLL. He rears back with both sticks, then hammers forward with rapid alternating strikes of the two sticks (several fast hits in a row, arms blurring between poses), final heavy strike, returns to stance. A few small gold sound rings near the sticks only (cell 8 EMPTY).
