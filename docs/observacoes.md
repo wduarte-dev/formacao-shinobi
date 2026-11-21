@@ -14,3 +14,5 @@ Fonte original: doc no claude.ai (artefato Docs, slug `56949c0c-2b3e-468f-a53c-a
 7. Hover no inimigo: destaca (verde) e mostra vida exata (restante/total).
 8. Clique no inimigo: marca (azul) até clicar de novo. Jutsus vão pro marcado, exceto os com restrição (mais fraco, todos).
 9. Fluxo não é fixo: cada personagem/animação tem tempo próprio (um jutsu 4s, outro 8s).
+
+**Onda 0b (21/11/2026) resolveu 5, 7, 8 e 9:** cena isolada em jutsu e perseguição (perseguidores acumulam, fundo só clareia quando todos voltaram), hover verde + vida exata, clique marca em azul (jutsus de alvo único/fileira do jogador vão nele), tempos vindos da anim (`animMs`/`hitAt`) e do fim das partículas (`fxWait`).

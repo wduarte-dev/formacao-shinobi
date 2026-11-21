@@ -7,7 +7,7 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 - **Antes de cada onda/tarefa grande:** dizer qual modelo/esforço recomenda e esperar ele ajustar; depois fazer perguntas de esclarecimento com opções clicáveis (AskUserQuestion), com a recomendada primeiro e "(Recomendado)".
 - **Ondas:** quando ele mandar "próxima onda", executar a primeira ⬜ de `docs/ondas.md`. Uma onda por vez. Ao terminar: testar, commitar, marcar ✅ e atualizar os docs afetados.
 - **Edição por trecho:** nunca reescrever arquivo inteiro sem necessidade. Cada módulo tem uma responsabilidade (tabela abaixo); mexer só nos módulos da tarefa.
-- **Testar sempre antes de commitar:** `python3 tools/test_battle.py . /tmp/shots [missao]` (sobe servidor local, roda batalha automática com Auto + 2x, salva prints, lista erros do console; o erro da fonte do Google é esperado sem internet). Conferir os prints.
+- **Testar sempre antes de commitar:** `python3 tools/test_battle.py . /tmp/shots [missao]` (na nuvem, se faltar: `pip install playwright==<versão do playwright global do npm>` e rodar com `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`) (sobe servidor local, roda batalha automática com Auto + 2x, salva prints, lista erros do console; o erro da fonte do Google é esperado sem internet). Conferir os prints.
 - **Commits** pequenos e descritivos em português. Push na `main` só se ele pedir ou se a onda foi aprovada.
 - **Doc mudou de fato (ninja integrado, mecânica nova, decisão de design)?** Atualizar o doc certo em `docs/` no mesmo commit.
 
@@ -36,7 +36,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 ## Arquitetura (resumo)
 - Palco fixo 1152x648 escalado por CSS; `#cam` (zoom) envolve fundo, unidades e efeitos; HUD fora.
 - Sprites: atlas em grade + tabela `[linha, colIni, frames, loop, fps, next]`. `SH[id]` = cw, ch, âncora dos pés, tamanho, fator k, `anim` próprio. Atlas novos (pipeline v2): células 192x160, pé em x=96 y=150, 8 colunas, k=1/3, JSON com fps por anim e flag `pingpong`. Efeitos do lote D: atlas próprio 288x192, alpha suave.
-- Mecânicas: chakra +20/rodada, jutsu armado pelo jogador (botão Auto), recargas, estados D (Derrubado) / L (Lançado) / R (Repelido), 1 perseguição por ninja (on→cause, 1x/rodada, +10% de dano por passo do combo), DoT, atordoar, escudo, cura, IA inimiga.
+- Mecânicas: chakra +20/rodada, jutsu armado pelo jogador (botão Auto), recargas, estados D (Derrubado) / L (Lançado) / R (Repelido), 1 perseguição por ninja (on→cause, 1x/rodada, +10% de dano por passo do combo), DoT, atordoar, escudo, cura, IA inimiga, esquiva por ninja, alvo marcado por clique (jutsus do jogador), cena isolada em jutsu e perseguição.
 - Impacto: `smash()` = zoom + corte + linhas de velocidade + flash + hit-stop; `knock()` (R voa até a borda e racha, L sobe, D cai com poeira).
 - Save em `localStorage` chave `shinobi-save`. 5 missões; no teste automático o time base vence 1–3 e perde 4–5.
 

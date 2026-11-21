@@ -40,16 +40,30 @@ function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=
 function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on'); }
 function comboLine(name,count){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`${name}<b>${count} Combo</b>`; c.appendChild(d); setTimeout(()=>d.remove(),1900);}
 
+// cena isolada (jutsu e perseguição): fundo escuro e só os participantes visíveis, do começo ao fim.
+// sceneAdd revela mais gente (a perseguição acumula); sceneOff só roda quando todos voltaram pra casa.
+const scene={on:false};
+function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().forEach(x=>x.el.classList.toggle('ghost',!list.includes(x))); }
+function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
+function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
+// esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
+async function evade(t){ sfx.swing();
+  if(an_of(t).dodge){ setAnim(t,'dodge'); await sleep(animMs(t,'dodge')); }
+  else{ retrig(t.st,'dodge'); await sleep(320); t.st.classList.remove('dodge'); }
+  if(t.alive&&!t.state)setAnim(t,'idle'); }
+// espera os efeitos de partícula acabarem (cada jutsu dura o que o efeito dele dura), entre min e max ms
+async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.length||BOLT.length);t+=60)await sleep(60); }
+
 async function cine(u,sk,ts){
-  const f=$('field'), tag=$('jtag'), c=$('cut'), cp=$('cutP');
-  f.classList.add('dim'); all().forEach(x=>{if(x!==u)x.el.classList.add('ghost');}); setAnim(u,'cast'); sfx.cast();
+  const tag=$('jtag'), c=$('cut'), cp=$('cutP');
+  sceneOn([u]); setAnim(u,'cast'); sfx.cast();
   tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=sk.name; void tag.offsetWidth; tag.classList.add('on');
   await sleep(260);
   c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,6,0,28,26);
   retrig(c,'on'); await sleep(640);
-  ts.forEach(t=>t.el.classList.remove('ghost'));
+  ts.forEach(sceneAdd);
 }
-function endCine(){ $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); $('jtag').classList.remove('on'); }
+function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}

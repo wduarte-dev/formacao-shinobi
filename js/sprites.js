@@ -14,6 +14,9 @@ SPR.kaen='url(spr/kaen_atlas.png)';
 SH.kaen={cw:192,ch:160,ax:96,ay:150,W:1536,H:2880,k:1/3,hd:[96,52],anim:KANIM,rowmap:{0:0,6:7}};
 const an_of=u=>SH[u.id].anim||ANIM0;
 const stAnim=(u,s)=>{const A=an_of(u); return s&&A.knockback?{R:'knockback',L:'launched',D:'knockdown'}[s]:(s?'down':'idle');};
+// duração real de uma animação (quadros / fps) e o momento do impacto (metade dela, com limites)
+const animMs=(u,n)=>{const a=an_of(u)[n]; return a?a[2]*1000/a[4]:0;};
+const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));
 let ACT=[];                                   // tudo que está sendo animado na tela
 function mkSpr(id,scale){ const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
   spr.style.cssText=`left:${-S.ax*e}px;top:${-S.ay*e}px;width:${S.cw*e}px;height:${S.ch*e}px;background-image:${SPR[id]};background-size:${S.W*e}px ${S.H*e}px;transform-origin:${S.ax*e}px ${S.ay*e}px`;
