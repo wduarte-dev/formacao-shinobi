@@ -1,0 +1,12 @@
+Create ONE pixel art battle background for a side-view turn-based fighting game, in the same pixel art style, level of detail, outline weight and color richness as the attached character sprite sheet (use it only as a STYLE reference, do NOT draw any character).
+
+FORMAT: landscape 16:9 image (like 1920x1080), crisp pixel art with visible pixels, no blur, no anti-aliased gradients, max about 32 colors, dark 1px outlines on main shapes.
+
+SCENE: a quiet Japanese-style village at late afternoon, soft warm golden-pink light. Far background: pale misty mountains. Middle: wooden houses with tiled roofs and a small pagoda, a few cherry blossom trees with pink petals, paper lanterns. The scenery stays in the UPPER 60% of the image.
+
+COMPOSITION RULES (important for gameplay):
+1. The LOWER 40% is a wide, flat, uncluttered battlefield ground (packed dirt with a little grass and tiny pebbles), seen from the side with a very slight top-down tilt, as one continuous stage for two teams to fight. NO objects, no trees, no props and no strong details on the ground.
+2. A clear horizon line where the ground meets the scenery, at about 60% of the image height.
+3. Left and right edges balanced, nothing important in the exact center, calm and readable so characters stand out.
+4. NO characters, NO people, NO animals, NO text, NO logo, NO UI, NO border, NO frame, NO watermark, NO vignette.
+5. Do not use pure green or turquoise on the ground. Keep contrast low in the background so sprites stay readable.
