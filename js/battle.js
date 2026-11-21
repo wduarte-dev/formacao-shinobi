@@ -10,7 +10,7 @@ function startBattle(){
   $('bbg').style.backgroundImage=`url(bg/${foe.bg}.png)`;
   portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
   for(const u of all()){
-    const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
+    const p=pos(u), e=document.createElement('div'); e.className='u '+u.side+(an_of(u).knockback?' v2':''); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
     e.style.setProperty('--c',u.d.c);
     e.innerHTML=`<div class="mv"><div class="sh"></div><div class="st"></div><div class="tg"></div><div class="hpb"><i></i></div><div class="hpn"></div><div class="hb"></div></div>`;
     if(u.side==='e'){const hb=e.querySelector('.hb'); hb.onmouseenter=()=>e.classList.add('hov'); hb.onmouseleave=()=>e.classList.remove('hov'); hb.onclick=()=>markFoe(u);}

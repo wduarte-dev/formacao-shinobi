@@ -64,8 +64,8 @@ async function cine(u,sk,ts){
   ts.forEach(sceneAdd);
 }
 function endCine(){ $('jtag').classList.remove('on'); }
-async function dashTo(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
-  setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
+async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
+  if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; u.mv.style.transform=`translate(${b.x-dir*82-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}
 async function shoot(u,t){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
   e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);

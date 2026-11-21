@@ -1,0 +1,8 @@
+{"name": "raiden", "body_h": 115,
+ "sheets": [
+  {"file": "A.jpg", "rows": 6, "cols": 8, "anims": ["idle", "walk", "dash", "attack", "strong", "guard"]},
+  {"file": "B.jpg", "rows": 6, "cols": 8, "ref": ["seals", "victory:0"], "anims": ["seals", "jutsu", "buff", {"name": "stun", "use": [0, 1, 2, 3]}, "victory", "defeat"]},
+  {"file": "C.jpg", "rows": 4, "cols": 8, "ref": ["knockback:0", "chase:0,7"], "anims": ["knockback", "launched", "knockdown", "chase"]}
+ ],
+ "fx": {"file": "D.png", "rows": 6, "cols": 6, "fps": 12, "names": ["bolt", "chain", "burst", "ground", "orb", "spark"]}
+}
