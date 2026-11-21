@@ -99,3 +99,12 @@ function fxAt(u,kind,t,sc,dy){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0
 function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; const a=cur(u), b=cur(t), d=u.side==='p'?1:-1;
   fxSpr(u.id,nm,{x:a.x+d*60,y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:.75,fps:6/(ms/1000)});
   return true; }
+
+// ícone de jutsu (estilo barra do NO): recorta o centro do efeito do jutsu e anima os quadros em loop (CSS steps)
+function fxIcon(el,id,sz){ const A=FXA[id], nm=(FXUSE[id]||{}).jutsu; if(!A||!nm||!A.a[nm])return false;
+  const [r,n]=A.a[nm], e=sz/150, cw=288*e, ch=192*e, ox=(cw-sz)/2, oy=r*ch+(ch-sz)/2;
+  el.style.backgroundImage=`url(spr/${id}_fx.png)`; el.style.backgroundSize=`${A.c*cw}px ${6*ch}px`;
+  el.style.setProperty('--x0',`${-ox}px`); el.style.setProperty('--x1',`${-ox-n*cw}px`); el.style.backgroundPositionY=`${-oy}px`;
+  el.style.backgroundPositionX=`${-ox-Math.floor(n/2)*cw}px`;   // parado (sem chakra/recarga) mostra o quadro do meio
+  el.style.animationTimingFunction=`steps(${n})`; el.style.animationDuration=`${n/10}s`;
+  return true; }

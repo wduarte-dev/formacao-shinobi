@@ -6,7 +6,9 @@ function drawJ(){
   U.p.forEach(u=>{const j=u.d.jutsu, w=document.createElement('div'), x=document.createElement('button');
     const can=u.alive&&u.cd===0&&(u.armed||chakra.p>=j.cost);
     w.className='skw'; x.className='sk'+(u.armed?' armed':'')+(can?'':' off'); x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
-    const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp); portrait(kp,u.id,2.7,58,58);
+    const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
+    const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
+    if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
     x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span>${u.alive&&u.cd>0?`<span class="cdv">${u.cd}</span>`:!u.alive?'<span class="cdv">✕</span>':''}`);
     x.onclick=()=>{ if(!u.alive||u.cd>0)return;
       if(u.armed){u.armed=false;chakra.p+=j.cost;} else if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
