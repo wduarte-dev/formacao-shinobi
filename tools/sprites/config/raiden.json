@@ -1,0 +1,103 @@
+{
+ "name": "raiden",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "A.jpg",
+   "rows": 6,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash",
+    "attack",
+    "strong",
+    "guard"
+   ]
+  },
+  {
+   "file": "B.jpg",
+   "rows": 6,
+   "cols": 8,
+   "ref": [
+    "seals",
+    "victory:0"
+   ],
+   "anims": [
+    "seals",
+    "jutsu",
+    "buff",
+    {
+     "name": "stun",
+     "use": [
+      0,
+      1,
+      2,
+      3
+     ]
+    },
+    "victory",
+    "defeat"
+   ]
+  },
+  {
+   "file": "C.jpg",
+   "rows": 4,
+   "cols": 8,
+   "ref": [
+    "knockback:0",
+    "chase:0,7"
+   ],
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown",
+    "chase"
+   ]
+  },
+  {
+   "file": "F.jpg",
+   "rows": 2,
+   "cols": 8,
+   "ref": [
+    "hurt:0",
+    "dodge:0"
+   ],
+   "anims": [
+    {
+     "name": "hurt",
+     "use": [
+      0,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "dodge",
+     "use": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "anchor": "feet"
+    }
+   ]
+  }
+ ],
+ "fx": {
+  "file": "D.png",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "bolt",
+   "chain",
+   "burst",
+   "ground",
+   "orb",
+   "spark"
+  ]
+ }
+}

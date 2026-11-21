@@ -35,7 +35,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 
 ## Arquitetura (resumo)
 - Palco fixo 1152x648 escalado por CSS; `#cam` (zoom) envolve fundo, unidades e efeitos; HUD fora.
-- Sprites: atlas em grade + tabela `[linha, colIni, frames, loop, fps, next]`. `SH[id]` = cw, ch, âncora dos pés, tamanho, fator k, `anim` próprio. Atlas novos (pipeline v2): células 192x160, pé em x=96 y=150, 8 colunas, k=1/3, JSON com fps por anim e flag `pingpong`. Efeitos do lote D: atlas próprio 288x192, alpha suave.
+- Sprites: atlas em grade + tabela `[linha, colIni, frames, loop, fps, next]`. `SH[id]` = cw, ch, âncora dos pés, tamanho, fator k, `anim` próprio. Atlas v2 se registram no objeto `V2` (`js/sprites.js`); Kaen ainda usa `KANIM` (atlas de 10 colunas, com `rise`/`meteor` da perseguição aérea). Anims com `pingpong` vão e voltam. Atlas novos (pipeline v2): células 192x160, pé em x=96 y=150, 8 colunas, k=1/3, JSON com fps por anim e flag `pingpong`. Efeitos do lote D: atlas próprio 288x192, alpha suave.
 - Mecânicas: chakra +20/rodada, jutsu armado pelo jogador (botão Auto), recargas, estados D (Derrubado) / L (Lançado) / R (Repelido), 1 perseguição por ninja (on→cause, 1x/rodada, +10% de dano por passo do combo), DoT, atordoar, escudo, cura, IA inimiga, esquiva por ninja, alvo marcado por clique (jutsus do jogador), cena isolada em jutsu e perseguição.
 - Impacto: `smash()` = zoom + corte + linhas de velocidade + flash + hit-stop; `knock()` (R voa até a borda e racha, L sobe, D cai com poeira).
 - Save em `localStorage` chave `shinobi-save`. 5 missões; no teste automático o time base vence 1–3 e perde 4–5.
@@ -51,7 +51,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 | Mayoi | Névoa | Esquiva/campo | Noite de Névoa (campo 3 rodadas) | Tempestade de Mariposas L→R |
 | Hiyori | Gelo | Controle | Prisão de Gelo (alvo único, D + atordoa) | Pilar de Gelo D→L |
 | Doku | Veneno | Desgaste | Névoa Tóxica (todos, R + veneno) | Ferrão L→D |
-(No código o Mayoi ainda aparece como `kuro`, sprite antigo, até a Onda 2.) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
+(No código o Mayoi ainda aparece como `kuro`, sprite antigo, até a Onda 2. Fuuka, Hiyori, Kuro e Doku ainda usam os sprites antigos 96x64.) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
 
 ## Sprites
 Ele gera os sheets numa IA de imagem e manda (anexo no chat ou commit em `tools/sprites/src/<ninja>/`). Eu recorto com o pipeline (`docs/pipeline-sprites.md`) e integro. Prompts de ninja novo: `docs/prompts-sprites.md` (template v2 + lições). Fundo verde chapado #00FF00, sem xadrez, sem moldura, sem sombra, nada turquesa no personagem.

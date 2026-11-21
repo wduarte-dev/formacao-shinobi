@@ -1,0 +1,30 @@
+{
+ "name": "kaen_e",
+ "body_h": 115,
+ "cols_out": 10,
+ "sheets": [
+  {
+   "file": "E.jpg",
+   "rows": 2,
+   "cols": 10,
+   "ref": [
+    "rise:0"
+   ],
+   "anims": [
+    {
+     "name": "rise",
+     "fps": 16,
+     "loop": 0,
+     "anchor": "feet"
+    },
+    {
+     "name": "meteor",
+     "fps": 16,
+     "loop": 0,
+     "anchor": "feet"
+    }
+   ],
+   "scale_mul": 0.86
+  }
+ ]
+}

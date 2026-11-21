@@ -121,7 +121,8 @@ def cuts_1d(proj, n, start, stop, slack=0.22):
 def erase_label(fg, H, W):
     lab, k = ndi.label(fg, structure=np.ones((3, 3)))
     for i, sl in enumerate(ndi.find_objects(lab), 1):
-        if sl[0].start <= 2 and sl[0].stop < H * 0.07 and sl[1].stop < W * 0.5:
+        # rótulo curto no canto OU faixa escura da largura toda no topo
+        if sl[0].start <= 2 and sl[0].stop < H * 0.07 and (sl[1].stop < W * 0.5 or sl[1].stop - sl[1].start > W * 0.9):
             fg[lab == i] = False
     return fg
 
@@ -390,6 +391,7 @@ def main():
     ap.add_argument('--no-fx', action='store_true')
     a = ap.parse_args()
     cfg = json.load(open(a.config)); name = cfg['name']
+    global COLS; COLS = cfg.get('cols_out', COLS)   # colunas do atlas de saída (padrão 8; mais = anims mais longas)
     src = a.src or os.path.join('src', name); os.makedirs(a.out, exist_ok=True)
     anims, log = build_character(cfg, src)
     save_character(name, anims, a.out)

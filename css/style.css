@@ -165,6 +165,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .hpn{display:none;position:absolute;left:-60px;width:120px;top:calc(var(--h)*-1 - 46px);text-align:center;font-weight:700;font-size:20px;color:#7dffa6;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;pointer-events:none}
 .u.hov .hpn{display:block}.u.hov .tg{visibility:hidden}
 .u.dead .hpn{display:none!important}
+/* atlas com anim própria de caído/lançado/repelido: sem a rotação feita pros sprites antigos */
+.u.v2 .st.D,.u.v2 .st.R{transform:none}.u.v2 .st.L{transform:translate(calc(var(--d)*14px),-72px)}
 .st.dodge{animation:dodge .32s ease-out}
 @keyframes dodge{0%{transform:none;opacity:1}35%{transform:translate(calc(var(--d)*56px),-14px);opacity:.35}70%{transform:translate(calc(var(--d)*56px),-4px);opacity:.6}100%{transform:none;opacity:1}}
 .fl{position:absolute;left:0;top:calc(var(--h)*-1 - 46px);transform:translateX(-50%);font-weight:700;font-size:28px;color:#fff;white-space:nowrap;pointer-events:none;z-index:90;animation:up .9s ease-out forwards;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
@@ -239,6 +241,10 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #ctl .btn{height:40px}
 #log{position:absolute;left:10px;bottom:10px;width:300px;height:104px;overflow:hidden;font-size:13px;line-height:1.2;color:#eee;background:#0008;border:2px solid #0009;padding:4px 8px;z-index:60;font-family:ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-end}
 #log .r{color:#ffd24a}#log .x{color:#ff8ad0}
+#log{transition:height .25s ease-out}
+#log.min{height:30px}
+#logT{position:absolute;left:278px;bottom:96px;z-index:61;width:30px;height:22px;padding:0;font-size:13px;line-height:20px;background:#000c;color:#eee;border:2px solid #0009;cursor:pointer;transition:bottom .25s ease-out}
+#logT.min{bottom:20px}
 #resWin{left:356px;top:170px;width:440px;height:310px;z-index:120;padding:10px 16px;display:flex;flex-direction:column;gap:10px;text-align:center}
 #resWin p{margin:2px 0;font-size:20px}
 #resWin .btn{height:50px}
