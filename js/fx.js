@@ -78,9 +78,14 @@ const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'s
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide',shard:'slide',fenda:'slide',lacre:'float',rasgo:'rise',estouro:'spin',halo:'float'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
 // mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
-// pré-carga: os atlas de efeito têm ~16MB decodificados cada; sem isso o 1º jutsu/perseguição trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
+// pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
+// Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-function preloadFx(ids){ for(const id of new Set(ids)){ for(const f of [`spr/${id}_fx.png`,...(id==='yugami'?['spr/yugamir_atlas.png']:[])]){ if(KEEP[f])continue; const im=KEEP[f]=new Image(); im.src=f; if(im.decode)im.decode().catch(()=>{}); } } }
+function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(id==='yugami')fs.push('spr/yugamir_atlas.png'); }
+  let n=0; if(onp)onp(0,fs.length);
+  return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
+    const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };
+    return (im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(done); })); }
 let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem
 function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
   const [r,n]=A.a[name], sc=o.sc||1, w=288*sc, h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;

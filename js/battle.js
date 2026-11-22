@@ -1,9 +1,14 @@
 // battle.js — início da batalha, HUD, log, estados D/L/R
 "use strict";
-function startBattle(){
+// tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
+let loadingB=false;
+function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('i'); bar.style.width='0'; L.classList.remove('hide');
+  const ids=[...placed.map(p=>p.id),...FOES[foeIx].team.map(t=>t[0])], t0=Date.now();
+  const fin=()=>{ loadingB=false; L.classList.add('hide'); startBattle2(); };
+  Promise.race([preloadFx(ids,(n,t)=>{bar.style.width=(t?n/t*100:100)+'%';}),new Promise(r=>setTimeout(r,20000))]).then(()=>setTimeout(fin,Math.max(0,250-(Date.now()-t0)))).catch(fin); }
+function startBattle2(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
   U={p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  preloadFx((navigator.deviceMemory&&navigator.deviceMemory<=4?U.p:all()).map(u=>u.id));   // pouca RAM: só os efeitos do seu time (cada atlas ocupa ~11-16MB decodificado)
   chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';

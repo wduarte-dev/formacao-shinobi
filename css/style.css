@@ -294,3 +294,7 @@ body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none
 /* ninja bloqueado (Formação/Galeria): só a silhueta */
 .slot.lockd .por{filter:brightness(0) opacity(.55)}.slot.lockd{cursor:default}
 #hDev.on{background-color:#8a2b2b;box-shadow:0 0 8px #ff6a4a}
+
+#loading{position:fixed;inset:0;z-index:999;background:#0b0810;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-size:26px;font-weight:600}
+#loading .lbar{width:min(60vw,420px);height:14px;border:2px solid #fff8;border-radius:8px;overflow:hidden}
+#loading .lbar i{display:block;height:100%;width:0;background:#ffd24a;transition:width .15s}

@@ -78,7 +78,6 @@ $('fDone').onclick=()=>{sfx.ui('confirma');show('sHub');};
 const NODE=[[76,372],[196,268],[330,350],[430,206],[500,96]];
 function drawMap(){
   if(foeIx>unlocked)foeIx=unlocked;
-  preloadFx([...placed.map(p=>p.id),...FOES[foeIx].team.map(t=>t[0])]);   // decodifica os efeitos enquanto ele olha o mapa
   const m=$('mMap'); m.innerHTML=`<svg viewBox="0 0 574 470"><polyline points="${NODE.map(n=>n.join(',')).join(' ')}" fill="none" stroke="#7a5230" stroke-width="5" stroke-dasharray="4 12" stroke-linecap="round"/></svg>`;
   FOES.forEach((f,i)=>{ const b=document.createElement('button'), lock=i>unlocked, done=i<unlocked;
     b.className='node'+(lock?' lock':'')+(done?' done':'')+(i===foeIx?' sel':''); b.style.left=NODE[i][0]+'px'; b.style.top=NODE[i][1]+'px';
