@@ -4,24 +4,25 @@ function zoomTo(x,y,s,slow){const c=$('cam'); c.classList.toggle('slow',!!slow);
 function zoomOut(slow){const c=$('cam'); c.classList.toggle('slow',!!slow); c.style.transform='';}
 function bigSlash(x,y,att,state){ const dir=att.side==='p'?1:-1, ang={R:-6,L:-58,D:52}[state]*dir;
   for(const k of ['','b']){const e=document.createElement('div'); e.className='bslash '+k; e.style.left=x+'px'; e.style.top=(y+(k?14:0))+'px'; e.style.setProperty('--c',att.d.c); e.style.setProperty('--r',ang+'deg'); $('fx').appendChild(e); setTimeout(()=>e.remove(),420);} }
-function speedLines(state){const l=$('slines'); l.className=state==='R'?'':'v'; void l.offsetWidth; l.classList.add('on');}
+function speedLines(state){ slineFx(state); }   // desenhadas no canvas #fxc (antes: camada de 1552x1048 animando background-position = repintura gigante)
 function crack(x,y){ const c=document.createElement('div'); c.className='crack'; c.style.left=x+'px'; c.style.top=y+'px';
-  for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.transform=`rotate(${i*40+R(-14,14)}deg)`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); setTimeout(()=>c.remove(),560); }
+  for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.rotate=`${i*40+R(-14,14)}deg`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); setTimeout(()=>c.remove(),560); }
 // golpe que muda o estado do alvo: zoom no ponto do corte, câmera lenta, e o alvo sai voando
 async function smash(att,t,state){
   const p=cur(t);
-  zoomTo(p.x,p.y-60,1.5); bigSlash(p.x,p.y-60,att,state); speedLines(state); retrig($('flash'),'soft'); sfx.heavy();
+  zoomTo(p.x,p.y-60,1.5); bigSlash(p.x,p.y-60,att,state); speedLines(state); flashSoft(); sfx.heavy();
   await hitstop(80);
   zoomOut(true); await knock(t,state);
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Lançado sobe, Derrubado desaba no chão
 async function knock(t,state){
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
-  const wasAir=t.off.y<0;
+  const wasAir=t.off.y<0, p0=cur(t);
   if(state==='R'){t.off.x=(d>0?1082:70)-b.x; t.off.y=wasAir?-70:0;}
   else if(state==='L'){t.off.x=lim(t.off.x+d*60); t.off.y=-230;}
   else{t.off.x=lim(t.off.x+d*46); t.off.y=0;}
   t.state=state; t.st.className='st '+state; setAnim(t,stAnim(t,state)); t.el.style.zIndex=55;
+  { const p1=cur(t); trailFx(p0.x,p0.y-60,p1.x,p1.y-60,state); }   // rastro de vento no canvas (antes: drop-shadow de 60px no sprite)
   t.el.classList.add('fly','fly'+state);
   t.mv.style.transform=`translate(${t.off.x}px,${t.off.y}px)`;
   fl(t,ST[state]+'!','state'); sfx.knock(state);
@@ -36,8 +37,12 @@ async function knock(t,state){
 // hit-stop: congela anims (não os efeitos) por um instante no impacto
 async function hitstop(ms){const f=$('field'); f.classList.add('hs'); frozen=true; try{await sleep(ms);}finally{frozen=false; f.classList.remove('hs');}}
 function retrig(el,cls){el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);}
-function flash(){retrig($('flash'),'on');}
-function shake(){retrig($('field'),'shake');}
+// flash e tremor via Web Animations (só opacity/translate = compositor; sem reflow forçado nem animar margin do campo inteiro)
+function flash(){ $('flash').animate([{opacity:.85},{opacity:0}],{duration:300/speed,easing:'ease-out'}); }
+function flashSoft(){ $('flash').animate([{opacity:.4},{opacity:0}],{duration:220/speed,easing:'ease-out'}); }
+let shakeA=null;
+function shake(k){ const m=k||1; if(shakeA)shakeA.cancel();
+  shakeA=$('cam').animate([{translate:'0 0'},{translate:`${-12*m}px 0`},{translate:`${12*m}px ${7*m}px`},{translate:`${-7*m}px 0`},{translate:`${5*m}px ${-5*m}px`},{translate:'0 0'}],{duration:280/speed}); }
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
 function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
   if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits

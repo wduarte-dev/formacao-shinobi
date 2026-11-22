@@ -26,10 +26,10 @@ function startBattle2(){
   ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
 }
 function upd(u){
-  u.el.querySelector('.hpb i').style.width=(u.hp/u.max*100)+'%'; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
+  u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
   u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
   u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'');
-  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.width=(a/b*100)+'%';}
+  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`;}
 }
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
 function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;

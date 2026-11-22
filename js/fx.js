@@ -1,21 +1,32 @@
 // fx.js — partículas e efeitos de elemento (canvas)
 "use strict";
-let fxDirty=false; const FX=[], BOLT=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
+let fxDirty=false; const FX=[], BOLT=[], SLN=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
 const R=(a,b)=>a+Math.random()*(b-a), pk=a=>a[Math.random()*a.length|0];
 // teto de partículas: no modo leve nasce menos e o limite é menor
 function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;i<n&&FX.length<cap;i++)FX.push(f(i));}
 // valores em "unidades de efeito": o K converte para o tamanho do palco
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
 function fxStep(k){
-  const c=fxc; if(!FX.length&&!BOLT.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}
     c.globalAlpha=Math.min(1,p.life/p.max*1.6)*(p.round?.7:1); c.fillStyle=p.col;
     if(p.round){c.beginPath();c.arc(p.x/3,p.y/3,p.w/6,0,7);c.fill();}
     else c.fillRect(Math.round((p.x-p.w/2)/3),Math.round((p.y-p.h/2)/3),Math.max(1,Math.round(p.w/3)),Math.max(1,Math.round(p.h/3)));}
   for(let i=BOLT.length-1;i>=0;i--){const b=BOLT[i]; b.life-=k; if(b.life<=0){BOLT.splice(i,1);continue;}
     c.globalAlpha=1; c.strokeStyle=b.col; c.lineWidth=b.lw; c.beginPath(); b.pts.forEach((q,j)=>j?c.lineTo(q[0]/3,q[1]/3):c.moveTo(q[0]/3,q[1]/3)); c.stroke();}
+  for(let i=SLN.length-1;i>=0;i--){const l=SLN[i]; l.x+=l.vx*k; l.y+=l.vy*k; l.life-=k; if(l.life<=0){SLN.splice(i,1);continue;}   // linhas de velocidade
+    c.globalAlpha=l.a*Math.min(1,l.life/l.max*2); c.fillStyle='#fff'; c.fillRect(l.x|0,l.y|0,l.w,l.h);}
   c.globalAlpha=1;
 }
+// linhas de velocidade (coordenadas do canvas 384x216): R = horizontais correndo pro lado; L/D = verticais subindo/descendo
+function slineFx(state){ const n=lite?9:18, v=state==='R';
+  for(let i=0;i<n;i++){ const len=R(30,110), life=R(14,24);
+    if(v)SLN.push({x:R(-120,384),y:R(0,216),w:len,h:Math.random()<.3?2:1,vx:R(9,15)*(Math.random()<.5?1:-1),vy:0,life,max:life,a:R(.35,.8)});
+    else SLN.push({x:R(0,384),y:R(-120,216),w:Math.random()<.3?2:1,h:len,vx:0,vy:R(9,15)*(state==='L'?-1:1),life,max:life,a:R(.35,.8)}); } }
+// rastro de quem foi arremessado: riscos brancos ao longo do caminho (x/y do palco)
+function trailFx(x0,y0,x1,y1,state){ const hz=state==='R', n=lite?5:10;
+  for(let i=0;i<n;i++){ const f=i/n, x=x0+(x1-x0)*f, y=y0+(y1-y0)*f;
+    FX.push(prt(x,y,R(-4,4)*(hz?0:1),R(-14,14)*(hz?1:.3),0,0,0,8+f*10,hz?R(14,30):1.2,hz?1.2:R(14,30),'#ffffffcc')); } }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
   Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a'],'Espaço':['#ffffff','#fff3b0','#f2c14e','#1b2a5c']};
 // ondas sonoras desenhadas em código (jutsu com wave): anéis dourados saem do conjurador e cobrem o campo; cada alvo vibra com anéis menores

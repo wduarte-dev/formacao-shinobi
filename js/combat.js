@@ -1,7 +1,7 @@
 // combat.js — jutsus, dano, alvos, perseguições, IA, laço da rodada
 "use strict";
 function drawJ(){
-  for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.width=chakra[s]+'%'; $('ckn'+s.toUpperCase()).textContent='Chakra '+chakra[s];}
+  for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.transform=`scaleX(${Math.min(100,chakra[s])/100})`; $('ckn'+s.toUpperCase()).textContent='Chakra '+chakra[s];}
   const b=$('sbar');
   // os botões nascem uma vez por batalha e só mudam de estado depois: assim nenhum clique se perde quando a barra atualiza no meio da ação
   if(b.dataset.t!==String(token)){ b.dataset.t=token; b.innerHTML='';

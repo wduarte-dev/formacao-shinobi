@@ -39,7 +39,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .pf>i{position:absolute;left:18px;top:18px;width:60px;height:60px;background-repeat:no-repeat;background-color:#2a1c12}
 .por{background-repeat:no-repeat}
 .sp{position:absolute;width:0;height:0}
-.spr{position:absolute;background-repeat:no-repeat;filter:drop-shadow(0 0 1px #fffc)}
+.spr{position:absolute;background-repeat:no-repeat}
 .flip>.spr,.flip .spr{transform:scaleX(-1)}
 .chip{display:inline-block;padding:0 8px;border:2px solid currentColor;border-radius:4px;font-size:16px;margin-left:6px}
 
@@ -115,28 +115,19 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .field{position:absolute;inset:0;overflow:hidden}
 #dimv{position:absolute;inset:0;background:#06040c;opacity:0;transition:opacity .2s;pointer-events:none}   /* escurece o fundo na cena de jutsu (overlay em vez de filter: filter no fundo inteiro re-rasteriza e trava no celular) */
 .field.dim #dimv{opacity:.8}
-.field.shake{animation:fsh .28s}
 /* campo Noite de Névoa: escurece e passa névoa em movimento (só código, sem sprite) */
 #fog{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s;background:rgba(24,12,50,.5);z-index:9}
 #fog::before{content:"";position:absolute;left:0;top:0;width:200%;height:100%;background:radial-gradient(ellipse 25% 50% at 25% 65%,rgba(200,175,240,.5),transparent 68%),radial-gradient(ellipse 25% 50% at 75% 35%,rgba(125,106,168,.5),transparent 70%);background-size:50% 100%;background-repeat:repeat-x;animation:fogm 16s linear infinite;will-change:transform}
 #fog.on{opacity:1}
 @keyframes fogm{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes fsh{20%{margin-left:-12px}40%{margin-left:12px;margin-top:7px}60%{margin-left:-7px}80%{margin-left:5px;margin-top:-5px}}
 #cam{position:absolute;inset:0;transition:transform .16s ease-out;will-change:transform}
 #cam.slow{transition:transform .3s ease-out}
-#slines{position:absolute;inset:-200px;z-index:64;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,transparent 0 26px,#fff7 26px 29px,transparent 29px 70px,#fff4 70px 72px,transparent 72px 110px)}
-#slines.v{background:repeating-linear-gradient(90deg,transparent 0 26px,#fff7 26px 29px,transparent 29px 70px,#fff4 70px 72px,transparent 72px 110px)}
-#slines.on{animation:sln .42s linear}
-@keyframes sln{0%{opacity:.85;background-position:0 0}100%{opacity:0;background-position:420px 420px}}
 .bslash{position:absolute;width:340px;height:18px;margin:-9px -170px;border-radius:9px;background:linear-gradient(90deg,transparent,#fff 30%,#fff 70%,transparent);box-shadow:0 0 18px 6px var(--c);animation:bsl .3s ease-out forwards;z-index:70}
 .bslash.b{height:6px;margin:-3px -170px;animation-delay:.05s;opacity:0}
 @keyframes bsl{0%{opacity:1;transform:rotate(var(--r)) scaleX(.05)}35%{opacity:1;transform:rotate(var(--r)) scaleX(1.15)}100%{opacity:0;transform:rotate(var(--r)) scaleX(1.3) scaleY(.2)}}
 .crack{position:absolute;width:0;height:0;z-index:63}
-.crack i{position:absolute;left:0;top:0;height:4px;background:#fff;transform-origin:0 50%;animation:crk .5s ease-out forwards;box-shadow:0 0 6px #fff}
-@keyframes crk{0%{width:0;opacity:1}30%{width:var(--w);opacity:1}100%{width:var(--w);opacity:0}}
-.u.flyR .spr{filter:drop-shadow(calc(var(--d)*-34px) 0 0 #fff9) drop-shadow(calc(var(--d)*-60px) 0 0 #fff5)}
-.u.flyL .spr{filter:drop-shadow(0 40px 0 #fff9) drop-shadow(0 70px 0 #fff5)}
-.u.flyD .spr{filter:drop-shadow(0 -40px 0 #fff9) drop-shadow(0 -70px 0 #fff5)}
+.crack i{position:absolute;left:0;top:0;height:4px;width:var(--w);background:#fff;transform-origin:0 50%;animation:crk .5s ease-out forwards;box-shadow:0 0 6px #fff}
+@keyframes crk{0%{scale:0 1;opacity:1}30%{scale:1 1;opacity:1}100%{scale:1 1;opacity:0}}
 .u.fly .mv{transition:transform .24s cubic-bezier(.15,.85,.3,1)}
 #ambb,#ambf{position:absolute;left:0;top:0;width:1152px;height:648px;pointer-events:none;image-rendering:pixelated}
 #ambb{z-index:8}#ambf{z-index:64}
@@ -156,11 +147,12 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 @keyframes gl0{0%{translate:-6px 0}18%{translate:5px 0}30%{translate:-3px 0}52%{translate:8px 0}70%{translate:-7px 0}86%{translate:3px 0}}
 @keyframes gl1{0%{translate:7px 0}14%{translate:-9px 0}33%{translate:4px 0}47%{translate:-5px 0}68%{translate:9px 0}84%{translate:-6px 0}}
 @keyframes gl2{0%{translate:-4px 0}12%{translate:8px 0}29%{translate:-8px 0}55%{translate:5px 0}73%{translate:-3px 0}90%{translate:7px 0}}
-.spr.hit{filter:brightness(5) saturate(0)}
+.spr.hit{animation:hitj .14s linear}
+@keyframes hitj{0%{translate:0 0;opacity:.55}25%{translate:calc(var(--d,1)*6px) -2px}50%{translate:calc(var(--d,1)*-4px) 0;opacity:.8}75%{translate:calc(var(--d,1)*3px) 0}100%{translate:0 0;opacity:1}}
 .u.turn .sh{background:#fff9;box-shadow:0 0 12px #fff}
 .u.armed .sh{background:#ffd24acc;box-shadow:0 0 16px #ffd24a}
 .hpb{position:absolute;left:-36px;top:calc(var(--h)*-1 - 20px);width:72px;height:11px;background:#000b;border:2px solid #000}
-.hpb i{display:block;height:100%;background:#5fe06a;transition:width .25s}
+.hpb i{display:block;height:100%;background:#5fe06a;transform-origin:0 50%;transition:transform .25s}   /* barra por scaleX (width animado = layout a cada quadro em todo acerto) */
 .u.e .hpb i{background:#f2a23a}
 .tg{position:absolute;left:-36px;width:72px;top:calc(var(--h)*-1 - 42px);font-size:15px;font-weight:700;display:flex;gap:2px;justify-content:center}
 .tg span{padding:0 4px;background:#000c;border-radius:3px}
@@ -192,8 +184,8 @@ body.lite .swave{box-shadow:none}
 .fl.dot{color:#ef9a5b;font-size:24px}
 .fl.info2{font-size:21px;color:#ddd}
 .fl.ord{top:calc(var(--h)*-1 - 62px);font-size:30px;color:#fff;background:#c22;border:2px solid #fff;border-radius:50%;width:42px;height:42px;line-height:34px;text-align:center;text-shadow:none;animation:ordp 1.1s ease-out forwards}
-@keyframes ordp{0%{opacity:0;margin-top:18px}15%{opacity:1;margin-top:0}80%{opacity:1}100%{opacity:0}}
-@keyframes up{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-50px}}
+@keyframes ordp{0%{opacity:0;translate:0 18px}15%{opacity:1;translate:0 0}80%{opacity:1}100%{opacity:0;translate:0 0}}
+@keyframes up{from{opacity:1;translate:0 0}to{opacity:0;translate:0 -50px}}
 .field.hs .fl{animation-play-state:paused}
 #fx{position:absolute;inset:0;pointer-events:none;z-index:65}
 .fxs{position:absolute;pointer-events:none;will-change:transform}
@@ -208,9 +200,9 @@ body.lite .swave{box-shadow:none}
 @keyframes flz{from{opacity:.85}to{opacity:0}}
 .cut{position:absolute;left:-60px;right:-60px;top:130px;height:240px;z-index:80;opacity:0;pointer-events:none;transform:rotate(-7deg);background:#000;border-top:7px solid #fff;border-bottom:7px solid #fff;box-shadow:0 -18px 0 #000,0 18px 0 #000;overflow:hidden}
 .cut.on{animation:cut .72s ease-out}
-@keyframes cut{0%{opacity:1;clip-path:inset(0 100% 0 0)}14%{opacity:1;clip-path:inset(0 0 0 0)}82%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 100%)}}
-.cut .lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,var(--c) 0 56px,transparent 56px 92px,#fff3 92px 102px,transparent 102px 180px);opacity:.75;animation:ln .25s linear infinite}
-@keyframes ln{to{background-position:-360px 0}}
+@keyframes cut{0%{opacity:1;translate:-105% 0}14%{opacity:1;translate:0 0}82%{opacity:1;translate:0 0}100%{opacity:0;translate:60% 0}}
+.cut .lines{position:absolute;top:0;bottom:0;left:0;width:calc(100% + 360px);background:repeating-linear-gradient(90deg,var(--c) 0 56px,transparent 56px 92px,#fff3 92px 102px,transparent 102px 180px);opacity:.75;animation:ln .25s linear infinite;will-change:transform}
+@keyframes ln{from{transform:translateX(0)}to{transform:translateX(-360px)}}
 .cut .cp{position:absolute;top:-20px;width:520px;height:290px;background-repeat:no-repeat;filter:drop-shadow(0 0 4px #fff)}
 .cut .cp.l{left:170px}.cut .cp.r{right:170px;transform:scaleX(-1)}
 .cut .cn{position:absolute;top:78px;font-size:66px;font-weight:800;font-style:italic;color:#fff;letter-spacing:2px;white-space:nowrap;-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 var(--c)}
@@ -248,7 +240,8 @@ body.lite .swave{box-shadow:none}
 .hud .bars{position:absolute;top:8px;width:306px}
 .hud.l .bars{left:102px}.hud.r .bars{right:102px}
 .hud .bar{margin-bottom:2px}
-.hud.r .bar i{margin-left:auto}
+.hud .bar i{width:100%;transform-origin:0 50%;transition:transform .25s}
+.hud.r .bar i{transform-origin:100% 50%}
 .hud .ckn{font-size:17px;font-weight:600;color:#dff0ff;text-shadow:2px 2px 0 #000}
 .hud.r .ckn{text-align:right}
 #rd{left:50%;top:12px;transform:translateX(-50%);z-index:60}
