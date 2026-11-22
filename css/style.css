@@ -339,4 +339,5 @@ body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none
 /* tela larga (celular 19:9/20:9): o palco 1152x648 segue no centro e o cenário/overlays transbordam pras laterais (bgExt em screens.js) */
 #wrap{overflow:hidden}
 #stage,.scr,.field{overflow:visible}
-.bgi.ext,.shade,#dimv,#flash,.ldDim{left:-300px;right:-300px}
+.bgi.ext,.shade,#dimv,#flash,.ldDim,.ldGround{left:-300px;right:-300px}
+#loading{overflow:visible;background:none}.ldLines{right:-540px}   /* carregamento também transborda (antes cortava e aparecia o menu nas laterais) */

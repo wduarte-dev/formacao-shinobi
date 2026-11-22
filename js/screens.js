@@ -15,8 +15,13 @@ function bgExt(el,src){ el.classList.remove('ext'); el.style.backgroundImage=`ur
       c.toBlob(b=>res(b?URL.createObjectURL(b):null)); }catch(e){ res(null); } };   // por file:// o canvas fica "sujo": segue sem estender
     im.src=src; }))).then(u=>{ if(u&&el.dataset.bg===src){ el.style.backgroundImage=`url(${u})`; el.classList.add('ext'); } }); }
 document.querySelectorAll('.bgi').forEach(el=>{ const m=(el.getAttribute('style')||'').match(/url\(([^)]+)\)/); if(m)bgExt(el,m[1].replace(/["']/g,'')); });
-function fitStage(){ const s=Math.min(innerWidth/1152,innerHeight/648); $('stage').style.transform=`translate(-50%,-50%) scale(${s})`; }
-addEventListener('resize',fitStage); fitStage();
+// escala do palco. Em tela cheia/app instalado usa o tamanho da TELA (não da janela): puxar a cortina de notificações mostra a
+// barra do sistema por cima e encolhia a janela (o jogo diminuía). Redimensionamento com atraso curto: rotação/teclado não piscam.
+function fitStage(){ const full=document.fullscreenElement||document.webkitFullscreenElement||matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches||navigator.standalone;
+  let w=innerWidth, h=innerHeight;
+  if(full&&screen.width&&screen.height){ const land=w>=h; w=land?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height); h=land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height); }
+  const s=Math.min(w/1152,h/648); $('stage').style.transform=`translate(-50%,-50%) scale(${s})`; }
+let fitT=0; addEventListener('resize',()=>{ clearTimeout(fitT); fitT=setTimeout(fitStage,120); }); document.addEventListener('fullscreenchange',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
 document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1800-320)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});

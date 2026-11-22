@@ -3,6 +3,13 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.5.3 · 22/11/2026
+- **Mizuha invoca de longe:** na perseguição ela para a uma distância, faz a pose de jutsu e a onda surge no alvo (antes corria e "socava"). A **Prisão de Gelo** da Hiyori também é lançada de onde ela está.
+- **Esmagar do Iwao no tempo certo:** a animação começa no salto e o pouso cai exatamente no quadro do soco do Gigante de Pedra (poeira, tremor, som e dano juntos).
+- **Combos sem pausa:** a perseguição começa assim que o alvo cai (antes havia ~0,6 s de espera).
+- **Tela de carregamento** preenchendo as laterais em tela larga; **puxar as notificações** em tela cheia não encolhe mais o jogo.
+- Por dentro: `docs/fluidez.md` (regras de fluidez) e `tools/qa_anim.py` (grava a luta e gera tiras de quadros por ação com alertas de tempo morto).
+
 ## 1.5.2 · 22/11/2026
 - **Tela cheia de verdade no celular:** em tela mais larga que 16:9 o cenário se estende pras laterais (as pontas da imagem espelhadas, sem emenda), em vez de sobrar um quadrado no meio com faixas pretas.
 - **Onda da Mizuha refeita em código:** a perseguição normal (sem Tsunami) virou uma onda que brota embaixo do alvo, cresce, curva e quebra em cima dele com espuma; o respingo desenhado ficou só como detalhe no impacto.

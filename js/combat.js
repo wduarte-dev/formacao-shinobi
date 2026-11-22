@@ -90,6 +90,7 @@ async function doSkill(u,sk,isJ){
     const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
+    else if(isJ&&sk.cast){an=sk.an||'atk2'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*40}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}   // invoca de onde está (ex.: Prisão de Gelo): só um passo à frente
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
@@ -110,7 +111,7 @@ async function doSkill(u,sk,isJ){
     const ko=!dodged&&!dodgedSet.has(main)&&sk.cause&&main.alive;
     if(ko){ endCine(); await smash(u,main,sk.cause); } else if(!dodged)await hitstop(isJ?70:25);
     // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
-    await sleep(Math.max(ko?120:isJ?0:200, animMs(u,an)-hit)); if(isJ&&!ko)await fxWait(420,1400);
+    if(ko)await sleep(60); else{ await sleep(Math.max(isJ?0:200, animMs(u,an)-hit)); if(isJ)await fxWait(420,1400); }   // abriu combo: a perseguição começa já (antes esperava ~650ms o resto da anim do atacante)
     endCine(); home(u);
     if(ko){ comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
     await sleep(160);
@@ -140,11 +141,15 @@ async function chain(side,t,count,src){
     setAnim(c,'meteor',0,true); fxAt(c,'chase',t,1.25);
     put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,'transform .13s ease-in'); await sleep(130);
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
-    setAnim(c,'move',0,true); sfx.swing(); c.el.style.zIndex=60;
-    put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,'transform .3s cubic-bezier(.2,.9,.35,1)'); await sleep(300);
-    setAnim(c,an,0,true); put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)');
-    await sleep(Math.max(130,CHA(c,an)));   // espera o quadro do soco (chase.hits); poeira, tremor, som e dano saem juntos nele
-    dust(c,14); shake(); sfx.thud();
+    // a anim do golpe começa JÁ no salto: ele sobe, segura no alto e despenca de modo que o pouso caia exatamente no quadro do soco
+    const hitT=Math.max(430,CHA(c,an)); setAnim(c,an,0,true); sfx.swing(); c.el.style.zIndex=60;
+    put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,'transform .3s cubic-bezier(.2,.9,.35,1)'); await sleep(hitT-130);
+    put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)'); await sleep(130);
+    dust(c,14); shake(); sfx.thud();   // pouso = soco: poeira, tremor, som e (logo abaixo) o dano no mesmo instante
+  }else if(c.d.chase.cast){   // invocador (Onda da Mizuha): chega só até uma distância segura, faz o selo/jutsu e a magia surge no alvo (nada de ir socar)
+    const ja=an_of(c).atk2?'atk2':an, gx=tb.x-dir*250*(c.d.size||1);
+    if((gx-(h0.x+c.off.x))*dir>30){ setAnim(c,'move',0,true); sfx.swing(); put(c,gx-h0.x,tb.y-h0.y,'transform .26s cubic-bezier(.2,.8,.3,1)'); await sleep(260); }
+    setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
   const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;

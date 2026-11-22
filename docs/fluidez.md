@@ -1,0 +1,10 @@
+# Princípios de fluidez (regras dele, 22/11/2026) — ler antes de mexer em animação, jutsu, perseguição ou efeito
+
+O que deixa o jogo satisfatório. Toda animação nova ou alterada passa por esta lista e pela conferência com `tools/qa_anim.py`.
+
+1. **Sprite + código (APROVADO por ele, 22/11/2026: "é isso mesmo que terá que ter nos próximos").** Efeito nunca é um bloco que aparece e some: nasce do cenário, age no alvo e morre (`fxCont`, `jutsuFx`, `waveFx` em `js/fx.js`). Se o sprite não faz sentido sozinho, o efeito é desenhado em código e o sprite vira detalhe. Referências: Tsunami e Onda da Mizuha, Dragão de Brasa do Kaen.
+2. **Invocar = pose de jutsu à distância, não soco.** Quem invoca algo (onda, prisão de gelo…) não corre até o alvo nem usa sprite de golpe: chega só até uma distância segura (ou fica onde está), faz a anim de jutsu e a magia surge no alvo. Flag `cast` em `chase`/`jutsu` (`data.js`). Golpe físico (soco, chute, lâmina) continua indo até o alvo.
+3. **O impacto sai no quadro do contato.** Pouso, soco, lâmina encostando: poeira, tremor, som e dano no MESMO instante. Se o golpe tem salto, a anim começa no salto e o pouso é marcado pra cair no quadro do soco (Esmagar do Iwao). Nada de cair e o golpe sair depois. `hits` em `data.js` diz em que fração da anim cai cada golpe.
+4. **Sem tempo morto.** Nenhuma pausa > ~450 ms sem movimento na tela dentro de uma ação, a não ser de propósito (corte do jutsu, câmera lenta). Abriu combo: a perseguição começa assim que o alvo cai.
+5. **Quem leva o golpe aparece e fica marcado.** Jutsu, perseguição, Tsunami, Chuva de Frascos: todos os alvos visíveis na cena escura, com o círculo vermelho (`.tgt`).
+6. **Conferir com os olhos (da ferramenta).** `python3 tools/qa_anim.py --team a,b,c,d --mis N [--kind chase|jutsu|forte|basico] [--js "flag=..."] --w 384` grava a luta, gera uma tira de quadros por ação com o tempo e os eventos (borda vermelha = dano, azul = arremesso/poeira, amarela = troca de anim) e um `relatorio.txt` com alertas de TEMPO MORTO e ATRASO. Olhar as tiras antes de commitar.

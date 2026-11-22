@@ -12,7 +12,7 @@ const N={
  mizuha:{name:'Mizuha',el:'Água',c:'#3d8fe5',role:'Suporte',hp:900,atk:95,def:25,
   normal:{name:"Jato d'Água",mult:.9,target:'front',ranged:true},
   jutsu:{name:'Chuva Serena',cost:40,cd:3,target:'allies',heal:2.5,desc:'cura o time'},
-  chase:{name:'Onda',on:'D',cause:'R',mult:.7,surge:1,tsunami:.25}},
+  chase:{name:'Onda',on:'D',cause:'R',mult:.7,surge:1,cast:1,tsunami:.25}},   // cast: invoca de longe (anim de jutsu), não vai socar
  raiden:{name:'Raiden',el:'Raio',c:'#e5c33d',role:'Atacante',hp:850,atk:125,def:15,
   normal:{name:'Faísca',mult:1,target:'front',hits:[.3,.6]},
   jutsu:{name:'Lâmina Trovão',cost:40,cd:3,mult:1.7,target:'front',cause:'L',stun:true,desc:'paralisa o alvo (não persegue)'},
@@ -35,7 +35,7 @@ const N={
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
   normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.25,.5,.75]},
-  jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',desc:'paralisa o alvo'},
+  jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',cast:1,desc:'paralisa o alvo'},
   strong:{name:'Toque Congelante',an:'atk3',mult:1.4,target:'front',stun:true},
   chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7,mv:'rise'}},
  doku:{name:'Doku',el:'Veneno',c:'#a46be0',role:'Desgaste',hp:900,atk:100,def:20,dodge:5,
@@ -69,7 +69,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.5.2',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.5.3',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
