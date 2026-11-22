@@ -1,0 +1,21 @@
+{
+  "_comentario": "Config do Formação Shinobi. Jogo novo: troque os nomes das funções globais. 'label' é JS (string) que recebe os argumentos da função e devolve {u, n?, s?, d?} pro log; u = quem (ex.: 'kaen:p').",
+  "page": "index.html",
+  "start_js": "document.getElementById('sTitle').click()",
+  "setup_js": "dev=true; placed=TEAM.map((id,i)=>({id,row:[0,1,2,1][i],depth:[0,0,1,2][i]})); unlocked=4; foeIx=MIS; autoP=true; speed=1; startBattle();",
+  "team": "kaen,iwao,raiden,mizuha",
+  "done_js": "U&&!battleOn&&!loadingB",
+  "who": "u=>u&&u.id?u.id+(u.side?':'+u.side:''):''",
+  "hooks": [
+    {"fn": "doSkill", "kind": "act", "async": true, "end": "actEnd", "label": "(u,sk,isJ)=>({u:WHO(u),s:sk.name,cat:isJ?'jutsu':sk===u.d.strong?'forte':'basico'})"},
+    {"fn": "chain", "kind": "chain", "async": true, "label": "(side,t)=>({u:WHO(t),s:t.state})"},
+    {"fn": "setAnim", "kind": "anim", "label": "(u,n)=>u&&u.side?{u:WHO(u),n}:null"},
+    {"fn": "hurt", "kind": "hurt", "label": "(t,d)=>({u:WHO(t),d})"},
+    {"fn": "knock", "kind": "knock", "label": "(t,s)=>({u:WHO(t),n:s})"},
+    {"fn": "fxSpr", "kind": "fx", "label": "(id,name)=>({u:id,n:name})"},
+    {"fn": "waveFx", "kind": "fx", "label": "o=>({u:'agua',n:o&&o.x!=null?'onda':'tsunami'})"},
+    {"fn": "dust", "kind": "dust", "label": "t=>({u:WHO(t)})"},
+    {"fn": "dashTo", "kind": "dash", "label": "u=>({u:WHO(u)})"},
+    {"fn": "shoot", "kind": "shot", "label": "u=>({u:WHO(u)})"}
+  ]
+}
