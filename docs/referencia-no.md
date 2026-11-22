@@ -112,3 +112,11 @@ Grid 3×3, até 4 ninjas. Colunas frente / meio / trás (frente leva os ataques 
 - **Taxa de Combo base: 20%.**
 - **Estrelas** (★★★) e um selo de **raridade em letra** (A).
 - **Tags de sinergia** (usadas pelas passivas "ninjas da Folha +20%" etc.): elemento, sexo, aldeia, **Kekkei Genkai (Linhagem)**, "usuário de jutsu secreto", "usuário de espada", organização, clã, aldeia secundária e "atributo de olho". O site também tem **Builder** (montar time) e "In Top Teams".
+
+---
+## 18. Regras de combo e ordem [web, a testar no jogo] + talentos (ignorar por ora)
+- **A ordem de movimento muda o combo** em 3 pontos: (1) **quem inicia**: o 1º movimento dá o 1º golpe da rodada, então o ideal é um ninja cujo básico/esotérico já cause estado de posição; (2) **prioridade de perseguição**: se dois ninjas perseguem o mesmo estado, entra primeiro o de movimento mais alto (perto do 1º), e o estado que ele causa define quem persegue depois; (3) **limite por rodada**: perseguição com `Nx/rodada` gasta num combo pequeno não está disponível pro combo grande depois.
+- **Linha do alvo:** mudar a linha/coluna muda quem recebe o 1º golpe (tanque ou clone podem absorver o golpe inicial e quebrar a cadeia).
+- **Gatilho "ativa com combo N":** o contador soma **em tempo real** os hits do esotérico, do básico e das perseguições anteriores. Quando bate N, o ninja com "ativa com combo N" **entra automaticamente** na sequência, e os **hits dele somam no contador** (10 + 4 = 14, o que ajuda a chegar em 20/30). Com dois ninjas no mesmo N, entra primeiro o de movimento mais alto. O status que o golpe dele causa (Queda, Repelimento…) pode habilitar a próxima perseguição.
+- **Ainda sem resposta:** quanto cada elo vale no "Combo máximo" da formação, e se o contador zera por rodada ou por sequência.
+- **Talentos (só pra constar):** são do **personagem principal** (o avatar do jogador). Ele escolhe 1 Esotérico, 1 Comum, vários Passivos e 1 Invocação conforme sobe de nível, e ainda tem um **ninja assistente** e **invocações/pets** (lista de animais). Ignorado por enquanto, sem onda.
