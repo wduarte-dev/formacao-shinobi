@@ -2,7 +2,7 @@
 """WAV do ElevenLabs (tools/audio/src/sfx) -> OGG do jogo (audio/sfx).
 Apara silêncio, corta no tempo pedido (a API só gera >= 0.5s), fade no fim,
 normaliza o pico em -3 dBFS e faz loop sem emenda nos ambientes (amb-*).
-Uso: python3 tools/audio/convert_sfx.py   (precisa de ffmpeg e numpy)"""
+Uso: python3 tools/audio/convert_sfx.py   (precisa de ffmpeg e numpy; só converte o que mudou)"""
 import os, re, glob, subprocess, numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC, OUT = os.path.join(ROOT, "tools/audio/src/sfx"), os.path.join(ROOT, "audio/sfx")
@@ -19,7 +19,9 @@ def fade(a, ms):
     if n: a[-n:] *= np.linspace(1, 0, n)[:, None]
     return a
 for p in sorted(glob.glob(os.path.join(SRC, "*.wav"))):
-    nome = os.path.basename(p)[:-4]; a = load(p)
+    nome = os.path.basename(p)[:-4]; dst = os.path.join(OUT, nome + ".ogg")
+    if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(p): continue   # já convertido
+    a = load(p)
     if not len(a): print("vazio:", nome); continue
     env = np.abs(a).max(1); pk = env.max() or 1
     if nome.startswith("amb-"):   # loop: o fim (1,5s) entra em crossfade com o começo
@@ -32,5 +34,5 @@ for p in sorted(glob.glob(os.path.join(SRC, "*.wav"))):
         if t and t < .5 and len(a) > SR * t: a = fade(a[:int(SR * t)], 40)
         a = fade(a, 15)
     a *= 0.708 / (np.abs(a).max() or 1)
-    save(a, os.path.join(OUT, nome + ".ogg"))
+    save(a, dst)
 print(len(glob.glob(os.path.join(OUT, "*.ogg"))), "ogg em audio/sfx")

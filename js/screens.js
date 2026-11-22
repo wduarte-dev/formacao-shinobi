@@ -9,7 +9,7 @@ addEventListener('resize',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
 document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1400)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});
-$('sTitle').onclick=()=>{initAudio(); sfx.ui('titulo'); show('sHub');};
+$('sTitle').onclick=()=>{initAudio(); sfx.ui('titulo'); show('sHub'); musMenu();};
 $('hMap').onclick=()=>{sfx.ui('clique');show('sMap');}; $('hForm').onclick=()=>{sfx.ui('clique');show('sForm');}; $('hGal').onclick=()=>{sfx.ui('clique');show('sGal');};
 $('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sndApply(); sfx.arm();};
 function liteUi(){document.body.classList.toggle('lite',lite); $('hLite').classList.toggle('on',lite);}

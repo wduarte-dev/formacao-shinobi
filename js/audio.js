@@ -46,10 +46,12 @@ function musSynth(){ if(!AC)return; mStep=0; mNext=AC.currentTime+.1; musT=setIn
 // Por servidor: fetch + decode em buffers (WebAudio, com variação de tom). Por file://: <audio> direto.
 // Arquivo que não existe ou ainda não carregou: cai no SYN (sintetizado) acima.
 const SFXD='audio/sfx/', BUF={}, SLAST={}, FILEMODE=location.protocol==='file:';
-const SFILES=('amb-cinzas amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm cast chakra-ganho chase-inicio chase-pronta chase combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir heal heavy_1 heavy_2 hit_1 hit_2 hit_3 knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shield shoot start state sting-ultimo swing_1 swing_2 swing_3 thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
+// variações: <nome>_1.._N (as da API + as que ele baixou à mão no site)
+const VAR={swing:11,hit:7,heavy:6,chase:3,cast:8,heal:5,shield:5}, V=k=>Array.from({length:VAR[k]},(_,i)=>k+'_'+(i+1));
+const SFILES=('amb-cinzas amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
   +'kaen mizuha raiden iwao fuuka mayoi hiyori doku poko'.split(' ').map(n=>`${n}-atk ${n}-chase esq-${n}`+(['fuuka','mayoi','hiyori','doku','poko'].includes(n)?` ${n}-forte`:'')).join(' ')+' '
   +'fire water lightning earth wind mist ice poison sound'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
-  +'fogo agua raio terra vento nevoa gelo veneno som'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-'));
+  +'fogo agua raio terra vento nevoa gelo veneno som'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-')).concat(Object.keys(VAR).flatMap(V));
 const EN={Fogo:'fire','Água':'water',Raio:'lightning',Terra:'earth',Vento:'wind','Névoa':'mist',Gelo:'ice',Veneno:'poison',Som:'sound'};
 const PT={Fogo:'fogo','Água':'agua',Raio:'raio',Terra:'terra',Vento:'vento','Névoa':'nevoa',Gelo:'gelo',Veneno:'veneno',Som:'som'};
 function loadSfx(){ if(FILEMODE||!AC||loadSfx.on)return; loadSfx.on=1;
@@ -62,18 +64,18 @@ function playF(names,vol=1,jit=0){ if(!sndOn)return true; names=[].concat(names)
   if(!AC)return false;
   const s=AC.createBufferSource(), g=AC.createGain(); s.buffer=BUF[f]; s.playbackRate.value=1+(Math.random()*2-1)*jit; g.gain.value=vol*.9; s.connect(g); g.connect(master); s.start(); return true; }
 const P=(n,v,j,f)=>playF(n,v,j)||(f&&f(),false);
-const SW=['swing_1','swing_2','swing_3'], HIT=['hit_1','hit_2','hit_3'], elOf=u=>u&&u.d&&u.d.el;
+const SW=V('swing'), HIT=V('hit'), elOf=u=>u&&u.d&&u.d.el;
 const sfx={
  swing:()=>P(SW,.75,.05,SYN.swing),
  hit:(u,k)=>(u&&k&&playF(u.id+'-'+k,1,.04))||P(HIT,.9,.05,SYN.hit),     // k: 'atk' (básico do ninja) ou 'forte'
- heavy:()=>P(['heavy_1','heavy_2'],1,.03,SYN.heavy),
+ heavy:()=>P(V('heavy'),1,.03,SYN.heavy),
  impact:u=>playF('impacto-'+EN[elOf(u)],.85),                            // camada do elemento no impacto do jutsu
- chase:c=>(c&&playF(c.id+'-chase',1))||P('chase',.9,0,SYN.chase),
+ chase:c=>(c&&playF(c.id+'-chase',1))||P(V('chase'),.9,0,SYN.chase),
  chaseGo:()=>playF('chase-pronta',.7),
  combo:n=>playF('combo-'+Math.max(1,Math.min(4,n-1)),.65),
- cast:u=>(u&&playF('selos-'+EN[elOf(u)],.9))||P('cast',.9,0,SYN.cast),
+ cast:u=>(u&&playF('selos-'+EN[elOf(u)],.9))||P(V('cast'),.9,0,SYN.cast),
  jutsu:u=>playF('jutsu-'+PT[elOf(u)],1),
- heal:()=>P('heal',.8,0,SYN.heal), shield:()=>P('shield',.9,0,SYN.shield),
+ heal:()=>P(V('heal'),.8,0,SYN.heal), shield:()=>P(V('shield'),.9,0,SYN.shield),
  shoot:u=>(u&&playF('proj-'+EN[elOf(u)],.8,.04))||P('shoot',.8,.04,SYN.shoot),
  state:()=>P('state',.6,0,SYN.state),
  knock:st=>P('knock-'+st,.9,0,SYN.state),
@@ -91,12 +93,14 @@ const sfx={
 };
 // ambiente (um loop por cenário) e música: <audio> em loop (não decodifica a faixa inteira na memória)
 // MUSF: missão -> audio/music/<nome>.ogg. Vazio = música sintetizada (musTick). Ao adicionar faixas, é só listar aqui.
-const MUSF=[];
+const MUSF=['batalha1','batalha2','batalha3','batalha4','batalhaepica'];   // menu: audio/music/menu.ogg (musMenu)
 let AMBA=null, MUSA=null;
 function loopA(src,vol){ const a=new Audio(src); a.loop=true; a.volume=sndOn?vol:0; a.dataset.v=vol; a.play().catch(()=>{}); return a; }
 function ambSndStart(bg){ ambSndStop(); if(bg)AMBA=loopA(SFXD+'amb-'+bg+'.ogg',.35); }
 function ambSndStop(){ if(AMBA){AMBA.pause(); AMBA=null;} }
 function musStart(ix){ musStop(); if(!AC)return; const f=MUSF[ix|0]; if(!f)return musSynth();
   const a=MUSA=loopA('audio/music/'+f+'.ogg',.45); a.addEventListener('error',()=>{ if(MUSA===a){MUSA=null; musSynth();} }); }
+// música do menu: não reinicia se já estiver tocando (navegar entre telas mantém a faixa)
+function musMenu(){ if(!AC||(MUSA&&MUSA.dataset.f==='menu'))return; musStop(); MUSA=loopA('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
 function musStop(){ clearInterval(musT); musT=null; if(MUSA){MUSA.pause(); MUSA=null;} }
 function sndApply(){ for(const a of [AMBA,MUSA])if(a)a.volume=sndOn?+a.dataset.v:0; }

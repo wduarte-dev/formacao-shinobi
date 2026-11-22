@@ -27,8 +27,8 @@
 Gerados e ainda sem uso (dá pra ligar quando a mecânica existir): `dot-bleed/frost/shock`, `chase-inicio`, `dash`, `shunshin`, `pouso`, `kunai-madeira`, `shuriken-ricochete`, `papel-explosivo`, `fumaca-sumir`, `sting-chefe/missao/perfeito`, `ui-estrela-*`, `ui-recompensa`, `ui-hover/invalido/trocar/pergaminho/auto/2x`, `voz-*`.
 
 ## Música
-`MUSF` em `js/audio.js` (índice da missão → `audio/music/<nome>.ogg`). Vazio = música sintetizada (`musTick`). As faixas do ElevenLabs estão no Drive dele em WAV (~34MB cada, grande demais pro repo e pro conector do Drive). Pra entrar: converter no PC e commitar o OGG (~3MB):
-```bash
-ffmpeg -i "Shinobi Showdown.wav" -c:a libvorbis -q:a 5 audio/music/batalha1.ogg
-```
-Depois listar em `MUSF` (ex.: `['batalha1','batalha1','batalha1','batalha2','batalha2']`). Toca em `<audio loop>` (volume .45), respeitando o botão de som (`sndApply`).
+Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca em `<audio loop>` (volume .45) e respeita o botão de som (`sndApply`). Sem a faixa, cai na música sintetizada (`musTick`).
+Converter WAV novo: `tools/audio/converter.sh` (roda na pasta dos WAV, pergunta o nome de cada um; Enter mantém o nome).
+
+## Variações
+`VAR` em `js/audio.js` diz quantas versões cada som base tem (`swing` 11, `hit` 7, `heavy` 6, `cast` 8, `heal` 5, `shield` 5, `chase` 3): as geradas pela API + as que ele baixou à mão no site. Som novo de variação: WAV em `tools/audio/src/sfx/<nome>_<n>.wav`, rodar `convert_sfx.py` (só converte o que mudou) e subir o número em `VAR`.
