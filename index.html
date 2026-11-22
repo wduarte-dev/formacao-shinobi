@@ -2,7 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07060a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shinobi">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
 <title>Formação Shinobi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -91,11 +99,22 @@
     <button class="btn" id="ovN">Próxima missão</button><button class="btn" id="ovA">Lutar de novo</button><button class="btn" id="ovB">Mapa</button></div>
 </section>
 
+<div id="instHelp" class="win hide"><h3>Tela cheia</h3>
+  <p>Este navegador não deixa a página ir pra tela cheia. Instale o jogo, que ele abre em tela cheia como um app (e se atualiza sozinho):</p>
+  <p><b>iPhone/iPad (Safari):</b> botão Compartilhar → <b>Adicionar à Tela de Início</b>.</p>
+  <p><b>Android (Chrome):</b> menu ⋮ → <b>Instalar app</b> (ou Adicionar à tela inicial).</p>
+  <button class="btn" id="instOk">Entendi</button></div>
+<div id="loading" class="hide"><div class="bgi" id="ldBg"></div><div class="ldDim"></div><div class="ldLines"></div>
+  <div class="ribbon ldT" id="ldT">Carregando…</div>
+  <div class="ldTip"><b>Dica</b><span id="ldTip"></span></div>
+  <div class="ldBar"><div class="lbar"><i></i></div><span id="ldPct">0%</span></div>
+  <div class="ldGround"></div><div id="ldRun"></div></div>
 </div></div>
-<div id="loading" class="hide"><b>Carregando…</b><div class="lbar"><i></i></div></div>
 <div id="rot">Vire o celular de lado para ver maior.</div>
 
 <script>/* JS sempre fresco (o cache do celular misturava versões velhas e novas dos scripts); mesma ordem de antes */
 (function(){var v=Date.now();"data badframes sprites audio screens state fx ambient battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
+<script>/* PWA: service worker "rede primeiro" (sw.js). Só por http(s); por file:// não existe */
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
 </body>
 </html>

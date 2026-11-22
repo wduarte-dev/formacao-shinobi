@@ -748,3 +748,61 @@ short female ninja effort grunt while striking, one sharp exhale with a light vo
 ```
 heroic victory shout, short, 0.0-0.2s: breath, 0.2-1.0s: heroic confident cheer without words, 1.0-1.2s: cutoff, crisp, dry, no reverb tail, no music, no words, game sound effect, slightly stylized anime action, exactly 1.2 seconds long, cuts off cleanly at the end
 ```
+
+
+## 15. Jutsu próprio de cada ninja e capuz do Yugami (`tools/gen_jutsu_sfx.py`)
+
+**jutsux-kaen** · 2.0s
+```
+fire dragon jutsu, 0.0-0.3s: deep whoosh of flames igniting, 0.3-1.4s: roaring blaze rushing forward like a dragon breath with crackling embers, 1.4-2.0s: fiery burst fading into crackles, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 2.0 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-mizuha** · 2.0s
+```
+gentle healing rain jutsu, 0.0-0.4s: soft water chime shimmer, 0.4-1.6s: calm light raindrops pattering with a warm magical sparkle, 1.6-2.0s: soft glittering fade, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 2.0 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-raiden** · 1.6s
+```
+lightning blade jutsu, 0.0-0.3s: electric charge crackle rising, 0.3-0.6s: sharp thunder slash crack, 0.6-1.6s: buzzing electric sparks and zaps fading, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.6 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-iwao** · 2.5s
+```
+summoning a giant stone golem, 0.0-0.6s: deep earth rumble and ground cracking, 0.6-1.6s: massive boulders grinding and rising from the ground, 1.6-2.5s: heavy stone body settling with a powerful low thud and falling pebbles, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 2.5 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-fuuka** · 1.8s
+```
+cutting typhoon jutsu, 0.0-0.3s: sharp wind gust rising, 0.3-1.4s: violent spinning tornado howl with slicing air whistles, 1.4-1.8s: wind dissipating whoosh, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.8 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-mayoi** · 2.2s
+```
+mystic night fog jutsu, 0.0-0.5s: low eerie airy swell, 0.5-1.8s: thick mist spreading with soft fluttering moth wings and a mysterious shimmer, 1.8-2.2s: hushed airy fade, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 2.2 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-hiyori** · 1.6s
+```
+ice prison jutsu, 0.0-0.4s: freezing frost crackle spreading fast, 0.4-0.8s: sharp ice crystals snapping shut, 0.8-1.6s: glassy ice creaking and tinkling shimmer, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.6 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-doku** · 1.8s
+```
+toxic fog jutsu, 0.0-0.3s: wet bubbling hiss, 0.3-1.4s: thick poisonous gas spraying and spreading with sizzling acid bubbles, 1.4-1.8s: lingering gurgle, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.8 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-yugami** · 2.0s
+```
+dark seal breaking with digital glitch, 0.0-0.3s: cloth hood pulled back swish, 0.3-0.6s: sharp seal shattering crack, 0.6-1.6s: intense glitch distortion, bitcrushed stutter and warped static surge, 1.6-2.0s: low unstable dimensional hum, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 2.0 seconds long, cuts off cleanly at the end
+```
+
+**jutsux-poko** · 1.8s
+```
+deafening insect buzz jutsu, 0.0-0.3s: rapid wing flutter building up, 0.3-1.5s: piercing loud cicada screech with a pulsing sonic shockwave, 1.5-1.8s: ringing ear tinnitus fade, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.8 seconds long, cuts off cleanly at the end
+```
+
+**yugami-rehood** · 1.6s
+```
+unstable glitch powering down, 0.0-0.6s: stuttering digital glitch static and warped tones, 0.6-1.1s: energy being sucked back in reverse whoosh, 1.1-1.6s: soft cloth hood rustle and a quiet sealing click, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.6 seconds long, cuts off cleanly at the end
+```

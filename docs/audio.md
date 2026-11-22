@@ -11,7 +11,8 @@
 |---|---|---|
 | básico / Forte | `<ninja>-atk`, `<ninja>-forte` (senão `hit_*`) | `doSkill` |
 | selos do jutsu | `selos-<elemento>` | `cine` |
-| jutsu | `jutsu-<elemento>` + `impacto-<elemento>` + `heavy_*` | `doSkill` |
+| jutsu | `jutsux-<ninja>` (som próprio de cada jutsu; sem ele, `jutsu-<elemento>`) + `impacto-<elemento>` + `heavy_*` | `doSkill` |
+| capuz do Yugami | `jutsux-yugami` (lacre quebrando + glitch) ao tirar, `yugami-rehood` ao recolocar | `doSkill`, `rehoodCine` |
 | projétil (básico à distância) | `proj-<elemento>` | `doSkill` |
 | perseguição | `chase-pronta` ao entrar, `<ninja>-chase` no golpe, `combo-1..4` no rótulo | `chain`, `comboLine` |
 | estados | `knock-D/L/R`, `parede-racha` (Repelido bate na borda), `thud` | `knock` |
@@ -27,7 +28,7 @@
 Gerados e ainda sem uso (dá pra ligar quando a mecânica existir): `dot-bleed/frost/shock`, `chase-inicio`, `dash`, `shunshin`, `pouso`, `kunai-madeira`, `shuriken-ricochete`, `papel-explosivo`, `fumaca-sumir`, `sting-chefe/missao/perfeito`, `ui-estrela-*`, `ui-recompensa`, `ui-hover/invalido/trocar/pergaminho/auto/2x`, `voz-*`.
 
 ## Vozes por ninja (sem palavras)
-`tools/gen_voz.py` gera 4 tipos × 2 variações por ninja (`voz-<ninja>-jutsu|golpe|dor|queda_<n>`): 4 timbres masculinos (Kaen, Raiden, Iwao, Doku), 4 femininos (Mizuha, Fuuka, Mayoi, Hiyori) e o Poko com chiado de inseto. `sfx.voz(u,tipo,chance)` em `js/audio.js`: kiai em todo jutsu, grito de golpe em 30% dos básicos / 70% dos Fortes / 60% das perseguições, grunhido de dor em 30% dos golpes que não matam, gemido ao cair em 100%. Nunca duas ao mesmo tempo (350ms). Pra desligar tudo, comente a linha `voz,` no objeto `sfx`. `voz-kiai/dor/esforco/vitoria` (os genéricos de teste) ficam sem uso.
+`tools/gen_voz.py` gera 4 tipos × 2 variações por ninja (`voz-<ninja>-jutsu|golpe|dor|queda_<n>`): 4 timbres masculinos (Kaen, Raiden, Iwao, Doku), 4 femininos (Mizuha, Fuuka, Mayoi, Hiyori) e o Poko com chiado de inseto. `sfx.voz(u,tipo,chance)` em `js/audio.js`: kiai só nos jutsus de ataque (cura, escudo, campo e o Lacre Rompido não gritam: ficava sem sentido, ex.: Iwao gemendo ao erguer o Gigante), grito de golpe em 30% dos básicos / 70% dos Fortes / 60% das perseguições, grunhido de dor em 30% dos golpes que não matam, gemido ao cair em 100%. Nunca duas ao mesmo tempo (350ms). Pra desligar tudo, comente a linha `voz,` no objeto `sfx`. `voz-kiai/dor/esforco/vitoria` (os genéricos de teste) ficam sem uso.
 
 ## Música
 Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca com `xloop` (dois `<audio>` com crossfade de 3s no fim, que esconde o corte seco das faixas do ElevenLabs), volume .45, e respeita o botão de som. Sem a faixa, cai na música sintetizada (`musTick`). As faixas foram aparadas do silêncio no começo e no fim (vinham com até 10s sobrando); faixa nova: `ffmpeg -i x.ogg -af "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse" -c:a libvorbis -q:a 5 y.ogg`.
@@ -43,3 +44,6 @@ Converter WAV novo: `tools/audio/converter.sh` (roda na pasta dos WAV, pergunta 
 
 ## Yugami (22/11/2026)
 16 sons gerados por `tools/gen_ninja_sfx.py yugami`: `yugami-atk/-forte/-chase`, `esq-yugami`, elemento Espaço (`selos-space`, `impacto-space`, `proj-space`, `jutsu-espaco`) e vozes `voz-yugami-{jutsu,golpe,dor,queda}_{1,2}`. Elemento novo: acrescentar no `EN`/`PT` de `js/audio.js`. Pra ninja novo, copiar a entrada em `NINJAS` do script.
+
+## Jutsu próprio por ninja (22/11/2026)
+Pedido dele: som por elemento + kiai em todo jutsu ficava sem sentido. `tools/gen_jutsu_sfx.py` gera `jutsux-<ninja>` (10) e `yugami-rehood`; prompts na seção 15 de `docs/prompts-sfx.md` (de lá o `convert_sfx.py` lê a duração). Ninja novo: acrescentar a linha em `SONS` e o id na lista `jutsux-` do `SFILES` em `js/audio.js`.

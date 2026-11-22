@@ -79,7 +79,7 @@ function skTag(u,name){ const tag=$('jtag'); tag.className='jtag '+(u.side==='p'
 // fim do Lacre Rompido (Yugami): câmera fecha nele e o capuz volta em câmera lenta (~3s no total); u.ts = escala de tempo da anim (tick)
 async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
   sceneOn([u]); zoomTo(p.x,p.y-70*sz,1.9,true); sfx.cast(u); await sleep(300);
-  const ms=Math.max(300,animMs(u,'rehood')); u.ts=Math.min(1,ms/2300); setAnim(u,'rehood',0,true); fxAt(u,'aura',u,1.1,0,{fps:5});
+  const ms=Math.max(300,animMs(u,'rehood')); u.ts=Math.min(1,ms/2300); setAnim(u,'rehood',0,true); fxAt(u,'aura',u,1.1,0,{fps:5}); sfx.rehood();
   try{ await sleep(ms/u.ts); } finally{ u.ts=1; }
   if(u.solto)setForm(u,false); setAnim(u,'idle'); flashSoft(); fl(u,'capuz lacrado','shieldf'); await sleep(400);
   zoomOut(true); sceneOff(); await sleep(250); }

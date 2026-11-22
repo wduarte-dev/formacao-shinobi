@@ -1,11 +1,38 @@
 // battle.js — início da batalha, HUD, log, estados D/L/R
 "use strict";
 // tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
-let loadingB=false;
-function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('i'); bar.style.width='0'; L.classList.remove('hide');
-  const ids=[...placed.map(p=>p.id),...FOES[foeIx].team.map(t=>t[0])], t0=Date.now();
-  const fin=()=>{ loadingB=false; L.classList.add('hide'); startBattle2(); };
-  Promise.race([preloadFx(ids,(n,t)=>{bar.style.width=(t?n/t*100:100)+'%';}),new Promise(r=>setTimeout(r,20000))]).then(()=>setTimeout(fin,Math.max(0,250-(Date.now()-t0)))).catch(fin); }
+let loadingB=false, ldIv=0;
+const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre combo pra quem continua daquele estado. Monte a formação pensando na corrente!',
+ 'Cada passo da perseguição dá +10% de dano. Combo longo é dano de verdade.',
+ 'Cada ninja só faz uma perseguição por rodada. Escolha bem quem abre o combo.',
+ 'A cada 3ª ação sem jutsu, quem tem golpe Forte solta ele no lugar do básico.',
+ 'O chakra sobe 20 por rodada. Jutsu caro na hora errada é chakra jogado fora.',
+ 'Sem o Auto, o botão do jutsu pulsa um pouco antes da vez de quem pode usar. É a sua deixa!',
+ 'Clique num inimigo pra marcar o alvo dos seus jutsus.',
+ 'O escudo da Muralha de Pedra não acumula: fica o maior, e some depois de 2 rodadas.',
+ 'Jutsu que acerta todos ou uma fileira não dá pra desviar.',
+ 'Paralisado não desvia nem age. Gelo e raio adoram isso.',
+ 'O Tufão Cortante da Fuuka dissipa o campo de névoa inimigo.',
+ 'Dentro da Noite de Névoa, a Mayoi ganha muito mais esquiva.',
+ 'Veneno e queimadura batem toda rodada. Às vezes o dano lento ganha a luta.',
+ 'Quem fica na frente apanha primeiro. Tanque na frente, suporte atrás.',
+ 'A Chuva Serena da Mizuha cura o time inteiro de uma vez.',
+ 'Com o Lacre Rompido, o Yugami bate 35% mais forte por 3 rodadas... e fica difícil de acertar.',
+ 'Repelido (R) voa até a borda e racha a parede. Lançado (L) sobe. Derrubado (D) vai pro chão.',
+ 'Vença a Irmandade do Gelo pra ter o Poko no seu time.',
+ 'Celular travando? O modo leve liga sozinho quando a luta pesa, e dá pra mudar no menu.',
+ 'Instale o jogo na tela inicial do celular: abre em tela cheia, como um app.'];
+function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t.textContent=TIPS[Math.random()*TIPS.length|0]; t.classList.remove('out'); },250); }
+// tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
+// enquanto isso: cenário da missão no fundo, dica girando e o time do jogador correndo em fila no canto (atores normais, o tick anima)
+function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=FOES[foeIx];
+  bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; $('ldBg').style.backgroundImage=`url(bg/${f.bg}.png)`; $('ldT').textContent=f.name;
+  const R=$('ldRun'); R.innerHTML=''; ACT=[]; placed.forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
+  $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
+  const ids=[...placed.map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
+  const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
+  Promise.race([preloadFx(ids,(n,t)=>{const k=t?n/t:1; bar.style.transform=`scaleX(${k})`; $('ldPct').textContent=Math.round(k*100)+'%';}),new Promise(r=>setTimeout(r,20000))])
+    .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
 function startBattle2(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
   U={p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};

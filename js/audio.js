@@ -52,7 +52,8 @@ const SFILES=('amb-cinzas amb-floresta amb-noite amb-sakura amb-santuario aplic-
   +'kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').map(n=>`${n}-atk ${n}-chase esq-${n}`+(['fuuka','mayoi','hiyori','doku','poko','yugami'].includes(n)?` ${n}-forte`:'')).join(' ')+' '
   +'fire water lightning earth wind mist ice poison sound space'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
   +'fogo agua raio terra vento nevoa gelo veneno som espaco'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-')).concat(Object.keys(VAR).flatMap(V))
-  .concat('kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').flatMap(n=>['jutsu','golpe','dor','queda'].flatMap(t=>[1,2].map(i=>`voz-${n}-${t}_${i}`))));
+  .concat('kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').flatMap(n=>['jutsu','golpe','dor','queda'].flatMap(t=>[1,2].map(i=>`voz-${n}-${t}_${i}`))))
+  .concat('kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').map(n=>'jutsux-'+n), ['yugami-rehood']);   // jutsux-<ninja>: som próprio do jutsu (tools/gen_jutsu_sfx.py)
 const EN={Fogo:'fire','Água':'water',Raio:'lightning',Terra:'earth',Vento:'wind','Névoa':'mist',Gelo:'ice',Veneno:'poison',Som:'sound','Espaço':'space'};
 const PT={Fogo:'fogo','Água':'agua',Raio:'raio',Terra:'terra',Vento:'vento','Névoa':'nevoa',Gelo:'gelo',Veneno:'veneno',Som:'som','Espaço':'espaco'};
 function loadSfx(){ if(FILEMODE||!AC||loadSfx.on)return; loadSfx.on=1;
@@ -79,7 +80,8 @@ const sfx={
  chaseGo:()=>playF('chase-pronta',.7),
  combo:n=>playF('combo-'+Math.max(1,Math.min(4,n-1)),.65),
  cast:u=>(u&&playF('selos-'+EN[elOf(u)],.9))||P(V('cast'),.9,0,SYN.cast),
- jutsu:u=>playF('jutsu-'+PT[elOf(u)],1),
+ jutsu:u=>(u&&playF('jutsux-'+u.id,1))||playF('jutsu-'+PT[elOf(u)],1),   // som próprio do jutsu; senão, o do elemento
+ rehood:()=>playF('yugami-rehood',.9),
  heal:()=>P(V('heal'),.8,0,SYN.heal), shield:()=>P(V('shield'),.9,0,SYN.shield),
  shoot:u=>(u&&playF('proj-'+EN[elOf(u)],.8,.04))||P('shoot',.8,.04,SYN.shoot),
  state:()=>P('state',.6,0,SYN.state),

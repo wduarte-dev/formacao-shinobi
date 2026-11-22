@@ -1,6 +1,10 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#07060a;overflow:hidden}
-#wrap{position:fixed;inset:0;background:#07060a}
+#wrap{position:fixed;inset:0;background:#07060a;touch-action:none}   /* celular: o jogo cuida dos gestos (sem rolar/zoom no arrastar) */
+html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+#gInfo{touch-action:pan-y}
+#instHelp{left:276px;top:120px;width:600px;z-index:1000;padding:10px 20px 16px;font-size:18px;line-height:1.35;display:flex;flex-direction:column;gap:8px;color:#3b2414}
+#instHelp p{margin:0}#instHelp b{color:#7a1d12}
 #stage{position:absolute;left:50%;top:50%;width:1152px;height:648px;overflow:hidden;transform-origin:50% 50%;
   font-family:"Pixelify Sans",ui-monospace,Menlo,Consolas,monospace;font-size:20px;color:#f3e2bd;user-select:none;
   cursor:url(../ui/cursor.png) 2 2,auto;background:#000}
@@ -290,6 +294,22 @@ body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none
 .slot.lockd .por{filter:brightness(0) opacity(.55)}.slot.lockd{cursor:default}
 #hDev.on{background-color:#8a2b2b;box-shadow:0 0 8px #ff6a4a}
 
-#loading{position:fixed;inset:0;z-index:999;background:#0b0810;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-size:26px;font-weight:600}
-#loading .lbar{width:min(60vw,420px);height:14px;border:2px solid #fff8;border-radius:8px;overflow:hidden}
-#loading .lbar i{display:block;height:100%;width:0;background:#ffd24a;transition:width .15s}
+/* tela de carregamento: cenário da missão escurecido, nome da missão, dica girando, barra e o time correndo em fila no canto */
+#loading{position:absolute;inset:0;z-index:999;background:#0b0810;overflow:hidden}
+#loading .bgi{transform:scale(1.04)}
+.ldDim{position:absolute;inset:0;background:linear-gradient(180deg,#0b0810cc 0%,#0b081066 40%,#0b0810dd 78%,#0b0810 100%)}
+.ldLines{position:absolute;left:560px;right:-240px;bottom:64px;height:110px;opacity:.5;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='110'%3E%3Cg fill='%23fff3d6'%3E%3Crect x='10' y='12' width='70' height='2'/%3E%3Crect x='130' y='30' width='90' height='2'/%3E%3Crect x='40' y='52' width='50' height='2'/%3E%3Crect x='150' y='70' width='60' height='2'/%3E%3Crect x='0' y='92' width='80' height='2'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 40%);mask:linear-gradient(90deg,transparent,#000 40%);animation:ldGr2 .3s linear infinite}
+@keyframes ldGr2{from{transform:translateX(0)}to{transform:translateX(-240px)}}
+.ldT{left:50%;top:44px;transform:translateX(-50%);font-size:30px}
+.ldTip{position:absolute;left:60px;bottom:150px;width:560px;font-size:22px;line-height:1.3;color:#f3e2bd;text-shadow:2px 2px 0 #000}
+.ldTip b{display:block;font-size:16px;color:#ffd24a;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.ldTip span{display:block;transition:opacity .25s}.ldTip span.out{opacity:0}
+.ldBar{position:absolute;left:60px;bottom:90px;display:flex;align-items:center;gap:14px;font-size:18px;color:#fff3d6}
+.ldBar .lbar{width:420px;height:16px;border:3px solid #f3e2bd;background:#1a1220;box-shadow:3px 3px 0 #000;overflow:hidden}
+.ldBar .lbar i{display:block;height:100%;width:100%;background:linear-gradient(180deg,#ffe27a,#e8a12a);transform:scaleX(0);transform-origin:0 50%;transition:transform .15s}
+.ldGround{position:absolute;left:0;right:-80px;bottom:0;height:56px;background:repeating-linear-gradient(90deg,#2a1d2e 0 40px,#241826 40px 80px);border-top:3px solid #3d2a40;
+  animation:ldGr .5s linear infinite}
+@keyframes ldGr{from{transform:translateX(0)}to{transform:translateX(-80px)}}
+#ldRun{position:absolute;inset:0;pointer-events:none}

@@ -9,14 +9,23 @@ addEventListener('resize',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
 document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1400)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});
-$('sTitle').onclick=()=>{initAudio(); sfx.ui('titulo'); show('sHub'); musMenu();};
+$('sTitle').onclick=()=>{if(matchMedia('(pointer:coarse)').matches&&!STANDALONE)goFull(); initAudio(); sfx.ui('titulo'); show('sHub'); musMenu();};
 $('hMap').onclick=()=>{sfx.ui('clique');show('sMap');}; $('hForm').onclick=()=>{sfx.ui('clique');show('sForm');}; $('hGal').onclick=()=>{sfx.ui('clique');show('sGal');};
 $('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sndApply(); sfx.arm();};
 function liteUi(){document.body.classList.toggle('lite',lite); $('hLite').classList.toggle('on',lite);}
 $('hLite').onclick=()=>{lite=!lite; save(); liteUi();}; liteUi();
 function devUi(){$('hDev').classList.toggle('on',dev);}
 $('hDev').onclick=()=>{dev=!dev; placed=placed.filter(p=>have(p.id)); save(); devUi(); sfx.arm(); if(!have(sel))sel='kaen'; drawHub();}; devUi();
-$('hFull').onclick=()=>{try{ if(document.fullscreenElement)document.exitFullscreen(); else $('wrap').requestFullscreen().catch(()=>{}); }catch(e){}};
+// tela cheia: API padrão ou webkit (Safari antigo/Android velho), no documento inteiro, e trava em paisagem quando dá.
+// iPhone não tem API de tela cheia pra página: aí mostra como instalar (PWA abre sem barra do navegador)
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const STANDALONE=matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches||navigator.standalone;
+function goFull(){ const d=document.documentElement, rq=d.requestFullscreen||d.webkitRequestFullscreen; if(!rq||fsEl())return false;
+  try{ const r=rq.call(d,{navigationUI:'hide'}); const lk=()=>{try{screen.orientation.lock('landscape').catch(()=>{});}catch(_){}}; r&&r.then?r.then(lk).catch(()=>{}):lk(); }catch(_){ return false; } return true; }
+function toggleFull(){ if(fsEl()){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); return; }
+  if(!goFull())$('instHelp').classList.remove('hide'); }
+$('hFull').onclick=toggleFull; $('instOk').onclick=()=>$('instHelp').classList.add('hide');
+if(STANDALONE)$('hFull').classList.add('hide');   // instalado como app: já abre em tela cheia
 
 // posição dos pés de cada casa do tabuleiro (lado do jogador; o inimigo é espelhado)
 function cell(row,depth){return{x:[470,370,270][depth]+(1-row)*16,y:[424,478,532][row]};}
@@ -55,7 +64,7 @@ function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
   <u>Jutsu:</u> ${j.name}, ${j.cost} de chakra: ${j.desc}${j.cause?' → '+ST[j.cause]:''}<br>
   <u>Combo:</u> persegue ${ST[d.chase.on]} → deixa ${ST[d.chase.cause]}`; }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
-function startDrag(e,id,fromField){ e.preventDefault(); const p=stagePt(e); drag={id,fromField,x0:p.x,y0:p.y,moved:false};
+function startDrag(e,id,fromField){ e.preventDefault(); try{e.target.releasePointerCapture&&e.target.releasePointerCapture(e.pointerId);}catch(_){} const p=stagePt(e); drag={id,fromField,x0:p.x,y0:p.y,moved:false};
   const g=$('drag'); g.innerHTML=''; const a=mkSpr(id,3); drawFrame(a); g.appendChild(a.spr); g.style.left=p.x+'px'; g.style.top=(p.y+50)+'px'; }
 function nearTile(p){ let best=null,bd=70; for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){const c=cell(row,depth), d=Math.hypot(p.x-c.x,(p.y+50-c.y)*1.6); if(d<bd){bd=d;best={row,depth};}} return best; }
 addEventListener('pointermove',e=>{ if(!drag)return; const p=stagePt(e); if(Math.hypot(p.x-drag.x0,p.y-drag.y0)>10)drag.moved=true;
@@ -71,6 +80,8 @@ addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null; $('d
       sel=d.id; sfx.ui('soltar'); }
     else if(d.fromField){placed.splice(i,1);} }
   save(); drawForm(); });
+// toque cancelado pelo sistema (gesto, notificação, rolagem): solta o arrasto em vez de deixar o fantasma preso na tela
+addEventListener('pointercancel',()=>{ if(!drag)return; drag=null; $('drag').classList.add('hide'); drawForm(); });
 $('fClear').onclick=()=>{placed=[];save();drawForm();};
 $('fDone').onclick=()=>{sfx.ui('confirma');show('sHub');};
 
