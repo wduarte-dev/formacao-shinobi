@@ -53,7 +53,18 @@
    "cols": 8,
    "anims": [
     "seals",
-    "jutsu",
+    {
+     "name": "jutsu",
+     "use": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ]
+    },
     "buff"
    ],
    "erase": [
@@ -122,12 +133,29 @@
     {
      "name": "unhood",
      "fps": 10,
-     "loop": 0
+     "loop": 0,
+     "use": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ]
     },
     {
      "name": "rehood",
      "fps": 10,
-     "loop": 0
+     "loop": 0,
+     "use": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
     }
    ],
    "erase": [
