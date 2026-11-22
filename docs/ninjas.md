@@ -14,6 +14,8 @@ Números reais ficam em `N` (`js/data.js`); aqui o design e as regras. Ninja nov
 ## Elenco original (Kaen, Mizuha, Raiden, Iwao)
 Resumo na tabela do `CLAUDE.md`. Detalhes que não estão lá: Kaen corta 2x no básico e queima a fileira no jutsu; Mizuha atira à distância e a Onda dela (D→R) brota aos poucos com 25% de virar **Tsunami** (pega o time inimigo inteiro); Raiden dá 2 golpes no básico e o jutsu paralisa; Iwao derruba (D) no básico e a **Muralha de Pedra** dá escudo de 2,5x o ataque dele a cada aliado, **não acumula** (fica o maior) e some depois de 2 rodadas. Nenhum dos quatro tem Forte.
 
+> **Regeração 22/11/2026:** Fuuka, Hiyori, Mayoi e Doku foram regerados no estilo realista (ref `docs/refs/elenco_ref.png`, lotes em `docs/prompts-<ninja>.md`) e saíram do `LOCK`. Contagens de quadros reais: ver o objeto `V2` em `js/sprites.js` (valem mais que as listas "Atlas real" abaixo, que são do atlas antigo). Efeitos do lote D da Fuuka e da Mayoi têm até 7 quadros. Mizuha e Iwao ganharam idle gerado (8 quadros); Iwao ganhou Forte novo no atlas (ainda sem uso no jogo). **Tsunami da Mizuha:** 2 linhas extras no `mizuha_fx.png` (`tsunami1` sobe, `tsunami2` desaba), parede de água cobre o campo e todo inimigo atingido leva o dano, o splash e um empurrão visual.
+
 ## Hiyori (Gelo, Controle) — `teal_fix` no config
 - Visual: cabelo longo azul-gelo, kimono curto branco com marinho, obi marinho, grampo de floco de neve, sem arma (lâminas de gelo só nos ataques).
 - **Básico — Combo de Lâmina de Gelo:** corpo a corpo, alvo único, 3 golpes de ~35% cada (~105%), sem estado.

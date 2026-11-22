@@ -1,1 +1,82 @@
-{"name": "mayoi", "body_h": 115, "sheets": [{"file": "A.png", "rows": 8, "cols": 8, "anims": ["idle", "walk", "dash", "attack", "strong", "guard", "hurt", "dodge"], "ghost": 0.05}, {"file": "B.png", "rows": 6, "cols": 8, "ref": ["seals", "stun"], "anims": ["seals", "jutsu", "buff", "stun", "victory", "defeat"], "ghost": 0.05}, {"file": "C.png", "rows": 4, "cols": 8, "ref": ["knockdown:6,7", "chase:0"], "anims": ["knockback", "launched", "knockdown", "chase"], "ghost": 0.05}], "fx": {"file": "D.png", "rows": 6, "cols": 6, "fps": 12, "names": ["swarm", "cloud", "wave", "impact", "aura", "flash"]}}
+{
+ "name": "mayoi",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "A1.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash",
+    "attack"
+   ],
+   "ghost": 0.05
+  },
+  {
+   "file": "A2.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "strong",
+    "guard",
+    "hurt",
+    "dodge"
+   ],
+   "ghost": 0.05
+  },
+  {
+   "file": "B1.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "seals",
+    "jutsu",
+    "buff"
+   ],
+   "ghost": 0.05
+  },
+  {
+   "file": "B2.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "stun",
+    "victory",
+    "defeat"
+   ],
+   "ghost": 0.05
+  },
+  {
+   "file": "C.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown",
+    "chase"
+   ],
+   "ref": [
+    "knockback:0",
+    "launched:0"
+   ],
+   "ghost": 0.05
+  }
+ ],
+ "fx": {
+  "file": "D.png",
+  "rows": 6,
+  "cols": 7,
+  "fps": 12,
+  "names": [
+   "swarm",
+   "cloud",
+   "wave",
+   "impact",
+   "aura",
+   "flash"
+  ]
+ }
+}

@@ -366,8 +366,9 @@ def build_character(cfg, src):
             if len(imgs) > COLS:
                 log.append(f"  ! {sp['name']}: {len(imgs)} frames, cortado em {COLS}"); imgs = imgs[:COLS]
             anims.append(dict(name=sp['name'], imgs=imgs, fps=sp['fps'], loop=sp['loop'],
-                              pingpong=sp.get('pingpong', 0), clipped=clipped))
+                              pingpong=sp.get('pingpong', 0), clipped=clipped, skip=sp.get('skip', 0)))
             log.append(f"  {sp['name']:10s} {len(imgs)} frames" + (f"  clip={clipped}" if clipped else ''))
+    anims = [a for a in anims if not a.get('skip')]   # 'skip': 1 no config = lê a linha do sheet mas não entra no atlas
     return anims, log
 
 def save_character(name, anims, out):

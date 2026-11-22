@@ -54,7 +54,7 @@ const N={
   chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}}
 };
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
-const LOCK={poko:2,fuuka:9,hiyori:9,mayoi:9,doku:9};   // 9 = fora do elenco jogável até regerar no estilo realista (22/11/2026); continuam como inimigos. Modo dev libera
+const LOCK={poko:2};   // Fuuka/Hiyori/Mayoi/Doku saíram do LOCK em 22/11/2026, depois de regerados no estilo realista. Modo dev libera
 
 const FOES=[
  {name:'Patrulha da Névoa',lvl:'Fácil',bg:'sakura',mult:.8,ai:.4,team:[['iwao',1,0],['kaen',0,1],['doku',2,1],['mizuha',1,2]]},
@@ -67,7 +67,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.3',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.4',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

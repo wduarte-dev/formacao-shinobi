@@ -1,1 +1,91 @@
-{"name": "doku", "body_h": 115, "sheets": [{"file": "A1.png", "rows": 4, "cols": 8, "anims": ["idle", "walk", "dash", "attack"]}, {"file": "A2.png", "rows": 4, "cols": 8, "anims": ["strong", "guard", "hurt", "dodge"]}, {"file": "B1.png", "rows": 3, "cols": 8, "anims": ["seals", "jutsu", "buff"]}, {"file": "B2.png", "rows": 3, "cols": 8, "anims": [{"name": "stun", "use": [0, 1, 2, 1]}, "victory", {"name": "defeat", "use": [0, 1, 3, 4, 5, 6, 7]}], "ref": ["defeat:0", "victory:1"]}, {"file": "C.png", "rows": 4, "cols": 8, "ref": ["knockback:6,7", "chase:7"], "anims": ["knockback", "launched", "knockdown", "chase"]}], "fx": {"file": "D.png", "rows": 6, "cols": 6, "fps": 12, "names": ["vial", "burst", "mist", "stinger", "impact", "aura"]}}
+{
+ "name": "doku",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "A1.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash",
+    "attack"
+   ]
+  },
+  {
+   "file": "A2.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "strong",
+    "guard",
+    "hurt",
+    "dodge"
+   ]
+  },
+  {
+   "file": "B1.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "seals",
+    {
+     "name": "jutsu",
+     "use": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    },
+    "buff"
+   ]
+  },
+  {
+   "file": "B2.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "stun",
+    "victory",
+    "defeat"
+   ],
+   "ref": [
+    "defeat:0",
+    "victory:1"
+   ]
+  },
+  {
+   "file": "C.png",
+   "rows": 4,
+   "cols": 8,
+   "ref": [
+    "launched:0,1",
+    "knockdown:0"
+   ],
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown",
+    "chase"
+   ]
+  }
+ ],
+ "fx": {
+  "file": "D.png",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "vial",
+   "burst",
+   "mist",
+   "stinger",
+   "impact",
+   "aura"
+  ]
+ }
+}

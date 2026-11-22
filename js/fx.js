@@ -59,13 +59,13 @@ function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.
 // gerado de tools/sprites/out/<ninja>_fx.json: nome:[linha, quadros]
 const FXA={
  kaen:{c:12,a:{crescent:[0,6],slash:[1,6],dragon:[2,6],meteor:[3,6],impact:[4,6],aura:[5,6]}},
- mizuha:{c:8,a:{jet:[0,6],splash:[1,6],rain:[2,6],wave:[3,6],impact:[4,6],aura:[5,6]}},
+ mizuha:{c:8,r:8,a:{jet:[0,6],splash:[1,6],rain:[2,6],wave:[3,6],impact:[4,6],aura:[5,6],tsunami1:[6,6],tsunami2:[7,6]}},   // 2 linhas extras: parede subindo e desabando
  raiden:{c:8,a:{bolt:[0,6],chain:[1,6],burst:[2,6],ground:[3,6],orb:[4,6],spark:[5,5]}},
  iwao:{c:8,a:{dust:[0,7],crack:[1,7],rocks:[2,6],fist:[3,7],dome:[4,7],impact:[5,6]}},
- hiyori:{c:8,a:{blade:[0,7],crescents:[1,7],prison:[2,7],pillar:[3,7],impact:[4,7],aura:[5,7]}},
- fuuka:{c:8,a:{crescent:[0,6],gust:[1,6],tornado:[2,6],whirlwind:[3,6],impact:[4,6],aura:[5,6]}},
- mayoi:{c:8,a:{swarm:[0,6],cloud:[1,6],wave:[2,6],impact:[3,6],aura:[4,6],flash:[5,6]}},
- doku:{c:8,a:{vial:[0,6],burst:[1,6],mist:[2,6],stinger:[3,6],impact:[4,6],aura:[5,5]}},
+ hiyori:{c:8,a:{blade:[0,6],crescents:[1,6],prison:[2,6],pillar:[3,6],impact:[4,6],aura:[5,6]}},
+ fuuka:{c:8,a:{crescent:[0,6],gust:[1,7],tornado:[2,7],whirlwind:[3,7],impact:[4,7],aura:[5,7]}},
+ mayoi:{c:8,a:{swarm:[0,7],cloud:[1,7],wave:[2,7],impact:[3,7],aura:[4,6],flash:[5,6]}},
+ doku:{c:8,a:{vial:[0,6],burst:[1,6],mist:[2,6],stinger:[3,6],impact:[4,6],aura:[5,6]}},
  poko:{c:8,a:{arc:[0,6],slash:[1,6],buzz:[2,6],reap:[3,6],impact:[4,6],aura:[5,6]}},
  yugami:{c:8,a:{shard:[0,6],fenda:[1,6],lacre:[2,6],rasgo:[3,6],estouro:[4,6],halo:[5,6]}}
 };
@@ -99,7 +99,7 @@ function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push
     return (im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(done); })); }
 let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem
 function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
-  const [r,n]=A.a[name], sc=o.sc||1, w=288*sc, h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
+  const [r,n]=A.a[name], sc=o.sc||1, w=288*sc*(o.sx||1), h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
   const box=document.createElement('div'), rs=document.createElement('div'), img=document.createElement('div');
   let x=o.x, y=o.y, tx=o.x, ty=o.y, rot=0, rot2=0, s0=.55;
   const mv=o.to?'travel':(o.mv||FXMOVE[name]||'pop');
@@ -109,6 +109,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   else if(mv==='rise'){y+=46*sc; ty-=16*sc; s0=.7;}
   else if(mv==='fall'){y-=90*sc; ty+=6; s0=.85;}
   else if(mv==='surge'){x-=d*190*sc; tx+=d*30*sc; s0=.18;}   // vai brotando e crescendo aos poucos
+  else if(mv==='still'){rot=rot2=0; s0=1;}   // parado no lugar (tsunami)
   else if(mv==='drift'){x-=d*30*sc; tx+=d*50*sc;}
   else if(mv==='float'){y+=18; ty-=40*sc;}
   else if(mv==='spin'){rot=R(-25,25); rot2=rot+d*R(30,60);}
@@ -117,7 +118,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   box.className='fxs'; rs.className='fxr'; img.className='fxi';
   box.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px`;
   rs.style.cssText=`transform:rotate(${rot}deg) scale(${s0});opacity:0`;
-  img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(o.flip?';transform:scaleX(-1)':'');
+  img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${(A.r||6)*h}px`+(o.flip?';transform:scaleX(-1)':'');
   rs.appendChild(img); box.appendChild(rs); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim

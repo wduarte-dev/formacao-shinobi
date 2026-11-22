@@ -144,14 +144,18 @@ async function chain(side,t,count,src){
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
   const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;
-  if(tsu){ ink('TSUNAMI!'); shake(); sfx.heavy(); fxSpr(c.id,'wave',{x:576,y:330,sc:4.4,mv:'surge',fps:5,dir:dir,flip:dir<0}); await sleep(900); shake(); }   // enche a tela e pega o time inteiro
+  if(tsu){ ink('TSUNAMI!'); shake(); sfx.heavy();   // parede de água que enche a tela (2 linhas do atlas: sobe e desaba) e lava o time inteiro
+    const TS={x:576,y:324,sc:3.4,sx:1.75,fps:10,dir:dir,flip:dir<0,mv:'still'};
+    fxSpr(c.id,'tsunami1',TS); await sleep(560); fxSpr(c.id,'tsunami2',TS); sfx.heavy(); await sleep(260); shake(); }
   else if(CH0.surge){ fxAt(c,'chase',t,1.35,0,{mv:'surge',fps:7}); await sleep(560); }   // a onda brota aos poucos e só então bate
   sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH0.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const CH=c.d.chase, ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     d+=hurt(t,dmgOf(c,t,cm/ch.length),'chase'); }
-  if(tsu){ for(const o of foes(c)){ if(o===t)continue; fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,8); hurt(o,dmgOf(c,o,CH.mult*.6),'chase'); } }
+  if(tsu){ for(const o of foes(c)){ if(o===t)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); hurt(o,dmgOf(c,o,CH.mult*.6),'chase');
+      if(o.alive){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
+        setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240); } } }
   if(result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
