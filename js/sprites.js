@@ -23,7 +23,9 @@ const V2={
 const V2MAP={move:'dash',atk1:'attack',atk2:'jutsu',atk3:'strong',cast:'seals',die:'defeat',down:'knockdown',hurt:'guard'};
 const V2BACK=['attack','strong','jutsu','guard','hurt','buff','dodge','landing','unhood'];
 for(const [id,v] of Object.entries(V2)){
-  const T={}; for(const [n,[r,f,fps,l,pp,sq]] of Object.entries(v.a)) T[n]=[r,0,f,l,fps,V2BACK.includes(n)?'idle':undefined,pp,sq];
+  const T={}; for(const [n,[r,f,fps,l,pp,sq0]] of Object.entries(v.a)){ let sq=sq0; const bd=(typeof BADF!=='undefined'&&BADF[id]&&BADF[id][n])||[];   // quadros com defeito (js/badframes.js, gerado pelo audit_atlas.py) ficam de fora
+    if(bd.length&&!sq&&!pp){ const ok=[...Array(f).keys()].filter(i=>!bd.includes(i)); if(ok.length>=2)sq=ok; }
+    T[n]=[r,0,f,l,fps,V2BACK.includes(n)?'idle':undefined,pp,sq]; }
   for(const [g,p] of Object.entries(V2MAP)) if(!T[g]&&T[p])T[g]=T[p];
   SPR[id]=`url(spr/${id}_atlas.png)`;
   SH[id]={cw:192,ch:160,ax:96,ay:150,W:v.W||1536,H:v.H,k:1/3,hd:v.hd||[96,50],anim:T};
