@@ -28,6 +28,15 @@ PROMPTS = {
   "em primeiro plano (contraste, brilho, ruído), quadros de efeito com recorte errado ou fundo sujo. Máx. 6 itens, 1 linha cada, sem elogios. Dúvida = (incerto).",
 }
 
+ANIM_HINT = {'attack': 'golpe básico corpo a corpo', 'strong': 'golpe forte', 'seals': 'selos de mão antes do jutsu', 'jutsu': 'lançar o jutsu',
+ 'chase': 'golpe de perseguição/combo', 'rise': 'subida aérea', 'meteor': 'descida em chute', 'landing': 'aterrissagem', 'dash': 'avanço rápido'}
+
+def v2_rows(nid):
+    import re
+    src = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'js', 'sprites.js')).read()
+    m = re.search(r'\b' + nid + r':\{hd:.*?a:\{(.*?)\}\}', src)
+    return {int(v.split(',')[0]): k for k, v in re.findall(r'(\w+):\[([^\]]*)\]', m.group(1))} if m else {}
+
 def to_png_b64(im, bg=(70, 70, 70)):
     im = im.convert('RGBA'); base = Image.new('RGBA', im.size, bg + (255,)); base.alpha_composite(im)
     b = io.BytesIO(); base.convert('RGB').save(b, 'PNG'); return b.getvalue()
@@ -59,6 +68,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('mode', choices=['strip', 'atlas', 'scene']); ap.add_argument('files', nargs='+')
     ap.add_argument('--cols', type=int, default=0, help='colunas do atlas (0 = detecta: 12 se largura%%12==0 e 2304, senão 8)')
     ap.add_argument('--out', default='/tmp/gem'); ap.add_argument('--model', default='gemini-3.5-flash-lite'); ap.add_argument('--note', default='')
+    ap.add_argument('--anims', default='', help='atlas: só estas animações (nomes do V2 em js/sprites.js, separados por vírgula)')
     ap.add_argument('--pause', type=float, default=4.0); a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True); lines = []
     def emit(title, txt):
@@ -67,16 +77,19 @@ def main():
         im = Image.open(f); name = os.path.splitext(os.path.basename(f))[0]
         if a.mode == 'atlas':
             cols = a.cols or (12 if im.width == 192 * 12 else 8); cw, ch = im.width // cols, 160 if im.height % 160 == 0 else im.height // (im.height // 160)
-            rows = im.height // ch
+            rows = im.height // ch; names = v2_rows(name.replace('_atlas', ''))
+            want = [w for w in a.anims.split(',') if w]
             for r in range(rows):
+                an = names.get(r, '?')
+                if want and an not in want: continue
                 row = im.crop((0, r * ch, im.width, (r + 1) * ch)).convert('RGBA')
                 cells = [row.crop((c * cw, 0, (c + 1) * cw, ch)) for c in range(cols)]
                 keep = [c for c in cells if c.getchannel('A').getbbox()]
                 if not keep: continue
                 strip = Image.new('RGBA', (cw * len(keep), ch), (0, 0, 0, 0))
                 for k, c in enumerate(keep): strip.paste(c, (k * cw, 0))
-                big = fit(strip, 1800, 2); png = to_png_b64(big); open('%s/%s_r%02d.png' % (a.out, name, r), 'wb').write(png)
-                emit('%s linha %d (%d quadros)' % (name, r, len(keep)), ask(a.model, PROMPTS['atlas'] + ' ' + a.note, png)); time.sleep(a.pause)
+                big = fit(strip, 1800, 2); png = to_png_b64(big); open('%s/%s_%s.png' % (a.out, name, an), 'wb').write(png)
+                emit('%s %s (linha %d, %d quadros)' % (name, an, r, len(keep)), ask(a.model, PROMPTS['atlas'] + ' Nome da animação: ' + an + ' (' + ANIM_HINT.get(an, '') + '). ' + a.note, png)); time.sleep(a.pause)
         else:
             png = to_png_b64(fit(im, 1800, 1)); extra = ''
             if a.mode == 'strip':
