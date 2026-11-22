@@ -22,12 +22,13 @@ def audit_cell(cell):
     col = main.sum(0); row = main.sum(1)
     if main[:, 0].sum() > 14 or main[:, -1].sum() > 14:   # corpo cortado nas laterais (topo/base têm chama/pé, ignora)
          out.append('!corpo cortado pela borda da célula')
-    for x in range(mx.min() + int(bw * .15), mx.max() - int(bw * .15)):
-        l, r = col[max(0, x - 4)], col[min(CW - 1, x + 4)]
-        if min(l, r) > bh * 0.45 and col[x] < 0.15 * min(l, r): out.append(f'!corte vertical x={x}'); break
-    for y in range(my.min() + int(bh * .15), my.max() - int(bh * .15)):
-        u, d = row[max(0, y - 4)], row[min(CH - 1, y + 4)]
-        if min(u, d) > bw * 0.45 and row[y] < 0.15 * min(u, d): out.append(f'!corte horizontal y={y}'); break
+    ay, ax = np.nonzero(al); ah = ay.max() - ay.min() + 1; aw = ax.max() - ax.min() + 1; acol = al.sum(0); arow = al.sum(1)   # usa tudo (o corte separa o corpo em 2 pedaços)
+    for x in range(ax.min() + int(aw * .12), ax.max() - int(aw * .12)):
+        l, r = acol[max(0, x - 4)], acol[min(CW - 1, x + 4)]
+        if min(l, r) > ah * 0.55 and acol[x] < 0.3 * min(l, r): out.append(f'!corte vertical x={x}'); break
+    for y in range(ay.min() + int(ah * .12), ay.max() - int(ah * .12)):
+        u, d = arow[max(0, y - 4)], arow[min(CH - 1, y + 4)]
+        if min(u, d) > aw * 0.55 and arow[y] < 0.3 * min(u, d): out.append(f'!corte horizontal y={y}'); break
     # 4) pedaço solto retangular, risco ou grande demais
     sl = ndi.find_objects(lab)
     for i in range(n):
@@ -54,6 +55,20 @@ def edge_fragments(cell):
         sl = objs[i - 1]
         if sl[0].start == 0 or sl[1].start == 0 or sl[0].stop == CH or sl[1].stop == CW: cell[lab == i] = 0; k += 1
     return k
+
+def seam_repair(cell):
+    # corte vertical (faixa transparente de 1-3px de ponta a ponta do corpo): preenche com os pixels vizinhos, metade de cada lado
+    al = cell[..., 3] > 40
+    if al.sum() < 30: return 0
+    ay, ax = np.nonzero(al); ah = ay.max() - ay.min() + 1; aw = ax.max() - ax.min() + 1; acol = al.sum(0)
+    xs = [x for x in range(ax.min() + int(aw * .12), ax.max() - int(aw * .12)) if acol[x] < 0.3 * min(acol[max(0, x - 4)], acol[min(CW - 1, x + 4)]) and min(acol[max(0, x - 4)], acol[min(CW - 1, x + 4)]) > ah * 0.55]
+    if not xs or xs[-1] - xs[0] > 4: return 0
+    x0, x1 = xs[0], xs[-1]; L, R = x0 - 1, x1 + 1; n = 0
+    for y in range(CH):
+        if cell[y, L, 3] > 40 and cell[y, R, 3] > 40:
+            for x in range(x0, x1 + 1): cell[y, x] = cell[y, L] if x - x0 <= x1 - x else cell[y, R]
+            n += 1
+    return n
 
 def anim_rows(root):
     # lê js/sprites.js: ninja -> {linha: nome da anim}
@@ -83,15 +98,16 @@ def fix(path, rows):
     # 1) apaga fragmentos de borda; 2) frames que continuam graves vão pra js/badframes.js (o jogo pula esses quadros)
     im = Image.open(path).convert('RGBA'); a = np.array(im); H, W = a.shape[:2]; frag = 0; bad = {}
     name = os.path.basename(path).replace('_atlas.png', '')
+    seams = 0
     for r in range(H // CH):
         for c in range(W // CW):
-            frag += edge_fragments(a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW])
+            cell = a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW]; seams += 1 if seam_repair(cell) else 0; frag += edge_fragments(cell)
     Image.fromarray(a).save(path)
     for r in range(H // CH):
         for c in range(W // CW):
             iss = [x for x in audit_cell(a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW]) if x.startswith('!')]
             if iss and r in rows.get(name, {}) and c < rows[name][r][1]: bad.setdefault(rows[name][r][0], []).append(c)
-    print(f'{name}: {frag} fragmento(s) de borda apagado(s); frames graves: {bad or "nenhum"}'); return name, bad
+    print(f'{name}: {frag} fragmento(s) de borda apagado(s), {seams} corte(s) vertical(is) remendado(s); frames graves: {bad or "nenhum"}'); return name, bad
 
 if __name__ == '__main__':
     if '--fix' in sys.argv:
