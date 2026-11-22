@@ -32,7 +32,11 @@ Gerados e ainda sem uso (dá pra ligar quando a mecânica existir): `dot-bleed/f
 ## Música
 Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca com `xloop` (dois `<audio>` com crossfade de 3s no fim, que esconde o corte seco das faixas do ElevenLabs), volume .45, e respeita o botão de som. Sem a faixa, cai na música sintetizada (`musTick`). As faixas foram aparadas do silêncio no começo e no fim (vinham com até 10s sobrando); faixa nova: `ffmpeg -i x.ogg -af "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse" -c:a libvorbis -q:a 5 y.ogg`.
 Guardadas sem uso: `overture.ogg` (o menu antigo, Shadow Blade Overture) e `funny.ogg` (pra alguma ocasião futura).
+Cortar trecho (início, fim, fade) de qualquer áudio: `tools/audio/cortar.sh` (pergunta por arquivo, gera `<nome>_corte.ogg`).
 Converter WAV novo: `tools/audio/converter.sh` (roda na pasta dos WAV, pergunta o nome de cada um; Enter mantém o nome).
 
 ## Variações
 `VAR` em `js/audio.js` diz quantas versões cada som base tem (`swing` 11, `hit` 7, `heavy` 6, `cast` 8, `heal` 5, `shield` 5, `chase` 3): as geradas pela API + as que ele baixou à mão no site. Som novo de variação: WAV em `tools/audio/src/sfx/<nome>_<n>.wav`, rodar `convert_sfx.py` (só converte o que mudou) e subir o número em `VAR`.
+
+## Skill
+`tools/skills/audio-jogo-web.skill` guarda esses aprendizados (prompts, API, conversão, integração) pra reusar em outros jogos; instalar em claude.ai > Configurações > Skills.
