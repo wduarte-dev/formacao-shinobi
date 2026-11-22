@@ -3,6 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.5.2 · 22/11/2026
+- **Tela cheia de verdade no celular:** em tela mais larga que 16:9 o cenário se estende pras laterais (as pontas da imagem espelhadas, sem emenda), em vez de sobrar um quadrado no meio com faixas pretas.
+- **Onda da Mizuha refeita em código:** a perseguição normal (sem Tsunami) virou uma onda que brota embaixo do alvo, cresce, curva e quebra em cima dele com espuma; o respingo desenhado ficou só como detalhe no impacto.
+- Regra nova pros próximos sprites: todo efeito entra com complemento em código.
+
 ## 1.5.1 · 22/11/2026
 - **Chuva de Frascos (Doku):** o Arremesso de Frascos tem 20% de chance de o frasco se multiplicar no ar e cair em **todos** os inimigos, com o mesmo dano e veneno. Igual ao Tsunami: todos aparecem na cena e ficam marcados.
 - **Correção:** os ninjas inimigos voltaram a olhar pro lado certo (um comentário quebrado no CSS da 1.5 desligava o espelhamento).

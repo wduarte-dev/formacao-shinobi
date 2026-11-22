@@ -4,10 +4,21 @@
 const SCR=['sTitle','sHub','sForm','sMap','sGal','sBattle'];
 function show(id){ SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[]; battleOn=false;
   if(id==='sHub')drawHub(); if(id==='sForm')drawForm(); if(id==='sMap')drawMap(); if(id==='sGal')drawGal(); }
+// celular mais largo que 16:9: o palco continua 1152x648 (layout intacto), mas o cenário se estende pras laterais com as pontas da
+// própria imagem ESPELHADAS (emenda invisível, chão na mesma altura). Gera uma vez por imagem (canvas → blob) e guarda.
+const BGX={}, BGE=300;
+function bgExt(el,src){ el.classList.remove('ext'); el.style.backgroundImage=`url(${src})`; el.dataset.bg=src;
+  (BGX[src]||(BGX[src]=new Promise(res=>{ const im=new Image(); im.onerror=()=>res(null);
+    im.onload=()=>{ try{ const w=im.width, h=im.height, E=Math.round(BGE*w/1152), c=document.createElement('canvas'), x=c.getContext('2d'); c.width=w+2*E; c.height=h;
+      x.drawImage(im,E,0); x.save(); x.translate(E,0); x.scale(-1,1); x.drawImage(im,0,0,E,h,0,0,E,h); x.restore();
+      x.save(); x.translate(E+w,0); x.scale(-1,1); x.drawImage(im,w-E,0,E,h,-E,0,E,h); x.restore();
+      c.toBlob(b=>res(b?URL.createObjectURL(b):null)); }catch(e){ res(null); } };   // por file:// o canvas fica "sujo": segue sem estender
+    im.src=src; }))).then(u=>{ if(u&&el.dataset.bg===src){ el.style.backgroundImage=`url(${u})`; el.classList.add('ext'); } }); }
+document.querySelectorAll('.bgi').forEach(el=>{ const m=(el.getAttribute('style')||'').match(/url\(([^)]+)\)/); if(m)bgExt(el,m[1].replace(/["']/g,'')); });
 function fitStage(){ const s=Math.min(innerWidth/1152,innerHeight/648); $('stage').style.transform=`translate(-50%,-50%) scale(${s})`; }
 addEventListener('resize',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
-document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1400)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
+document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1800-320)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});
 $('sTitle').onclick=()=>{if(matchMedia('(pointer:coarse)').matches&&!STANDALONE)goFull(); initAudio(); sfx.ui('titulo'); show('sHub'); musMenu();};
 $('hMap').onclick=()=>{sfx.ui('clique');show('sMap');}; $('hForm').onclick=()=>{sfx.ui('clique');show('sForm');}; $('hGal').onclick=()=>{sfx.ui('clique');show('sGal');};

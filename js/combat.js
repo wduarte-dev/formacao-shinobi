@@ -153,7 +153,9 @@ async function chain(side,t,count,src){
     tsFoes=foes(c); tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=70; });   // todo mundo que vai levar o golpe aparece e fica marcado (por cima da água)
     const W=tsunamiFx(dir); for(let n=0;!W.hit&&n<90;n++){ await gate(); await sleep(30); }   // espera a crista bater (respeita pausa/velocidade; teto de segurança)
     sfx.heavy(); shake(1.3); flashSoft(); }
-  else if(CH0.surge){ fxAt(c,'chase',t,1.35,0,{mv:'surge',fps:7}); await sleep(560); }   // a onda brota aos poucos e só então bate
+  else if(CH0.surge){   // Onda normal: onda de água em código que brota embaixo do alvo, cresce, curva e quebra em cima dele (sprite de respingo só como complemento no impacto)
+    const p=cur(t), W=waveFx({dir,x:p.x,y:p.y}); for(let n=0;!W.hit&&n<70;n++){ await gate(); await sleep(30); }
+    fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
   sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH0.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const CH=c.d.chase, ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego

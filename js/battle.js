@@ -28,7 +28,7 @@ function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t
 // tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
 // enquanto isso: cenário da missão no fundo, dica girando e o time do jogador correndo em fila no canto (atores normais, o tick anima)
 function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=FOES[foeIx];
-  bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; $('ldBg').style.backgroundImage=`url(bg/${f.bg}.png)`; $('ldT').textContent=f.name;
+  bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=f.name;
   const R=$('ldRun'); R.innerHTML=''; ACT=[]; placed.forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
   const ids=[...placed.map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
@@ -42,7 +42,7 @@ function startBattle2(){
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
-  $('bbg').style.backgroundImage=`url(bg/${foe.bg}.png)`; ambStart(foe.bg); ambSndStart(foe.bg);
+  bgExt($('bbg'),`bg/${foe.bg}.png`); ambStart(foe.bg); ambSndStart(foe.bg);
   portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
   for(const u of all()){
     const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.setProperty('--c',u.d.c); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);

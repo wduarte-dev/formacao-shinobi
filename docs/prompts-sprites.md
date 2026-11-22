@@ -64,3 +64,6 @@ Todo humanoide segue o Kaen: **realista/atlético, ~6,5 cabeças, cabeça pequen
 - **Linhas:** A1 4 (idle 6, andar 8, investida 8, básico 7-8) · A2 4 (forte 7, defesa 4, dano 3, esquiva 6) · B1 3 (selos 6, jutsu 8, buff 6) · B2 3 (atordoado 4, vitória 6, derrota 8) · C 4 (repelido 8, lançado 8, derrubado 8, perseguição 8) · D 6x6 (projétil, básico, jutsu, perseguição, impacto, aura).
 - **Entrega ao Wellington (celular):** um `.txt` por lote via SendUserFile + `elenco_ref.png`; ele gera, manda pelo Drive e eu integro. **Um ninja por vez**, só avançar quando ele pedir.
 - **Prioridade:** 1º os chibis (Fuuka, Hiyori, Mayoi, Doku; aparecem "???"), depois sprites novos dos que já estão certos (Tsunami e idle da Mizuha, idle e Forte do Iwao).
+
+## Complemento em código (regra de 22/11/2026)
+Todo efeito do lote D entra no jogo **com complemento em código** (`js/fx.js`): o sprite é o núcleo e o canvas faz ele nascer, agir e morrer no cenário. Ao escrever o prompt do lote D, pensar no que o código vai completar (ex.: o sprite só precisa da crista e da espuma; a parede de água sobe em código). Referências: Tsunami e Onda da Mizuha (`waveFx`, 100% código), Dragão de Brasa do Kaen (sprite + fita de fogo `jutsuFx`).

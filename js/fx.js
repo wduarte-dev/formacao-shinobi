@@ -53,39 +53,44 @@ function elFx(u,ts){
     else em(34,()=>prt(x,y,R(-28,28),-R(0,46),R(-.5,.5),R(-.9,-.2),0,R(40,64),R(10,19),0,pk(pal),1));
   }
 }
-// ===== TSUNAMI (Mizuha) desenhado em código no canvas 384x216 (pixel art de verdade, sem bloco quadrado) =====
-// fases (t em quadros de 60fps, já com a velocidade do jogo): 0-16 jatos brotam do chão · 16-60 a parede sobe e avança ·
-// 60-74 a crista curva e DESABA sobre o time inimigo (onCrash = hora do dano) · 74-118 a água escoa e some
+// ===== ONDAS DE ÁGUA (Mizuha) desenhadas em código no canvas 384x216: pixel art de verdade, sem bloco quadrado =====
+// waveFx(o): o.dir lado do atacante; o.x/o.y = pés do alvo (onda local da perseguição) ou nada (Tsunami: parede na tela toda).
+// fases em fração de crashT (quadros de 60fps, já com a velocidade): brota do chão · a parede sobe e avança · a crista curva e DESABA
+// (onCrash/w.hit = hora do dano) · a água escoa e some. F/L/back em colunas "pra frente" (espelha quando vem da direita).
 const WCOL={foam:'#ffffff',lil:'#d9d2ff',lt:'#9fd4ff',md:'#3d8fe5',dk:'#2a5fb0',dp:'#1d3f86'};
-function tsunamiFx(dir,onCrash){ const w={t:0,dir,crashT:62,end:118,onCrash,hit:false,seed:Math.random()*9}; WAVES.push(w);
-  // jatos brotando do chão no lado inimigo, um pouco antes da parede (só partículas)
-  for(let j=0;j<(lite?5:10);j++){ const x=dir>0?R(560,1120):R(32,592), y=R(470,560); setTimeout(()=>{ if(!battleOn)return;
-    em(lite?4:9,()=>prt(x,y,R(-3,3),0,R(-.6,.6),R(-7.5,-4.5),.32,R(16,26),R(2,4),R(4,7),pk([WCOL.foam,WCOL.lt,WCOL.md]))); },j*45/speed); }
+function waveFx(o){ const d=o.dir, loc=o.x!=null, fwd=x=>d>0?x:383-x;
+  const w=loc?{t:0,dir:d,crashT:40,end:78,G:Math.min(212,o.y/3+3),F0:fwd(o.x/3)-46,L:62,Hm:58,back:74,pw:2.6,seed:Math.random()*9}
+             :{t:0,dir:d,crashT:62,end:118,G:196,F0:40,L:348,Hm:160,back:300,seed:Math.random()*9};
+  w.onCrash=o.onCrash; WAVES.push(w);
+  // jatos brotando do chão antes da parede (no alvo, ou espalhados no lado inimigo)
+  const sp=loc?(lite?2:4):(lite?5:10);
+  for(let j=0;j<sp;j++){ const x=loc?o.x+R(-50,50):(d>0?R(560,1120):R(32,592)), y=loc?o.y+R(-6,6):R(470,560); setTimeout(()=>{ if(!battleOn)return;
+    em(lite?4:(loc?6:9),()=>prt(x,y,R(-3,3),0,R(-.6,.6),R(loc?-5.5:-7.5,loc?-3:-4.5),.32,R(14,24),R(2,4),R(4,7),pk([WCOL.foam,WCOL.lt,WCOL.md]))); },j*(loc?35:45)/speed); }
   return w; }
-function drawWave(c,w){ const t=w.t, d=w.dir, G=196;
+const tsunamiFx=(dir,onCrash)=>waveFx({dir,onCrash});
+function drawWave(c,w){ const t=w.t/(w.crashT/62), d=w.dir, G=w.G, Hm=w.Hm, L=w.L, F0=w.F0, sc=Hm/160;
   const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
-  let H, F, a=1;                                                    // H = altura da parede, F = frente (coluna, no lado do atacante = 0)
-  if(t<16){H=ease(t/16)*26; F=40+t*3;}
-  else if(t<60){const k=ease((t-16)/44); H=26+k*134; F=88+k*236;}
-  else if(t<74){const k=ease((t-60)/14); H=160-k*112; F=324+k*44;}   // desaba: cai e avança
-  else{const k=ease((t-74)/44); H=48*(1-k); F=368+k*20; a=1-k*.85;}
-  const back=300, col=x=>d>0?x:383-x;                                // espelha quando o inimigo solta (vem da direita)
-  c.globalAlpha=.8*a;
-  for(let x=0;x<=Math.min(383,F+2);x+=2){ const dd=F-x; if(dd<0)continue;
-    let h=H*Math.max(0,1-Math.pow(dd/back,1.6)); if(dd<18)h*=.82+.18*dd/18;   // mais alta perto da frente; a frente tem a face inclinada
-    h+=Math.sin(x*.09+t*.22+w.seed)*2.4*(H/160+.2); if(h<2)continue;
+  let H, F, a=1;
+  if(t<16){H=ease(t/16)*.16*Hm; F=F0+t/16*.14*L;}
+  else if(t<60){const k=ease((t-16)/44); H=(.16+k*.84)*Hm; F=F0+(.14+k*.68)*L;}
+  else if(t<74){const k=ease((t-60)/14); H=(1-k*.7)*Hm; F=F0+(.82+k*.126)*L;}   // desaba: cai e avança
+  else{const k=ease((t-74)/44); H=.3*Hm*(1-k); F=F0+(.946+k*.057)*L; a=1-k*.85;}
+  const col=x=>d>0?x:383-x;
+  c.globalAlpha=.82*a;
+  for(let x=Math.max(0,Math.floor((F-w.back)/2)*2);x<=Math.min(383,F+2);x+=2){ const dd=F-x; if(dd<0)continue;
+    let h=H*Math.max(0,1-Math.pow(dd/w.back,w.pw||1.6)); if(dd<18*sc+4)h*=.82+.18*dd/(18*sc+4);   // mais alta perto da frente, face inclinada
+    h+=Math.sin(x*.09+t*.22+w.seed)*2.4*(H/Hm*.8+.2)*Math.max(.5,sc); if(h<2)continue;
     const top=G-h, X=col(x)-(d>0?0:1);
-    c.fillStyle=WCOL.dp; c.fillRect(X,top+8,2,G-top);                // corpo fundo
-    c.fillStyle=WCOL.dk; c.fillRect(X,top+5,2,Math.min(h*.6,40));
-    // faixas claras correndo pela parede (o desenho listrado da onda do sprite)
-    for(let b=0;b<3;b++){ const yy=top+10+((x*.45+b*23+t*1.4)%Math.max(12,h-6)); c.fillStyle=b?WCOL.md:WCOL.lt; c.fillRect(X,yy|0,2,2); }
+    c.fillStyle=WCOL.dp; c.fillRect(X,top+8*sc+2,2,G-top);
+    c.fillStyle=WCOL.dk; c.fillRect(X,top+5*sc+1,2,Math.min(h*.6,40*sc+6));
+    for(let b=0;b<3;b++){ const yy=top+10*sc+3+((x*.45+b*23+t*1.4)%Math.max(8,h-6)); if(yy>G-1)continue; c.fillStyle=b?WCOL.md:WCOL.lt; c.fillRect(X,yy|0,2,2); }   // faixas da onda
     c.fillStyle=WCOL.lt; c.fillRect(X,top+2,2,3); c.fillStyle=(x+(t|0))%7<3?WCOL.lil:WCOL.foam; c.fillRect(X,top,2,2.4); }
-  // lábio de espuma da crista curvando à frente (enquanto sobe) e caindo (quando desaba)
-  if(t>20&&t<80){ const lip=t<60?ease((t-20)/40)*26:26*(1-ease((t-60)/20)), top=G-H*(t<60?1:.9), fall=t<60?0:(t-60)*3.2;
-    for(let i=0;i<lip;i+=2){ const yy=top+i*i/lip*.5+fall*(i/lip+.3), X=col(Math.min(383,F+i))-(d>0?0:1); c.fillStyle=i%6<3?WCOL.foam:WCOL.lil; c.fillRect(X,yy|0,2,3); c.fillStyle=WCOL.lt; c.fillRect(X,(yy+3)|0,2,2); } }
-  if(!lite&&t>30&&t<74&&(t|0)%3===0){ const X=col(F)*3, Y=(G-H)*3; em(3,()=>prt(X,Y,R(-6,6),R(-4,4),d*R(.5,2.4),R(-2.8,-.6),.12,R(14,24),R(2,4),0,pk([WCOL.foam,WCOL.lil,WCOL.lt]))); }
-  if(!w.burst&&t>=64){ w.burst=true;                                   // estouro de espuma quando a crista bate no chão
-    for(let i=0;i<(lite?14:34);i++){ const X=col(R(250,383))*3; FX.push(prt(X,G*3,R(-4,4),0,R(-2.4,2.4),R(-8,-3),.3,R(20,34),R(3,6),0,pk([WCOL.foam,WCOL.foam,WCOL.lil,WCOL.lt]))); } }
+  if(t>20&&t<80){ const lp=26*Math.max(.45,sc), lip=t<60?ease((t-20)/40)*lp:lp*(1-ease((t-60)/20)), top=G-H*(t<60?1:.9), fall=t<60?0:(t-60)*3.2*Math.max(.45,sc);   // lábio de espuma
+    for(let i=0;i<lip;i+=2){ const yy=top+i*i/lip*.5+fall*(i/lip+.3), X=col(Math.min(383,F+i))-(d>0?0:1); if(yy>G)continue; c.fillStyle=i%6<3?WCOL.foam:WCOL.lil; c.fillRect(X,yy|0,2,3); c.fillStyle=WCOL.lt; c.fillRect(X,(yy+3)|0,2,2); } }
+  if(!lite&&t>30&&t<74&&(w.t|0)%3===0){ const X=col(F)*3, Y=(G-H)*3; em(3,()=>prt(X,Y,R(-6,6),R(-4,4),d*R(.5,2.4),R(-2.8,-.6),.12,R(14,24),R(2,4),0,pk([WCOL.foam,WCOL.lil,WCOL.lt]))); }
+  if(!w.burst&&t>=64){ w.burst=true;   // estouro de espuma quando a crista bate no chão
+    const n=Math.round((lite?14:34)*Math.max(.4,sc));
+    for(let i=0;i<n;i++){ const X=col(R(F0+.7*L,Math.min(383,F0+1.05*L)))*3; FX.push(prt(X,G*3,R(-4,4),0,R(-2.4,2.4),R(-8,-3)*Math.max(.6,sc),.3,R(20,34),R(3,6),0,pk([WCOL.foam,WCOL.foam,WCOL.lil,WCOL.lt]))); } }
   c.globalAlpha=1; }
 // continuação em código dos efeitos desenhados: o sprite é o núcleo; o canvas faz o efeito "nascer" e "morrer" no cenário
 // (brota do chão, deixa rastro, respinga no chão) em vez de aparecer e sumir como um bloco recortado
