@@ -2,7 +2,10 @@
 """WAV do ElevenLabs (tools/audio/src/sfx) -> OGG do jogo (audio/sfx).
 Apara silêncio, corta no tempo pedido (a API só gera >= 0.5s), fade no fim,
 normaliza o pico em -3 dBFS e faz loop sem emenda nos ambientes (amb-*).
-Uso: python3 tools/audio/convert_sfx.py   (precisa de ffmpeg e numpy; só converte o que mudou)"""
+Uso: python3 tools/audio/convert_sfx.py [nome ...] [--all]   (precisa de ffmpeg e numpy)
+Sem nomes: converte só os WAV que ainda não têm OGG (data de arquivo não vale: num clone novo os WAV saem "mais novos"
+e reconverteria tudo). Com nomes: reconverte esses. --all: reconverte todos."""
+import sys
 import os, re, glob, subprocess, numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC, OUT = os.path.join(ROOT, "tools/audio/src/sfx"), os.path.join(ROOT, "audio/sfx")
@@ -20,7 +23,9 @@ def fade(a, ms):
     return a
 for p in sorted(glob.glob(os.path.join(SRC, "*.wav"))):
     nome = os.path.basename(p)[:-4]; dst = os.path.join(OUT, nome + ".ogg")
-    if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(p): continue   # já convertido
+    pedidos = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if pedidos and nome not in pedidos: continue
+    if not pedidos and "--all" not in sys.argv and os.path.exists(dst): continue   # já convertido
     a = load(p)
     if not len(a): print("vazio:", nome); continue
     env = np.abs(a).max(1); pk = env.max() or 1
