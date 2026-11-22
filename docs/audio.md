@@ -26,6 +26,9 @@
 
 Gerados e ainda sem uso (dá pra ligar quando a mecânica existir): `dot-bleed/frost/shock`, `chase-inicio`, `dash`, `shunshin`, `pouso`, `kunai-madeira`, `shuriken-ricochete`, `papel-explosivo`, `fumaca-sumir`, `sting-chefe/missao/perfeito`, `ui-estrela-*`, `ui-recompensa`, `ui-hover/invalido/trocar/pergaminho/auto/2x`, `voz-*`.
 
+## Vozes por ninja (sem palavras)
+`tools/gen_voz.py` gera 4 tipos × 2 variações por ninja (`voz-<ninja>-jutsu|golpe|dor|queda_<n>`): 4 timbres masculinos (Kaen, Raiden, Iwao, Doku), 4 femininos (Mizuha, Fuuka, Mayoi, Hiyori) e o Poko com chiado de inseto. `sfx.voz(u,tipo,chance)` em `js/audio.js`: kiai em todo jutsu, grito de golpe em 30% dos básicos / 70% dos Fortes / 60% das perseguições, grunhido de dor em 30% dos golpes que não matam, gemido ao cair em 100%. Nunca duas ao mesmo tempo (350ms). Pra desligar tudo, comente a linha `voz,` no objeto `sfx`. `voz-kiai/dor/esforco/vitoria` (os genéricos de teste) ficam sem uso.
+
 ## Música
 Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca com `xloop` (dois `<audio>` com crossfade de 3s no fim, que esconde o corte seco das faixas do ElevenLabs), volume .45, e respeita o botão de som. Sem a faixa, cai na música sintetizada (`musTick`). As faixas foram aparadas do silêncio no começo e no fim (vinham com até 10s sobrando); faixa nova: `ffmpeg -i x.ogg -af "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse" -c:a libvorbis -q:a 5 y.ogg`.
 Guardadas sem uso: `overture.ogg` (o menu antigo, Shadow Blade Overture) e `funny.ogg` (pra alguma ocasião futura).
