@@ -1,0 +1,19 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 2 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 2 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump, glitch-teleport or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows, tiny gold pixel specks or thin gold glitch lines near the body. Effect colors: deep navy blue, gold, white, pale cream, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "YUGAMI - LOTE T" on a thin dark strip above the grid.
+
+CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): YUGAMI, a young GLITCHED ninja whose body is warped by broken space. Short messy spiky jet-black hair when the hood is down, a navy hood (a seal that keeps his power in check) that is UP in the first frames of row 1 and the last frames of row 2. Lower face covered by a deep navy-blue cloth mask. Dark navy tunic with gold trim, a wide dark sash, dark gloves, dark pants, dark boots, and a short navy cloak with a jagged cut hem. GLITCH LOOK (always the same in every frame): the body is cut into 2 or 3 horizontal slices that are shifted sideways by 2 to 4 pixels, like a broken screen, with a few thin gold and white pixel lines and tiny square pixel specks hanging off the edges. It is still ONE single opaque body, never duplicated, never translucent, never ghosted. On his chest, a small square gold glitch core that stays clearly visible. Two small floating gold pixel cubes beside his shoulders. Calm, slightly mischievous face.
+
+TWO attached images: the FIRST is LOTE A1 (hood UP form), the SECOND is LOTE B1 (hood DOWN form). Same character: copy exactly outfit, colors, accessories, face, proportions and pixel scale from both. Do NOT redesign or recolor. The glitch slices, the gold chest core and the two floating gold cubes stay clearly visible and identical in every frame.
+
+ROWS:
+Row 1: UNHOOD, 7 frames: starts calm with the hood UP (like attached A1), grabs the hood with one hand, a small gold glitch pulse ripples through his body, the hood is pulled back and falls behind his neck, spiky black hair springs out, ends in a confident ready stance with the hood DOWN (like attached B1) (cell 8 EMPTY).
+Row 2: RE-HOOD, 6 frames: starts in the ready stance with the hood DOWN, the gold glitch fades, he reaches behind his neck, pulls the hood up over his hair, ends calm with the hood UP (cells 7 to 8 EMPTY).

@@ -154,3 +154,10 @@ Row 4: CHASE EFFECT, a vertical tear tearing open, a burst of navy shards flying
 Row 5: IMPACT, a big starburst with gold crack lines radiating from the center.
 Row 6: AURA, a glowing navy-and-gold ring of stars around an EMPTY space the size of a body, pulsing.
 ```
+
+---
+## FORMA SOLTA (capuz abaixado) — jutsu "Lacre Rompido" (decidido 22/11): buff de ~3 rodadas, o jogo troca o atlas dele pelo de capuz abaixado
+Só 3 sheets extras, porque B1/B2/C já são capuz abaixado. Anexos: **H1** ← B1 · **H2** ← B1 (ou H1) · **T** ← A1 + B1 (2 imagens). Arquivos em `docs/refs/yugami_{H1,H2,T}_prompt.txt`.
+- **H1** (idle, andar, investida, básico) e **H2** (forte, defesa, dano, esquiva): iguais ao A1/A2, com capuz abaixado.
+- **T** (2 linhas): UNHOOD 7 quadros (capuz sobe→cai, cabelo salta; é a animação do jutsu) e RE-HOOD 6 quadros (buff acaba).
+- Integração (depois): atlas `yugami` (capuz) e `yugamir` (solto), troca de `SH` enquanto durar o buff; jutsu usa `unhood` no lugar de `jutsu`/`seals`; números do buff decidir na integração. A perseguição (teleporte, lote C) continua igual e o jutsu antigo "Troca de Espaço" (B1 linha 2) fica sem uso ou vira outra coisa.
