@@ -1,0 +1,16 @@
+Attached image is a STYLE REFERENCE ONLY (the current tide wave of this game: pixel art, deep blue, sky blue, white foam, pale lilac, dark 1px outline). Copy the pixel style, outline and palette. Do NOT copy the composition: the new effect must be MUCH bigger and different (a real tsunami, not a single wave).
+
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 2 rows and EXACTLY 6 columns, a fixed grid of identical LANDSCAPE cells. Do NOT add, remove, merge or skip rows. The image has 2 rows, not more.
+2. ONE effect per row. A row contains ONLY its own effect, never a frame of another effect.
+3. Use EXACTLY 6 frames in every row, using all 6 columns.
+4. Every frame is fully opaque and complete, nothing touches or crosses the cell edge.
+5. NO character, NO person, NO body in any cell.
+6. Effects must be HUGE and dramatic, filling the WHOLE cell from edge to edge in width and most of its height. Same style and scale across the frames of a row. Effects travel LEFT to RIGHT.
+7. Colors: deep blue, sky blue, white foam, pale lilac, a little silver only, dark 1px outline, max 16 colors. NO green anywhere. Nothing turquoise, aqua, teal or greenish. No border, no grid lines, no shadows, no text except the label.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
+LABEL: top-left corner only, small plain white pixel text "MIZUHA - TSUNAMI" on a thin dark strip above the grid.
+
+ROWS (each one effect, 6 frames):
+Row 1: TSUNAMI RISING: a gigantic WALL of water, taller than the cell center, with several overlapping curling crests side by side (a whole line of waves, not one), rising from the left edge and surging to the right, white foam on every crest, dark blue deep body, spray flying. Frame 1 low swell at the left, frame 6 the wall at full height covering the full width of the cell.
+Row 2: TSUNAMI CRASH: the same wall of water collapsing over the whole cell from left to right, giant white foam explosion, many droplets and spray, water sheets falling, ending in scattered foam and droplets. Frame 1 crest curling over, frame 6 only fading spray.
