@@ -69,5 +69,5 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 ## Sprites
 Ele gera os sheets numa IA de imagem e manda (anexo no chat ou commit em `tools/sprites/src/<ninja>/`). Eu recorto com o pipeline (`docs/pipeline-sprites.md`) e integro. Prompts de ninja novo: `docs/prompts-sprites.md` (template v2 + lições). Fundo verde chapado #00FF00, sem xadrez, sem moldura, sem sombra, nada turquesa no personagem.
 
-## Licenças
+## Licenças (repo público, licença PolyForm Noncommercial em `LICENSE`; créditos e ferramentas de IA no `README.md`)
 Sprites dos ninjas: 100% originais (gerados por ele numa IA de imagem a partir de prompts próprios; os atlas antigos do Dark Ninja foram **removidos** em 21/11/2026, nada mais deles no repo). Cenários: também gerados por ele na IA (os antigos Tiny Pixel Japan/Parallax Forest saíram em 21/11/2026). UI: Pixel UI Fantasy Free (CC BY 4.0, crédito na tela de título). O repo já pode ficar público / ir pro GitHub Pages; antes, só conferir os termos da IA de imagem usada.
