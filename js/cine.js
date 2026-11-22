@@ -89,6 +89,14 @@ function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}
+// frasco que se multiplica no ar (split): sobe até um ponto no meio do campo, estoura em vários e cada um cai num alvo
+async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.reduce((m,t)=>m+cur(t).x,0)/ts.length, m={x:(a.x+ax)/2, y:a.y-190};
+  if(!fxShot(u,{x:m.x,y:m.y+66},220))flyDot(u,m,190); await sleep(220);
+  flashSoft(); sfx.shoot(u); em(lite?8:20,()=>prt(m.x,m.y,0,0,R(-3,3),R(-3,3),.05,R(12,20),R(3,5),0,pk(PAL[u.d.el]||['#fff'])));
+  ts.forEach(t=>{ const b=cur(t); if(!fxShot(u,b,260,m))flyDot(u,{x:b.x,y:b.y-68},230,m); }); await sleep(260); }
+function flyDot(u,to,ms,from){ const a=from||{x:cur(u).x+(u.side==='p'?54:-54),y:cur(u).y-72}, e=document.createElement('div');   // projétil genérico (sem atlas)
+  e.className='proj'; e.style.left=a.x+'px'; e.style.top=a.y+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
+  void e.offsetWidth; e.style.transform=`translate(${to.x-a.x}px,${to.y-a.y}px)`; setTimeout(()=>e.remove(),ms/speed); }
 async function shoot(u,t){ if(fxShot(u,t,320)){ await sleep(320); return; }
   const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
   e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);

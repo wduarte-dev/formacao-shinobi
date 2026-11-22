@@ -49,7 +49,7 @@ function drawForm(){
     hit.onpointerdown=e=>startDrag(e,p.id,true); });
   const R=$('fRoster'); R.innerHTML='';
   IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'')+(have(id)?'':' lockd');
-    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
+    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,94,66);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
     const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
@@ -59,7 +59,7 @@ function drawForm(){
 function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
   return `<b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span><br>
   Vida ${d.hp} · Ataque ${d.atk} · Defesa ${d.def}<br>
-  <u>Normal:</u> ${n.name} (${TG[n.target]})${n.cause?' → '+ST[n.cause]:''}${n.dot?' + veneno':''}<br>
+  <u>Normal:</u> ${n.name} (${TG[n.target]})${n.cause?' → '+ST[n.cause]:''}${n.dot?' + veneno':''}${n.split?` (${Math.round(n.split*100)}%: acerta todos)`:''}<br>
   ${d.strong?`<u>Forte</u> (toda 3ª ação): ${d.strong.name}${d.strong.cause?' → '+ST[d.strong.cause]:''}${d.strong.stun?' + paralisa':''}${d.strong.dot?' + veneno':''}<br>`:''}
   <u>Jutsu:</u> ${j.name}, ${j.cost} de chakra: ${j.desc}${j.cause?' → '+ST[j.cause]:''}<br>
   <u>Combo:</u> persegue ${ST[d.chase.on]} → deixa ${ST[d.chase.cause]}`; }
@@ -97,7 +97,7 @@ function drawMap(){
     const l=document.createElement('div'); l.className='nlab'; l.style.left=NODE[i][0]+'px'; l.style.top=(NODE[i][1]+38)+'px'; l.textContent=lock?'???':f.name; m.appendChild(l); });
   const f=FOES[foeIx], s=$('mSide');
   s.innerHTML=`<h4>${foeIx+1}. ${f.name}</h4><div>Dificuldade: <b>${f.lvl}</b></div><div>Inimigos:</div><div id="mFoes"></div><div>${f.team.map(t=>N[t[0]].name+' ('+N[t[0]].el+')').join(', ')}</div>`;
-  ACT=[]; f.team.forEach((t,i)=>actor(t[0],2,56+i*76,140,$('mFoes'),true));
+  ACT=[]; f.team.forEach((t,i)=>actor(t[0],1.75,44+i*70,136,$('mFoes'),true));   // cabe no painel (antes o 4º saía pra fora)
   const b=document.createElement('button'); b.className='btn'; b.textContent=placed.length<4?'Montar o time':'Lutar';
   b.onclick=()=>{ if(placed.length<4)show('sForm'); else startBattle(); }; s.appendChild(b);
 }
@@ -119,7 +119,7 @@ function drawGal(){
   const st=(t,v,m,c)=>`<div class="stt"><span>${t}</span><div class="bar ${c}"><i style="width:${Math.round(v/m*100)}%"></i></div><b>${v}</b></div>`;
   $('gInfo').innerHTML=`<h4 style="color:${shade(d.c)}">${d.name}</h4><span class="chip" style="margin:0">${d.el}</span><span class="chip">${d.role}</span>
    <div style="height:8px"></div>${st('Vida',d.hp,1500,'g')}${st('Ataque',d.atk,140,'r')}${st('Defesa',d.def,50,'b')}
-   <p><u>Normal:</u> ${n.name}. Alvo: ${TG[n.target]}${n.cause?'. Deixa '+ST[n.cause]:''}${n.dot?'. Envenena':''}.</p>
+   <p><u>Normal:</u> ${n.name}. Alvo: ${TG[n.target]}${n.cause?'. Deixa '+ST[n.cause]:''}${n.dot?'. Envenena':''}${n.split?`. ${Math.round(n.split*100)}% de chance de se multiplicar e acertar todos`:''}.</p>
    ${d.strong?`<p><u>Forte</u> (toda 3ª ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
    <p><u>Jutsu:</u> ${j.name} (${j.cost} de chakra, recarga ${j.cd}). Alvo: ${TG[j.target]}; ${j.desc}${j.cause?'. Deixa '+ST[j.cause]:''}.</p>
    <p><u>Combo:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>

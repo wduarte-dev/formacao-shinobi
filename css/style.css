@@ -80,8 +80,9 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .tile.hot{background:#ffd24a77;border-color:#ffd24a}
 .ordb{position:absolute;left:-17px;top:-166px;width:34px;height:34px;border-radius:50%;background:#c22;border:2px solid #fff;color:#fff;font-weight:700;font-size:22px;text-align:center;line-height:28px}
 #fWin{right:20px;top:40px;width:470px;height:590px;padding:6px 8px}
-#fRoster{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#fRoster{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}   /* 10 ninjas em 2 linhas: sobra espaço pros botões Limpar/Pronto */
 #fRoster .slot,.gslot{height:84px}
+#fRoster .slot small{font-size:13px}
 .slot .por{position:absolute;inset:-6px}
 .slot small{position:absolute;left:-8px;right:-8px;bottom:-11px;text-align:center;font-size:14px;color:#f8e9c4;text-shadow:1px 1px 0 #000}
 #fInfo{margin-top:16px;height:236px;font-size:15.5px;line-height:1.22;padding:0 4px;overflow:hidden}
@@ -145,7 +146,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .u{position:absolute;width:0;height:0;--h:124px;transition:opacity .18s}
 .u.p{--d:-1}.u.e{--d:1}
 .u.ghost{opacity:.08}
-.mv{position:absolute;left:0;top:0;transition:transform .19s cubic-bezier(.25,.8,.3,1)}   /* ida e volta do golpe: arranca rápido e assenta suave *
+.mv{position:absolute;left:0;top:0;transition:transform .19s cubic-bezier(.25,.8,.3,1)}   /* ida e volta do golpe: arranca rápido e assenta suave */
 .sh{position:absolute;left:-34px;top:-9px;width:68px;height:18px;background:#0007;border-radius:50%}
 .st{position:absolute;left:0;top:0;transition:transform .2s ease-out;transform-origin:0 -40px}
 .st.L{transform:translate(calc(var(--d)*14px),-72px)}

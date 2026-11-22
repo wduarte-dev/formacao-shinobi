@@ -39,7 +39,7 @@ const N={
   strong:{name:'Toque Congelante',an:'atk3',mult:1.4,target:'front',stun:true},
   chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7,mv:'rise'}},
  doku:{name:'Doku',el:'Veneno',c:'#a46be0',role:'Desgaste',hp:900,atk:100,def:20,dodge:5,
-  normal:{name:'Arremesso de Frascos',mult:.8,target:'front',ranged:true,hits:[.35,.7],dot:{mult:.2,rounds:1}},
+  normal:{name:'Arremesso de Frascos',mult:.8,target:'front',ranged:true,hits:[.35,.7],dot:{mult:.2,rounds:1},split:.2,splitName:'CHUVA DE FRASCOS!'},   // 20%: o frasco se multiplica e acerta todos (mesmo dano)
   jutsu:{name:'Névoa Tóxica',cost:40,cd:3,mult:.6,target:'all',cause:'R',dot:{mult:.4,rounds:3},desc:'envenena todos'},
   strong:{name:'Agulhas',an:'atk3',mult:1.4,target:'front',dot:{mult:.35,rounds:2}},
   chase:{name:'Ferrão',on:'L',cause:'D',mult:.7}},
@@ -69,7 +69,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.5',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.5.1',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

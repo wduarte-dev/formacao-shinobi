@@ -45,7 +45,7 @@ Resumo na tabela do `CLAUDE.md`. Detalhes que não estão lá: Kaen corta 2x no 
 
 ## Doku (Veneno, Desgaste) — prompts em `docs/prompts-doku.md`
 - Visual: boticário/alquimista, capuz ameixa, máscara de pano, bandoleira com 5 frascos violeta, luvas de couro, estojo de agulhas no antebraço. Veneno é ROXO (verde some no chroma key).
-- **Básico — Arremesso de Frascos:** à distância, alvo único, 2 hits baixos, veneno fraco 1 rodada. Desviável.
+- **Básico — Arremesso de Frascos:** à distância, alvo único, 2 hits baixos, veneno fraco 1 rodada. Desviável. **Chuva de Frascos (1.5.1):** 20% (`normal.split`) de o frasco se multiplicar no ar e acertar todos os inimigos com o mesmo dano/veneno (não desviável); todos aparecem na cena e ficam marcados, como no Tsunami (`shootSplit` em `cine.js`).
 - **Forte — Agulhas:** corpo a corpo, dano alto, veneno forte 2 rodadas. Desviável.
 - **Jutsu — Névoa Tóxica:** todos, **R + veneno**, não desviável. Recarga 4.
 - **Perseguição — Ferrão:** L→D, mergulho de cima com agulha gigante.

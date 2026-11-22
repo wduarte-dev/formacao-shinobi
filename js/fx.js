@@ -148,7 +148,7 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
   hiyori:{hit:'blade',jutsu:'prison',chase:'pillar',imp:'impact',aura:'aura',proj:'crescents'},
   fuuka:{hit:'gust',jutsu:'tornado',chase:'whirlwind',imp:'impact',aura:'aura',proj:'crescent'},
   mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud',imp:'flash',aura:'aura',proj:'swarm'},
-  doku:{hit:'burst',jutsu:'mist',chase:'stinger',imp:'impact',aura:'aura',proj:'vial'},
+  doku:{hit:'burst',jutsu:'mist',chase:'stinger',imp:'impact',aura:'aura',proj:'vial',psc:.38},   // o frasco do atlas novo enche a célula: escala menor
   poko:{hit:'slash',jutsu:'buzz',chase:'reap',imp:'impact',aura:'aura',proj:'arc'},
   yugami:{hit:'fenda',jutsu:'lacre',chase:'rasgo',imp:'estouro',aura:'halo',proj:'shard'}};
 // como cada efeito se mexe (nada fica parado feito PNG colado):
@@ -206,8 +206,9 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
 function fxAt(u,kind,t,sc,dy,ex){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
   return fxSpr(u.id,nm,{x:p.x+R(-6,6),y:p.y-62+(dy||0)+R(-5,5),flip:u.side==='e',dir:u.side==='p'?1:-1,sc,lo:kind==='imp'||kind==='dodge',...(ex||{})}); }
 // projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
-function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; const a=cur(u), b=cur(t), d=u.side==='p'?1:-1;
-  fxSpr(u.id,nm,{x:a.x+d*60,y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:.75,fps:6/(ms/1000)});
+// t pode ser um ninja ou um ponto {x,y} (pés); from = ponto de saída opcional (frasco multiplicado). psc = escala do projétil por ninja
+function fxShot(u,t,ms,from){ const U_=FXUSE[u.id]||{}, nm=U_.proj; if(!nm)return false; const a=cur(u), b=t.el?cur(t):t, d=u.side==='p'?1:-1;
+  fxSpr(u.id,nm,{x:from?from.x:a.x+d*60,y:from?from.y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:U_.psc||.75,fps:6/(ms/1000)});
   return true; }
 
 // ícone de jutsu (estilo barra do NO): recorta o centro do efeito do jutsu e anima os quadros em loop (CSS steps)

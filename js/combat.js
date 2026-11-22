@@ -76,17 +76,20 @@ async function doSkill(u,sk,isJ){
     }
     const main=pick(u,sk.target,isJ); if(!main)return;
     const area=sk.target==='row'||sk.target==='all';
-    const ts=sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):[main];
+    // split (Doku): chance do frasco se multiplicar no ar e cair em TODOS os inimigos, mesmo dano, como o Tsunami (todos aparecem e ficam marcados)
+    const split=!isJ&&sk.split&&foes(u).length>1&&Math.random()<sk.split;
+    const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):[main];
     // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
     const canDodge=t=>!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
-    const dodged=(sk.target==='front'||sk.target==='weak')&&canDodge(main);
+    const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
     const dodgedSet=new Set(sk.target==='all'&&!isJ?ts.filter(canDodge):[]);
     if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong)skTag(u,sk.name);
+    if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
     let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
     const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); await shoot(u,main); hit+=190;}
+    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
