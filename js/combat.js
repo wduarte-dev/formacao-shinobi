@@ -57,7 +57,7 @@ async function doSkill(u,sk,isJ){
     if(sk.unleash){   // Lacre Rompido (Yugami): tira o capuz, troca pro atlas solto + distorção em código, buff por N rodadas
       const was=u.solto;
       if(isJ&&!was){await cine(u,sk,[u]); sfx.jutsu(u); sfx.voz(u,'jutsu');}
-      u.sR=sk.unleash; if(!was){ setForm(u,true); setAnim(u,'unhood'); fl(u,'capuz solto','shieldf'); const p=pos(u);
+      u.sR=sk.unleash; if(!was){ setForm(u,true); setAnim(u,'unhood'); fxAt(u,'jutsu',u,1.3); fl(u,'capuz solto','shieldf'); const p=pos(u);
         em(22,i=>{const g=i/22*6.28; return prt(p.x,p.y-30,Math.cos(g)*10,Math.sin(g)*6,Math.cos(g)*1.8,Math.sin(g)*1.4,0,R(14,22),4,0,pk(PAL['Espaço']));}); }
       log(`${nm(u)} usa <b>${sk.name}</b>: +35% de dano e +20% de esquiva por ${sk.unleash} rodadas`);
       await sleep(Math.max(700,animMs(u,'unhood'))); setAnim(u,'idle'); return;

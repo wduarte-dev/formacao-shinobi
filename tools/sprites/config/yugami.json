@@ -125,5 +125,19 @@
     ]
    ]
   }
- ]
+ ],
+ "fx": {
+  "file": "D.jpg",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "shard",
+   "crack",
+   "ring",
+   "rift",
+   "burst",
+   "halo"
+  ]
+ }
 }

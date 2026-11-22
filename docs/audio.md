@@ -40,3 +40,6 @@ Converter WAV novo: `tools/audio/converter.sh` (roda na pasta dos WAV, pergunta 
 
 ## Skill
 `tools/skills/audio-jogo-web.skill` guarda esses aprendizados (prompts, API, conversão, integração) pra reusar em outros jogos; instalar em claude.ai > Configurações > Skills.
+
+## Yugami (22/11/2026)
+16 sons gerados por `tools/gen_ninja_sfx.py yugami`: `yugami-atk/-forte/-chase`, `esq-yugami`, elemento Espaço (`selos-space`, `impacto-space`, `proj-space`, `jutsu-espaco`) e vozes `voz-yugami-{jutsu,golpe,dor,queda}_{1,2}`. Elemento novo: acrescentar no `EN`/`PT` de `js/audio.js`. Pra ninja novo, copiar a entrada em `NINJAS` do script.
