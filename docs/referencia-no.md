@@ -94,3 +94,21 @@ Grid 3×3, até 4 ninjas. Colunas frente / meio / trás (frente leva os ataques 
 ## 15. Elemental e estados [web + vídeo]
 - **Ciclo (confirmado pelo vídeo: Fogo vence Vento, Vento vence Raio):** Fogo > Vento > Raio > Terra > Água > Fogo; cada elemento é fraco contra o que o vence.
 - **Flutuação, Voo, Queda, Repelimento** não duram rodadas: são a **janela do combo**, só habilitam a perseguição seguinte; evitados por Super Armadura / imunidade a posição; cada perseguição tem limite de 1–2 por rodada.
+
+---
+## 16. Tela de formação (2 prints: versão chinesa e versão PT) **[print]**
+- Grid **3×3 com 9 células numeradas** (1–9); só 4 ficam ocupadas (anel verde), as vazias ficam com o redemoinho/anel azul. As células são ligadas por linhas (visual).
+- Cada ninja ganha um rótulo **"1º / 2º / 3º / 4º ação"** em cima da cabeça. Lendo os dois prints, a numeração segue **da frente pra trás e de cima pra baixo** (o 1º é o da ponta mais à frente), e **não** é a ordem em que você os colocou. Isso confirma o texto de web da §14.
+- No topo, a tela mostra **"Ninjas na formação 4/4"** e **"Combo máximo: 7 / 8"**: a própria tela de formação **calcula o combo máximo que aquela formação consegue**. É o melhor feedback de montagem do jogo: mexeu na formação, o número muda.
+- Checkbox **"Teste Arena" / "ativar combinação de ranking"** (simular a formação no modo PvP).
+- Rodapé: painel do ninja selecionado com os **ícones das skills agrupados** (Esotérico, Comum, Passivos) e uma faixa vertical **"Talento selecionado"** (existe um sistema de **talentos** que ainda não vimos). Na lateral há um **companheiro/pet** listado separado (um gato ninja).
+
+## 17. Ficha de dados de ninja (site de banco de dados + versão PT) **[print]**
+- **Atributos por nível:** valor base (nível 1) + **crescimento por nível**, que é bem maior que a base. Dois exemplos (ordem: Vida / Ataque físico / Def. física / Ataque ninja / Def. ninja):
+  - ninja de ataque: 129 (+1038) / 83 (+777) / 57 (+539) / 83 (+777) / 57 (+539);
+  - ninja mais tanque: 191 (+1576) / 61 (+521) / 57 (+613) / 72 (+618) / 57 (+613).
+  - Razão Vida:Ataque ≈ 1,4–1,5 no de ataque e ≈ 3 no tanque; as duas defesas ficam iguais entre si (Defesa física = Defesa ninja).
+- **Resistência por elemento (5 elementos):** o ninja de Raio tem **Vento −20**; o outro tem **Fogo −20**; o resto 0. Ou seja, **cada ninja tem fraqueza de −20 no elemento que vence o dele**. É assim que o ciclo elemental vira número (Vento vence Raio ✓, Fogo vence Vento ✓).
+- **Taxa de Combo base: 20%.**
+- **Estrelas** (★★★) e um selo de **raridade em letra** (A).
+- **Tags de sinergia** (usadas pelas passivas "ninjas da Folha +20%" etc.): elemento, sexo, aldeia, **Kekkei Genkai (Linhagem)**, "usuário de jutsu secreto", "usuário de espada", organização, clã, aldeia secundária e "atributo de olho". O site também tem **Builder** (montar time) e "In Top Teams".
