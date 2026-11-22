@@ -65,5 +65,32 @@ Contador "N Hit" na lateral (lado de quem ataca), "MORE THAN 10 COMBO", "N Chase
 ## 9. Estrelas (1★–5★) **[tutorial]**
 Multiplicador de atributos; kit completo (5 slots) liberado em 3★; Despertar de habilidades em 3★/4★; 4★/5★ de raros adicionam usos extras, imunidades, mais alvos ou menos recarga; "Potencial/Cultivo" aumenta o teto de atributos.
 
-## 10. O que já temos × o que falta
+## 10. O que já temos × o que falta (ver também §11–§15 abaixo)
 Já temos: chakra +20/rodada, CD, estados D/L/R, 1 perseguição por estado, DoT/atordoar/escudo/cura, campo (Mayoi), esquiva, golpe Forte. Falta: contador e gatilho de combo; Voo; múltiplas perseguições com prioridade; novos status (Selamento, Cegueira, Sono, Confusão, Marca, Imobilidade, veneno acumulável) e remoção; jutsu Instantâneo; Plano geral; slot de 2 passivas data-driven; ordem por Movimento 1–4 alternando times; clones; elemental; cut-in. Ver `docs/ondas.md`.
+
+---
+Seções 11–15: material de **outra IA com busca na web** (22/11/2026), marcado **[web]**. Não foi visto na tela do jogo: serve de rascunho, e o que contradiz um print perde pro print.
+
+## 11. Catálogo de status [web, de um site de wiki]
+Cerca de 526 variações; as primeiras ~38 únicas (A–M) mostram **as famílias de efeito**. Vale copiar a ideia, não a lista:
+- **Variantes "irremovível / não pode ser imunizado nem dispersado"** de quase todo status (Cegueira, Chamas, Imobilidade, Paralisia…): o contra-jogo é "dispersar" e a versão irremovível o ignora.
+- **Controle:** Imobilidade/Adormecido/Congelamento (não age; Congelamento sai com dano físico), Lentidão (age só no fim da rodada), Cegueira, Confusão (e Grave), Mancha (sem Perseguição nem Comum).
+- **Dano por tempo (% da vida):** Chamas, Cola (15% vida máx. no fim da rodada), Explosivo (8% da vida restante por Comum usado), Ferimento (3% vida máx. por Comum), Apreensão (10% da vida restante a cada ação).
+- **Anti-cura:** Chamas (bloqueia), Laceração (−50%), Corrente (−99%), Divisão (−40% e custo de chakra +40).
+- **Anti-buff:** Decadência e Anti-cola (não recebe escudo/buff).
+- **Corta dano ou defesa:** Debilidade (Comum a 30%), Cansaço, Fraqueza (Ataque e Ninjutsu a 75%), Dor (Defesa e Resistência a 75%), Maldição (zera Defesa/Resistência), Marca (−30%, 2 rodadas), Magnetização (−30% de chance de crítico), Dissolução (+30% de crítico a quem bate no alvo).
+- **Custo ao lançar:** Ancioso (perde vida proporcional ao chakra gasto no Esotérico), Combustão (espalha Chamas ao usar Esotérica).
+- **Imunidade nível 2:** resiste até à Supressão de Imunidade (só ninjas de topo).
+
+## 12. Atributos [web]
+Vida; Ataque (dano Tai); Defesa (reduz Tai); Ninjutsu (dano Nin, **cura e escudo**); Resistência (reduz Nin); 1º Ataque (iniciativa); Crítico e Dano crítico; **Combo** (chance de Comuns extras e menos chance de sofrer combo); **Controle** (chance de aplicar status e de resistir); Esquiva; Penetração Tai/Nin; Dano/Resistência elemental (Fogo, Vento, Raio, Terra, Água); Redução de dano; Regeneração por rodada. Fórmula (comunidade, **não oficial**): `(poder × mult. da skill − (defesa − penetração)) × bônus × crítico`; skill híbrida soma Ataque+Ninjutsu e Defesa+Resistência. Pra nós basta uma versão simples.
+
+## 13. Filtros da lista de ninjas [web, **duvidoso**: a IA não viu a tela]
+Entrada da perseguição: qualquer, Flutuação, Voo, Queda, Repelimento, Combo 10+/20+/30+. Saída: as 4 posições + Imobilidade, Chamas, Veneno, Sangramento, Paralisia, Cegueira, Selamento, Marca, Interrupção. Tags de sinergia (clã/aldeia/papel) e funções (escudo, cura, limpar status, gerar chakra, super armadura, imunidade, reviver). A ideia útil: **busca por "quem persegue X" na tela de formação**.
+
+## 14. Formação [web, conferir]
+Grid 3×3, até 4 ninjas. Colunas frente / meio / trás (frente leva os ataques de linha; trás é a última). Cada ninja tem número de **Movimento 1–4**, que manda na ordem (não a coluna); parece vir da leitura frente→trás e cima→baixo, **ajustável à mão** (conferir com ele).
+
+## 15. Elemental e estados [web + vídeo]
+- **Ciclo (confirmado pelo vídeo: Fogo vence Vento, Vento vence Raio):** Fogo > Vento > Raio > Terra > Água > Fogo; cada elemento é fraco contra o que o vence.
+- **Flutuação, Voo, Queda, Repelimento** não duram rodadas: são a **janela do combo**, só habilitam a perseguição seguinte; evitados por Super Armadura / imunidade a posição; cada perseguição tem limite de 1–2 por rodada.
