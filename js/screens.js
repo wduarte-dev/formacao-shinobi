@@ -126,3 +126,12 @@ function drawGal(){
    <p><u>Abre combo para:</u> ${after.join(', ')||'ninguém'}.<br><u>Continua o combo de:</u> ${before.join(', ')||'ninguém'}.</p>`;
 }
 
+
+// versão rodando (menu) + checagem de versão nova no GitHub: ao abrir, ao voltar pro app e a cada 5 min. Só por http(s).
+$('ver').textContent='v'+VERSION.v+' · '+VERSION.d;
+async function checkVersion(){ if(!location.protocol.startsWith('http'))return;
+  try{ const r=await fetch('version.json?'+Date.now(),{cache:'no-store'}); if(!r.ok)return; const n=await r.json();
+    if(n.v&&n.v!==VERSION.v&&!battleOn){ $('updV').textContent='v'+n.v; $('updBar').classList.remove('hide'); } }catch(e){} }
+$('updGo').onclick=async()=>{ try{ const rs=await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r=>r.update())); }catch(e){} location.reload(); };
+$('updX').onclick=()=>$('updBar').classList.add('hide');
+checkVersion(); setInterval(checkVersion,300000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden)checkVersion(); });

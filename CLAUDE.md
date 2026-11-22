@@ -32,7 +32,7 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 | `js/cine.js` | câmera (`zoomTo`), `hitstop`, `smash`/`knock`, `cine`/`endCine` (cena de jutsu), `dashTo`, `shoot` |
 | `js/combat.js` | botões de jutsu, dano, alvos (`pick`), `doSkill`, perseguição (`chain`), IA, laço `run` |
 | `js/main.js` | liga os botões da batalha (fica por último) |
-| `manifest.webmanifest`, `sw.js`, `icons/` | PWA: instalável (tela cheia, paisagem), service worker "rede primeiro" (com internet sempre pega a versão nova do GitHub; offline usa a cópia). Botão Tela cheia: API padrão/webkit no documento + trava paisagem; sem API (iPhone) mostra `#instHelp` ensinando a instalar |
+| `manifest.webmanifest`, `sw.js`, `icons/` | PWA: instalável (tela cheia, paisagem), service worker "rede primeiro" (com internet sempre pega a versão nova do GitHub; offline usa a cópia). Botão Tela cheia: API padrão/webkit no documento + trava paisagem; sem API (iPhone) mostra `#instHelp` ensinando a instalar. Versão: `VERSION` em `js/data.js` + `version.json` (o app compara ao abrir, ao voltar e a cada 5 min e mostra a faixa `#updBar` "Nova versão"). **Ao mexer no jogo, rodar `python3 tools/bump_version.py <n>` antes do commit** (1.1 → 1.2…). `sw.js` revalida com `no-cache` (o cache de 10 min do GitHub Pages não segura versão velha) |
 | `spr/`, `bg/`, `ui/` | atlas + efeitos (`<ninja>_atlas.png`/`_fx.png`), cenários IA 1152x648 (um por missão; menus usam o `sakura`), UI 9-slice |
 | `audio/` | `sfx/*.ogg` (efeitos e ambientes do ElevenLabs), `music/` (faixas, quando ele mandar) |
 | `tools/gen_sfx.py`, `tools/audio/` | gera SFX pela API do ElevenLabs (prompts em `docs/prompts-sfx.md`) → WAV em `tools/audio/src/sfx/` → `convert_sfx.py` → OGG |
