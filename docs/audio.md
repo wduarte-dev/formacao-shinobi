@@ -27,7 +27,8 @@
 Gerados e ainda sem uso (dá pra ligar quando a mecânica existir): `dot-bleed/frost/shock`, `chase-inicio`, `dash`, `shunshin`, `pouso`, `kunai-madeira`, `shuriken-ricochete`, `papel-explosivo`, `fumaca-sumir`, `sting-chefe/missao/perfeito`, `ui-estrela-*`, `ui-recompensa`, `ui-hover/invalido/trocar/pergaminho/auto/2x`, `voz-*`.
 
 ## Música
-Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca em `<audio loop>` (volume .45) e respeita o botão de som (`sndApply`). Sem a faixa, cai na música sintetizada (`musTick`).
+Faixas do ElevenLabs em `audio/music/` (OGG, ~2,3MB cada): `menu` (hub/mapa/formação/galeria, `musMenu`, volume .35, não reinicia ao trocar de tela) e uma por missão em `MUSF` (`js/audio.js`): 1 `batalha1`, 2 `batalha2`, 3 `batalha3`, 4 `batalha4`, 5 `batalhaepica`. Toca com `xloop` (dois `<audio>` com crossfade de 3s no fim, que esconde o corte seco das faixas do ElevenLabs), volume .45, e respeita o botão de som. Sem a faixa, cai na música sintetizada (`musTick`). As faixas foram aparadas do silêncio no começo e no fim (vinham com até 10s sobrando); faixa nova: `ffmpeg -i x.ogg -af "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse" -c:a libvorbis -q:a 5 y.ogg`.
+Guardadas sem uso: `overture.ogg` (o menu antigo, Shadow Blade Overture) e `funny.ogg` (pra alguma ocasião futura).
 Converter WAV novo: `tools/audio/converter.sh` (roda na pasta dos WAV, pergunta o nome de cada um; Enter mantém o nome).
 
 ## Variações

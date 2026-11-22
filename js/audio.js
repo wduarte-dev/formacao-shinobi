@@ -98,9 +98,19 @@ let AMBA=null, MUSA=null;
 function loopA(src,vol){ const a=new Audio(src); a.loop=true; a.volume=sndOn?vol:0; a.dataset.v=vol; a.play().catch(()=>{}); return a; }
 function ambSndStart(bg){ ambSndStop(); if(bg)AMBA=loopA(SFXD+'amb-'+bg+'.ogg',.35); }
 function ambSndStop(){ if(AMBA){AMBA.pause(); AMBA=null;} }
+// música em loop com crossfade: XF s antes do fim a próxima volta entra por baixo (o fim, que às vezes corta seco, some na mistura)
+const XF=3;
+function xloop(src,vol){ const mk=()=>{const a=new Audio(src); a.volume=0; a.play().catch(()=>{}); return a;};
+  const o={dataset:{v:vol}, a:mk(), b:null};
+  o.iv=setInterval(()=>{ const a=o.a, d=a.duration, tv=sndOn?vol:0;
+    if(!o.b&&d&&a.currentTime>d-XF){ o.b=mk(); o.t0=performance.now(); }
+    if(o.b){ const k=Math.min(1,(performance.now()-o.t0)/(XF*1000)); a.volume=tv*(1-k); o.b.volume=tv*k; if(k>=1){a.pause(); o.a=o.b; o.b=null;} }
+    else a.volume=tv; },100);
+  o.pause=()=>{ clearInterval(o.iv); o.a.pause(); if(o.b)o.b.pause(); };
+  return o; }
 function musStart(ix){ musStop(); if(!AC)return; const f=MUSF[ix|0]; if(!f)return musSynth();
-  const a=MUSA=loopA('audio/music/'+f+'.ogg',.45); a.addEventListener('error',()=>{ if(MUSA===a){MUSA=null; musSynth();} }); }
+  const o=MUSA=xloop('audio/music/'+f+'.ogg',.45); o.a.addEventListener('error',()=>{ if(MUSA===o){o.pause(); MUSA=null; musSynth();} }); }
 // música do menu: não reinicia se já estiver tocando (navegar entre telas mantém a faixa)
-function musMenu(){ if(!AC||(MUSA&&MUSA.dataset.f==='menu'))return; musStop(); MUSA=loopA('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
+function musMenu(){ if(!AC||(MUSA&&MUSA.dataset.f==='menu'))return; musStop(); MUSA=xloop('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
 function musStop(){ clearInterval(musT); musT=null; if(MUSA){MUSA.pause(); MUSA=null;} }
-function sndApply(){ for(const a of [AMBA,MUSA])if(a)a.volume=sndOn?+a.dataset.v:0; }
+function sndApply(){ if(AMBA)AMBA.volume=sndOn?+AMBA.dataset.v:0; }   // a música (xloop) acompanha o sndOn sozinha
