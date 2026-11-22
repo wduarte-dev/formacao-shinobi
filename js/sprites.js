@@ -66,7 +66,7 @@ let speed=1, paused=false, frozen=false, battleOn=false, lastT=0;
 function tick(ts){
   const raw=Math.min(50,ts-lastT); lastT=ts; const dt=raw*(battleOn?speed:1);
   if(!(battleOn&&(frozen||paused))){
-    for(const u of ACT){ const a=an_of(u)[u.an], per=1000/a[4]; u.at+=dt;
+    for(const u of ACT){ const a=an_of(u)[u.an], per=1000/a[4]; u.at+=dt*(u.ts||1);   // u.ts: câmera lenta por unidade (ex.: capuz do Yugami)
       while(u.at>=per){ u.at-=per;
         if(u.af<seqN(a)-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
         drawFrame(u);} }

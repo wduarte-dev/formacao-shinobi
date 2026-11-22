@@ -76,6 +76,13 @@ let finDone=false;
 async function finale(t){ if(finDone)return; finDone=true; const p=cur(t); zoomTo(p.x,p.y-60,1.35); flash(); ink('RESULTADO'); await hitstop(650); zoomOut(true); }
 // legenda lateral com retrato + nome do golpe (jutsu e Forte); some no endCine
 function skTag(u,name){ const tag=$('jtag'); tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=name; void tag.offsetWidth; tag.classList.add('on'); }
+// fim do Lacre Rompido (Yugami): câmera fecha nele e o capuz volta em câmera lenta (~3s no total); u.ts = escala de tempo da anim (tick)
+async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
+  sceneOn([u]); zoomTo(p.x,p.y-70*sz,1.9,true); sfx.cast(u); await sleep(300);
+  const ms=Math.max(300,animMs(u,'rehood')); u.ts=Math.min(1,ms/2300); setAnim(u,'rehood',0,true); fxAt(u,'aura',u,1.1,0,{fps:5});
+  try{ await sleep(ms/u.ts); } finally{ u.ts=1; }
+  if(u.solto)setForm(u,false); setAnim(u,'idle'); flashSoft(); fl(u,'capuz lacrado','shieldf'); await sleep(400);
+  zoomOut(true); sceneOff(); await sleep(250); }
 function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}

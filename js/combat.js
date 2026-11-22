@@ -189,7 +189,7 @@ async function run(){
         chakra.p=Math.min(100,chakra.p+20); chakra.e=Math.min(100,chakra.e+20); sfx.round(); sfx.chakra();
         if(fieldA&&--fieldA.rounds<=0)clearField();
         for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
-          if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); setAnim(u,'rehood',0,true); setTimeout(()=>{ if(u.solto){setForm(u,false); setAnim(u,'idle');} },Math.max(300,animMs(u,'rehood'))/speed); }
+          if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
       all().forEach(u=>u.chaseUsed=false);
