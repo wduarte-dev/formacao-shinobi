@@ -1,5 +1,5 @@
 # Prompts finais do Yugami (ninja de Distorção/Espaço) — colar cada bloco inteiro na IA de imagem
-> Nome provisório (distorção em japonês). Paleta: índigo escuro, gold, branco-estrela, lilás claro. **Nada de verde/turquesa.** Tamanho normal (`size` 1.0). Mecânica sugerida: jutsu "Troca de Espaço" (troca de lugar na formação), perseguição "Passo Dimensional" por teleporte. Decidir ao integrar.
+> Nome provisório (distorção em japonês). Paleta: azul-marinho, dourado, branco, creme. Visual: humano glitchado (corpo fatiado e deslocado, um corpo só, sem cópias). **Nada de verde/turquesa.** Tamanho normal (`size` 1.0). Mecânica sugerida: jutsu "Troca de Espaço" (troca de lugar na formação), perseguição "Passo Dimensional" por teleporte. Decidir ao integrar.
 **Ref de idle:** `docs/refs/yugami_ref.png` = frame de idle **já existente** (Mayoi, ampliado 4x, fundo verde chapado). Nada gerado. Vai **só no A1**, como referência de estilo/escala (o A1 avisa pra não copiar o design dela). A2←A1, B1←A2, B2←B1, C←B2, D←qualquer sheet (só paleta). Salvar em `tools/sprites/src/yugami/` como `A1, A2, B1, B2, C, D`. Errou contagem de linhas → regerar.
 
 ---
