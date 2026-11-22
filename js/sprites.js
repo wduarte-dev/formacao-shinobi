@@ -55,6 +55,11 @@ function portrait(el,id,scale,w,h,an){ const S=SH[id], e=Math.min(scale*0.62,5)/
   el.style.backgroundPosition=`${-(S.hd[0]*e-w/2)}px ${-((row*S.ch+S.hd[1])*e-h/2)}px`; }
 
 /* ================= LAÇO DE ANIMAÇÃO ================= */
+// modo leve automático: se a batalha roda abaixo de ~30fps por ~3s seguidos (aparelho fraco), liga o modo leve sozinho (dá pra desligar no menu)
+let slowAcc=0, slowN=0, slowW=0;
+function autoLite(raw){ if(!battleOn||paused||lite||document.hidden||raw<=0){slowAcc=slowN=0; if(!battleOn)slowW=0; return;} if(slowW<100){slowW++;return;}   // 100 quadros de aquecimento (carga de imagens)
+  slowAcc+=raw; slowN++;
+  if(slowN>=120){ if(slowAcc/slowN>34){ lite=true; save(); document.body.classList.add('lite'); if(typeof liteUi==='function')liteUi(); } slowAcc=slowN=0; } }
 let speed=1, paused=false, frozen=false, battleOn=false, lastT=0;
 function tick(ts){
   const raw=Math.min(50,ts-lastT); lastT=ts; const dt=raw*(battleOn?speed:1);
@@ -65,6 +70,7 @@ function tick(ts){
         drawFrame(u);} }
   }
   if(battleOn&&!paused)fxStep(dt/16.7);
+  autoLite(raw);
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);

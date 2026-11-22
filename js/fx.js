@@ -78,10 +78,13 @@ const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'s
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide',shard:'slide',fenda:'slide',lacre:'float',rasgo:'rise',estouro:'spin',halo:'float'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
 // mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
+// pré-carga: os atlas de efeito têm ~16MB decodificados cada; sem isso o 1º jutsu/perseguição trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
+const KEEP={};
+function preloadFx(ids){ for(const id of new Set(ids)){ for(const f of [`spr/${id}_fx.png`,...(id==='yugami'?['spr/yugamir_atlas.png']:[])]){ if(KEEP[f])continue; const im=KEEP[f]=new Image(); im.src=f; if(im.decode)im.decode().catch(()=>{}); } } }
 let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem
 function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
   const [r,n]=A.a[name], sc=o.sc||1, w=288*sc, h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
-  const box=document.createElement('div'), img=document.createElement('div');
+  const box=document.createElement('div'), rs=document.createElement('div'), img=document.createElement('div');
   let x=o.x, y=o.y, tx=o.x, ty=o.y, rot=0, rot2=0, s0=.55;
   const mv=o.to?'travel':(o.mv||FXMOVE[name]||'pop');
   if(o.to){tx=o.to.x; ty=o.to.y; s0=.8;}
@@ -94,19 +97,22 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   else if(mv==='float'){y+=18; ty-=40*sc;}
   else if(mv==='spin'){rot=R(-25,25); rot2=rot+d*R(30,60);}
   else {rot=R(-6,6); rot2=rot;}
-  box.className='fxs'; img.className='fxi';
-  box.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg) scale(${s0});opacity:0`;
+  // só transform/opacity (compositor): box viaja (translate), rs gira/escala/some, img é o atlas. Nada de left/top animado (layout a cada quadro)
+  box.className='fxs'; rs.className='fxr'; img.className='fxi';
+  box.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px`;
+  rs.style.cssText=`transform:rotate(${rot}deg) scale(${s0});opacity:0`;
   img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${6*h}px`+(o.flip?';transform:scaleX(-1)':'');
-  box.appendChild(img); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
+  rs.appendChild(img); box.appendChild(rs); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
-  box.style.transition=`left ${ms*.85}ms cubic-bezier(.2,.7,.3,1),top ${ms*.85}ms cubic-bezier(.2,.7,.3,1),transform ${ms*(mv==='surge'?1:.9)}ms ${mv==='surge'?'cubic-bezier(.25,.6,.35,1)':'cubic-bezier(.2,1.4,.4,1)'},opacity ${Math.min(120,ms*.25)}ms`;
-  box.style.left=(tx-w/2)+'px'; box.style.top=(ty-h/2)+'px'; box.style.opacity=1;
-  box.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
+  box.style.transition=`transform ${ms*.85}ms cubic-bezier(.2,.7,.3,1)`;
+  rs.style.transition=`transform ${ms*(mv==='surge'?1:.9)}ms ${mv==='surge'?'cubic-bezier(.25,.6,.35,1)':'cubic-bezier(.2,1.4,.4,1)'},opacity ${Math.min(120,ms*.25)}ms`;
+  box.style.transform=`translate(${tx-x}px,${ty-y}px)`; rs.style.opacity=1;
+  rs.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
   let f=0;
   const step=()=>{ if(f>=n||tk!==token){box.remove();fxLive--;return;}
     if(!paused){ img.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;
-      if(f===n-1){box.style.transition=`opacity ${1000/fps/speed*1.4}ms linear,transform ${1000/fps/speed*1.4}ms`; box.style.opacity=0; box.style.transform+=' scale(1.06)';} }
+      if(f===n-1){rs.style.transition=`opacity ${1000/fps/speed*1.4}ms linear,transform ${1000/fps/speed*1.4}ms`; rs.style.opacity=0; rs.style.transform+=' scale(1.06)';} }
     setTimeout(step,1000/fps/speed); };
   step(); return dur; }
 // efeito do ninja u (tipo kind) em cima do alvo t; sobra (dy) sobe ou desce o ponto

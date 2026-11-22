@@ -78,5 +78,5 @@ function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.
 async function shoot(u,t){ if(fxShot(u,t,320)){ await sleep(320); return; }
   const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
   e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
-  void e.offsetWidth; e.style.left=b.x+'px'; e.style.top=(b.y-68)+'px'; try{await sleep(190);}finally{e.remove();}}
+  void e.offsetWidth; e.style.transform=`translate(${b.x-(a.x+dir*54)}px,${b.y-68-(a.y-72)}px)`; try{await sleep(190);}finally{e.remove();}}
 

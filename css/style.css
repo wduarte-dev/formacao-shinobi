@@ -113,8 +113,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 
 /* ---- batalha ---- */
 .field{position:absolute;inset:0;overflow:hidden}
-.field .bgi{transition:filter .2s}
-.field.dim .bgi{filter:brightness(.22) saturate(.6)}
+#dimv{position:absolute;inset:0;background:#06040c;opacity:0;transition:opacity .2s;pointer-events:none}   /* escurece o fundo na cena de jutsu (overlay em vez de filter: filter no fundo inteiro re-rasteriza e trava no celular) */
+.field.dim #dimv{opacity:.8}
 .field.shake{animation:fsh .28s}
 /* campo Noite de Névoa: escurece e passa névoa em movimento (só código, sem sprite) */
 #fog{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s;background:rgba(24,12,50,.5);z-index:9}
@@ -196,9 +196,10 @@ body.lite .swave{box-shadow:none}
 @keyframes up{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-50px}}
 .field.hs .fl{animation-play-state:paused}
 #fx{position:absolute;inset:0;pointer-events:none;z-index:65}
-.fxs{position:absolute;pointer-events:none;will-change:transform,left,top,opacity}
+.fxs{position:absolute;pointer-events:none;will-change:transform}
+.fxr{position:absolute;inset:0;will-change:transform,opacity}
 .fxi{position:absolute;inset:0;background-repeat:no-repeat;image-rendering:pixelated}
-.proj{position:absolute;width:16px;height:16px;margin:-8px;background:#fff;box-shadow:0 0 0 4px var(--c),0 0 18px 7px var(--c);transition:left .18s linear,top .18s linear}
+.proj{position:absolute;width:16px;height:16px;margin:-8px;background:#fff;box-shadow:0 0 0 4px var(--c),0 0 18px 7px var(--c);transition:transform .18s linear;will-change:transform}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:95;pointer-events:none}
 #flash.on{animation:flz .3s ease-out}
 #flash.long{animation:flz 1.1s ease-out}

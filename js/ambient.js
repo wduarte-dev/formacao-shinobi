@@ -29,15 +29,18 @@ function ambStart(bg){
   if(C.fly)for(let i=0;i<C.fly.n*m;i++)ambP.push({k:'fly',x:rr(0,AW),y:rr(AH*.18,AH*.5),vx:0,vy:0,c:aPick(C.fly.col),ph:rr(0,6.3),s:rr(1,1.6),sw:1});
   if(C.mist&&!lite)for(let i=0;i<C.mist.n;i++)ambM.push({x:rr(0,AW),y:C.mist.y*AH+rr(-14,14),w:rr(110,190),v:rr(.05,.14)*(Math.random()<.5?-1:1)});
   ambT=0; const t=ambTok; let last=performance.now();
-  (function loop(now){ if(t!==ambTok||$('sBattle').classList.contains('hide'))return; const dt=Math.min(.05,(now-last)/1000); last=now;
+  (function loop(now){ if(t!==ambTok||$('sBattle').classList.contains('hide'))return; const el=now-last; if(el<30){requestAnimationFrame(loop);return;}   // ambiente a ~30fps: metade do custo, ninguém nota
+    const dt=Math.min(.05,el/1000); last=now;
     if(!paused&&!document.hidden)ambStep(dt); requestAnimationFrame(loop); })(last);
 }
+let mistC=null, mistK=null;
+function mistSpr(C){ if(mistK===C)return mistC; mistK=C; mistC=document.createElement('canvas'); mistC.width=mistC.height=128; const g=mistC.getContext('2d'), gr=g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,`rgba(${C.mist.col},${C.mist.a})`); gr.addColorStop(1,`rgba(${C.mist.col},0)`); g.fillStyle=gr; g.fillRect(0,0,128,128); return mistC; }
 function ambStep(dt){
   const C=ambCfg, b=$('ambb').getContext('2d'), f=$('ambf').getContext('2d'); ambT+=dt; const k=dt*60;
   b.clearRect(0,0,AW,AH); f.clearRect(0,0,AW,AH);
   for(const m of ambM){ m.x+=m.v*k; if(m.x>AW+m.w)m.x=-m.w; if(m.x<-m.w)m.x=AW+m.w;
-    const g=b.createRadialGradient(m.x,m.y,0,m.x,m.y,m.w); g.addColorStop(0,`rgba(${C.mist.col},${C.mist.a})`); g.addColorStop(1,`rgba(${C.mist.col},0)`);
-    b.save(); b.translate(0,m.y); b.scale(1,.2); b.translate(0,-m.y); b.fillStyle=g; b.fillRect(m.x-m.w,m.y-m.w,m.w*2,m.w*2); b.restore(); }
+    b.drawImage(mistSpr(C),m.x-m.w,m.y-m.w*.2,m.w*2,m.w*.4); }   // névoa: gradiente pré-desenhado (1x por cenário) em vez de recriar todo quadro
   if(C.glow&&!lite){ b.globalCompositeOperation='lighter';
     C.glow.forEach((g,i)=>{ const p=.72+.28*Math.sin(ambT*(2.1+i*.37)+i*1.7)*Math.sin(ambT*.9+i), r=g[2]*AW*(g[2]>.1?1:1.6);
       const gr=b.createRadialGradient(g[0]*AW,g[1]*AH,0,g[0]*AW,g[1]*AH,r); const a=(g[2]>.1?.22:.4)*p; gr.addColorStop(0,`rgba(${C.gcol},${a})`); gr.addColorStop(1,`rgba(${C.gcol},0)`);
