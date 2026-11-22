@@ -1,6 +1,6 @@
 # Fuuka — regeração completa (proporção Kaen, 22/11/2026)
 
-Ordem e anexos: **A1** ← `docs/refs/kaen_ref.png` (só proporção/estilo) → **A2** ← A1 aprovado → **B1** ← A2 → **B2** ← B1 → **C** ← B2 → **D** ← qualquer sheet (só paleta). Salvar em `tools/sprites/src/fuuka/`. Contagem errada de linhas → regerar.
+Ordem e anexos: **A1** ← `docs/refs/elenco_ref.png` (só proporção/estilo) → **A2** ← A1 aprovado → **B1** ← A2 → **B2** ← B1 → **C** ← B2 → **D** ← qualquer sheet (só paleta). Salvar em `tools/sprites/src/fuuka/`. Contagem errada de linhas → regerar.
 
 ## LOTE A1
 ```
@@ -16,7 +16,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "FUUKA - LOTE A1" on a thin dark strip above the grid.
 
-Attached image is a STYLE and PROPORTION reference ONLY (a different character): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adult, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy its face, hair, clothes or colors. Do NOT redraw this character.
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): FUUKA, a young wind ninja. Straight silver hair with pink tips, tied back with a short side fringe. Charcoal and white fitted outfit with pink trim, a pink ribbon sash at the waist. TWO silver blade rings (flat circular blades) hanging at her hips, one on each side, clearly visible in every frame. Fingerless gloves, dark boots. Alert, confident, a little sharp expression.
 

@@ -49,7 +49,7 @@ Todo humanoide segue o Kaen: **realista/atlético, ~6,5 cabeças, cabeça pequen
 ## Fluxo de entrega pro Wellington (regra da ref de idle, 21/11/2026)
 - Todo lote **A** de ninja novo vai com **1 imagem de referência + o prompt pronto** (em `docs/refs/`: `<ninja>_ref.png` + `<ninja>_A1_prompt.txt`). Ele gera e depois anexa os gerados nos lotes seguintes (A2←A1, B1←A2…).
 - A ref é um **frame de idle de um atlas que já existe** (fundo verde chapado, sem cinza, ampliado 4x), nunca desenhada do zero: mantém o estilo do jogo.
-- **Ref ÚNICA do elenco: `docs/refs/kaen_ref.png`** (idle do Kaen, decidido 22/11/2026). Só ela vai anexada no A1 de todo ninja humanoide; nenhum outro ninja vira ref (nem Iwao, nem atlas de conferência). O prompt manda copiar só estilo, escala e proporção, não o design. O Kaen é o padrão de "estilo certo".
+- **Ref ÚNICA do elenco: `docs/refs/elenco_ref.png`** (idle de Kaen, Mizuha, Raiden, Iwao, Yugami e Poko juntos, fundo verde, sem texto; **substituiu o `kaen_ref.png`, que foi excluído em 22/11/2026**). Só ela vai anexada no A1 de todo ninja. O prompt manda copiar só estilo, escala e proporção do grupo, nunca o design de um deles. Elenco "estilo certo" = esses 6; quem sair do estilo é regerado e, depois de aprovado, pode entrar na ref.
 - **Exceção:** o primeiro de uma **espécie nova** (ex.: Poko, louva-a-deus) vai **sem ref**, senão a IA copia o ninja usado como ref. Os seguintes da mesma espécie usam ele como ref.
 
 ## Diretrizes de criatividade (decididas 21/11/2026)
@@ -60,7 +60,7 @@ Todo humanoide segue o Kaen: **realista/atlético, ~6,5 cabeças, cabeça pequen
 
 ## Dinâmica dos lotes (salva 22/11/2026, vale pra todo ninja novo ou regerado)
 - **Gerador:** `python3 tools/sprites/gen_prompts_lotes.py <ninja>` escreve `docs/prompts-<ninja>.md` com A1, A2, B1, B2, C e D prontos (dados de cada ninja em `NINJAS` dentro do script; ninja novo = nova entrada). Não reescrever prompt na mão.
-- **Ordem e anexos:** A1 ← `kaen_ref.png` · A2 ← A1 aprovado · B1 ← A2 · B2 ← B1 · C ← B2 · D ← qualquer sheet do ninja (só paleta).
+- **Ordem e anexos:** A1 ← `elenco_ref.png` · A2 ← A1 aprovado · B1 ← A2 · B2 ← B1 · C ← B2 · D ← qualquer sheet do ninja (só paleta).
 - **Linhas:** A1 4 (idle 6, andar 8, investida 8, básico 7-8) · A2 4 (forte 7, defesa 4, dano 3, esquiva 6) · B1 3 (selos 6, jutsu 8, buff 6) · B2 3 (atordoado 4, vitória 6, derrota 8) · C 4 (repelido 8, lançado 8, derrubado 8, perseguição 8) · D 6x6 (projétil, básico, jutsu, perseguição, impacto, aura).
-- **Entrega ao Wellington (celular):** um `.txt` por lote via SendUserFile + `kaen_ref.png`; ele gera, manda pelo Drive e eu integro. **Um ninja por vez**, só avançar quando ele pedir.
+- **Entrega ao Wellington (celular):** um `.txt` por lote via SendUserFile + `elenco_ref.png`; ele gera, manda pelo Drive e eu integro. **Um ninja por vez**, só avançar quando ele pedir.
 - **Prioridade:** 1º os chibis (Fuuka, Hiyori, Mayoi, Doku; aparecem "???"), depois sprites novos dos que já estão certos (Tsunami e idle da Mizuha, idle e Forte do Iwao).

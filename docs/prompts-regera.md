@@ -1,6 +1,6 @@
 # Prompts de regeração (22/11/2026): Forte do Iwao + A1 de Fuuka, Hiyori, Mayoi, Doku
 
-Anexos: A1 dos 4 ninjas ← `docs/refs/kaen_ref.png` (só proporção/estilo). Forte do Iwao ← `docs/refs/iwao_ref.png`. Depois do A1, A2←A1, B1←A2, B2←B1, C←B2 (fluxo normal). Idles de Mizuha/Iwao: `docs/prompts-idle-mizuha-iwao.md`.
+Anexos: A1 dos 4 ninjas ← `docs/refs/elenco_ref.png` (só proporção/estilo). Forte do Iwao ← `docs/refs/iwao_ref.png`. Depois do A1, A2←A1, B1←A2, B2←B1, C←B2 (fluxo normal). Idles de Mizuha/Iwao: `docs/prompts-idle-mizuha-iwao.md`.
 
 ## FUUKA A1
 ```
@@ -16,7 +16,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "FUUKA - LOTE A1" on a thin dark strip above the grid.
 
-Attached image is a STYLE and PROPORTION reference ONLY (a different character): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adult, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy its face, hair, clothes or colors. Do NOT redraw this character.
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): FUUKA, a young wind ninja. Straight silver hair with pink tips, tied back with a short side fringe. Charcoal and white fitted outfit with pink trim, a pink ribbon sash at the waist. TWO silver blade rings (flat circular blades) hanging at her hips, one on each side, clearly visible in every frame. Fingerless gloves, dark boots. Alert, confident, a little sharp expression.
 
@@ -41,7 +41,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "HIYORI - LOTE A1" on a thin dark strip above the grid.
 
-Attached image is a STYLE and PROPORTION reference ONLY (a different character): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adult, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy its face, hair, clothes or colors. Do NOT redraw this character.
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): HIYORI, a young ice ninja. Long straight ice-blue hair down to the waist, a snowflake hairpin clearly visible. Short white kimono with deep navy trim, a deep navy obi, white wrapped arm sleeves, dark boots. No weapon in hand (ice blades only appear in attacks). Calm, cold, composed expression. Nothing turquoise, aqua or teal anywhere: the ice is pale sky blue and white only.
 
@@ -66,7 +66,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "MAYOI - LOTE A1" on a thin dark strip above the grid.
 
-Attached image is a STYLE and PROPORTION reference ONLY (a different character): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adult, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy its face, hair, clothes or colors. Do NOT redraw this character.
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): MAYOI, a young mist ninja. Gray-blue hair that covers one eye. A long lilac scarf. Slate-violet outfit with moth-wing patterns on the sleeves, dark pants and boots. A short cane in the right hand with a small glowing paper lantern hanging from its tip, clearly visible in every frame. A few ghostly pale moths fluttering around her. Quiet, mysterious, slightly sleepy expression.
 
@@ -91,7 +91,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "DOKU - LOTE A1" on a thin dark strip above the grid.
 
-Attached image is a STYLE and PROPORTION reference ONLY (a different character): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adult, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy its face, hair, clothes or colors. Do NOT redraw this character.
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): DOKU, a young apothecary ninja. Short messy black hair. A short deep-plum hood pulled back on his shoulders. A charcoal-gray cloth mask covering nose and mouth. Charcoal tunic with deep-plum trim and a wide dark belt. A leather bandolier crossing his chest from left shoulder to right hip, holding 5 small glass vials filled with glowing violet liquid, clearly visible in every frame. Brown leather gloves, dark pants, dark boots. A small flat needle case strapped to his right forearm, clearly visible. No weapon in hand unless the row says so.
 

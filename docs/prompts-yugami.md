@@ -2,10 +2,10 @@
 > Nome provisório (distorção em japonês). Paleta: azul-marinho, dourado, branco, creme. Visual: humano glitchado (corpo fatiado e deslocado, um corpo só, sem cópias). **Nada de verde/turquesa.** Tamanho normal (`size` 1.0). Mecânica sugerida: jutsu "Troca de Espaço" (troca de lugar na formação), perseguição "Passo Dimensional" por teleporte. Decidir ao integrar.
 **Lore do capuz (22/11):** capuz levantado = lacre que segura o poder (A1, A2: idle, andar, investida, básico, forte, defesa, dano, esquiva). Capuz abaixado, cabelo à mostra = poder solto (B1 selos/jutsu/buff, B2 atordoado/vitória/derrota, C repelido/lançado/derrubado/perseguição). A IA do A1/A2 já desenhou o capuz e o B1 já veio sem; só alinhamos B2 e C com o B1.
 
-**Ref de idle:** `docs/refs/kaen_ref.png` = frame de idle **já existente** (Kaen, ampliado 4x, fundo verde chapado). Nada gerado. Vai **só no A1**, como referência de estilo/escala (o A1 avisa pra não copiar o design dela). A2←A1, B1←A2, B2←B1, C←B2, D←qualquer sheet (só paleta). Salvar em `tools/sprites/src/yugami/` como `A1, A2, B1, B2, C, D`. Errou contagem de linhas → regerar.
+**Ref de idle:** `docs/refs/elenco_ref.png` = frame de idle **já existente** (Kaen, ampliado 4x, fundo verde chapado). Nada gerado. Vai **só no A1**, como referência de estilo/escala (o A1 avisa pra não copiar o design dela). A2←A1, B1←A2, B2←B1, C←B2, D←qualquer sheet (só paleta). Salvar em `tools/sprites/src/yugami/` como `A1, A2, B1, B2, C, D`. Errou contagem de linhas → regerar.
 
 ---
-## LOTE A1 (4 linhas) — anexo: `kaen_ref.png`
+## LOTE A1 (4 linhas) — anexo: `elenco_ref.png`
 ```
 STRICT RULES (highest priority, never break):
 1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
