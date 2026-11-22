@@ -70,6 +70,7 @@ const IDS=Object.keys(N);
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
+  if(!s&&navigator.deviceMemory&&navigator.deviceMemory<=4)lite=true;   // aparelho com ≤4GB (ex.: Redmi 13C) já começa no modo leve; depois vale a escolha salva
   if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); lite=!!s.lite; dev=!!s.dev; if(Array.isArray(s.own))own=s.own.filter(id=>LOCK[id]); }}catch(e){}
 placed=placed.filter(p=>have(p.id));
 function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite,own,dev}));}catch(e){}}
