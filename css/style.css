@@ -166,6 +166,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 body.lite .swave{box-shadow:none}
 .u.p .hb,.u.dead .hb{display:none}
 .u.mk .st{filter:drop-shadow(0 0 3px #3d9bff) drop-shadow(0 0 8px #3d9bff)}
+.u.cmb .sh{background:#ff8ad0cc;box-shadow:0 0 16px #ff8ad0;animation:cmbp .5s ease-in-out infinite alternate}   /* vai entrar na perseguição */
+@keyframes cmbp{from{opacity:.55}to{opacity:1}}
 .u.mk .sh{background:#3d9bffcc;box-shadow:0 0 16px #3d9bff}
 .u.hov .st{filter:drop-shadow(0 0 3px #5fe06a) drop-shadow(0 0 8px #5fe06a)}
 .hpn{display:none;position:absolute;left:-60px;width:120px;top:calc(var(--h)*-1 - 46px);text-align:center;font-weight:700;font-size:20px;color:#7dffa6;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;pointer-events:none}

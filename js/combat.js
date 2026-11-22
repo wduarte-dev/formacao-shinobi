@@ -108,10 +108,17 @@ async function doSkill(u,sk,isJ){
     // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
     await sleep(Math.max(ko?120:isJ?0:200, animMs(u,an)-hit)); if(isJ&&!ko)await fxWait(420,1400);
     endCine(); home(u);
-    if(ko){await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
+    if(ko){ comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
     await sleep(160);
   }finally{ endCine(); sceneOff(); }
 }
+// quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
+function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
+  for(;;){ const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&!seen.has(x)&&x.d.chase.on===s); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
+  return out; }
+// no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
+function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
+  if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
 async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase.on===t.state);
   if(!c)return;

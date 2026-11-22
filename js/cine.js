@@ -53,7 +53,7 @@ function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?
 const scene={on:false};
 function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().forEach(x=>x.el.classList.toggle('ghost',!list.includes(x))); }
 function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
-function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
+function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost','cmb')); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
 async function evade(t){ sfx.dodge(t); fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
