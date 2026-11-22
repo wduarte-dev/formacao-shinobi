@@ -41,6 +41,11 @@ const N={
   jutsu:{name:'Névoa Tóxica',cost:40,cd:3,mult:.6,target:'all',cause:'R',dot:{mult:.4,rounds:3},desc:'envenena todos'},
   strong:{name:'Agulhas',an:'atk3',mult:1.4,target:'front',dot:{mult:.35,rounds:2}},
   chase:{name:'Ferrão',on:'L',cause:'D',mult:.7}},
+ yugami:{name:'Yugami',el:'Espaço',c:'#f2c14e',role:'Distorção',hp:860,atk:112,def:18,dodge:12,
+  normal:{name:'Corte Dimensional',mult:1,target:'front'},
+  jutsu:{name:'Lacre Rompido',cost:30,cd:6,target:'self',unleash:3,an:'atk2',desc:'tira o capuz: +35% de dano e +20% de esquiva por 3 rodadas'},
+  strong:{name:'Dupla Fenda',an:'atk3',mult:1.5,target:'front'},
+  chase:{name:'Passo Dimensional',on:'D',cause:'R',mult:.7}},
  // size = multiplicador do sprite (barra de vida, alcance do golpe e retratos acompanham). Poko: louva-a-deus de Som, bloqueado até vencer a missão 3.
  poko:{name:'Poko',el:'Som',c:'#e8b83a',role:'Velocista',hp:820,atk:115,def:15,dodge:15,size:1.2,
   normal:{name:'Rufo de Foices',mult:1.05,target:'front',hits:[.2,.35,.5,.65,.8]},

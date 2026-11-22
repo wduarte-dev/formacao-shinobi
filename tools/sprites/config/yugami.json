@@ -1,0 +1,118 @@
+{
+ "name": "yugami",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "A1.jpg",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash",
+    "attack"
+   ],
+   "erase": [
+    [
+     0,
+     0,
+     2000,
+     56
+    ]
+   ]
+  },
+  {
+   "file": "A2.jpg",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    "strong",
+    "guard",
+    {
+     "name": "hurt",
+     "use": [
+      0,
+      1,
+      2
+     ]
+    },
+    "dodge"
+   ],
+   "erase": [
+    [
+     0,
+     0,
+     2000,
+     56
+    ]
+   ]
+  },
+  {
+   "file": "B1.jpg",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "seals",
+    "jutsu",
+    "buff"
+   ],
+   "erase": [
+    [
+     0,
+     0,
+     2000,
+     56
+    ]
+   ]
+  },
+  {
+   "file": "B2.jpg",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "stun",
+     "use": [
+      0,
+      1,
+      2,
+      3
+     ]
+    },
+    "victory",
+    "defeat"
+   ],
+   "erase": [
+    [
+     0,
+     0,
+     2752,
+     76
+    ]
+   ]
+  },
+  {
+   "file": "C.jpg",
+   "rows": 4,
+   "cols": 8,
+   "ref": [
+    "knockback:0",
+    "chase:0"
+   ],
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown",
+    "chase"
+   ],
+   "erase": [
+    [
+     0,
+     0,
+     2752,
+     76
+    ]
+   ]
+  }
+ ]
+}

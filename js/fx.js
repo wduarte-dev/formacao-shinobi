@@ -17,7 +17,7 @@ function fxStep(k){
   c.globalAlpha=1;
 }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
-  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a']};
+  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a'],'Espaço':['#ffffff','#fff3b0','#f2c14e','#1b2a5c']};
 // ondas sonoras desenhadas em código (jutsu com wave): anéis dourados saem do conjurador e cobrem o campo; cada alvo vibra com anéis menores
 function soundWave(u,ts){ const a=cur(u), cy=a.y-58*(u.d.size||1), n=lite?3:6, cols=['#ffd34d','#ff9a3c','#fff0b0'];
   const ring=(x,y,size,t,delay,c,bw)=>setTimeout(()=>{ const e=document.createElement('div'); e.className='swave'; e.style.left=x+'px'; e.style.top=y+'px'; if(bw)e.style.setProperty('--b',bw+'px');

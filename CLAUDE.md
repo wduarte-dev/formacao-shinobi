@@ -56,6 +56,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 | Mayoi | Névoa | Esquiva/campo | Noite de Névoa (campo 3 rodadas) | Tempestade de Mariposas L→R |
 | Hiyori | Gelo | Controle | Prisão de Gelo (alvo único, D + atordoa) | Pilar de Gelo D→L |
 | Doku | Veneno | Desgaste | Névoa Tóxica (todos, R + veneno) | Ferrão L→D |
+| Yugami | Espaço | Distorção/controle (humano glitchado, capuz-lacre) | Lacre Rompido (tira o capuz: +35% dano, +20% esquiva, 3 rodadas; troca pro atlas `yugamir` + distorção em código `.gl0/.gl1/.gl2`) | Passo Dimensional D→R |
 | Poko | Som | Velocista (`size` 1.2) | Zumbido Ensurdecedor (todos, atordoa) | Ceifa Relâmpago R→L |
 (Forte a cada 3ª ação: Fuuka Corte Giratório (D), Mayoi Onda de Névoa, Hiyori Toque Congelante (paralisa), Doku Agulhas (veneno), Poko Estridulação (R). Todos os 9 são atlas v2; o campo da Mayoi está implementado. **Poko é bloqueado:** `LOCK` em `data.js` (id → missão); aparece como inimigo na missão 3 e, se você vencer, entra em `own` (save). O botão **Modo dev** no menu libera todos. `size` por ninja em `N` (`mkSpr`, `--h` da barra, alcance do `dashTo`).) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
 

@@ -1,4 +1,4 @@
-# Teste automático: python3 tools/test_battle.py <pasta_do_jogo> <pasta_saida> [missao 0-4]
+# Teste automático: python3 tools/test_battle.py <pasta_do_jogo> <pasta_saida> [missao 0-4]   (P3=yugami troca o Raiden pelo Yugami)
 # Sobe servidor local, joga uma batalha com Auto + 2x, salva prints e lista erros do console.
 import sys, subprocess, time, os
 from playwright.sync_api import sync_playwright
@@ -14,7 +14,7 @@ try:
     pg.goto('http://localhost:%d/'%(8765+mis)+'index.html'); pg.wait_for_timeout(800)
     pg.screenshot(path=f'{out}/0_titulo.png')
     pg.click('#sTitle'); pg.wait_for_timeout(300)
-    pg.evaluate(f"""()=>{{ if(placed.length<4) placed=[{{id:'kaen',row:0,depth:0}},{{id:'iwao',row:1,depth:0}},{{id:'raiden',row:2,depth:1}},{{id:'mizuha',row:1,depth:2}}];
+    pg.evaluate(f"""()=>{{ if(placed.length<4) placed=[{{id:'kaen',row:0,depth:0}},{{id:'iwao',row:1,depth:0}},{{id:'{os.environ.get('P3','raiden')}',row:2,depth:1}},{{id:'mizuha',row:1,depth:2}}];
       unlocked=4; foeIx={mis}; autoP=true; speed=2; startBattle(); }}""")
     shots=0; t0=time.time(); res=None
     while time.time()-t0<240:

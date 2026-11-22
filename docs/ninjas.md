@@ -56,3 +56,8 @@ Resumo na tabela do `CLAUDE.md`. Detalhes que não estão lá: Kaen corta 2x no 
 - Números reais no jogo: hp 820, atk 115, def 15, dodge 15; básico 5 hits (mult 1.05), Forte mult 1.4, jutsu `stun:'all'` mult .8, recarga 4.
 - **Perseguição — Ceifa Relâmpago:** **R→L**, corpo a corpo: dash, rajada de cortes e cruz ascendente que lança (sobe junto, `mv:'rise'`).
 - dodge 15%. Foco: abrir combos com vários passos.
+
+## Yugami (Espaço, Distorção) — integrado 22/11/2026 (sem lote D ainda: efeitos por partículas, paleta `Espaço`)
+- Humano 6,5 cabeças (proporção do Kaen), capuz azul-marinho = lacre; dourado/marinho/branco. Dois atlas de 192x160: `yugami` (capuz, A1/A2 + B1/B2/C) e `yugamir` (solto: H1/H2 no lugar de A1/A2, + `unhood`/`rehood` do lote T). Configs `tools/sprites/config/yugami.json` e `yugamir.json`, rodar com `--src src/yugami`. `hurt` não está no `V2` (a anim gerada era corrida; cai no `guard`).
+- **Jutsu Lacre Rompido** (`jutsu.unleash:3`, `target:'self'`): `setForm(u,true)` troca o atlas (`sid(u)` em `sprites.js`) e liga a distorção em código (`glitchSet`: 2 clones recortados em 3 faixas horizontais que escorregam de lado, CSS `.gl0/.gl1/.gl2`); `u.sR` conta as rodadas; ao zerar toca `rehood` e volta. Enquanto solto: dano x1,35 (`dmgOf`) e +20 de esquiva (`dodgeOf`). Relançar só renova a duração. IA só usa se não estiver solto (`wants`).
+- Normal Corte Dimensional (front), Forte Dupla Fenda (1,5x), perseguição Passo Dimensional (D→R, 0,7x). Atributos: HP 860, ATK 112, DEF 18, esquiva 12. Sem sons próprios (cai no genérico).

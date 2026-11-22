@@ -149,6 +149,13 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .st{position:absolute;left:0;top:0;transition:transform .2s ease-out;transform-origin:0 -40px}
 .st.L{transform:translate(calc(var(--d)*14px),-72px)}
 .u.e .spr{transform:scaleX(-1)}
+.spr.gl0,.spr.gl1,.spr.gl2{filter:drop-shadow(0 0 2px #f2c14e) drop-shadow(2px 0 0 #f2c14e88)}
+.spr.gl0{clip-path:inset(0 0 66% 0);animation:gl0 2.3s steps(1) infinite}
+.spr.gl1{clip-path:inset(34% 0 33% 0);animation:gl1 1.9s steps(1) infinite}
+.spr.gl2{clip-path:inset(67% 0 0 0);animation:gl2 2.7s steps(1) infinite}
+@keyframes gl0{0%{translate:-6px 0}18%{translate:5px 0}30%{translate:-3px 0}52%{translate:8px 0}70%{translate:-7px 0}86%{translate:3px 0}}
+@keyframes gl1{0%{translate:7px 0}14%{translate:-9px 0}33%{translate:4px 0}47%{translate:-5px 0}68%{translate:9px 0}84%{translate:-6px 0}}
+@keyframes gl2{0%{translate:-4px 0}12%{translate:8px 0}29%{translate:-8px 0}55%{translate:5px 0}73%{translate:-3px 0}90%{translate:7px 0}}
 .spr.hit{filter:brightness(5) saturate(0)}
 .u.turn .sh{background:#fff9;box-shadow:0 0 12px #fff}
 .u.armed .sh{background:#ffd24acc;box-shadow:0 0 16px #ffd24a}

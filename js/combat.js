@@ -25,15 +25,15 @@ function drawJ(){
 // campo Noite de Névoa: Gelo aliado +15% no básico; Fogo inimigo -15% de dano
 function fieldMul(a,basic){ if(!fieldA)return 1; const mine=a.side===fieldA.side;
   if(mine&&a.d.el==='Gelo'&&basic)return 1.15; if(!mine&&a.d.el==='Fogo')return .85; return 1;}
-function dodgeOf(t){return (t.d.dodge||0)+(fieldA&&t.side===fieldA.side&&t.id==='mayoi'?25:0);}
+function dodgeOf(t){return (t.d.dodge||0)+(t.solto?20:0)+(fieldA&&t.side===fieldA.side&&t.id==='mayoi'?25:0);}
 function setField(u,rounds){ fieldA={side:u.side,rounds}; $('fog').classList.add('on'); }
 function clearField(){ if(!fieldA)return; fieldA=null; $('fog').classList.remove('on'); log('O campo de névoa se dissipa'); }
-function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*(a.solto?1.35:1)*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
 function hurt(t,d,cls){
   let r=d; if(t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
   const hp0=t.hp; if(cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
   t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',cls);
-  t.spr.classList.add('hit'); setTimeout(()=>t.spr.classList.remove('hit'),120);
+  const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); setTimeout(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
   if(t.hp<=0&&t.alive){t.alive=false; sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); t.dot=null; if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
@@ -54,6 +54,14 @@ function pick(u,mode,isJ){
 async function doSkill(u,sk,isJ){
   curSide=u.side; const dir=u.side==='p'?1:-1;
   try{
+    if(sk.unleash){   // Lacre Rompido (Yugami): tira o capuz, troca pro atlas solto + distorção em código, buff por N rodadas
+      const was=u.solto;
+      if(isJ&&!was){await cine(u,sk,[u]); sfx.jutsu(u); sfx.voz(u,'jutsu');}
+      u.sR=sk.unleash; if(!was){ setForm(u,true); setAnim(u,'unhood'); fl(u,'capuz solto','shieldf'); const p=pos(u);
+        em(22,i=>{const g=i/22*6.28; return prt(p.x,p.y-30,Math.cos(g)*10,Math.sin(g)*6,Math.cos(g)*1.8,Math.sin(g)*1.4,0,R(14,22),4,0,pk(PAL['Espaço']));}); }
+      log(`${nm(u)} usa <b>${sk.name}</b>: +35% de dano e +20% de esquiva por ${sk.unleash} rodadas`);
+      await sleep(Math.max(700,animMs(u,'unhood'))); setAnim(u,'idle'); return;
+    }
     if(sk.target==='allies'){
       const al=team(u.side).filter(a=>a.alive);
       if(isJ){await cine(u,sk,al); sfx.jutsu(u); sfx.voz(u,'jutsu');}
@@ -160,6 +168,7 @@ async function chain(side,t,count,src){
 }
 function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive); return !e?'win':!p?'lose':null;}
 function wants(u,rate){const j=u.d.jutsu;
+  if(j.unleash)return !u.solto&&Math.random()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
   return Math.random()<rate;}
 async function intro(){
@@ -180,6 +189,7 @@ async function run(){
         chakra.p=Math.min(100,chakra.p+20); chakra.e=Math.min(100,chakra.e+20); sfx.round(); sfx.chakra();
         if(fieldA&&--fieldA.rounds<=0)clearField();
         for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
+          if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); setAnim(u,'rehood',0,true); setTimeout(()=>{ if(u.solto){setForm(u,false); setAnim(u,'idle');} },Math.max(300,animMs(u,'rehood'))/speed); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
       all().forEach(u=>u.chaseUsed=false);
