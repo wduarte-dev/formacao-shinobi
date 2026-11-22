@@ -24,11 +24,11 @@ async function knock(t,state){
   t.state=state; t.st.className='st '+state; setAnim(t,stAnim(t,state)); t.el.style.zIndex=55;
   t.el.classList.add('fly','fly'+state);
   t.mv.style.transform=`translate(${t.off.x}px,${t.off.y}px)`;
-  fl(t,ST[state]+'!','state'); sfx.state();
+  fl(t,ST[state]+'!','state'); sfx.knock(state);
   await sleep(240);
   t.el.classList.remove('flyR','flyL','flyD');
   const p=cur(t);
-  if(state==='R'){ shake(); sfx.thud(); dust(t,20); crack(p.x+d*26,p.y-60); zoomTo(p.x,p.y-60,1.16); await sleep(120); zoomOut(true);
+  if(state==='R'){ shake(); sfx.wall(); dust(t,20); crack(p.x+d*26,p.y-60); zoomTo(p.x,p.y-60,1.16); await sleep(120); zoomOut(true);
     if(wasAir){t.off.y=0; t.mv.style.transform=`translate(${t.off.x}px,0)`;} }
   else if(state==='D'){ sfx.thud(); dust(t,wasAir?22:12); shake(); if(wasAir){zoomTo(p.x,p.y,1.14); await sleep(110); zoomOut(true);} }
   await sleep(150); t.el.classList.remove('fly');
@@ -39,8 +39,9 @@ function retrig(el,cls){el.classList.remove(cls); void el.offsetWidth; el.classL
 function flash(){retrig($('flash'),'on');}
 function shake(){retrig($('field'),'shake');}
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
-function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on'); }
-function comboLine(name,count){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`${name}<b>${count} Combo</b>`; c.appendChild(d); setTimeout(()=>d.remove(),1900);}
+function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
+  if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
+function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,2.2,34,34); sfx.combo(count); c.appendChild(d); setTimeout(()=>d.remove(),1900);}
 
 // cena isolada (jutsu e perseguição): fundo escuro e só os participantes visíveis, do começo ao fim.
 // sceneAdd revela mais gente (a perseguição acumula); sceneOff só roda quando todos voltaram pra casa.
@@ -49,7 +50,7 @@ function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().fo
 function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
 function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost')); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
-async function evade(t){ sfx.swing(); fxAt(t,'dodge',t,.9);
+async function evade(t){ sfx.dodge(t); fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
   await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
   if(t.alive&&!t.state)setAnim(t,'idle'); }
@@ -58,13 +59,18 @@ async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.lengt
 
 async function cine(u,sk,ts){
   const tag=$('jtag'), c=$('cut'), cp=$('cutP');
-  sceneOn([u]); setAnim(u,'cast'); sfx.cast(); fxAt(u,'aura',u,1.05,18);
-  tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=sk.name; void tag.offsetWidth; tag.classList.add('on');
+  sceneOn([u]); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18);
+  skTag(u,sk.name);
   await sleep(260);
-  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,'cast');
+  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,'cast');
   retrig(c,'on'); await sleep(640);
   ts.forEach(sceneAdd);
 }
+// golpe final: zoom no último a cair, clarão, "RESULTADO" e hit-stop longo (uma vez por luta; finDone zera no run)
+let finDone=false;
+async function finale(t){ if(finDone)return; finDone=true; const p=cur(t); zoomTo(p.x,p.y-60,1.35); flash(); ink('RESULTADO'); await hitstop(650); zoomOut(true); }
+// legenda lateral com retrato + nome do golpe (jutsu e Forte); some no endCine
+function skTag(u,name){ const tag=$('jtag'); tag.className='jtag '+(u.side==='p'?'l':'r'); tag.style.setProperty('--c',u.d.c); portrait($('jtP'),u.id,3,50,50); $('jtN').textContent=name; void tag.offsetWidth; tag.classList.add('on'); }
 function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}

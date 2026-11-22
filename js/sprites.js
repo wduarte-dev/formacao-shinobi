@@ -42,7 +42,7 @@ function drawFrame(u){const S=SH[u.id], a=an_of(u)[u.an], e=u.sc*S.k, f=a[7]?a[7
 function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.createElement('div'); el.className='sp'+(flip?' flip':''); el.style.left=x+'px'; el.style.top=y+'px';
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
-function portrait(el,id,scale,w,h,an){ const S=SH[id], e=Math.min(scale*0.62,5), row=S.anim[an||'idle'][0];
+function portrait(el,id,scale,w,h,an){ const S=SH[id], e=Math.min(scale*0.62,5)/((N[id]&&N[id].size)||1), row=S.anim[an||'idle'][0];   // ninja grande (size) afasta o zoom pra caber (asa do Poko)
   el.style.backgroundImage=SPR[id]; el.style.backgroundSize=`${S.W*e}px ${S.H*e}px`;
   el.style.backgroundPosition=`${-(S.hd[0]*e-w/2)}px ${-((row*S.ch+S.hd[1])*e-h/2)}px`; }
 

@@ -8,10 +8,10 @@ function fitStage(){ const s=Math.min(innerWidth/1152,innerHeight/648); $('stage
 addEventListener('resize',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
 document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1400)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
-document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.arm();show('sHub');});
-$('sTitle').onclick=()=>{initAudio(); sfx.start(); show('sHub');};
-$('hMap').onclick=()=>{sfx.arm();show('sMap');}; $('hForm').onclick=()=>{sfx.arm();show('sForm');}; $('hGal').onclick=()=>{sfx.arm();show('sGal');};
-$('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sfx.arm();};
+document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});
+$('sTitle').onclick=()=>{initAudio(); sfx.ui('titulo'); show('sHub');};
+$('hMap').onclick=()=>{sfx.ui('clique');show('sMap');}; $('hForm').onclick=()=>{sfx.ui('clique');show('sForm');}; $('hGal').onclick=()=>{sfx.ui('clique');show('sGal');};
+$('hSnd').onclick=()=>{sndOn=!sndOn; $('hSnd').classList.toggle('on',sndOn); sndApply(); sfx.arm();};
 function liteUi(){document.body.classList.toggle('lite',lite); $('hLite').classList.toggle('on',lite);}
 $('hLite').onclick=()=>{lite=!lite; save(); liteUi();}; liteUi();
 function devUi(){$('hDev').classList.toggle('on',dev);}
@@ -62,17 +62,17 @@ addEventListener('pointermove',e=>{ if(!drag)return; const p=stagePt(e); if(Math
   if(drag.moved){ $('drag').classList.remove('hide'); $('drag').style.left=p.x+'px'; $('drag').style.top=(p.y+50)+'px';
     const t=nearTile(p); document.querySelectorAll('.tile').forEach(el=>el.classList.toggle('hot',!!t&&el.dataset.rd===t.row+','+t.depth)); } });
 addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null; $('drag').classList.add('hide'); const p=stagePt(e), i=placed.findIndex(q=>q.id===d.id);
-  if(!d.moved){ if(d.fromField){placed.splice(i,1);sfx.arm();} else sel=d.id; }
+  if(!d.moved){ if(d.fromField){placed.splice(i,1);sfx.ui('pegar');} else sel=d.id; }
   else{ const t=nearTile(p);
     if(t){ const o=placed.findIndex(q=>q.row===t.row&&q.depth===t.depth);
       if(i>=0){ if(o>=0&&o!==i){placed[o].row=placed[i].row;placed[o].depth=placed[i].depth;} placed[i].row=t.row;placed[i].depth=t.depth; }
       else if(o>=0){ placed[o].id=d.id; }
       else if(placed.length<4)placed.push({id:d.id,row:t.row,depth:t.depth});
-      sel=d.id; sfx.arm(); }
+      sel=d.id; sfx.ui('soltar'); }
     else if(d.fromField){placed.splice(i,1);} }
   save(); drawForm(); });
 $('fClear').onclick=()=>{placed=[];save();drawForm();};
-$('fDone').onclick=()=>{sfx.arm();show('sHub');};
+$('fDone').onclick=()=>{sfx.ui('confirma');show('sHub');};
 
 /* ---- mapa de fases ---- */
 const NODE=[[76,372],[196,268],[330,350],[430,206],[500,96]];
@@ -82,7 +82,7 @@ function drawMap(){
   FOES.forEach((f,i)=>{ const b=document.createElement('button'), lock=i>unlocked, done=i<unlocked;
     b.className='node'+(lock?' lock':'')+(done?' done':'')+(i===foeIx?' sel':''); b.style.left=NODE[i][0]+'px'; b.style.top=NODE[i][1]+'px';
     b.innerHTML=lock?'<i style="background-image:url(ui/lock.png)"></i>':done?'<i style="background-image:url(ui/check.png)"></i>':String(i+1);
-    b.onclick=()=>{ if(lock)return; foeIx=i; sfx.arm(); drawMap(); }; m.appendChild(b);
+    b.onclick=()=>{ if(lock)return; foeIx=i; sfx.ui('missao'); drawMap(); }; m.appendChild(b);
     const l=document.createElement('div'); l.className='nlab'; l.style.left=NODE[i][0]+'px'; l.style.top=(NODE[i][1]+38)+'px'; l.textContent=lock?'???':f.name; m.appendChild(l); });
   const f=FOES[foeIx], s=$('mSide');
   s.innerHTML=`<h4>${foeIx+1}. ${f.name}</h4><div>Dificuldade: <b>${f.lvl}</b></div><div>Inimigos:</div><div id="mFoes"></div><div>${f.team.map(t=>N[t[0]].name+' ('+N[t[0]].el+')').join(', ')}</div>`;
@@ -96,7 +96,7 @@ let gal=null;
 function drawGal(){
   const L=$('gList'); L.innerHTML=''; ACT=[];
   IDS.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
-    const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.arm();drawGal();}; L.appendChild(b); });
+    const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.ui('clique');drawGal();}; L.appendChild(b); });
   const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,170,290,V);
   const A=$('gAn'); A.innerHTML=''; A.className='many';
   [['Parado','idle'],['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Lançado','launched'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Vitória','victory'],['Derrota','die']]

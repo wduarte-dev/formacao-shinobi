@@ -19,7 +19,7 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 | `css/style.css` | todo o visual (caminhos de imagem com `../`) |
 | `js/data.js` | estados D/L/R, tipos de alvo, ninjas (`N`), missões (`FOES`), save |
 | `js/sprites.js` | registro de atlas (`V2` → `SH`/`SPR`), `an_of`, `stAnim`, `portrait`, atores, laço `tick` |
-| `js/audio.js` | som sintetizado (WebAudio) e música |
+| `js/audio.js` | sons gravados (`audio/sfx/*.ogg`, `sfx.<evento>`), ambiente por cenário e música (`MUSF`); sintetizado (`SYN`/`musTick`) como reserva. Fluxo e tabela de eventos: `docs/audio.md` |
 | `js/screens.js` | telas: título, hub, formação (arrastar), mapa, galeria |
 | `js/state.js` | estado da batalha, `pos`/`cur`, `sleep`/`gate` |
 | `js/fx.js` | partículas em canvas, paletas por elemento, efeitos desenhados do lote D (`FXA`/`FXUSE`/`FXMOVE`) |
@@ -30,6 +30,8 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 | `js/combat.js` | botões de jutsu, dano, alvos (`pick`), `doSkill`, perseguição (`chain`), IA, laço `run` |
 | `js/main.js` | liga os botões da batalha (fica por último) |
 | `spr/`, `bg/`, `ui/` | atlas + efeitos (`<ninja>_atlas.png`/`_fx.png`), cenários IA 1152x648 (um por missão; menus usam o `sakura`), UI 9-slice |
+| `audio/` | `sfx/*.ogg` (efeitos e ambientes do ElevenLabs), `music/` (faixas, quando ele mandar) |
+| `tools/gen_sfx.py`, `tools/audio/` | gera SFX pela API do ElevenLabs (prompts em `docs/prompts-sfx.md`) → WAV em `tools/audio/src/sfx/` → `convert_sfx.py` → OGG |
 | `tools/test_battle.py` | teste automático com Playwright |
 | `tools/sprites/` | pipeline de recorte: `shinobi_atlas.py`, `config/<ninja>.json`, `src/<ninja>/` (sheets originais) |
 | `docs/` | ondas, observações, ninjas, pipeline, prompts de sprite |
