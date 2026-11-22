@@ -22,13 +22,14 @@ function drawJ(){
     u.skc.textContent=u.alive&&u.cd>0?u.cd:!u.alive?'✕':'';
     u.skl.textContent=u.armed?'preparado':j.name; });
 }
-// campo Noite de Névoa: Gelo aliado +15% no básico; Fogo inimigo -15% de dano
-function fieldMul(a,basic){ if(!fieldA)return 1; const mine=a.side===fieldA.side;
-  if(mine&&a.d.el==='Gelo'&&basic)return 1.15; if(!mine&&a.d.el==='Fogo')return .85; return 1;}
-function dodgeOf(t){return (t.d.dodge||0)+(t.solto?20:0)+(fieldA&&t.side===fieldA.side&&t.id==='mayoi'?25:0);}
-function setField(u,rounds){ fieldA={side:u.side,rounds}; $('fog').classList.add('on'); }
+// campo (Noite de Névoa): efeitos vêm de jutsu.fieldFx do dono do campo (data.js)
+function fieldMul(a,basic){ if(!fieldA)return 1; const fx=fieldA.fx, mine=a.side===fieldA.side;
+  if(mine&&basic&&fx.ally&&fx.ally[a.d.el])return fx.ally[a.d.el]; if(!mine&&fx.foe&&fx.foe[a.d.el])return fx.foe[a.d.el]; return 1;}
+const unl=u=>u.solto?u.d.jutsu:null;   // forma solta do Yugami: bônus de dano/esquiva vêm do jutsu (uDmg/uDodge)
+function dodgeOf(t){return (t.d.dodge||0)+(unl(t)?unl(t).uDodge||0:0)+(fieldA&&fieldA.owner===t?fieldA.fx.dodge||0:0);}
+function setField(u,rounds){ fieldA={side:u.side,rounds,owner:u,fx:u.d.jutsu.fieldFx||{}}; $('fog').classList.add('on'); }
 function clearField(){ if(!fieldA)return; fieldA=null; $('fog').classList.remove('on'); log('O campo de névoa se dissipa'); }
-function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*(a.solto?1.35:1)*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
 function hurt(t,d,cls){
   let r=d; if(t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
   const hp0=t.hp; if(cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
@@ -59,7 +60,7 @@ async function doSkill(u,sk,isJ){
       if(isJ&&!was){await cine(u,sk,[u]); sfx.jutsu(u);}   // sem kiai: o som do lacre quebrando com glitch já diz tudo
       u.sR=sk.unleash; if(!was){ setForm(u,true); setAnim(u,'unhood'); fxAt(u,'jutsu',u,1.3); fl(u,'capuz solto','shieldf'); const p=pos(u);
         em(22,i=>{const g=i/22*6.28; return prt(p.x,p.y-30,Math.cos(g)*10,Math.sin(g)*6,Math.cos(g)*1.8,Math.sin(g)*1.4,0,R(14,22),4,0,pk(PAL['Espaço']));}); }
-      log(`${nm(u)} usa <b>${sk.name}</b>: +35% de dano e +20% de esquiva por ${sk.unleash} rodadas`);
+      log(`${nm(u)} usa <b>${sk.name}</b>: +${Math.round((sk.uDmg||0)*100)}% de dano e +${sk.uDodge||0}% de esquiva por ${sk.unleash} rodadas`);
       await sleep(Math.max(700,animMs(u,'unhood'))); setAnim(u,'idle'); return;
     }
     if(sk.target==='allies'){
@@ -68,8 +69,8 @@ async function doSkill(u,sk,isJ){
       setAnim(u,'cast');
       if(sk.field){setField(u,sk.field); log(`${nm(u)} usa <b>${sk.name}</b>: névoa por ${sk.field} rodadas`);}
       al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
-        if(sk.heal){sfx.heal(); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
-        if(sk.shield){sfx.shield(); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
+        if(sk.heal){sfx.heal(); healRain(a); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
+        if(sk.shield){sfx.shield(); stoneWall(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
       if(!sk.field)log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }
@@ -87,7 +88,7 @@ async function doSkill(u,sk,isJ){
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); await shoot(u,main); hit+=190;}
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
+    if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
     if(dodgedSet.size)for(const t of dodgedSet)evade(t);
     if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
     else{ let tot=0;
@@ -97,7 +98,7 @@ async function doSkill(u,sk,isJ){
           tot+=hurt(t,dmgOf(u,t,sk.mult/nh,sk===u.d.normal),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
         if(nh>1&&k<nh-1)sfx.hit(); }
       ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return;
-        if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&u.d.el==='Veneno'?1:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
+        if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
       if(sk.dispel)clearField();
       if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
@@ -122,7 +123,7 @@ function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)retur
 async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase.on===t.state);
   if(!c)return;
-  if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c);   // perseguição também é cena isolada; quem entra fica visível
+  if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
   c.chaseUsed=true; count++; sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
   const cause=c.d.chase.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
   const CHA=(u,a)=>c.d.chase.hits?Math.max(120,c.d.chase.hits[0]*animMs(u,a)):hitAt(u,a);
@@ -144,18 +145,21 @@ async function chain(side,t,count,src){
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
   const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;
-  if(tsu){ ink('TSUNAMI!'); shake(); sfx.heavy();   // parede de água que enche a tela (2 linhas do atlas: sobe e desaba) e lava o time inteiro
-    const TS={x:576,y:324,sc:3.4,sx:1.75,fps:10,dir:dir,flip:dir<0,mv:'still'};
-    fxSpr(c.id,'tsunami1',TS); await sleep(560); fxSpr(c.id,'tsunami2',TS); sfx.heavy(); await sleep(260); shake(); }
+  let tsFoes=[];
+  if(tsu){ ink('TSUNAMI!'); sfx.heavy(); shake(.6);   // parede de água desenhada em código: brota do chão, sobe, avança e desaba no time inteiro
+    tsFoes=foes(c); tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=70; });   // todo mundo que vai levar o golpe aparece e fica marcado (por cima da água)
+    const W=tsunamiFx(dir); for(let n=0;!W.hit&&n<90;n++){ await gate(); await sleep(30); }   // espera a crista bater (respeita pausa/velocidade; teto de segurança)
+    sfx.heavy(); shake(1.3); flashSoft(); }
   else if(CH0.surge){ fxAt(c,'chase',t,1.35,0,{mv:'surge',fps:7}); await sleep(560); }   // a onda brota aos poucos e só então bate
   sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH0.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
   const CH=c.d.chase, ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     d+=hurt(t,dmgOf(c,t,cm/ch.length),'chase'); }
-  if(tsu){ for(const o of foes(c)){ if(o===t)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); hurt(o,dmgOf(c,o,CH.mult*.6),'chase');
+  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); hurt(o,dmgOf(c,o,CH.mult*.6),'chase');
       if(o.alive){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
-        setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240); } } }
+        setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240/speed); } }
+    setTimeout(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
   if(result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');

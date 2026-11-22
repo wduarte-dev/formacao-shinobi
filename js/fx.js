@@ -1,13 +1,14 @@
 // fx.js — partículas e efeitos de elemento (canvas)
 "use strict";
-let fxDirty=false; const FX=[], BOLT=[], SLN=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
+let fxDirty=false; const FX=[], BOLT=[], SLN=[], WAVES=[]; const fxc=$('fxc').getContext('2d'), K=2.5;
 const R=(a,b)=>a+Math.random()*(b-a), pk=a=>a[Math.random()*a.length|0];
 // teto de partículas: no modo leve nasce menos e o limite é menor
 function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;i<n&&FX.length<cap;i++)FX.push(f(i));}
 // valores em "unidades de efeito": o K converte para o tamanho do palco
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
 function fxStep(k){
-  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+  for(let i=WAVES.length-1;i>=0;i--){ const w=WAVES[i]; w.t+=k; if(!w.hit&&w.t>=w.crashT){w.hit=true; w.onCrash&&w.onCrash();} if(w.t>=w.end){WAVES.splice(i,1);continue;} drawWave(c,w); }
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}
     c.globalAlpha=Math.min(1,p.life/p.max*1.6)*(p.round?.7:1); c.fillStyle=p.col;
     if(p.round){c.beginPath();c.arc(p.x/3,p.y/3,p.w/6,0,7);c.fill();}
@@ -52,6 +53,75 @@ function elFx(u,ts){
     else em(34,()=>prt(x,y,R(-28,28),-R(0,46),R(-.5,.5),R(-.9,-.2),0,R(40,64),R(10,19),0,pk(pal),1));
   }
 }
+// ===== TSUNAMI (Mizuha) desenhado em código no canvas 384x216 (pixel art de verdade, sem bloco quadrado) =====
+// fases (t em quadros de 60fps, já com a velocidade do jogo): 0-16 jatos brotam do chão · 16-60 a parede sobe e avança ·
+// 60-74 a crista curva e DESABA sobre o time inimigo (onCrash = hora do dano) · 74-118 a água escoa e some
+const WCOL={foam:'#ffffff',lil:'#d9d2ff',lt:'#9fd4ff',md:'#3d8fe5',dk:'#2a5fb0',dp:'#1d3f86'};
+function tsunamiFx(dir,onCrash){ const w={t:0,dir,crashT:62,end:118,onCrash,hit:false,seed:Math.random()*9}; WAVES.push(w);
+  // jatos brotando do chão no lado inimigo, um pouco antes da parede (só partículas)
+  for(let j=0;j<(lite?5:10);j++){ const x=dir>0?R(560,1120):R(32,592), y=R(470,560); setTimeout(()=>{ if(!battleOn)return;
+    em(lite?4:9,()=>prt(x,y,R(-3,3),0,R(-.6,.6),R(-7.5,-4.5),.32,R(16,26),R(2,4),R(4,7),pk([WCOL.foam,WCOL.lt,WCOL.md]))); },j*45/speed); }
+  return w; }
+function drawWave(c,w){ const t=w.t, d=w.dir, G=196;
+  const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+  let H, F, a=1;                                                    // H = altura da parede, F = frente (coluna, no lado do atacante = 0)
+  if(t<16){H=ease(t/16)*26; F=40+t*3;}
+  else if(t<60){const k=ease((t-16)/44); H=26+k*134; F=88+k*236;}
+  else if(t<74){const k=ease((t-60)/14); H=160-k*112; F=324+k*44;}   // desaba: cai e avança
+  else{const k=ease((t-74)/44); H=48*(1-k); F=368+k*20; a=1-k*.85;}
+  const back=300, col=x=>d>0?x:383-x;                                // espelha quando o inimigo solta (vem da direita)
+  c.globalAlpha=.8*a;
+  for(let x=0;x<=Math.min(383,F+2);x+=2){ const dd=F-x; if(dd<0)continue;
+    let h=H*Math.max(0,1-Math.pow(dd/back,1.6)); if(dd<18)h*=.82+.18*dd/18;   // mais alta perto da frente; a frente tem a face inclinada
+    h+=Math.sin(x*.09+t*.22+w.seed)*2.4*(H/160+.2); if(h<2)continue;
+    const top=G-h, X=col(x)-(d>0?0:1);
+    c.fillStyle=WCOL.dp; c.fillRect(X,top+8,2,G-top);                // corpo fundo
+    c.fillStyle=WCOL.dk; c.fillRect(X,top+5,2,Math.min(h*.6,40));
+    // faixas claras correndo pela parede (o desenho listrado da onda do sprite)
+    for(let b=0;b<3;b++){ const yy=top+10+((x*.45+b*23+t*1.4)%Math.max(12,h-6)); c.fillStyle=b?WCOL.md:WCOL.lt; c.fillRect(X,yy|0,2,2); }
+    c.fillStyle=WCOL.lt; c.fillRect(X,top+2,2,3); c.fillStyle=(x+(t|0))%7<3?WCOL.lil:WCOL.foam; c.fillRect(X,top,2,2.4); }
+  // lábio de espuma da crista curvando à frente (enquanto sobe) e caindo (quando desaba)
+  if(t>20&&t<80){ const lip=t<60?ease((t-20)/40)*26:26*(1-ease((t-60)/20)), top=G-H*(t<60?1:.9), fall=t<60?0:(t-60)*3.2;
+    for(let i=0;i<lip;i+=2){ const yy=top+i*i/lip*.5+fall*(i/lip+.3), X=col(Math.min(383,F+i))-(d>0?0:1); c.fillStyle=i%6<3?WCOL.foam:WCOL.lil; c.fillRect(X,yy|0,2,3); c.fillStyle=WCOL.lt; c.fillRect(X,(yy+3)|0,2,2); } }
+  if(!lite&&t>30&&t<74&&(t|0)%3===0){ const X=col(F)*3, Y=(G-H)*3; em(3,()=>prt(X,Y,R(-6,6),R(-4,4),d*R(.5,2.4),R(-2.8,-.6),.12,R(14,24),R(2,4),0,pk([WCOL.foam,WCOL.lil,WCOL.lt]))); }
+  if(!w.burst&&t>=64){ w.burst=true;                                   // estouro de espuma quando a crista bate no chão
+    for(let i=0;i<(lite?14:34);i++){ const X=col(R(250,383))*3; FX.push(prt(X,G*3,R(-4,4),0,R(-2.4,2.4),R(-8,-3),.3,R(20,34),R(3,6),0,pk([WCOL.foam,WCOL.foam,WCOL.lil,WCOL.lt]))); } }
+  c.globalAlpha=1; }
+// continuação em código dos efeitos desenhados: o sprite é o núcleo; o canvas faz o efeito "nascer" e "morrer" no cenário
+// (brota do chão, deixa rastro, respinga no chão) em vez de aparecer e sumir como um bloco recortado
+function fxCont(id,name,mv,x,y,tx,ty,w,h,ms,d){ if(!N[id])return; const pal=PAL[N[id].el]||['#fff'], tk=token, later=(f,t)=>setTimeout(()=>{ if(tk===token&&battleOn)f(); },t);
+  const n=lite?.4:1, base=ty+h*.32;
+  if(mv==='rise'||mv==='surge'){   // brota do chão: terra/água espirrando pra cima e um anel no chão
+    em(16*n|0,()=>prt(tx+R(-w*.3,w*.3),base,0,0,R(-1.4,1.4),R(-5.5,-2),.26,R(16,28),R(3,6),0,pk(pal)));
+    em(10*n|0,()=>prt(tx,base,R(-6,6),0,R(-4.5,4.5),R(-.5,0),.04,R(12,18),R(6,11),1.6,pk(pal))); }
+  else if(mv==='fall'){ later(()=>{ em(18*n|0,()=>prt(tx+R(-w*.3,w*.3),base,0,0,R(-3,3),R(-3.5,-.8),.22,R(14,24),R(3,5),0,pk(pal))); },ms*.55); }
+  else if(mv==='slide'||mv==='dive'){ for(let i=1;i<=4;i++)later(()=>{ const f=i/5, px=x+(tx-x)*f, py=y+(ty-y)*f;   // rastro atrás do efeito
+      em(5*n|0,()=>prt(px-d*w*.25,py+R(-h*.2,h*.2),0,0,-d*R(.4,1.4),R(-.4,.4),0,R(10,16),R(7,13),1.4,pk(pal))); },ms*.85*i/5);
+    if(mv==='dive')later(()=>{ em(16*n|0,()=>prt(tx,base,0,0,R(-3.4,3.4),R(-4,-1),.25,R(14,22),R(3,5),0,pk(pal))); },ms*.8); }
+  else if(mv==='drift'||mv==='spin'){ em(14*n|0,i=>{ const g=i/14*6.28; return prt(tx+Math.cos(g)*w*.28,ty+Math.sin(g)*h*.22,0,0,-Math.sin(g)*1.8,Math.cos(g)*.9-1.1,0,R(14,24),R(3,5),0,pk(pal)); }); }
+}
+// assinatura em código de cada elemento no golpe do jutsu (soma com o sprite e com o elFx): o efeito "anda" pelo campo
+function jutsuFx(u,ts){ const el=u.d.el, pal=PAL[el]||['#fff'], dir=u.side==='p'?1:-1, a=cur(u), tk=token, n=lite?.45:1,
+    later=(f,t)=>setTimeout(()=>{ if(tk===token&&battleOn)f(); },t/speed);
+  if(!ts.length)return;
+  if(el==='Fogo'){   // dragão de brasa: fita de fogo serpenteando do Kaen até o fundo da fileira
+    const far=ts.reduce((m,t)=>Math.abs(cur(t).x-a.x)>Math.abs(cur(m).x-a.x)?t:m), b=cur(far), x0=a.x+dir*40, y0=a.y-64;
+    for(let i=0;i<=12;i++)later(()=>{ const f=i/12, x=x0+(b.x+dir*30-x0)*f, y=y0+(b.y-60-y0)*f+Math.sin(f*9.4)*26;
+      em(7*n|0,()=>prt(x,y,R(-4,4),R(-4,4),dir*R(.2,1.2),R(-1.6,-.2),-.02,R(18,32),R(5,10),0,pk(pal))); },i*24); }
+  else if(el==='Vento'){   // tufão: espiral subindo em cada alvo
+    for(const t of ts){ const p=cur(t); for(let i=0;i<10;i++)later(()=>{ const g=i*1.3;
+      em(4*n|0,()=>prt(p.x+Math.cos(g)*42,p.y-10-i*9,R(-2,2),0,-Math.sin(g)*3,R(-2.4,-1),0,R(12,20),R(10,18),1.6,pk(pal))); },i*34); } }
+  else if(el==='Gelo'){   // prisão: estilhaços convergem para o alvo
+    for(const t of ts){ const p=cur(t); em(20*n|0,i=>{ const g=i/20*6.28, r=34; return prt(p.x,p.y-60,Math.cos(g)*r,Math.sin(g)*r*.7,-Math.cos(g)*2.6,-Math.sin(g)*1.8,0,13,R(3,5),R(8,12),pk(pal)); }); } }
+  else if(el==='Veneno'){   // névoa tóxica: bolhas roxas fervendo e subindo
+    for(const t of ts){ const p=cur(t); for(let i=0;i<4;i++)later(()=>em(6*n|0,()=>prt(p.x,p.y-8,R(-22,22),R(-6,4),R(-.4,.4),R(-1.2,-.4),0,R(30,48),R(5,10),0,pk(pal),1)),i*90); } }
+  else if(el==='Raio'){   // lâmina trovão: raio extra caindo do céu no alvo
+    for(const t of ts){ const p=cur(t), pts=[]; for(let k=0;k<=9;k++)pts.push([p.x+(k<9?R(-14,14)*K:0),(p.y-60)*k/9]); BOLT.push({pts,life:12,col:'#ffffff',lw:2}); } }
+}
+// cura (Chuva Serena) e escudo (Muralha de Pedra) em código: gotas caindo / pedras subindo na frente de cada aliado
+function healRain(a){ const p=cur(a), n=lite?6:16; em(n,()=>prt(p.x+R(-40,40),p.y-170,0,R(-20,20),0,R(5,7),.05,R(14,20),1,R(5,8),pk(['#ffffff','#9fd4ff','#7dffa6']))); }
+function stoneWall(a){ const p=cur(a), d=a.side==='p'?1:-1, n=lite?5:12;
+  em(n,()=>prt(p.x+d*R(26,46),p.y+4,0,0,R(-.3,.3),R(-4.2,-2.4),.16,R(30,40),R(5,9),R(5,9),pk(PAL.Terra))); dust(a,8); }
 function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.2,1.5),.12,R(10,18),3,0,pk([col,'#ffffff'])));}
 
 
@@ -59,7 +129,7 @@ function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.
 // gerado de tools/sprites/out/<ninja>_fx.json: nome:[linha, quadros]
 const FXA={
  kaen:{c:12,a:{crescent:[0,6],slash:[1,6],dragon:[2,6],meteor:[3,6],impact:[4,6],aura:[5,6]}},
- mizuha:{c:8,r:8,a:{jet:[0,6],splash:[1,6],rain:[2,6],wave:[3,6],impact:[4,6],aura:[5,6],tsunami1:[6,6],tsunami2:[7,6]}},   // 2 linhas extras: parede subindo e desabando
+ mizuha:{c:8,a:{jet:[0,6],splash:[1,6],rain:[2,6],wave:[3,6],impact:[4,6],aura:[5,6]}},   // o Tsunami é desenhado em código (tsunamiFx)
  raiden:{c:8,a:{bolt:[0,6],chain:[1,6],burst:[2,6],ground:[3,6],orb:[4,6],spark:[5,5]}},
  iwao:{c:8,a:{dust:[0,7],crack:[1,7],rocks:[2,6],fist:[3,7],dome:[4,7],impact:[5,6]}},
  hiyori:{c:8,a:{blade:[0,6],crescents:[1,6],prison:[2,6],pillar:[3,6],impact:[4,6],aura:[5,6]}},
@@ -85,14 +155,14 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
 // slide = entra deslizando a partir do atacante · dive = desce na diagonal de cima · rise = sobe do chão
 // fall = cai de cima · spin = gira leve · float = sobe flutuando · drift = escorrega devagar pra frente
 const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
-  meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',burst:'spin',
+  meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide',shard:'slide',fenda:'slide',lacre:'float',rasgo:'rise',estouro:'spin',halo:'float'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
 // mv tipo de movimento, dir lado do atacante (+1 vem da esquerda), fps. Devolve a duração em ms.
 // pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
 // Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(id==='yugami')fs.push('spr/yugamir_atlas.png'); }
+function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
   let n=0; if(onp)onp(0,fs.length);
   return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };
@@ -109,7 +179,6 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   else if(mv==='rise'){y+=46*sc; ty-=16*sc; s0=.7;}
   else if(mv==='fall'){y-=90*sc; ty+=6; s0=.85;}
   else if(mv==='surge'){x-=d*190*sc; tx+=d*30*sc; s0=.18;}   // vai brotando e crescendo aos poucos
-  else if(mv==='still'){rot=rot2=0; s0=1;}   // parado no lugar (tsunami)
   else if(mv==='drift'){x-=d*30*sc; tx+=d*50*sc;}
   else if(mv==='float'){y+=18; ty-=40*sc;}
   else if(mv==='spin'){rot=R(-25,25); rot2=rot+d*R(30,60);}
@@ -120,6 +189,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   rs.style.cssText=`transform:rotate(${rot}deg) scale(${s0});opacity:0`;
   img.style.cssText=`background-image:url(spr/${id}_fx.png);background-size:${A.c*w}px ${(A.r||6)*h}px`+(o.flip?';transform:scaleX(-1)':'');
   rs.appendChild(img); box.appendChild(rs); $('fx').appendChild(box); fxLive++; void box.offsetWidth;
+  if(sc>=.95&&!o.lo&&!o.to)fxCont(id,name,mv,x,y,tx,ty,w,h,dur/speed,d);
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
   box.style.transition=`transform ${ms*.85}ms cubic-bezier(.2,.7,.3,1)`;
@@ -143,7 +213,7 @@ function fxShot(u,t,ms){ const nm=(FXUSE[u.id]||{}).proj; if(!nm)return false; c
 // ícone de jutsu (estilo barra do NO): recorta o centro do efeito do jutsu e anima os quadros em loop (CSS steps)
 function fxIcon(el,id,sz){ const A=FXA[id], nm=(FXUSE[id]||{}).jutsu; if(!A||!nm||!A.a[nm])return false;
   const [r,n]=A.a[nm], e=sz/150, cw=288*e, ch=192*e, ox=(cw-sz)/2, oy=r*ch+(ch-sz)/2;
-  el.style.backgroundImage=`url(spr/${id}_fx.png)`; el.style.backgroundSize=`${A.c*cw}px ${6*ch}px`;
+  el.style.backgroundImage=`url(spr/${id}_fx.png)`; el.style.backgroundSize=`${A.c*cw}px ${(A.r||6)*ch}px`;
   el.style.setProperty('--x0',`${-ox}px`); el.style.setProperty('--x1',`${-ox-n*cw}px`); el.style.backgroundPositionY=`${-oy}px`;
   el.style.backgroundPositionX=`${-ox-Math.floor(n/2)*cw}px`;   // parado (sem chakra/recarga) mostra o quadro do meio
   el.style.animationTimingFunction=`steps(${n})`; el.style.animationDuration=`${n/10}s`;

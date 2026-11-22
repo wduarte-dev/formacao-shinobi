@@ -35,7 +35,7 @@
     <button class="btn big" id="hMap"><i class="ic" style="background-image:url(ui/sword.png)"></i>Missões</button>
     <button class="btn big" id="hForm"><i class="ic" style="background-image:url(ui/shield.png)"></i>Formação</button>
     <button class="btn big" id="hGal"><i class="ic" style="background-image:url(ui/scroll.png)"></i>Ninjas</button>
-    <div class="row"><button class="btn sm on" id="hSnd">Som</button><button class="btn sm" id="hFull">Tela cheia</button><button class="btn sm" id="hLite" title="Menos efeitos visuais: roda melhor em notebook fraco">Leve</button><button class="btn sm" id="hDev" title="Modo dev: libera todos os ninjas sem precisar vencer missões">Modo dev</button></div>
+    <div class="row"><button class="btn sm on" id="hSnd">Som</button><button class="btn sm" id="hFull">Tela cheia</button><button class="btn sm" id="hLite" title="Menos efeitos visuais: roda melhor em notebook fraco">Leve</button><button class="btn sm" id="hDev" title="Modo dev: libera todos os ninjas sem precisar vencer missões">Modo dev</button><button class="btn sm" id="hNews" title="O que mudou em cada versão">Novidades</button></div>
   </div>
   <div id="hubTeam"></div>
   <div id="ver"></div>
@@ -101,6 +101,7 @@
 </section>
 
 <div id="updBar" class="hide"><span>Nova versão <b id="updV"></b> disponível!</span><button class="btn sm" id="updGo">Atualizar</button><button class="btn sm" id="updX">Depois</button></div>
+<div id="newsWin" class="win hide"><h3>Novidades</h3><div class="parch" id="newsL"></div><button class="btn" id="newsOk">Fechar</button></div>
 <div id="instHelp" class="win hide"><h3>Tela cheia</h3>
   <p>Este navegador não deixa a página ir pra tela cheia. Instale o jogo, que ele abre em tela cheia como um app (e se atualiza sozinho):</p>
   <p><b>iPhone/iPad (Safari):</b> botão Compartilhar → <b>Adicionar à Tela de Início</b>.</p>
@@ -115,7 +116,7 @@
 <div id="rot">Vire o celular de lado para ver maior.</div>
 
 <script>/* JS sempre fresco (o cache do celular misturava versões velhas e novas dos scripts); mesma ordem de antes */
-(function(){var v=Date.now();"data badframes sprites audio screens state fx ambient battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
+(function(){var v=Date.now();"data patch badframes sprites audio screens state fx ambient battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
 <script>/* PWA: service worker "rede primeiro" (sw.js). Só por http(s); por file:// não existe */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
 </body>

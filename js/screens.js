@@ -129,6 +129,12 @@ function drawGal(){
 
 // versão rodando (menu) + checagem de versão nova no GitHub: ao abrir, ao voltar pro app e a cada 5 min. Só por http(s).
 $('ver').textContent='v'+VERSION.v+' · '+VERSION.d;
+// Novidades (patch notes de docs/patch-notes.md via js/patch.js): pisca até abrir a versão atual uma vez
+function newsSeen(){ try{return localStorage.getItem('shinobi-news')===VERSION.v;}catch(e){return true;} }
+function newsUi(){ $('hNews').classList.toggle('new',!newsSeen()); }
+$('hNews').onclick=()=>{ sfx.ui('clique'); $('newsL').innerHTML=(typeof PATCH!=='undefined'?PATCH:[]).map(p=>`<h4>v${p.v}<small>${p.d}${p.t?' · '+p.t:''}</small></h4><ul>${p.i.map(x=>`<li>${x}</li>`).join('')}</ul>`).join('');
+  $('newsWin').classList.remove('hide'); $('newsL').scrollTop=0; try{localStorage.setItem('shinobi-news',VERSION.v);}catch(e){} newsUi(); };
+$('newsOk').onclick=()=>{ sfx.ui('cancela'); $('newsWin').classList.add('hide'); }; newsUi();
 async function checkVersion(){ if(!location.protocol.startsWith('http'))return;
   try{ const r=await fetch('version.json?'+Date.now(),{cache:'no-store'}); if(!r.ok)return; const n=await r.json();
     if(n.v&&n.v!==VERSION.v&&!battleOn){ $('updV').textContent='v'+n.v; $('updBar').classList.remove('hide'); } }catch(e){} }

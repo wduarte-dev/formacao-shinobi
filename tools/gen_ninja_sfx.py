@@ -12,6 +12,8 @@ V = {"jutsu": (1.0, "{v} ninja powerful battle shout releasing a special jutsu, 
      "dor":   (0.6, "{v} ninja short grunt of pain when hit, 0.0-0.3s: sharp pained exhale, 0.3-0.6s: breathy groan"),
      "queda": (1.2, "{v} ninja defeated, 0.0-0.4s: painful cry, 0.4-1.2s: weak breathy groan fading as the body drops")}
 NINJAS = {
+ "iwao": {"timbre": "deep heavy calm adult male",   # só o Forte novo (Punho de Pedra, 1.5); as vozes já existem e são puladas
+  "sfx": [("iwao-forte", 1.0, "massive stone fist punch, 0.0-0.25s: heavy grinding wind-up of rock gauntlets, 0.25-0.45s: huge crunching rock impact thump, 0.45-1.0s: pebbles scattering and a deep rumble decay")]},
  "yugami": {"timbre": "calm slightly mischievous young male",
   "sfx": [  # (nome, duração, texto)
    ("yugami-atk", .5, "spatial slash, 0.0-0.1s: thin whooshing air tear, 0.1-0.5s: short crackling rip closing with a soft glitchy pop"),

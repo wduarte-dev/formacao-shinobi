@@ -20,6 +20,7 @@ const N={
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
   normal:{name:'Golpe de Pedra',mult:.9,target:'front',cause:'D'},
   jutsu:{name:'Muralha de Pedra',cost:30,cd:3,target:'allies',shield:2.5,desc:'escudo para o time (2 rodadas, não acumula)'},
+  strong:{name:'Punho de Pedra',an:'atk3',mult:1.4,target:'front',cause:'R'},
   chase:{name:'Esmagar',on:'R',cause:'D',mult:.7,mv:'slam',hits:[.42]}},
  fuuka:{name:'Fuuka',el:'Vento',c:'#5fc9a0',role:'Atacante',hp:800,atk:120,def:15,dodge:8,
   normal:{name:'Rajada Leve',mult:.4,target:'all',ranged:true},
@@ -28,7 +29,8 @@ const N={
   chase:{name:'Redemoinho',on:'D',cause:'L',mult:.7,mv:'rise'}},
  mayoi:{name:'Mayoi',el:'Névoa',c:'#b79ae0',role:'Esquiva/campo',hp:780,atk:110,def:15,dodge:15,
   normal:{name:'Bengala e Mariposas',mult:.9,target:'front'},
-  jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas'},
+  jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas',
+   fieldFx:{dodge:25,ally:{Gelo:1.15},foe:{Fogo:.85},dot:{Veneno:1}}},   // dentro do campo: dono +25 de esquiva; Gelo aliado +15% no básico; Fogo inimigo -15%; veneno aliado +1 rodada
   strong:{name:'Onda de Névoa',an:'atk3',mult:1.3,target:'front',ranged:true},
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
@@ -43,7 +45,7 @@ const N={
   chase:{name:'Ferrão',on:'L',cause:'D',mult:.7}},
  yugami:{name:'Yugami',el:'Espaço',c:'#f2c14e',role:'Distorção',hp:860,atk:112,def:18,dodge:12,
   normal:{name:'Corte Dimensional',mult:1,target:'front'},
-  jutsu:{name:'Lacre Rompido',cost:30,cd:6,target:'self',unleash:3,an:'atk2',desc:'tira o capuz: +35% de dano e +20% de esquiva por 3 rodadas'},
+  jutsu:{name:'Lacre Rompido',cost:30,cd:6,target:'self',unleash:3,uDmg:.35,uDodge:20,an:'atk2',desc:'tira o capuz: +35% de dano e +20% de esquiva por 3 rodadas'},
   strong:{name:'Dupla Fenda',an:'atk3',mult:1.5,target:'front'},
   chase:{name:'Passo Dimensional',on:'D',cause:'R',mult:.7}},
  // size = multiplicador do sprite (barra de vida, alcance do golpe e retratos acompanham). Poko: louva-a-deus de Som, bloqueado até vencer a missão 3.
@@ -67,7 +69,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.4',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.5',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

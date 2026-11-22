@@ -148,6 +148,11 @@ sonic pulse punch, 0.0-0.1s: tight concussive pop, 0.1-0.5s: ringing vibrating d
 
 ## 2. Golpe Forte (strong)
 
+**iwao-forte** · 1.0s
+```
+massive stone fist punch, 0.0-0.25s: heavy grinding wind-up of rock gauntlets, 0.25-0.45s: huge crunching rock impact thump, 0.45-1.0s: pebbles scattering and a deep rumble decay, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 1.0 seconds long, cuts off cleanly at the end
+```
+
 **fuuka-forte** · 0.9s
 ```
 spinning wind blade finisher, 0.0-0.5s: whirling slashes building up, 0.5-0.9s: one sharp final cut, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.9 seconds long, cuts off cleanly at the end

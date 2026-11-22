@@ -11,7 +11,7 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'Clique num inimigo pra marcar o alvo dos seus jutsus.',
  'O escudo da Muralha de Pedra não acumula: fica o maior, e some depois de 2 rodadas.',
  'Jutsu que acerta todos ou uma fileira não dá pra desviar.',
- 'Paralisado não desvia nem age. Gelo e raio adoram isso.',
+ 'Paralisado age normal, mas não consegue perseguir nem desviar. Gelo, raio e som adoram isso.',
  'O Tufão Cortante da Fuuka dissipa o campo de névoa inimigo.',
  'Dentro da Noite de Névoa, a Mayoi ganha muito mais esquiva.',
  'Veneno e queimadura batem toda rodada. Às vezes o dano lento ganha a luta.',
@@ -20,6 +20,8 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'Com o Lacre Rompido, o Yugami bate 35% mais forte por 3 rodadas... e fica difícil de acertar.',
  'Repelido (R) voa até a borda e racha a parede. Lançado (L) sobe. Derrubado (D) vai pro chão.',
  'Vença a Irmandade do Gelo pra ter o Poko no seu time.',
+ 'O Tsunami da Mizuha (chance na Onda) acerta o time inimigo inteiro.',
+ 'O Punho de Pedra do Iwao repele (R): abre combo pra Raiden, Poko e o próprio Iwao.',
  'Celular travando? O modo leve liga sozinho quando a luta pesa, e dá pra mudar no menu.',
  'Instale o jogo na tela inicial do celular: abre em tela cheia, como um app.'];
 function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t.textContent=TIPS[Math.random()*TIPS.length|0]; t.classList.remove('out'); },250); }
@@ -36,7 +38,7 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
 function startBattle2(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
   U={p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; hitsR={p:0,e:0};
+  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');

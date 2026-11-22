@@ -20,19 +20,19 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 |---|---|
 | `index.html` | só o markup das telas + `<script>` na ordem certa |
 | `css/style.css` | todo o visual (caminhos de imagem com `../`) |
-| `js/data.js` | estados D/L/R, tipos de alvo, ninjas (`N`), missões (`FOES`), save |
+| `js/data.js` | estados D/L/R, tipos de alvo, ninjas (`N`, inclusive efeitos de campo `fieldFx` e bônus `uDmg`/`uDodge`), missões (`FOES`), save |
+| `js/patch.js` | GERADO por `tools/patch_notes.py` de `docs/patch-notes.md`: lista `PATCH` da tela **Novidades** (botão no menu, pisca quando há versão não vista) |
 | `js/sprites.js` | registro de atlas (`V2` → `SH`/`SPR`), `an_of`, `stAnim`, `portrait`, atores, laço `tick` |
 | `js/audio.js` | sons gravados (`audio/sfx/*.ogg`, `sfx.<evento>`), ambiente por cenário e música (`MUSF`); sintetizado (`SYN`/`musTick`) como reserva. Fluxo e tabela de eventos: `docs/audio.md` |
 | `js/screens.js` | telas: título, hub, formação (arrastar), mapa, galeria |
 | `js/state.js` | estado da batalha, `pos`/`cur`, `sleep`/`gate` |
-| `js/fx.js` | partículas em canvas, paletas por elemento, efeitos desenhados do lote D (`FXA`/`FXUSE`/`FXMOVE`) |
-| `js/ambient.js` | animação de ambiente dos cenários (tabela `AMB`: chuva, neve, pétalas, brasas…) |
+| `js/fx.js` | partículas em canvas, paletas por elemento, efeitos desenhados do lote D (`FXA`/`FXUSE`/`FXMOVE`); continuação em código dos efeitos (`fxCont`: brota do chão, rastro, respingo), assinatura por elemento no jutsu (`jutsuFx`, `healRain`, `stoneWall`) e o **Tsunami desenhado** (`tsunamiFx`/`drawWave`, lista `WAVES`) |
 | `js/ambient.js` | vida nos cenários: partículas, névoa, brilho e relâmpago por `foe.bg` (tabela `AMB`), canvas `#ambb` (atrás) e `#ambf` (frente) |
 | `js/battle.js` | `startBattle`, HUD (`upd`), texto flutuante, log, `setState` |
 | `js/cine.js` | câmera (`zoomTo`), `hitstop`, `smash`/`knock`, `cine`/`endCine` (cena de jutsu), `dashTo`, `shoot` |
 | `js/combat.js` | botões de jutsu, dano, alvos (`pick`), `doSkill`, perseguição (`chain`), IA, laço `run` |
 | `js/main.js` | liga os botões da batalha (fica por último) |
-| `manifest.webmanifest`, `sw.js`, `icons/` | PWA: instalável (tela cheia, paisagem), service worker "rede primeiro" (com internet sempre pega a versão nova do GitHub; offline usa a cópia). Botão Tela cheia: API padrão/webkit no documento + trava paisagem; sem API (iPhone) mostra `#instHelp` ensinando a instalar. Versão: `VERSION` em `js/data.js` + `version.json` (o app compara ao abrir, ao voltar e a cada 5 min e mostra a faixa `#updBar` "Nova versão"). **Ao mexer no jogo, rodar `python3 tools/bump_version.py <n>` antes do commit** (1.1 → 1.2…). `sw.js` revalida com `no-cache` (o cache de 10 min do GitHub Pages não segura versão velha) |
+| `manifest.webmanifest`, `sw.js`, `icons/` | PWA: instalável (tela cheia, paisagem), service worker "rede primeiro" (com internet sempre pega a versão nova do GitHub; offline usa a cópia). Botão Tela cheia: API padrão/webkit no documento + trava paisagem; sem API (iPhone) mostra `#instHelp` ensinando a instalar. Versão: `VERSION` em `js/data.js` + `version.json` (o app compara ao abrir, ao voltar e a cada 5 min e mostra a faixa `#updBar` "Nova versão"). **Ao mexer no jogo: escrever as notas em `docs/patch-notes.md`, rodar `python3 tools/patch_notes.py` e `python3 tools/bump_version.py <n>` antes do commit.** Regra dele: atualização grande sobe o 2º número (1.5 → 1.6), correção/ajuste pequeno ganha 3º (1.5 → 1.5.1). `sw.js` revalida com `no-cache` (o cache de 10 min do GitHub Pages não segura versão velha) |
 | `spr/`, `bg/`, `ui/` | atlas + efeitos (`<ninja>_atlas.png`/`_fx.png`), cenários IA 1152x648 (um por missão; menus usam o `sakura`), UI 9-slice |
 | `audio/` | `sfx/*.ogg` (efeitos e ambientes do ElevenLabs), `music/` (faixas, quando ele mandar) |
 | `tools/gen_sfx.py`, `tools/audio/` | gera SFX pela API do ElevenLabs (prompts em `docs/prompts-sfx.md`) → WAV em `tools/audio/src/sfx/` → `convert_sfx.py` → OGG |
@@ -55,7 +55,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 | Ninja | Elemento | Papel | Jutsu | Perseguição |
 |---|---|---|---|---|
 | Kaen | Fogo | Atacante | Dragão de Brasa (fileira, R + queima) | Chute Meteoro L→D |
-| Mizuha | Água | Suporte | Chuva Serena (cura time) | Onda D→R |
+| Mizuha | Água | Suporte | Chuva Serena (cura time) | Onda D→R (25%: **Tsunami** em código, acerta o time inteiro, todos marcados) |
 | Raiden | Raio | Atacante | Lâmina Trovão (L + atordoa) | Gancho Relâmpago R→L (à distância) |
 | Iwao | Terra | Tanque | Muralha de Pedra (escudo time, 2 rodadas) | Esmagar R→D (salta e despenca) |
 | Fuuka | Vento | Atacante | Tufão Cortante (todos, L, dissipa campo) | Redemoinho D→L |
@@ -64,7 +64,7 @@ Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem 
 | Doku | Veneno | Desgaste | Névoa Tóxica (todos, R + veneno) | Ferrão L→D |
 | Yugami | Espaço | Distorção/controle (humano glitchado, capuz-lacre) | Lacre Rompido (tira o capuz: +35% dano, +20% esquiva, 3 rodadas; troca pro atlas `yugamir` + distorção em código `.gl0/.gl1/.gl2`) | Passo Dimensional D→R |
 | Poko | Som | Velocista (`size` 1.2) | Zumbido Ensurdecedor (todos, atordoa) | Ceifa Relâmpago R→L |
-(Forte a cada 3ª ação: Fuuka Corte Giratório (D), Mayoi Onda de Névoa, Hiyori Toque Congelante (paralisa), Doku Agulhas (veneno), Poko Estridulação (R). Todos os 9 são atlas v2; o campo da Mayoi está implementado. **Poko é bloqueado:** `LOCK` em `data.js` (id → missão); aparece como inimigo na missão 3 e, se você vencer, entra em `own` (save). O botão **Modo dev** no menu libera todos. `size` por ninja em `N` (`mkSpr`, `--h` da barra, alcance do `dashTo`).) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
+(Forte a cada 3ª ação: Iwao Punho de Pedra (R, desde a 1.5), Fuuka Corte Giratório (D), Mayoi Onda de Névoa, Hiyori Toque Congelante (paralisa), Doku Agulhas (veneno), Poko Estridulação (R). Todos os 9 são atlas v2; o campo da Mayoi está implementado. **Poko é bloqueado:** `LOCK` em `data.js` (id → missão); aparece como inimigo na missão 3 e, se você vencer, entra em `own` (save). O botão **Modo dev** no menu libera todos. `size` por ninja em `N` (`mkSpr`, `--h` da barra, alcance do `dashTo`).) Mecânica detalhada de cada ninja novo: `docs/ninjas.md`.
 
 ## Sprites
 Ele gera os sheets numa IA de imagem e manda (anexo no chat ou commit em `tools/sprites/src/<ninja>/`). Eu recorto com o pipeline (`docs/pipeline-sprites.md`) e integro. Prompts de ninja novo: `docs/prompts-sprites.md` (template v2 + lições). Fundo verde chapado #00FF00, sem xadrez, sem moldura, sem sombra, nada turquesa no personagem.

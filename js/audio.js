@@ -49,11 +49,11 @@ const SFXD='audio/sfx/', BUF={}, SLAST={}, FILEMODE=location.protocol==='file:';
 // variações: <nome>_1.._N (as da API + as que ele baixou à mão no site)
 const VAR={swing:11,hit:7,heavy:6,chase:3,cast:8,heal:5,shield:5}, V=k=>Array.from({length:VAR[k]},(_,i)=>k+'_'+(i+1));
 const SFILES=('amb-cinzas amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
-  +'kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').map(n=>`${n}-atk ${n}-chase esq-${n}`+(['fuuka','mayoi','hiyori','doku','poko','yugami'].includes(n)?` ${n}-forte`:'')).join(' ')+' '
+  +IDS.map(n=>`${n}-atk ${n}-chase esq-${n}`+(N[n].strong?` ${n}-forte`:'')).join(' ')+' '   // lista de ninjas e de quem tem Forte vem de N (data.js)
   +'fire water lightning earth wind mist ice poison sound space'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
   +'fogo agua raio terra vento nevoa gelo veneno som espaco'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-')).concat(Object.keys(VAR).flatMap(V))
-  .concat('kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').flatMap(n=>['jutsu','golpe','dor','queda'].flatMap(t=>[1,2].map(i=>`voz-${n}-${t}_${i}`))))
-  .concat('kaen mizuha raiden iwao fuuka mayoi hiyori doku poko yugami'.split(' ').map(n=>'jutsux-'+n), ['yugami-rehood']);   // jutsux-<ninja>: som próprio do jutsu (tools/gen_jutsu_sfx.py)
+  .concat(IDS.flatMap(n=>['jutsu','golpe','dor','queda'].flatMap(t=>[1,2].map(i=>`voz-${n}-${t}_${i}`))))
+  .concat(IDS.map(n=>'jutsux-'+n), ['yugami-rehood']);   // jutsux-<ninja>: som próprio do jutsu (tools/gen_jutsu_sfx.py)
 const EN={Fogo:'fire','Água':'water',Raio:'lightning',Terra:'earth',Vento:'wind','Névoa':'mist',Gelo:'ice',Veneno:'poison',Som:'sound','Espaço':'space'};
 const PT={Fogo:'fogo','Água':'agua',Raio:'raio',Terra:'terra',Vento:'vento','Névoa':'nevoa',Gelo:'gelo',Veneno:'veneno',Som:'som','Espaço':'espaco'};
 function loadSfx(){ if(FILEMODE||!AC||loadSfx.on)return; loadSfx.on=1;

@@ -53,7 +53,9 @@ function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?
 const scene={on:false};
 function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().forEach(x=>x.el.classList.toggle('ghost',!list.includes(x))); }
 function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
-function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost','cmb')); }
+function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost','cmb','tgt')); }
+// marca quem vai levar o golpe (jutsu, perseguição, tsunami): círculo vermelho pulsando nos pés
+function markTargets(ts){ ts.forEach(t=>{ sceneAdd(t); t.el.classList.add('tgt'); }); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
 async function evade(t){ sfx.dodge(t); fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
@@ -69,7 +71,7 @@ async function cine(u,sk,ts){
   await sleep(260);
   c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r'); portrait(cp,u.id,14,520,290,'cast');
   retrig(c,'on'); await sleep(640);
-  ts.forEach(sceneAdd);
+  if(ts.some(t=>t.side!==u.side))markTargets(ts); else ts.forEach(sceneAdd);   // aliados (cura/escudo) só aparecem; inimigos ficam marcados
 }
 // golpe final: zoom no último a cair, clarão, "RESULTADO" e hit-stop longo (uma vez por luta; finDone zera no run)
 let finDone=false;
