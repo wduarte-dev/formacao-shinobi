@@ -18,7 +18,7 @@ ok = pulou = 0
 for i, (nome, dur, txt) in enumerate(fila, 1):
     dest = os.path.join(OUT, nome + ".wav")
     if os.path.exists(dest) and os.path.getsize(dest) > 1000: pulou += 1; continue
-    body = json.dumps({"text": txt, "duration_seconds": dur, "prompt_influence": 1.0})
+    body = json.dumps({"text": txt, "duration_seconds": max(0.5, dur), "prompt_influence": 1.0})
     for tent in range(3):
         r = subprocess.run(["curl", "-s", "-o", dest + ".tmp", "-w", "%{http_code}", "-X", "POST",
             "https://api.elevenlabs.io/v1/sound-generation?output_format=wav_44100",
