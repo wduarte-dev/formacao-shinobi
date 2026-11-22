@@ -138,8 +138,9 @@ async function chain(side,t,count,src){
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
     setAnim(c,'move',0,true); sfx.swing(); c.el.style.zIndex=60;
     put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,'transform .3s cubic-bezier(.2,.9,.35,1)'); await sleep(300);
-    setAnim(c,an,0,true); put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)'); await sleep(130);
-    dust(c,14); shake(); sfx.thud(); await sleep(Math.max(60,CHA(c,an)-130));
+    setAnim(c,an,0,true); put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)');
+    await sleep(Math.max(130,CHA(c,an)));   // espera o quadro do soco (chase.hits); poeira, tremor, som e dano saem juntos nele
+    dust(c,14); shake(); sfx.thud();
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
   const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;

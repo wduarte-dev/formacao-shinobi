@@ -20,7 +20,7 @@ const N={
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
   normal:{name:'Golpe de Pedra',mult:.9,target:'front',cause:'D'},
   jutsu:{name:'Muralha de Pedra',cost:30,cd:3,target:'allies',shield:2.5,desc:'escudo para o time (2 rodadas, não acumula)'},
-  chase:{name:'Esmagar',on:'R',cause:'D',mult:.7,mv:'slam'}},
+  chase:{name:'Esmagar',on:'R',cause:'D',mult:.7,mv:'slam',hits:[.42]}},
  fuuka:{name:'Fuuka',el:'Vento',c:'#5fc9a0',role:'Atacante',hp:800,atk:120,def:15,dodge:8,
   normal:{name:'Rajada Leve',mult:.4,target:'all',ranged:true},
   jutsu:{name:'Tufão Cortante',cost:40,cd:4,mult:1,target:'all',cause:'L',dispel:true,an:'atk2',desc:'acerta todos e dissipa o campo'},
@@ -67,7 +67,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.2',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.3',d:'22/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
