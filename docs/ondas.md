@@ -25,6 +25,7 @@ Teste: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers python3 tools/test_battle.py .
 Regra de sprite que vale pra todo ninja novo (ref de idle etc.): `docs/prompts-sprites.md`, seção "Fluxo de entrega".
 
 ## Ideias em aberto (não pedidas)
+- **APIs (testadas em 22/11/2026):** ElevenLabs já em uso (SFX e vozes: `tools/gen_sfx.py`, `tools/gen_voz.py`; a chave fica salva no ambiente, nunca no repo). **Gemini:** chave testada e válida (endpoint compatível com OpenAI, `Authorization: Bearer`). Texto grátis funciona (`gemini-3.5-flash-lite`); **imagem dá cota 0 no plano grátis** (exige faturamento no AI Studio; o plano Plus do app não inclui API). Decisão dele: não usar por enquanto. Se voltar: testar 1 sheet de ninja com teto de gasto baixo antes de automatizar; texto serviria só pra logs grandes/texto de enchimento (não pra código).
 Níveis (estrelas 1★–5★: `docs/referencia-no.md` §9), recrutamento, chefes, invocações (ref. vídeo de NO: criatura que surge no meio da luta e ataca; buffs/clones de abertura de batalha como passiva; **clones nas células vazias do 3x3**, com HP próprio, absorvendo ataque da linha de frente), roubo de vida ("Roubo 23" em verde, passiva pro Doku/Kaen), **passiva de cura pequena antes do ataque** (a healer do vídeo cura um pouco no início da própria ação, é passiva dela, não cura reativa fora do turno; boa pra Mizuha), calibrar ritmo (vídeo: rodada ~18–23s, elo de perseguição ~1–1,5s, básico ~1,5–2s), "planos" de campo por elemento (só a Mayoi tem), ninja de Distorção/Espaço (segurado), animação de ambiente nos menus.
 
 ## Feitas
