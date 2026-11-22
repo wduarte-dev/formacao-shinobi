@@ -46,6 +46,7 @@ Linhas típicas: 1 projétil/lâmina, 2 onda do básico, 3 efeito do jutsu, 4 ef
 ## Fluxo de entrega pro Wellington (regra da ref de idle, 21/11/2026)
 - Todo lote **A** de ninja novo vai com **1 imagem de referência + o prompt pronto** (em `docs/refs/`: `<ninja>_ref.png` + `<ninja>_A1_prompt.txt`). Ele gera e depois anexa os gerados nos lotes seguintes (A2←A1, B1←A2…).
 - A ref é um **frame de idle de um atlas que já existe** (fundo verde chapado, sem cinza, ampliado 4x), nunca desenhada do zero: mantém o estilo do jogo.
+- **Ref padrão pra humanoide: `docs/refs/kaen_ref.png`** (idle do Kaen, 22/11/2026). O prompt do A1 diz pra copiar só estilo/escala, não o design dele. Só trocar de ref se o ninja pedir outra proporção.
 - **Exceção:** o primeiro de uma **espécie nova** (ex.: Poko, louva-a-deus) vai **sem ref**, senão a IA copia o ninja usado como ref. Os seguintes da mesma espécie usam ele como ref.
 
 ## Diretrizes de criatividade (decididas 21/11/2026)

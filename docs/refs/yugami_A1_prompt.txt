@@ -12,7 +12,7 @@ LABEL: top-left corner only, small plain white pixel text "YUGAMI - LOTE A1" on 
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, chibi-ish proportions, about 3 heads tall): YUGAMI, a young GLITCHED ninja whose body is warped by broken space. Messy jet-black hair. Lower face covered by a deep navy-blue cloth mask. Dark navy tunic with gold trim, a wide dark sash, dark gloves, dark pants, dark boots, and a short navy cloak with a jagged cut hem. GLITCH LOOK (always the same in every frame): the body is cut into 2 or 3 horizontal slices that are shifted sideways by 2 to 4 pixels, like a broken screen, with a few thin gold and white pixel lines and tiny square pixel specks hanging off the edges. It is still ONE single opaque body, never duplicated, never translucent, never ghosted. On his chest, a small square gold glitch core that stays clearly visible. Two small floating gold pixel cubes beside his shoulders. Calm, slightly mischievous face.
 
-Attached image is ONLY a reference for pixel-art STYLE, outline weight, canvas scale and cell size (a different ninja). Do NOT copy its hair, colors, outfit, lantern or butterflies. Draw the NEW character described below, at the same pixel scale and level of detail.
+Attached image is ONLY a reference for pixel-art STYLE, outline weight, canvas scale and cell size (a different ninja). Do NOT copy its red hair, scarf, katana, colors or outfit. Draw the NEW character described below, at the same pixel scale and level of detail.
 
 ROWS:
 Row 1: IDLE, 6 frames, free and alive: floats a few pixels off the ground, cloak strips dtearing, gold cubes orbiting slowly, tear pulsing (cells 7 to 8 EMPTY).

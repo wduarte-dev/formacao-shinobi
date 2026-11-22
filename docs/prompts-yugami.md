@@ -1,9 +1,9 @@
 # Prompts finais do Yugami (ninja de Distorção/Espaço) — colar cada bloco inteiro na IA de imagem
 > Nome provisório (distorção em japonês). Paleta: azul-marinho, dourado, branco, creme. Visual: humano glitchado (corpo fatiado e deslocado, um corpo só, sem cópias). **Nada de verde/turquesa.** Tamanho normal (`size` 1.0). Mecânica sugerida: jutsu "Troca de Espaço" (troca de lugar na formação), perseguição "Passo Dimensional" por teleporte. Decidir ao integrar.
-**Ref de idle:** `docs/refs/yugami_ref.png` = frame de idle **já existente** (Mayoi, ampliado 4x, fundo verde chapado). Nada gerado. Vai **só no A1**, como referência de estilo/escala (o A1 avisa pra não copiar o design dela). A2←A1, B1←A2, B2←B1, C←B2, D←qualquer sheet (só paleta). Salvar em `tools/sprites/src/yugami/` como `A1, A2, B1, B2, C, D`. Errou contagem de linhas → regerar.
+**Ref de idle:** `docs/refs/kaen_ref.png` = frame de idle **já existente** (Kaen, ampliado 4x, fundo verde chapado). Nada gerado. Vai **só no A1**, como referência de estilo/escala (o A1 avisa pra não copiar o design dela). A2←A1, B1←A2, B2←B1, C←B2, D←qualquer sheet (só paleta). Salvar em `tools/sprites/src/yugami/` como `A1, A2, B1, B2, C, D`. Errou contagem de linhas → regerar.
 
 ---
-## LOTE A1 (4 linhas) — anexo: `yugami_ref.png`
+## LOTE A1 (4 linhas) — anexo: `kaen_ref.png`
 ```
 STRICT RULES (highest priority, never break):
 1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
@@ -19,7 +19,7 @@ LABEL: top-left corner only, small plain white pixel text "YUGAMI - LOTE A1" on 
 
 CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, chibi-ish proportions, about 3 heads tall): YUGAMI, a young GLITCHED ninja whose body is warped by broken space. Messy jet-black hair. Lower face covered by a deep navy-blue cloth mask. Dark navy tunic with gold trim, a wide dark sash, dark gloves, dark pants, dark boots, and a short navy cloak with a jagged cut hem. GLITCH LOOK (always the same in every frame): the body is cut into 2 or 3 horizontal slices that are shifted sideways by 2 to 4 pixels, like a broken screen, with a few thin gold and white pixel lines and tiny square pixel specks hanging off the edges. It is still ONE single opaque body, never duplicated, never translucent, never ghosted. On his chest, a small square gold glitch core that stays clearly visible. Two small floating gold pixel cubes beside his shoulders. Calm, slightly mischievous face.
 
-Attached image is ONLY a reference for pixel-art STYLE, outline weight, canvas scale and cell size (a different ninja). Do NOT copy its hair, colors, outfit, lantern or butterflies. Draw the NEW character described below, at the same pixel scale and level of detail.
+Attached image is ONLY a reference for pixel-art STYLE, outline weight, canvas scale and cell size (a different ninja). Do NOT copy its red hair, scarf, katana, colors or outfit. Draw the NEW character described below, at the same pixel scale and level of detail.
 
 ROWS:
 Row 1: IDLE, 6 frames, free and alive: floats a few pixels off the ground, cloak strips dtearing, gold cubes orbiting slowly, tear pulsing (cells 7 to 8 EMPTY).
