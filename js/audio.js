@@ -120,4 +120,9 @@ function musStart(ix){ musStop(); if(!AC)return; const f=MUSF[ix|0]; if(!f)retur
 // música do menu: não reinicia se já estiver tocando (navegar entre telas mantém a faixa)
 function musMenu(){ if(!AC||(MUSA&&MUSA.dataset.f==='menu'))return; musStop(); MUSA=xloop('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
 function musStop(){ clearInterval(musT); musT=null; if(MUSA){MUSA.pause(); MUSA=null;} }
+// celular: app minimizado / aba escondida = tudo mudo (senão a música e o ambiente seguem tocando em segundo plano). Ao voltar, retoma.
+function bgSound(hide){ try{
+  if(hide){ if(AC&&AC.state==='running')AC.suspend(); if(AMBA)AMBA.pause(); if(MUSA){MUSA.a.pause(); if(MUSA.b)MUSA.b.pause();} }
+  else if(sndOn){ if(AC&&AC.state==='suspended')AC.resume(); if(AMBA)AMBA.play().catch(()=>{}); if(MUSA){MUSA.a.play().catch(()=>{}); if(MUSA.b)MUSA.b.play().catch(()=>{});} } }catch(e){} }
+document.addEventListener('visibilitychange',()=>bgSound(document.hidden)); addEventListener('pagehide',()=>bgSound(true));
 function sndApply(){ if(AMBA)AMBA.volume=sndOn?+AMBA.dataset.v:0; }   // a música (xloop) acompanha o sndOn sozinha

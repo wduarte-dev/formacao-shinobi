@@ -12,8 +12,8 @@ function drawJ(){
       if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
-      x.onclick=()=>{ if(!u.alive||u.cd>0)return;
-        if(u.armed){u.armed=false;chakra.p+=j.cost;} else if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
+      x.onclick=()=>{ if(!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)
+        if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
         sfx.arm(); upd(u); drawJ(); };
       w.appendChild(x); w.appendChild(lb); b.appendChild(w); u.sk=x; u.skl=lb; u.skc=x.querySelector('.cdv'); }); }
   U.p.forEach(u=>{const j=u.d.jutsu, x=u.sk; if(!x)return;
@@ -206,7 +206,8 @@ async function run(){
       for(let i=0;i<4;i++)for(const u of [U.p[i],U.e[i]]){
         if(!u||!u.alive)continue;
         await gate();
-        if(u.stunned){u.stunned=false; fl(u,'paralisado','info2'); upd(u); log(`${nm(u)} está paralisado`); await sleep(450); continue;}
+        const wasStun=u.stunned;   // paralisia (como no Naruto Online): o ninja age normal (básico, jutsu), só não consegue PERSEGUIR; passa depois da ação dele
+        if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
         let sk=u.d.normal,isJ=false; const j=u.d.jutsu;
         if(u.side==='p'&&!autoP&&!u.armed&&u.cd===0&&chakra.p>=j.cost){   // janela pra armar o jutsu: o botão pulsa um instante antes do golpe
           u.el.classList.add('turn'); u.sk.classList.add('ready');
@@ -218,6 +219,7 @@ async function run(){
         else if(u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
         if(!isJ&&u.d.strong&&++u.nc%3===0)sk=u.d.strong;   // toda 3ª ação sem jutsu vira o golpe Forte
         u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn');
+        if(wasStun&&u.alive){u.stunned=false; upd(u);}
         drawJ();
         if((res=result()))break outer;
       }

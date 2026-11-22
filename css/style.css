@@ -155,6 +155,16 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 @keyframes hitj{0%{translate:0 0;opacity:.55}25%{translate:calc(var(--d,1)*6px) -2px}50%{translate:calc(var(--d,1)*-4px) 0;opacity:.8}75%{translate:calc(var(--d,1)*3px) 0}100%{translate:0 0;opacity:1}}
 .u.turn .sh{background:#fff9;box-shadow:0 0 12px #fff}
 .u.armed .sh{background:#ffd24acc;box-shadow:0 0 16px #ffd24a}
+/* aura de jutsu engatilhado (--c = cor do elemento do ninja): só transform/opacity, nada de filter */
+.aura{position:absolute;left:-52px;top:calc(var(--h)*-1 - 8px);width:104px;height:calc(var(--h) + 26px);opacity:0;transform:scale(.7);transform-origin:50% 100%;transition:opacity .25s,transform .25s;pointer-events:none;z-index:0}
+.aura i{position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--c) 70%,#fff) 0%,var(--c) 28%,transparent 68%);opacity:.0}
+.aura i:nth-child(2),.aura i:nth-child(3){left:30%;right:30%;top:-4%;bottom:12%;border-radius:50% 50% 30% 30%;background:linear-gradient(0deg,var(--c),color-mix(in srgb,var(--c) 40%,#fff) 55%,transparent)}
+.u.armed .aura{opacity:1;transform:scale(1)}
+.u.armed .aura i:nth-child(1){animation:auraB .7s ease-in-out infinite alternate}
+.u.armed .aura i:nth-child(2){animation:auraW 1s ease-in infinite}
+.u.armed .aura i:nth-child(3){animation:auraW 1s ease-in .5s infinite;left:20%;right:48%}
+@keyframes auraB{from{opacity:.45;transform:scale(.9)}to{opacity:.85;transform:scale(1.08)}}
+@keyframes auraW{0%{opacity:0;transform:translateY(14px) scaleY(.5)}30%{opacity:.8}100%{opacity:0;transform:translateY(-22px) scaleY(1.15)}}
 .hpb{position:absolute;left:-36px;top:calc(var(--h)*-1 - 20px);width:72px;height:11px;background:#000b;border:2px solid #000}
 .hpb i{display:block;height:100%;background:#5fe06a;transform-origin:0 50%;transition:transform .25s}   /* barra por scaleX (width animado = layout a cada quadro em todo acerto) */
 .u.e .hpb i{background:#f2a23a}
