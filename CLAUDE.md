@@ -39,6 +39,7 @@ Jogo de navegador por turnos estilo Naruto Online: formação 3x3, 4v4, combos e
 | `audio/` | `sfx/*.ogg` (efeitos e ambientes do ElevenLabs), `music/` (faixas, quando ele mandar) |
 | `tools/gen_sfx.py`, `tools/audio/` | gera SFX pela API do ElevenLabs (prompts em `docs/prompts-sfx.md`) → WAV em `tools/audio/src/sfx/` → `convert_sfx.py` → OGG |
 | `tools/test_battle.py` | teste automático com Playwright |
+| `tools/qa_gemini.py` | 2ª opinião por visão (Gemini): `strip` (tiras do `qa_anim`), `atlas` (uma chamada por animação), `scene`. Devolve só SUSPEITOS; conferir o quadro antes de agir. Gera `/tmp/gem/gemini.txt` |
 | `tools/sprites/` | pipeline de recorte: `shinobi_atlas.py`, `config/<ninja>.json`, `src/<ninja>/` (sheets originais) |
 | `docs/` | ondas, observações, ninjas, pipeline, prompts de sprite |
 
