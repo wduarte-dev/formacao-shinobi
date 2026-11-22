@@ -5,7 +5,7 @@ A chave vai no header xi-api-key (na nuvem o proxy injeta; local: exporte ELEVEN
 import re, os, sys, json, time, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MD, OUT = os.path.join(ROOT, "docs/prompts-sfx.md"), os.path.join(ROOT, "audio/sfx")
-ORDEM = [1, 2, 3, 9, 7, 5, 4, 8, 10, 11, 12, 6, 13, 14]   # prioridade das seções
+ORDEM = [0, 1, 2, 3, 9, 7, 5, 4, 8, 10, 11, 12, 6, 13, 14]   # prioridade das seções
 LIMITE = int(sys.argv[1]) if len(sys.argv) > 1 else 100
 os.makedirs(OUT, exist_ok=True)
 secs = {}

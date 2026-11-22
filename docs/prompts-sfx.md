@@ -2,7 +2,100 @@
 
 Como usar: cada bloco é um prompt pronto (sufixo e duração já embutidos). **Influência = 100%** e o **controle de duração = o número do prompt** (ex.: `0.5` segundos). O ElevenLabs gera 4 por prompt: salve todos (o nome do arquivo vira os 20 primeiros caracteres do prompt, por isso cada um começa diferente) e o jogo sorteia entre as variações. Se um som usar só metade do tempo, suba a duração do controle e eu corto no ajuste.
 
-Os 16 sons base e os 9 jutsus estão no histórico do chat; este arquivo é o resto (**122 prompts**, ~488 sons).
+Já baixados à mão (não estão aqui): swing, hit, heavy, chase, cast, heal, shield. Este arquivo é o resto, incluindo os 9 jutsus e os 9 sons base que faltavam (**140 prompts**, ~560 sons).
+
+
+## 0. Base e jutsus que faltam (prioridade máxima)
+
+**shoot** · 0.5s
+```
+fast kunai throw whistling zip, 0.0-0.1s: sharp release snap, 0.1-0.5s: whistling projectile zipping away, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.5 seconds long, cuts off cleanly at the end
+```
+
+**state** · 0.4s
+```
+short electric status sting, 0.0-0.1s: quick electric zap, 0.1-0.4s: bright metallic ping, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.4 seconds long, cuts off cleanly at the end
+```
+
+**arm** · 0.3s
+```
+very subtle bright ready ping, tiny rising blip, power-up tick, soft and discreet, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.3 seconds long, cuts off cleanly at the end
+```
+
+**dot** · 0.5s
+```
+small sizzling poison and burning tick, 0.0-0.15s: short sizzle pulse, 0.15-0.5s: faint bubbling crackle, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.5 seconds long, cuts off cleanly at the end
+```
+
+**thud** · 0.8s
+```
+heavy body falling hard on the ground, 0.0-0.1s: dull heavy thump, 0.1-0.5s: scraping slide and dust, 0.5-0.8s: small settling bounce, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 0.8 seconds long, cuts off cleanly at the end
+```
+
+**start** · 2s
+```
+deep taiko drum hit with a rising gong swell, 0.0-0.3s: powerful taiko strike, 0.3-1.7s: gong swell rising with tension, 1.7-2.0s: swell peaks and cuts off, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**end** · 2s
+```
+final taiko drum hit with a low gong fading, 0.0-0.3s: heavy final taiko strike, 0.3-1.7s: low gong resonating and decaying, 1.7-2.0s: gong ends, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**win** · 4s
+```
+triumphant short victory fanfare, 0.0-1.0s: bold taiko hits and shamisen rising phrase, 1.0-3.0s: bright heroic flute and strings melody, 3.0-4.0s: final triumphant chord and cymbal, game sound effect, slightly stylized anime action, exactly 4 seconds long, ends cleanly
+```
+
+**lose** · 4s
+```
+somber defeat sting, 0.0-1.0s: heavy single drum hit, 1.0-3.0s: low descending shamisen and cello notes, 3.0-4.0s: dying low gong, game sound effect, slightly stylized anime action, exactly 4 seconds long, ends cleanly
+```
+
+**jutsu-fogo** · 2s
+```
+roaring fire dragon jutsu, 0.0-0.4s: sharp ignition whoosh, 0.4-1.6s: roaring flame stream with crackling embers, 1.6-2.0s: fiery burst, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-agua** · 2s
+```
+gentle healing rain shower jutsu, 0.0-0.5s: soft water swell, 0.5-1.5s: gentle rain pattering with soft sparkling chimes, 1.5-2.0s: calm droplets, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-raio** · 1.5s
+```
+sharp lightning blade jutsu, 0.0-0.2s: crackling charge, 0.2-0.5s: violent thunder slash crack, 0.5-1.5s: electric arcs sizzling and fading, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 1.5 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-terra** · 2s
+```
+massive stone wall erupting from the ground, 0.0-0.3s: deep rumble, 0.3-1.2s: heavy rocks grinding and rising, 1.2-1.6s: huge stone impact slam, 1.6-2.0s: settling pebbles, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-vento** · 2s
+```
+violent cutting wind tornado jutsu, 0.0-0.4s: rising howl, 0.4-1.6s: fierce spinning wind with sharp slicing blade swishes, 1.6-2.0s: wind bursts, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-nevoa** · 2.5s
+```
+eerie dark mist rolling in, 0.0-0.8s: low airy hush rising, 0.8-2.0s: ghostly whispering wind and soft eerie drone swelling, 2.0-2.5s: hushed fade, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2.5 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-gelo** · 1.8s
+```
+ice prison freezing, 0.0-0.4s: icy whoosh swirl, 0.4-1.2s: rapid crackling ice forming and crystals growing, 1.2-1.5s: sharp glassy freeze snap, 1.5-1.8s: faint tinkling, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 1.8 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-veneno** · 2s
+```
+bubbling toxic gas hiss, 0.0-0.4s: sharp hissing release, 0.4-1.6s: bubbling acid and sickly sizzling gas cloud, 1.6-2.0s: lingering wet crackle, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 2 seconds long, cuts off cleanly at the end
+```
+
+**jutsu-som** · 1.8s
+```
+piercing ear-splitting buzz jutsu, 0.0-0.3s: sharp sonic burst, 0.3-1.5s: intense vibrating high-pitched buzzing with warbling resonance, 1.5-1.8s: abrupt cutoff, crisp, dry, no reverb tail, no music, no voice, game sound effect, slightly stylized anime action, exactly 1.8 seconds long, cuts off cleanly at the end
+```
 
 
 ## 1. Golpe básico por ninja (atk1)
