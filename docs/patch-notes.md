@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.5.5 · 23/11/2026
+- **Tsunami da Mizuha por cima dos personagens:** a onda não "atravessa" mais os ninjas; ela passa na frente de todos.
+
 ## 1.5.4 · 23/11/2026
 - **Golpe de Pedra do Iwao com dois impactos:** o ataque simples dá dois socos e agora os dois acertam (pedrinhas, impacto e dano em cada um). Antes só o primeiro tinha impacto e o segundo saía vazio.
 - **Muralha de Pedra sem gigante travado:** o Gigante de Pedra fica menos tempo na tela e se desfaz em vez de sumir de repente (fade, pedras caindo e poeira).
