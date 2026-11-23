@@ -127,6 +127,8 @@ function jutsuFx(u,ts){ const el=u.d.el, pal=PAL[el]||['#fff'], dir=u.side==='p'
 function healRain(a){ const p=cur(a), n=lite?6:16; em(n,()=>prt(p.x+R(-40,40),p.y-170,0,R(-20,20),0,R(5,7),.05,R(14,20),1,R(5,8),pk(['#ffffff','#9fd4ff','#7dffa6']))); }
 function stoneWall(a){ const p=cur(a), d=a.side==='p'?1:-1, n=lite?5:12;
   em(n,()=>prt(p.x+d*R(26,46),p.y+4,0,0,R(-.3,.3),R(-4.2,-2.4),.16,R(30,40),R(5,9),R(5,9),pk(PAL.Terra))); dust(a,8); }
+// o Gigante de Pedra se desfaz: pedras caem da altura dele e poeira no chão (acompanha o fade do fantasma em ghostFade)
+function stoneCrumble(a){ const p=cur(a), n=lite?6:16; em(n,()=>prt(p.x+R(-55,55),p.y-R(40,150),0,0,R(-.6,.6),R(-1,.8),.2,R(26,38),R(5,10),R(5,10),pk(PAL.Terra))); dust(a,lite?5:10); }
 function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.2,1.5),.12,R(10,18),3,0,pk([col,'#ffffff'])));}
 
 
