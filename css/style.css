@@ -204,6 +204,8 @@ body.lite .swave{box-shadow:none}
 .fl.chasec{top:calc(var(--h)*-1 - 110px);font-size:34px;color:#ff8ad0;font-style:italic;animation:up 1.1s ease-out forwards}
 .fl.chase{color:#ff8ad0;font-size:30px}
 .fl.heal{color:#7dffa6}
+.fl.adv{color:#4aa8ff!important}.fl.dis{color:#b9b9b9!important}
+.fl.elem{top:calc(var(--h)*-1 - 80px);font-size:19px;font-style:italic;-webkit-text-stroke:1px #000}
 .fl.shieldf{color:#8fd0ff;font-size:22px}
 .fl.state{top:calc(var(--h)*-1 - 74px);font-size:21px;color:#f4dc6b}
 .fl.dot{color:#ef9a5b;font-size:24px}

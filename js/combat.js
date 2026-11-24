@@ -29,11 +29,16 @@ const unl=u=>u.solto?u.d.jutsu:null;   // forma solta do Yugami: bônus de dano/
 function dodgeOf(t){return (t.d.dodge||0)+(unl(t)?unl(t).uDodge||0:0)+(fieldA&&fieldA.owner===t?fieldA.fx.dodge||0:0);}
 function setField(u,rounds){ fieldA={side:u.side,rounds,owner:u,fx:u.d.jutsu.fieldFx||{}}; $('fog').classList.add('on'); }
 function clearField(){ if(!fieldA)return; fieldA=null; $('fog').classList.remove('on'); log('O campo de névoa se dissipa'); }
-function dmgOf(a,t,m,basic){return Math.max(1,Math.round(a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+// triângulo elemental (docs/referencia-no.md §15): Fogo>Vento>Raio>Terra>Água>Fogo; Névoa e Gelo herdam Água, Som herda Vento; Espaço e Veneno neutros
+const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
+let EVADV=0, EVTXT='';   // dmgOf deixa aqui o resultado do triângulo; hurt consome (cor azul/cinza + texto) e zera
+function elemMul(a,t){ const x=ELBASE[a.d.el], y=ELBASE[t.d.el]; if(!x||!y)return 1; if(ELBEAT[x]===y)return ELADV; if(ELBEAT[y]===x)return ELDIS; return 1; }
+function dmgOf(a,t,m,basic){const em=elemMul(a,t); EVADV=em>1?1:em<1?-1:0; EVTXT=em>1?`${a.d.el} vence ${t.d.el}`:em<1?`${t.d.el} resiste a ${a.d.el}`:''; return Math.max(1,Math.round(em*a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
 function hurt(t,d,cls){
   let r=d; if(t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
   const hp0=t.hp; if(cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
-  t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',cls);
+  const adv=EVADV, evt=EVTXT; EVADV=0; EVTXT='';
+  t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':'')); if(adv&&r>0)fl(t,evt,'elem'+(adv>0?' adv':' dis'));
   const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); setTimeout(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();

@@ -57,9 +57,11 @@ function drawFrame(u){const S=SH[sid(u)], a=an_of(u)[u.an], e=u.sc*S.k, f=a[7]?a
 function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.createElement('div'); el.className='sp'+(flip?' flip':''); el.style.left=x+'px'; el.style.top=y+'px';
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
-function portrait(el,id,scale,w,h,an){ const S=SH[id], e=Math.min(scale*0.62,5)/((N[id]&&N[id].size)||1), row=S.anim[an||'idle'][0];   // ninja grande (size) afasta o zoom pra caber (asa do Poko)
+// FACE[id][anim] = centro do rosto (x,y no quadro 0 da linha), medido do topo da cabeça (tools: ver docs/pipeline-sprites.md "Retratos"); refazer se o atlas mudar
+const FACE={kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[90,51]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[87,51]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[90,53],cast:[91,51]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]}};
+function portrait(el,id,scale,w,h,an,dy){ const S=SH[id], e=Math.min(scale*0.62,5)/((N[id]&&N[id].size)||1), a=an||'idle', row=S.anim[a][0], F=(FACE[id]&&FACE[id][a])||[S.hd[0],S.hd[1]-14];   // ninja grande (size) afasta o zoom pra caber (asa do Poko)
   el.style.backgroundImage=SPR[id]; el.style.backgroundSize=`${S.W*e}px ${S.H*e}px`;
-  el.style.backgroundPosition=`${-(S.hd[0]*e-w/2)}px ${-((row*S.ch+S.hd[1])*e-h/2)}px`; }
+  el.style.backgroundPosition=`${-(F[0]*e-w/2)}px ${-((row*S.ch+F[1]+(dy||0))*e-h/2)}px`; }
 
 /* ================= LAÇO DE ANIMAÇÃO ================= */
 // modo leve automático: se a batalha roda abaixo de ~30fps por ~3s seguidos (aparelho fraco), liga o modo leve sozinho (dá pra desligar no menu)
