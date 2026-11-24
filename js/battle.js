@@ -47,7 +47,7 @@ function startBattle2(){
   for(const u of all()){
     const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.setProperty('--c',u.d.c); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
     e.style.setProperty('--c',u.d.c); e.style.setProperty('--h',Math.round(124*(u.d.size||1))+'px');
-    e.innerHTML=`<div class="mv"><div class="sh"></div><div class="aura"><i></i><i></i><i></i></div><div class="st"></div><div class="tg"></div><div class="hpb"><i></i></div><div class="hpn"></div><div class="hb"></div></div>`;
+    e.innerHTML=`<div class="mv"><div class="sh"></div><div class="aura"><i></i><i></i><i></i></div><div class="st"></div><div class="tg"></div><div class="hpb"><i></i><i class="shb"></i></div><div class="hpn"></div><div class="hb"></div></div>`;
     if(u.side==='e'){const hb=e.querySelector('.hb'); hb.onmouseenter=()=>e.classList.add('hov'); hb.onmouseleave=()=>e.classList.remove('hov'); hb.onclick=()=>markFoe(u);}
     u.el=e; u.mv=e.firstChild; u.st=e.querySelector('.st'); u.st.appendChild(u.spr); setAnim(u,'idle',Math.random()*8|0);
     $('units').appendChild(e);
@@ -55,10 +55,10 @@ function startBattle2(){
   ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
 }
 function upd(u){
-  u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
+  u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/u.max):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
   u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
   u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'');
-  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`;}
+  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0); $('tsh'+s.toUpperCase()).style.transform=`scaleX(${Math.min(1,sh/b)})`;}
 }
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
 function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;

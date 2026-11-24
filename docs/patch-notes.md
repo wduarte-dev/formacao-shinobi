@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.6 · 24/11/2026
+- **Escudo como barra branca:** o escudo agora aparece como uma barra branca por cima da vida (no ninja e na barra do topo do time), encolhendo conforme absorve dano e sumindo quando acaba ou expira.
+
 ## 1.5.5 · 23/11/2026
 - **Tsunami da Mizuha por cima dos personagens:** a onda não "atravessa" mais os ninjas; ela passa na frente de todos.
 
