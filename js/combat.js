@@ -75,7 +75,7 @@ async function doSkill(u,sk,isJ){
       if(sk.field){setField(u,sk.field); log(`${nm(u)} usa <b>${sk.name}</b>: névoa por ${sk.field} rodadas`);}
       al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
         if(sk.heal){sfx.heal(); healRain(a); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
-        if(sk.shield){sfx.shield(); stoneWall(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
+        if(sk.shield){sfx.shield(); stoneWall(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shM=a.shield; a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
       if(!sk.field)log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }

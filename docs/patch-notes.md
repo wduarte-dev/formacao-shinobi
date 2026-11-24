@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.7.2 · 24/11/2026
+- **Escudo igual ao Naruto Online:** agora é uma barra branca separada, **acima** da vida, que sempre começa cheia (qualquer que seja o valor do escudo) e encolhe conforme absorve os golpes.
+
 ## 1.7.1 · 24/11/2026
 - **Correção: luta travada na Rodada 1** (ninjas parados, sem menu de jutsus). Acontecia quando o navegador misturava a página antiga com o código novo; agora a barra do escudo se cria sozinha e a luta não quebra.
 

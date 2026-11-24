@@ -174,8 +174,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 @keyframes auraW{0%{opacity:0;transform:translateY(14px) scaleY(.5)}30%{opacity:.8}100%{opacity:0;transform:translateY(-22px) scaleY(1.15)}}
 .hpb{position:absolute;left:-36px;top:calc(var(--h)*-1 - 20px);width:72px;height:11px;background:#000b;border:2px solid #000}
 .hpb i{display:block;height:100%;background:#5fe06a;transform-origin:0 50%;transition:transform .25s}   /* barra por scaleX (width animado = layout a cada quadro em todo acerto) */
-.hpb{overflow:hidden}
-.hpb i.shb,.u.e .hpb i.shb{position:absolute;left:0;top:0;width:100%;background:linear-gradient(#fff 0 35%,#d9e4ee 35%);transform:scaleX(0);box-shadow:inset -2px 0 #8fb6d6}
+.hpb i.shb,.u.e .hpb i.shb{position:absolute;left:-2px;top:-9px;width:72px;height:6px;border:1px solid #000;box-sizing:content-box;background:linear-gradient(#fff 0 50%,#cfd8e0 50%);transform:scaleX(0)}   /* escudo: barra separada acima da vida, sempre cheia ao aplicar (como no Naruto Online) */
 .u.e .hpb i{background:#f2a23a}
 .tg{position:absolute;left:-36px;width:72px;top:calc(var(--h)*-1 - 42px);font-size:15px;font-weight:700;display:flex;gap:2px;justify-content:center}
 .tg span{padding:0 4px;background:#000c;border-radius:3px}
@@ -268,7 +267,7 @@ body.lite .swave{box-shadow:none}
 .hud.l .bars{left:102px}.hud.r .bars{right:102px}
 .hud .bar{margin-bottom:2px}
 .hud .bar.g,.hud .bar.o{position:relative}
-.hud .bar i.shw{position:absolute;left:0;top:0;background:linear-gradient(#fff 0 35%,#d9e4ee 35%);transform:scaleX(0);opacity:.92}
+.hud .bar i.shw{position:absolute;left:0;top:-15px;height:7px;border:1px solid #000;box-sizing:border-box;transform:scaleX(0)}
 .hud .bar i.shw{background:linear-gradient(#fff 0 35%,#d9e4ee 35%)}
 .hud.r .bar i.shw{left:auto;right:0}
 .hud .bar i{width:100%;transform-origin:0 50%;transition:transform .25s}
