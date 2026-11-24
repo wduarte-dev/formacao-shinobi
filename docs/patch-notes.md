@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.7.1 · 24/11/2026
+- **Correção: luta travada na Rodada 1** (ninjas parados, sem menu de jutsus). Acontecia quando o navegador misturava a página antiga com o código novo; agora a barra do escudo se cria sozinha e a luta não quebra.
+
 ## 1.7 · 24/11/2026
 - **Triângulo elemental:** Fogo vence Vento, Vento vence Raio, Raio vence Terra, Terra vence Água, Água vence Fogo. Vantagem dá +25% de dano (número azul + texto "Fogo vence Vento"); desvantagem dá -20% (número cinza). Névoa e Gelo contam como Água, Som como Vento; Espaço e Veneno são neutros.
 - **Retratos enquadrados:** o rosto agora fica centralizado e inteiro no cut-in do jutsu e na legenda lateral (e também no HUD, na formação e na galeria). Antes a cabeça saía cortada.

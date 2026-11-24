@@ -54,11 +54,13 @@ function startBattle2(){
   }
   ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
 }
+// barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
+function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
 function upd(u){
   u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/u.max):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
   u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
   u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'');
-  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0); $('tsh'+s.toUpperCase()).style.transform=`scaleX(${Math.min(1,sh/b)})`;}
+  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0); tshEl(s).style.transform=`scaleX(${Math.min(1,sh/b)})`;}
 }
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
 function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;
