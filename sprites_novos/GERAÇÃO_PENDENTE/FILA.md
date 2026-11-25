@@ -9,7 +9,7 @@ Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo ·
 | 02_utsushi_idle | ⚠ quadro 1 com a ponta da lâmina cortada na borda | `sprites_novos/UTSUSHI/IDLE.png` | `jobs/02_utsushi_idle/` |
 | 03_utsushi_walk | ⚠ fundo varia de cor em todos os quadros e difere de #00FF00 | `sprites_novos/UTSUSHI/WALK.png` | `jobs/03_utsushi_walk/` |
 | 04_utsushi_dash | ⚠ fundo varia de cor em todos os quadros e difere de #00FF00 | `sprites_novos/UTSUSHI/DASH.png` | `jobs/04_utsushi_dash/` |
-| 05_utsushi_attack1 | ⬜ | `sprites_novos/UTSUSHI/ATTACK1.png` | `jobs/05_utsushi_attack1/` |
+| 05_utsushi_attack1 | ⚠ o rastro do quadro 3 invade a célula 2 e o cabo do quadro 4 invade a célula 5 | `sprites_novos/UTSUSHI/ATTACK1.png` | `jobs/05_utsushi_attack1/` |
 | 06_utsushi_attack2 | ⬜ | `sprites_novos/UTSUSHI/ATTACK2.png` | `jobs/06_utsushi_attack2/` |
 | 07_utsushi_attack3 | ⬜ | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
 | 08_utsushi_strong | ⬜ | `sprites_novos/UTSUSHI/STRONG.png` | `jobs/08_utsushi_strong/` |
