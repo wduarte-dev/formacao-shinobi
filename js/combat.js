@@ -252,10 +252,12 @@ async function chain(side,t,count,src){
     slamFx(t,c.d.c); crack(ground.x+dx,ground.y); shake(1.2); flashSoft(); sfx.thud();
   }else if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
-    put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,'transform .34s cubic-bezier(.2,.8,.3,1)');
-    await sleep(Math.max(340,animMs(c,'rise')*.8));
+    const riseMs=animMs(c,'rise');
+    put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.2,.8,.3,1)`);
+    await sleep(riseMs);
     setAnim(c,'meteor',0,true); fxAt(c,'chase',t,1.25);
-    put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,'transform .13s ease-in'); await sleep(130);
+    const contactMs=animMs(c,'meteor')*.66;   // quadro 6: o chute chega ao alvo
+    put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,`transform ${contactMs/speed}ms ease-in`); await sleep(contactMs);
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
     // a anim do golpe começa JÁ no salto: ele sobe, segura no alto e despenca de modo que o pouso caia exatamente no quadro do soco
     const hitT=Math.max(430,CHA(c,an)); setAnim(c,an,0,true); sfx.swing(); c.el.style.zIndex=60;
