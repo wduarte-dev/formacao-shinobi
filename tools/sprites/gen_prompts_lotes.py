@@ -2,6 +2,8 @@
 """Gera docs/prompts-<ninja>.md com os lotes A1..D. Uso: python3 tools/sprites/gen_prompts_lotes.py <ninja>
 Ninja novo = nova entrada em NINJAS. Dinâmica dos lotes: docs/prompts-sprites.md."""
 import sys, os
+_ctx = os.path.join(os.path.dirname(__file__), "..", "..", "..", "formacao-shinobi-ctx", "docs")
+DOCS = _ctx if os.path.isdir(_ctx) else "docs"   # docs de contexto ficam no repo privado quando ele existe ao lado
 RULES = """STRICT RULES (highest priority, never break):
 1. LAYOUT: the image has EXACTLY {N} rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has {N} rows, not more.
 2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
@@ -161,7 +163,7 @@ def build(k):
 if __name__ == "__main__":
     k = sys.argv[1]; P = build(k)
     head = (f"# {k.title()} — lotes completos (gerado por tools/sprites/gen_prompts_lotes.py)\n\nOrdem e anexos: **A1** ← `docs/refs/elenco_ref.png` → **A2** ← A1 → **B1** ← A2 → **B2** ← B1 → **C** ← B2 → **D** ← qualquer sheet (só paleta). Salvar em `tools/sprites/src/{k}/`.\n\n")
-    open(f"docs/prompts-{k}.md", "w").write(head + "".join(f"## LOTE {a}\n```\n{t}```\n\n" for a, t in P.items()))
+    open(os.path.join(DOCS, f"prompts-{k}.md"), "w").write(head + "".join(f"## LOTE {a}\n```\n{t}```\n\n" for a, t in P.items()))
     d = os.environ.get("OUT")
     if d:
         os.makedirs(d, exist_ok=True)

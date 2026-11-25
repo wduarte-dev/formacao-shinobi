@@ -5,7 +5,7 @@ description: Integrar um ninja novo no Formação Shinobi do começo ao fim (pro
 
 # Ninja novo — fluxo curto (Formação Shinobi)
 
-Tudo mecânico está em script. Não reescreva na mão o que um comando já gera. Regras do repo: `CLAUDE.md`, `docs/prompts-sprites.md`, `docs/fluidez.md`.
+Tudo mecânico está em script. Não reescreva na mão o que um comando já gera. Regras do repo: `CLAUDE.md` (público, curto) e, no repo PRIVADO de contexto (`../formacao-shinobi-ctx`): `CLAUDE.md` completo, `docs/prompts-sprites.md`, `docs/fluidez.md`, `docs/ninjas.md`, `docs/ondas.md`.
 
 ## 1. Ficha e prompts
 1. Decidir com ele (AskUserQuestion): elemento, papel, jutsu, perseguição, personalidade. Registrar a ficha em `docs/ninjas.md` e a pendência em `docs/ondas.md`.

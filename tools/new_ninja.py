@@ -110,6 +110,11 @@ def cmd_checklist(nid):
     def has(path, pat):
         try: return re.search(pat, open(os.path.join(ROOT, path), encoding='utf8').read()) is not None
         except OSError: return False
+    def hasctx(path, pat):   # fichas/ondas ficam no repo privado ao lado (../formacao-shinobi-ctx), senão aqui
+        for base in (os.path.join(ROOT, '..', 'formacao-shinobi-ctx'), ROOT):
+            fp = os.path.join(base, path)
+            if os.path.exists(fp): return re.search(pat, open(fp, encoding='utf8').read()) is not None
+        return False
     items = [
         ('config do recorte', os.path.exists(f'{CFG}/{nid}.json')),
         ('sheets em tools/sprites/src', os.path.isdir(f'{ROOT}/tools/sprites/src/{nid}') and bool(os.listdir(f'{ROOT}/tools/sprites/src/{nid}'))),
@@ -120,7 +125,7 @@ def cmd_checklist(nid):
         ('N em js/data.js', has('js/data.js', rf"\b{nid}:\{{name:")),
         ('FXA/FXUSE em js/fx.js', has('js/fx.js', rf'\b{nid}:\{{hit:')),
         ('sons gerados (audio/sfx: -atk, -chase, esq-, jutsux-)', all(os.path.exists(f'{ROOT}/audio/sfx/{f}.ogg') for f in (f'{nid}-atk', f'{nid}-chase', f'esq-{nid}', f'jutsux-{nid}'))),
-        ('ficha em docs/ninjas.md', has('docs/ninjas.md', nid.title())),
+        ('ficha em docs/ninjas.md (repo de contexto)', hasctx('docs/ninjas.md', nid.title())),
         ('patch notes (docs/patch-notes.md)', has('docs/patch-notes.md', nid.title())),
     ]
     for t, ok in items: print(('✅' if ok else '⬜'), t)
