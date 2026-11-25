@@ -34,7 +34,7 @@ const N={
   strong:{name:'Onda de Névoa',an:'atk3',mult:1.3,target:'front',ranged:true},
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
-  normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.25,.5,.75]},
+  normal:{name:'Combo de Lâmina de Gelo',mult:1.05,target:'front',hits:[.28,.53,.65]},
   jutsu:{name:'Prisão de Gelo',cost:20,cd:4,mult:1,target:'front',cause:'D',stun:true,an:'atk2',cast:1,desc:'paralisa o alvo'},
   strong:{name:'Toque Congelante',an:'atk3',mult:1.4,target:'front',stun:true},
   chase:{name:'Pilar de Gelo',on:'D',cause:'L',mult:.7,mv:'rise'}},
@@ -80,7 +80,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.9.10',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.9.11',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
