@@ -26,7 +26,7 @@ const N={
   normal:{name:'Rajada Leve',mult:.4,target:'all',ranged:true},
   jutsu:{name:'Tufão Cortante',cost:40,cd:4,mult:1,target:'all',cause:'L',dispel:true,an:'atk2',desc:'acerta todos e dissipa o campo'},
   strong:{name:'Corte Giratório',an:'atk3',mult:1.5,target:'front',cause:'D'},
-  chase:{name:'Redemoinho',on:'D',cause:'L',mult:.7,mv:'rise'}},
+  chase:{name:'Redemoinho',on:'D',cause:'L',mult:.7,mv:'rise',hits:[.4]}},
  mayoi:{name:'Mayoi',el:'Névoa',c:'#b79ae0',role:'Esquiva/campo',hp:780,atk:110,def:15,dodge:15,
   normal:{name:'Bengala e Mariposas',mult:.9,target:'front'},
   jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas',
@@ -80,7 +80,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.9.8',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.9.9',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
