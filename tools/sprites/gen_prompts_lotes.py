@@ -22,6 +22,9 @@ TRUTH = "Attached image is the ABSOLUTE source of truth for the character ({NAME
 PIXEL = ("ART STYLE (mandatory, highest priority): this is true PIXEL ART for a 2D game, exactly like the characters in the attached style roster image: "
          "visible hard-edged pixel clusters, a dark 1px outline, max 16 colors per character, flat cel shading, small game-sprite scale. "
          "It is NOT a smooth digital illustration, NOT anime key art, NOT painted, NOT 3D, NO soft gradients, NO smooth anti-aliased lines, NO large detailed drawing.\n")
+LOCKS = ("ANATOMICAL LOCK: every frame keeps exactly two arms, two hands and two legs with coherent joints and limb connections; natural occlusion is allowed but hidden limbs stay anatomically consistent; no missing, fused, disconnected or extra body parts, and the hands always clearly hold the items they hold.\n"
+         "TEMPORAL COHERENCE: all frames are the SAME persistent character at different moments of ONE animation, not separate illustrations: coherent anatomy, clothing, accessories, proportions and secondary motion (cape/coat/hair follow the body) between consecutive frames, and every frame has a clear function in the motion (no near-identical or filler frames).\n"
+         "CELL ISOLATION: treat each cell as its own canvas with a safe margin of at least 10% empty on every side; character, clothing, items and effects stay inside it, the scale is identical in all cells, and there is visible empty green space between neighbouring frames.\n")
 ROWREF = ("Two images are attached. FIRST image = the PIXEL-ART STYLE ROSTER (several other characters of the same game): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions, NEVER their faces, hair, clothes or colors. "
           "SECOND image = the APPROVED DESIGN of the new character ({NAME}): the ABSOLUTE source of truth for who he is.\n")
 STYLE_RULES = """STRICT RULES (highest priority, never break):
@@ -218,9 +221,9 @@ def row_prompts(k):
             if lote == "D":
                 t = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N).replace("EXACTLY 6 rows and EXACTLY 6 columns", "EXACTLY 1 row and EXACTLY 6 columns").replace("The image has 6 rows, not more.", "The image has 1 row, not more.").replace("LOTE D", a.upper()).replace("ROWS (each one effect, 6 frames):", "ROW (one effect, 6 frames):") + r1 + "\n"
             elif lote == "CL":
-                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + LOCKS + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
             else:
-                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + LOCKS + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
             out.append((a, t))
     return out
 
