@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.10.2 · 25/11/2026 · Escala e contato
+- Revisadas as proporções dos ninjas entre as poses de combate. Kazan mantém o tamanho ao preparar o martelo, atacar e rebater as bolas de fogo. O contorno do ferreiro e da bigorna acompanha a linha do idle.
+- O chute da Rajada Fantasma acerta o alvo no ar na hora em que a bota encosta. Cada clone solta sua rajada pela mão estendida, e o alvo é repelido depois do último contato.
+
 ## 1.10.1 · 25/11/2026 · Planos cinematográficos
 - Plano da Forja e Noite de Névoa ganharam cenários próprios, transições de entrada e saída e cobertura em telas largas.
 - Kazan descansa com mais calma. A martelada solta faíscas antes das chamas e o Dragão sai pela boca do caldeirão, cresce durante o voo e explode em colunas de lava com som próprio.

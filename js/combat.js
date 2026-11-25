@@ -247,57 +247,87 @@ function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
 // no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
 function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
   if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
-// As palmas dos clones viajam durante a recuperação do chute. Cada clone
-// acrescenta um contato ao contador de golpes da mesma perseguição.
+function spritePoint(u,point){
+  const p=cur(u), offset=spriteOffset(u,point);
+  const pose=new DOMMatrixReadOnly(getComputedStyle(u.st).transform);
+  return {x:p.x+pose.m41+offset.x,y:p.y+pose.m42+offset.y};
+}
+// Ponto no tronco do primeiro quadro de Lançado. As poses estendidas têm o centro
+// do corpo fora do centro da célula (em especial Mizuha e Doku).
+const AIR_TORSO={
+  kaen:[115,87],mizuha:[108,91],raiden:[104,84],iwao:[106,85],fuuka:[99,93],
+  hiyori:[86,78],mayoi:[110,90],doku:[112,67],poko:[112,97],
+  utsushic:[91,92],utsushi:[90,89],keshin:[85,86],yugami:[96,93],yugamir:[96,93]
+};
+const airTorso=u=>spritePoint(u,AIR_TORSO[sid(u)]||[96,96]);
+// Cada palma sai no quadro da mão estendida e viaja até o corpo visível do alvo.
 async function cloneVolley(owner,target){
   const clones=livingClones(owner);
-  if(!clones.length||!target.alive)return 0;
-  for(const clone of clones){ sceneAdd(clone); setAnim(clone,'atk1'); }
-  await sleep(hitAt(clones[0],'atk1'));
   let damage=0;
+  const dir=owner.side==='p'?1:-1;
   for(const clone of clones){
     if(!target.alive)break;
-    const p=cur(clone);
-    fxShot(owner,target,100,{x:p.x+(owner.side==='p'?32:-32),y:p.y-52});
-    await sleep(100);
+    if(!clone.alive)continue;
+    const palm=3, step=1000/an_of(clone).atk1[4];
+    sceneAdd(clone); setAnim(clone,'atk1');
+    await sleep(palm*step);
+    if(!clone.alive||!target.alive)continue;
+    setAnim(clone,'atk1',palm);
+    const from=spritePoint(clone,[160,81]), to=airTorso(target);
+    const travel=Math.max(115,Math.min(230,Math.hypot(to.x-from.x,to.y-from.y)*.36));
+    const proj=FXUSE[owner.id].proj, frames=FXA[owner.id].a[proj][1];
+    fxSpr(owner.id,proj,{...from,to,dir,flip:dir<0,sc:.51,fps:1000*frames/travel,linear:true});
+    await sleep(travel);
     const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
-    if(dealt!==null){ damage+=dealt; spark(target,owner.d.c,5); }
+    if(dealt!==null){ damage+=dealt; chaseContact(to,owner.d.c,6); }
   }
   return damage;
 }
-async function aimKeshinKick(c,t,put,dir){
-  const {phases:[grab,slam],kick}=c.d.chase;
+function chaseContact(point,color,count){
+  em(count,i=>{
+    const angle=i*2*Math.PI/count;
+    return prt(point.x,point.y,0,0,Math.cos(angle)*3.2,Math.sin(angle)*2.8,.1,R(10,17),R(2,4),1,color);
+  });
+}
+async function aimChaseKick(c,t,put,dir){
+  const {phases:[grab,strike],kick}=c.d.chase;
   const home=pos(c), ground=pos(t), target=cur(t);
   const dx=Math.max(70,Math.min(1082,target.x+dir*30))-ground.x;
   const y=Math.max(t.off.y,-150);
-  const poseOffset=new DOMMatrixReadOnly(getComputedStyle(t.st).transform);
-  const faceScale=t.sc*SH[t.id].k, footScale=c.sc*SH[c.id].k;
-  const contact={
-    x:target.x+poseOffset.m41,
-    y:ground.y+y+poseOffset.m42-(150-96)*faceScale
-  };
-  const x=contact.x-(kick.foot[0]-96)*dir*footScale-home.x;
-  const footY=contact.y-(kick.foot[1]-150)*footScale-home.y;
-  const rise=animMs(c,grab), step=1000/an_of(c)[slam][4];
-  setAnim(t,'launched',0,true);
+  setAnim(t,'launched',0,'frame');
+  const contact=airTorso(t);
+  contact.y+=y-t.off.y;
+  const foot=spriteOffset(c,kick.foot,strike,kick.frame);
+  const x=contact.x-foot.x-home.x, footY=contact.y-foot.y-home.y;
+  const rise=animMs(c,grab), step=1000/an_of(c)[strike][4];
   setAnim(c,grab,0,true); sfx.swing(); c.el.style.zIndex=60;
   const jump=`transform ${rise*.84/speed}ms cubic-bezier(.16,.75,.3,1)`;
   put(t,t.off.x,y,jump);
   put(c,x-dir*29,footY+14,jump);
   await sleep(rise);
   t.off.y=y; t.mv.style.transition='';
-  setAnim(c,slam,0,true);
-  put(c,x,footY,`transform ${step/speed}ms ease-out`);
+  setAnim(c,strike,0,true);
+  put(c,x,footY,`transform ${step*kick.frame/speed}ms ease-out`);
   await sleep(step*kick.frame);
   put(c,x,footY,'none');
-  setAnim(c,slam,kick.frame,true);
-  em(10,i=>{
-    const angle=i*.628;
-    return prt(contact.x,contact.y,0,0,Math.cos(angle)*3.2,Math.sin(angle)*2.8,.1,
-      R(10,17),R(2,4),1,'#ffce72');
-  });
+  setAnim(c,strike,kick.frame,true);
+  chaseContact(contact,c.d.chase.cloneHit?'#d9f4ff':'#ffce72',10);
   sfx.hit(c,'atk');
   return {ground,dx,step};
+}
+async function finishWindKick(c,t,put,dir,aim,connected){
+  const {phases:[,strike,land],kick,cause}=c.d.chase;
+  const {ground,dx,step}=aim, h=pos(c);
+  await hitstop(65);
+  const ms=animMs(c,strike)-step*kick.frame;
+  put(c,ground.x+dx-h.x-dir*65,ground.y-h.y,`transform ${ms/speed}ms cubic-bezier(.35,0,.85,.7)`);
+  await sleep(ms);
+  c.mv.style.transition='';
+  setAnim(c,land);
+  const [extra]=await Promise.all([connected?cloneVolley(c,t):0,sleep(animMs(c,land))]);
+  if(connected&&t.alive)await knock(t,cause);
+  if(result())await finale(t);
+  return extra;
 }
 async function landKeshinKick(c,t,put,dir,aim,connected){
   const {phases:[,slam,land],kick,cause}=c.d.chase;
@@ -331,21 +361,8 @@ async function chain(side,t,count,src){
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
   const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
   let kickAim;
-  if(CH.kick)kickAim=await aimKeshinKick(c,t,put,dir);
-  else if(CH.phases){
-    const [grab,slam]=CH.phases, ground=pos(t), dx=Math.max(70,Math.min(1082,tb.x+dir*38))-ground.x;
-    const riseMs=animMs(c,grab), fallMs=CHA(c,slam);
-    setAnim(c,grab,0,true); sfx.swing(); c.el.style.zIndex=60;
-    put(c,tb.x-dir*65-h0.x,tb.y-20-h0.y,`transform ${riseMs*.72/speed}ms cubic-bezier(.15,.8,.35,1)`);
-    await sleep(riseMs);
-    setAnim(c,slam,0,true); speedLines('D');
-    const fall=`transform ${fallMs/speed}ms cubic-bezier(.55,0,.9,.55)`;
-    put(t,dx,0,fall);
-    put(c,ground.x+dx-dir*65-h0.x,ground.y-h0.y,fall);
-    await sleep(fallMs);
-    t.off={x:dx,y:0}; t.mv.style.transition=''; c.mv.style.transition='';
-    slamFx(t,c.d.c); crack(ground.x+dx,ground.y); shake(1.2); flashSoft(); sfx.thud();
-  }else if(air){
+  if(CH.kick)kickAim=await aimChaseKick(c,t,put,dir);
+  else if(air){
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     const riseMs=animMs(c,'rise');
     put(c,tb.x-dir*105-h0.x,Math.max(180,tb.y-76)-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.2,.75,.5,1)`);
@@ -377,7 +394,7 @@ async function chain(side,t,count,src){
     const p=cur(t), W=waveFx({dir,x:p.x,y:p.y}); for(let n=0;!W.hit&&n<70;n++){ await gate(); await sleep(30); }
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
   sfx.chase(c);
-  if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25,CH.phases?36:0); fxAt(c,'imp',t,.6,-8); }
+  if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8); }
   const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0, connected=false;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
@@ -387,11 +404,7 @@ async function chain(side,t,count,src){
       if(o.alive&&!o.d.stationary){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
         battleAfter(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; battleAfter(()=>{o.mv.style.transition='';},340); },240/speed); } }
     battleAfter(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
-  if(CH.cloneHit&&connected&&t.alive&&livingClones(c).length){
-    const [,strike,landing]=CH.phases;
-    await sleep(animMs(c,strike)-CHA(c,strike)); setAnim(c,landing,0,true);
-    const [extra]=await Promise.all([cloneVolley(c,t),sleep(animMs(c,landing))]); d+=extra;
-  }
+  if(kickAim&&CH.cloneHit)d+=await finishWindKick(c,t,put,dir,kickAim,connected);
   if(!air&&!kickAim&&result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
@@ -423,22 +436,14 @@ async function chain(side,t,count,src){
     return;
   }
   if(kickAim){
-    await landKeshinKick(c,t,put,dir,kickAim,connected);
+    if(!CH.cloneHit)await landKeshinKick(c,t,put,dir,kickAim,connected);
     if(!connected&&t.alive)setState(t,null);
     home(c);
     if(connected&&t.alive)await chain(side,t,count);
     return;
   }
   if(!connected){ setState(t,null); home(c); return; }
-  if(CH.phases){
-    if(t.alive&&cause==='R')await knock(t,cause);
-    else if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
-    const [,slam,land]=CH.phases;
-    if(c.an!==land){
-      await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
-      setAnim(c,land,0,true); await sleep(animMs(c,land));
-    }
-  }else if(t.alive){
+  if(t.alive){
     if(CH.mv==='rise'&&cause==='L'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
       put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
     await smash(c,t,cause);

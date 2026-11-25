@@ -35,9 +35,9 @@ const KAZAN_HAMMER={
   victory:{1:[116,74]},
   die:{2:[110,110]}
 };
-const kazanFramePoint=(u,[x,y])=>{
-  const p=pos(u), dir=kazanDir(u), scale=u.sc/3;
-  return {x:p.x+(x-96)*scale*dir+(u.kazanRecoil||0),y:p.y+(y-150)*scale};
+const kazanFramePoint=(u,point)=>{
+  const p=pos(u), offset=spriteOffset(u,point);
+  return {x:p.x+offset.x+(u.kazanRecoil||0),y:p.y+offset.y};
 };
 const kazanHead=u=>kazanFramePoint(u,KAZAN_HEAD[u.an]?.[u.frame]||[FACE.kazan.idle[0],FACE.kazan.idle[1]-13]);
 const kazanAnvil=u=>kazanFramePoint(u,[113,113]);

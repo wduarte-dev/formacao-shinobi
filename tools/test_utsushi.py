@@ -73,6 +73,32 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       owner.alive=true; summonClones(enemy,sk); U.e.forEach(e=>e.alive=false);
       check(result()==='win','vitória mesmo com clones inimigos vivos');
     }""")
+    # O contador pode subir mesmo quando o sprite do chute passa longe do alvo.
+    page.reload()
+    page.evaluate("""async () => {
+      loadSfx=()=>{}; run=()=>{};
+      placed=[{id:'utsushi',row:1,depth:1}]; FOES[0].team=[['mizuha',1,1]];
+      await preloadFx(['utsushi','mizuha']); startBattle2(); speed=2;
+      const owner=U.p[0], target=U.e[0], original=landHit;
+      await knock(target,'L'); curSide=owner.side;
+      let checked=false;
+      landHit=(u,t,...args)=>{
+        if(u===owner && t===target){
+          const foot=u.spr.getBoundingClientRect(), body=t.spr.getBoundingClientRect();
+          const [x,y]=u.d.chase.kick.foot;
+          const px=Math.round((1-(foot.left+foot.width*x/192-body.left)/body.width)*192);
+          const py=Math.round((foot.top+foot.height*y/160-body.top)/body.height*160);
+          const canvas=document.createElement('canvas'); canvas.width=192; canvas.height=160;
+          const ctx=canvas.getContext('2d'), src=KEEP['spr/mizuha_atlas.png'];
+          ctx.drawImage(src,t.frame*192,an_of(t)[t.an][0]*160,192,160,0,0,192,160);
+          if(u.frame!==2||ctx.getImageData(px,py,1,1).data[3]<140)throw Error('chute fora do corpo da Mizuha');
+          checked=true;
+        }
+        return original(u,t,...args);
+      };
+      await chain('p',target,1,owner);
+      if(!checked)throw Error('faltou contato da Rajada Fantasma');
+    }""")
     # No desempate, três clones com vida cheia não podem inverter a derrota.
     page.reload()
     page.evaluate("""() => {
