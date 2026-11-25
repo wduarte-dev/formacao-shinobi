@@ -67,3 +67,6 @@ Todo humanoide segue o Kaen: **realista/atlético, ~6,5 cabeças, cabeça pequen
 
 ## Complemento em código (regra de 22/11/2026)
 Todo efeito do lote D entra no jogo **com complemento em código** (`js/fx.js`): o sprite é o núcleo e o canvas faz ele nascer, agir e morrer no cenário. Ao escrever o prompt do lote D, pensar no que o código vai completar (ex.: o sprite só precisa da crista e da espuma; a parede de água sobe em código). Referências: Tsunami e Onda da Mizuha (`waveFx`, 100% código), Dragão de Brasa do Kaen (sprite + fita de fogo `jutsuFx`).
+
+## Ação "premium" de 18 quadros (Keshin, 25/11/2026)
+Pra ação que o jogador vê toda hora (básico em combo, perseguição): **3 linhas x 6 quadros**, um golpe/fase por linha, em lote próprio (`A1B` = combo, `CH` = perseguição), anexando o A1/C anterior. Cabe na grade de 8 colunas e na regra de máx. 4 linhas, sem a IA errar contagem. Os quadros de cada golpe: **antecipação (1–2) → smear (1, forma opaca, nunca translúcida) → contato (o mais forte) → follow-through → volta à guarda**. O "segurar o contato" NÃO é desenhado: sai do código (`seq` repete o quadro no `V2` + hit-stop de `cine.js`). No recorte, cada linha vira uma anim (`attack`, `attackB`, `attackC`; perseguição `chase1..3`) e `hits` marca o quadro do contato. Idle, dano, defesa e atordoado ficam curtos (mais quadro ali só gasta memória no celular).

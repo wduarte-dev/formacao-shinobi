@@ -1,5 +1,5 @@
 STRICT RULES (highest priority, never break):
-1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+1. LAYOUT: the image has EXACTLY 3 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 3 rows, not more.
 2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
 3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
 4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
@@ -16,4 +16,3 @@ ROWS:
 Row 1: KNOCKED BACK (repelled), 8 frames: hit by a heavy blow, flung backwards off his feet, body leaning back and sliding away, ending in a hard skid (full 8 columns).
 Row 2: LAUNCHED, 8 frames: thrown up into the air by a blow from below, body rising and rotating, peaks at the top, starts to hang in the air (full 8 columns).
 Row 3: KNOCKED DOWN, 8 frames: falls and lies FLAT on the ground, body horizontal and parallel to the ground (never vertical), bounces once, then lies still, then slowly starts to get back up (full 8 columns).
-Row 4: CHASE "Bomba Dinamite", 8 frames: he crouches, leaps high, reaches up and grabs an airborne enemy by the waist, flips over in the air and slams downward head-first-diagonal, lands crouched with fists on the ground (full 8 columns). Only small orange motion lines near the body, no enemy drawn.
