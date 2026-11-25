@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9.7 · 25/11/2026
+- Os dois cortes do ataque básico de Raiden acertam nos quadros da lâmina. A espada permanece na mão nas novas sequências.
+
 ## 1.9.6 · 25/11/2026
 - Iwao ganhou uma preparação antes dos dois socos, novo Punho de Pedra e novas poses do Gigante de Pedra.
 

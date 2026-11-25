@@ -14,7 +14,7 @@ const N={
   jutsu:{name:'Chuva Serena',cost:40,cd:3,target:'allies',heal:2.5,desc:'cura o time'},
   chase:{name:'Onda',on:'D',cause:'R',mult:.7,surge:1,cast:1,tsunami:.25}},   // cast: invoca de longe (anim de jutsu), não vai socar
  raiden:{name:'Raiden',el:'Raio',c:'#e5c33d',role:'Atacante',hp:850,atk:125,def:15,
-  normal:{name:'Faísca',mult:1,target:'front',hits:[.3,.6]},
+  normal:{name:'Faísca',mult:1,target:'front',hits:[.28,.53]},
   jutsu:{name:'Lâmina Trovão',cost:40,cd:3,mult:1.7,target:'front',cause:'L',stun:true,desc:'paralisa o alvo (não persegue)'},
   chase:{name:'Gancho Relâmpago',on:'R',cause:'L',mult:.7}},
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
@@ -80,7 +80,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.9.6',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.9.7',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
