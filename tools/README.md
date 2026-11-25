@@ -60,3 +60,9 @@ O pivô estimado usa a faixa inferior da silhueta como referência para os pés.
 `python tools/release.py --grande|--pequeno [--dry-run] [--commit]`
 
 Atualize `docs/patch-notes.md` antes de executar. O comando verifica as notas contra o commit da versão atual e roda `qa_diff.py` com essa base, a batalha com Playwright, a geração de notas e a atualização da versão, nessa ordem. Para na primeira falha e fornece o caminho do log. `--dry-run` lista os passos. `--commit` cria um commit local com os arquivos de publicação. A publicação remota é manual.
+
+## Gerar o estado do repositório
+
+`python tools/estado.py`
+
+Gera `docs/ESTADO.md` com as duas fontes de versão, os ninjas do jogo, os arquivos de atlas, FX e som, os dez commits mais recentes e as linhas `Pendente:` dos últimos vinte commits e de `docs/`. O arquivo gerado é local. Se o conteúdo ultrapassar 60 linhas, o resumo indica quantos itens ficaram de fora e mantém a contagem total de pendências.
