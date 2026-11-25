@@ -1,0 +1,165 @@
+{
+ "name": "kazan",
+ "body_h": 110,
+ "sheets": [
+  {
+   "file": "KAZAN_A1LINHA1.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "idle"
+   ]
+  },
+  {
+   "file": "KAZAN_A1L2.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "walk",
+     "fps": 12,
+     "loop": 1,
+     "anchor": "cell"
+    }
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_A1L3L4.png",
+   "rows": 2,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "dash",
+     "fps": 14,
+     "loop": 0,
+     "drop": [
+      3
+     ]
+    },
+    {
+     "name": "sit",
+     "fps": 10,
+     "loop": 0,
+     "anchor": "cell"
+    }
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_LOTEA1B.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "attack",
+     "fps": 12,
+     "loop": 0
+    },
+    {
+     "name": "attackB",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "attackC",
+     "fps": 12,
+     "loop": 0
+    }
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35,
+   "erase": [
+    [
+     0,
+     0,
+     2172,
+     40
+    ]
+   ]
+  },
+  {
+   "file": "KAZANB1_LINHA1.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "seals"
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_B1PLANO.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "jutsu"
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_LOTEB1BATEMARTELOCOMFOGONOAR.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "fireball",
+     "fps": 12,
+     "loop": 0
+    }
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZANA2_L1.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "guard"
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_HURT.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "hurt"
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "KAZAN_B2.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "stun",
+    "victory",
+    "defeat"
+   ],
+   "color_ref": "KAZAN_A1LINHA1.png",
+   "outline": 0.35,
+   "green_fix": true
+  }
+ ],
+ "fx": {
+  "file": "D_KAZAN.png",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "proj",
+   "hit",
+   "jutsu",
+   "chase",
+   "impact",
+   "aura"
+  ]
+ }
+}

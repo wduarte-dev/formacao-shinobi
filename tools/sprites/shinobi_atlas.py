@@ -137,6 +137,13 @@ def teal_fix(rgb, mask):
     rgb[..., 1] = np.where(t, np.minimum(g, b * 0.84), g)
     return rgb
 
+def green_fix(rgb, mask):
+    """Verde-amarelado (deriva da IA em ataduras/pele) volta pra laranja-bronze; chama dourada (g < r) e branco quente ficam como estão."""
+    r, g, b = [rgb[..., i].astype(np.int32) for i in range(3)]
+    t = mask & (g >= r - 8) & (g > b + 30) & (r < 235)
+    rgb[..., 1] = np.where(t, np.minimum(g, (r * 0.80).astype(np.int32)), g).astype(rgb.dtype)
+    return rgb
+
 # ---------------------------------------------------------------- grade
 def cuts_1d(proj, n, start, stop, slack=0.22):
     """n células entre start e stop: corta no mínimo da projeção perto da divisão uniforme."""
@@ -181,6 +188,7 @@ class Sheet:
             ref = np.array(Image.open(os.path.join(os.path.dirname(path), sc['color_ref'])).convert('RGB')).astype(np.float32)
             rfg = erase_label(key_hard(ref, ncfg), *ref.shape[:2])
             s.rgb = color_match(s.rgb, fg, despill(ref), rfg, sc.get('color_amt', 1.0))
+        if sc.get('green_fix') or ncfg.get('green_fix'): s.rgb = green_fix(s.rgb, fg)
         rows, cols = sc['rows'], sc.get('cols', 8)
         s.redges = cuts_1d(fg.sum(1), rows, 0, s.H)
         s.lab, _ = ndi.label(fg, structure=np.ones((3, 3)))
