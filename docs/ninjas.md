@@ -66,5 +66,14 @@ Resumo na tabela do `CLAUDE.md`. Detalhes que não estão lá: Kaen corta 2x no 
 - **Jutsu Lacre Rompido** (`jutsu.unleash:3`, `target:'self'`): `setForm(u,true)` troca o atlas (`sid(u)` em `sprites.js`) e liga a distorção em código (`glitchSet`: 2 clones recortados em 3 faixas horizontais que escorregam de lado, CSS `.gl0/.gl1/.gl2`); `u.sR` conta as rodadas; ao zerar toca `rehood` e volta. Enquanto solto: dano x1,35 (`dmgOf`) e +20 de esquiva (`dodgeOf`). Relançar só renova a duração. IA só usa se não estiver solto (`wants`). Ao acabar (rodada em que `sR` zera), `rehoodCine` em `cine.js`: cena isolada, zoom 1.9 nele e anim `rehood` em câmera lenta (`u.ts`, ~3s no total), depois volta pro atlas encapuzado.
 - Normal Corte Dimensional (front), Forte Dupla Fenda (1,5x), perseguição Passo Dimensional (D→R, 0,7x). Atributos: HP 860, ATK 112, DEF 18, esquiva 12. Sem sons próprios (cai no genérico).
 
+## Ninja novo "lutador de combos" (nome a definir) — SÓ PROJETADO (25/11/2026), sem sprite nem código
+Base: Quarto Raikage do Naruto Online (só inspiração, nada copiado). Personagem e arte originais.
+- **Papel:** atacante de dano básico/combo, corpo a corpo puro (sem alcance), humano lutador (bandagens, guarda de luta, aura saindo do corpo). **Elemento: neutro/físico** (sem vantagem nem desvantagem no triângulo; não entra no ciclo de `elemMul`).
+- **Básico:** vários golpes por ação, dano **por hit menor** que o de um básico normal; o **último hit lança o alvo** (L) pra abrir elos de perseguição pro time. Se o alvo morrer no meio, os hits restantes **trocam pro próximo alvo**. Precisa conferir em `combat.js` se os hits dele contam pro +10% por passo do combo.
+- **Jutsu (aura/carregamento): INSTANTÂNEO**: ele ativa **antes de todos** e **ainda ataca** na mesma rodada (não gasta a ação). Efeito: **+ataques básicos por ação** (sobe por rodada com a aura ligada, ex.: 2→3→4) e **+% de dano**, em troca de **vida**. **Custo em vida: uma vez ao ativar, 15–20% da vida máx., PERFURANTE (ignora escudo), nunca mata (piso em 1 HP).** **Recarga: 2 turnos** (ativa a cada 2).
+- **Contrajogo:** por enquanto só a vida baixa. Depois vem dos status da Onda 3 (Selamento/Sono cortam o buff) e do resto das ondas.
+- **Sprite (regra dele):** idle em guarda de luta + **3 variações de ataque** (`attack`, `attackB`, `attackC`, golpes diferentes pra não repetir a mesma animação nos 4 hits) + os demais do template v2. Pipeline: registrar `attackB/C` em `V2`; o prompt do sheet já pede isso desde o início. Complemento em código da aura (`fxCont`, aura na cor do ninja).
+- **Sons:** entrada em `NINJAS` de `tools/gen_ninja_sfx.py` quando integrar.
+
 ## Destaque do combo (22/11/2026)
 No começo da perseguição (`comboShow` em `combat.js`), todos que vão entrar no combo (`comboPlan`: segue on→cause sem repetir) saem da cena escura e ganham o anel rosa pulsando (`.u.cmb .sh`), estilo NO; antes só aparecia quem estava golpeando.
