@@ -54,3 +54,9 @@ Cada execução guarda vídeo, tira e relatório numa pasta temporária própria
 Sem ID, seleciona os atlas de `spr/` que diferem do commit base, incluindo arquivos novos ainda sem rastreamento. Usa o V2 de cada versão e salva uma prancha por ninja com as linhas alteradas. O relatório temporário guarda os deslocamentos por quadro e as linhas que excedem a saída do terminal.
 
 O pivô estimado usa a faixa inferior da silhueta como referência para os pés. A ferramenta sai com código 1 quando falta um quadro, algum eixo do pivô difere mais de 3 px de (96,150) ou o salto entre centros de quadros consecutivos excede o limite em pixels. Para atlas novos, mede pivô e quadros vazios e gera somente o relatório. Requer Pillow.
+
+## Preparar uma versão
+
+`python tools/release.py --grande|--pequeno [--dry-run] [--commit]`
+
+Atualize `docs/patch-notes.md` antes de executar. O comando verifica as notas contra o commit da versão atual e roda `qa_diff.py` com essa base, a batalha com Playwright, a geração de notas e a atualização da versão, nessa ordem. Para na primeira falha e fornece o caminho do log. `--dry-run` lista os passos. `--commit` cria um commit local com os arquivos de publicação. A publicação remota é manual.

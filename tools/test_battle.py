@@ -10,7 +10,7 @@ parser.add_argument('--strict', action='store_true', help='falha se houver erro 
 args = parser.parse_args()
 root, out, mis = args.root, args.out, args.mis
 os.makedirs(out, exist_ok=True)
-srv = subprocess.Popen([sys.executable,'-m','http.server',str(8765+mis),'-d',root],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1)
+srv = subprocess.Popen([sys.executable,'-m','http.server',str(8765+mis),'--bind','127.0.0.1','-d',root],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1)
 if srv.poll() is not None:
     sys.exit(f'Falha ao abrir servidor da missão na porta {8765+mis}')
 errs=[]
@@ -26,10 +26,13 @@ def console_error(msg):
 
 try:
   with sync_playwright() as p:
-    b=p.chromium.launch(); pg=b.new_page(viewport={'width':1152,'height':648})
+    b=p.chromium.launch(); pg=b.new_page(service_workers='block', viewport={'width':1152,'height':648})
     pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.on('console',console_error)
-    pg.goto('http://localhost:%d/'%(8765+mis)+'index.html'); pg.wait_for_timeout(800)
+    origin = f'http://127.0.0.1:{8765+mis}'
+    pg.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/')
+             else route.fulfill(status=200, body=''))
+    pg.goto(origin + '/index.html'); pg.wait_for_timeout(800)
     pg.screenshot(path=f'{out}/0_titulo.png')
     pg.click('#sTitle'); pg.wait_for_timeout(300)
     pg.evaluate(f"""()=>{{ if(placed.length<4) placed=[{{id:'kaen',row:0,depth:0}},{{id:'iwao',row:1,depth:0}},{{id:'{os.environ.get('P3','raiden')}',row:2,depth:1}},{{id:'mizuha',row:1,depth:2}}];
