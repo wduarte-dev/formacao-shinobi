@@ -11,7 +11,7 @@ Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo ·
 | 04_utsushi_dash | ⚠ fundo varia de cor em todos os quadros e difere de #00FF00 | `sprites_novos/UTSUSHI/DASH.png` | `jobs/04_utsushi_dash/` |
 | 05_utsushi_attack1 | ⚠ o rastro do quadro 3 invade a célula 2 e o cabo do quadro 4 invade a célula 5 | `sprites_novos/UTSUSHI/ATTACK1.png` | `jobs/05_utsushi_attack1/` |
 | 06_utsushi_attack2 | ⚠ quadro 1 com lâmina cortada na borda e lâmina do quadro 4 invade a célula 5 | `sprites_novos/UTSUSHI/ATTACK2.png` | `jobs/06_utsushi_attack2/` |
-| 07_utsushi_attack3 | ⬜ | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
+| 07_utsushi_attack3 | ⚠ lâmina do quadro 2 invade a célula 1 e lâmina do quadro 4 invade a célula 5 | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
 | 08_utsushi_strong | ⬜ | `sprites_novos/UTSUSHI/STRONG.png` | `jobs/08_utsushi_strong/` |
 | 09_utsushi_guard | ⬜ | `sprites_novos/UTSUSHI/GUARD.png` | `jobs/09_utsushi_guard/` |
 | 10_utsushi_hurt | ⬜ | `sprites_novos/UTSUSHI/HURT.png` | `jobs/10_utsushi_hurt/` |
