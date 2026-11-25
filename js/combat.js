@@ -122,7 +122,7 @@ async function doSkill(u,sk,isJ){
     if(sk.sequence){ await strikeSequence(u,sk); return; }
     if(sk.clones){
       await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
-      const hit=hitAt(u,'atk2'); await sleep(hit); sfx.jutsu(u);
+      const hit=hitAt(u,'atk2'); await sleep(hit); sfx.jutsu(u); sfx.voz(u,'jutsu');
       const group=summonClones(u,sk);
       jutsuFx(u,group); group.forEach(c=>fxAt(u,'jutsu',c,1.05,15));
       log(nm(u)+' usa <b>'+sk.name+'</b> ('+group.length+' clones)');

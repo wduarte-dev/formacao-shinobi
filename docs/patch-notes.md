@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9.5 · 25/11/2026
+- Utsushi ganhou sons de golpe, esquiva e perseguição, vozes sem palavras e um efeito próprio para a Legião de Ventos.
+
 ## 1.9.4 · 25/11/2026
 - Kaen ganhou novos selos e novos quadros na sequência do Chute Meteoro. O dano acompanha o contato do chute. A Galeria também mostra o novo golpe de katana.
 
