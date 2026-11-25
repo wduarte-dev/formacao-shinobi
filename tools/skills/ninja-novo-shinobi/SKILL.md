@@ -7,6 +7,9 @@ description: Integrar um ninja novo no Formação Shinobi do começo ao fim (pro
 
 Tudo mecânico está em script. Não reescreva na mão o que um comando já gera. Regras do repo: `CLAUDE.md` (público, curto) e, no repo PRIVADO de contexto (`../formacao-shinobi-ctx`): `CLAUDE.md` completo, `docs/prompts-sprites.md`, `docs/fluidez.md`, `docs/ninjas.md`, `docs/ondas.md`.
 
+## 0. Dinâmica obrigatória (regra do dono, 25/11/2026)
+STYLE primeiro (prompt COLADO no chat) → ele manda a imagem → **discutir cada animação por AskUserQuestion** em rodadas de até 4 perguntas (recomendada primeiro) até ele dizer que está satisfeito → só então atualizar `NINJAS` (`look`/`char` da imagem, `styleref:True`), ficha em `docs/ninjas.md` e handoff `docs/integracao-<ninja>.md` → **um lote por vez, prompt colado no chat** (nunca `.txt`, nunca tudo junto). O conceito do ninja manda no template: cortar lotes sem sentido (C se imune a estados, CH sem perseguição, Forte/dodge/buff) e criar linhas novas. Modelo: Kazan.
+
 ## 1. Ficha e prompts
 1. Decidir com ele (AskUserQuestion): elemento, papel, jutsu, perseguição, personalidade. Registrar a ficha em `docs/ninjas.md` e a pendência em `docs/ondas.md`.
 2. Nova entrada em `NINJAS` de `tools/sprites/gen_prompts_lotes.py` (modelo: `keshin`). **Ação premium = 18 quadros** (lotes `A1B` básico 3x6 e `CH` perseguição 3x6; chaves opcionais `A1B`/`CH`; o `C` fica com 3 linhas).
