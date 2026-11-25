@@ -1,1 +1,1 @@
-Gerar e salvar PRIMEIRO em sprites_novos/APROVAÇÃO/UTSUSHI_A2.png e perguntar ao dono "aprova ou não?". Só depois do SIM mover pra sprites_novos/UTSUSHI_A2.png.
+Mostrar a imagem no chat e perguntar ao dono "aprova ou não?". Só com o SIM salvar EXATAMENTE como sprites_novos/UTSUSHI_A2.png.

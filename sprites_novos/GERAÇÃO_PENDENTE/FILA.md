@@ -1,6 +1,6 @@
 # FILA de geração
 
-Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar · 🔒 bloqueado (espera o job de que depende ficar ✅) · ⏳ gerado, na pasta `sprites_novos/APROVAÇÃO/` esperando o dono dizer sim ou não · ✅ aprovado (arquivo já em `sprites_novos/`) · ⚠ gerado com problema na conferência (avisar o dono) · ♻ dono pediu pra regerar.
+Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar (só com ordem do dono) · 🔒 bloqueado (espera o job de que depende ficar ✅) · ✅ aprovado pelo dono (arquivo já em `sprites_novos/`) · ⚠ conferência reprovou (avisar o dono) · ♻ dono pediu pra regerar. Antes da aprovação a imagem só existe no chat; a fila só muda depois do SIM.
 
 | Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |
 |---|---|---|---|---|---|
