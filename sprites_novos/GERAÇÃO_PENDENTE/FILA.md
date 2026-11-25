@@ -1,3 +1,5 @@
+> ⛔ **FILA PAUSADA (25/11/2026): redesenho do Utsushi em andamento. NÃO gere nada. NÃO execute nenhum job. Os sprites antigos foram apagados e esta fila será refeita pelo Claude. Aguarde o dono avisar.**
+
 # FILA de geração (MODO LINHA)
 
 Leia primeiro o `LEIA-ME.md`. **Só o job STYLE precisa de aprovação do dono.** Depois do STYLE aprovado (✅), os outros rodam em sequência, sozinhos, UMA linha (uma animação) por imagem.

@@ -1,3 +1,5 @@
+> ⛔ **PAUSADO (25/11/2026): redesenho do Utsushi. Não gere nada enquanto a `FILA.md` mostrar o aviso de pausa. O dono avisa quando liberar.**
+
 # LEIA-ME — MODO LINHA (instruções pro ChatGPT; seguir à risca)
 
 Você gera **sprites do ninja Utsushi, UMA animação por imagem** (uma linha de 6 a 8 quadros por geração, nunca várias linhas juntas). O dono aprova **só o job STYLE** (1 frame de idle). Depois disso, você roda a fila inteira **sozinho, em sequência, mantendo o contexto**. Quem recorta e integra no jogo é o Claude (outro assistente). **Você não mexe em código nem em outros arquivos.**
