@@ -1,1 +1,2 @@
 Mostrar a imagem no chat e perguntar ao dono "aprova ou não?". Só com o SIM salvar EXATAMENTE como sprites_novos/UTSUSHI_CH.png.
+(lote CH: perseguição (18 quadros))

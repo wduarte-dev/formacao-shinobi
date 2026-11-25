@@ -1,1 +1,2 @@
 Mostrar a imagem no chat e perguntar ao dono "aprova ou não?". Só com o SIM salvar EXATAMENTE como sprites_novos/UTSUSHI_A2.png.
+(lote A2: forte, defesa, dano, esquiva)

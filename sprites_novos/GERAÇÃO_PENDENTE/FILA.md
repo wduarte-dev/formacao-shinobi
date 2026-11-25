@@ -1,10 +1,10 @@
 # FILA de geração
 
-Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar (só com ordem do dono) · 🔒 bloqueado (espera o job de que depende ficar ✅) · ✅ aprovado pelo dono (arquivo já em `sprites_novos/`) · ⚠ conferência reprovou (avisar o dono) · ♻ dono pediu pra regerar. Antes da aprovação a imagem só existe no chat; a fila só muda depois do SIM.
+Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar (só com ordem do dono) · 🔒 bloqueado (espera o job de que depende ficar ✅) · ✅ aprovado pelo dono (arquivo já em `sprites_novos/`) · ⚠ conferência reprovou (avisar o dono) · ⏭ pulado (o dono gerou por conta própria; esperar o arquivo em `sprites_novos/`) · ♻ dono pediu pra regerar. Antes da aprovação a imagem só existe no chat; a fila só muda depois do SIM.
 
 | Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |
 |---|---|---|---|---|---|
-| 01_utsushi_A1 | ⬜ | `UTSUSHI_A1.png` | — | — | `jobs/01_utsushi_A1/` |
+| 01_utsushi_A1 | ⏭ | `UTSUSHI_A1.png` | — | — | `jobs/01_utsushi_A1/` |
 | 02_utsushi_A1B | 🔒 | `UTSUSHI_A1B.png` | UTSUSHI_A1 | — | `jobs/02_utsushi_A1B/` |
 | 03_utsushi_A2 | 🔒 | `UTSUSHI_A2.png` | UTSUSHI_A1 | — | `jobs/03_utsushi_A2/` |
 | 04_utsushi_B1 | 🔒 | `UTSUSHI_B1.png` | UTSUSHI_A2 | — | `jobs/04_utsushi_B1/` |
