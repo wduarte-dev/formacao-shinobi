@@ -49,6 +49,7 @@ function hurt(t,d,cls,{pierce=false}={}){
   const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); setTimeout(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+  if(t.hp<=0&&t.owner){ vanishClone(t); return r; }
   if(t.hp<=0&&t.alive){t.alive=false; sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); t.dot=null; if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
     if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; setTimeout(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
     if(t.armed){t.armed=false; chakra.p=Math.min(100,chakra.p+t.d.jutsu.cost);}}
@@ -106,6 +107,14 @@ async function doSkill(u,sk,isJ){
   curSide=u.side; const dir=u.side==='p'?1:-1;
   try{
     if(sk.sequence){ await strikeSequence(u,sk); return; }
+    if(sk.clones){
+      await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
+      const hit=hitAt(u,'atk2'); await sleep(hit); sfx.jutsu(u);
+      const group=summonClones(u,sk);
+      jutsuFx(u,group); group.forEach(c=>fxAt(u,'jutsu',c,1.05,15));
+      log(nm(u)+' usa <b>'+sk.name+'</b> ('+group.length+' clones)');
+      await sleep(animMs(u,'atk2')-hit); home(u); return;
+    }
     if(sk.aura){
       await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
       await sleep(hitAt(u,'atk2'));
@@ -181,13 +190,13 @@ async function doSkill(u,sk,isJ){
 }
 // quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
 function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
-  for(;;){ const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&!seen.has(x)&&x.d.chase.on===s); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
+  for(;;){ const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&!seen.has(x)&&x.d.chase?.on===s); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
   return out; }
 // no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
 function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
   if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
 async function chain(side,t,count,src){
-  const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase.on===t.state);
+  const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase?.on===t.state);
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
   c.chaseUsed=true; count++; sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
@@ -287,7 +296,7 @@ async function castInstants(opening=false){
     for(const u of all()){
       if(result())return;
       const j=u.d.jutsu;
-      if(!j.instant||!u.alive||u.cd>0)continue;
+      if(!j?.instant||!u.alive||u.cd>0)continue;
       const autoRate=u.side==='p'?(autoP?1:0):foe.ai;
       if(!u.armed&&(!opening||!autoRate||chakra[u.side]<j.cost||!wants(u,autoRate)))continue;
       await gate();
@@ -319,7 +328,7 @@ async function run(){
       if(round>1){
         chakra.p=Math.min(100,chakra.p+20); chakra.e=Math.min(100,chakra.e+20); sfx.round(); sfx.chakra();
         if(fieldA&&--fieldA.rounds<=0)clearField();
-        for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
+        for(const u of all()){ if(!u.alive)continue; if(u.owner&&round>=u.expires){vanishClone(u);continue;} if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
           if(u.power&&round>=u.power.end){u.power=null; upd(u);}
           if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }

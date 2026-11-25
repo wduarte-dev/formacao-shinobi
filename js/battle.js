@@ -38,22 +38,24 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
     .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
 function startBattle2(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
-  U={p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
+  U={clones:[],p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
   chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
   bgExt($('bbg'),`bg/${foe.bg}.png`); ambStart(foe.bg); ambSndStart(foe.bg);
   portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
-  for(const u of all()){
+  all().forEach(mountUnit);
+  ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
+}
+function mountUnit(u){
     const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.setProperty('--c',u.d.c); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
     e.style.setProperty('--c',u.d.c); e.style.setProperty('--h',Math.round(124*(u.d.size||1))+'px');
     e.innerHTML=`<div class="mv"><div class="sh"></div><div class="aura"><i></i><i></i><i></i></div><div class="st"></div><div class="tg"></div><div class="hpb"><i></i><i class="shb"></i></div><div class="hpn"></div><div class="hb"></div></div>`;
     if(u.side==='e'){const hb=e.querySelector('.hb'); hb.onmouseenter=()=>e.classList.add('hov'); hb.onmouseleave=()=>e.classList.remove('hov'); hb.onclick=()=>markFoe(u);}
     u.el=e; u.mv=e.firstChild; u.st=e.querySelector('.st'); u.st.appendChild(u.spr); setAnim(u,'idle',Math.random()*8|0);
+    if(u.owner)e.classList.add('clone');
     $('units').appendChild(e);
-  }
-  ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
 }
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }

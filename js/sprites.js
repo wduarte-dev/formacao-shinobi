@@ -16,6 +16,7 @@ const V2={
  mayoi:{hd:[85,65],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,8,12,0,0],seals:[8,6,12,0,0],jutsu:[9,8,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  doku:{hd:[100,69],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,6,12,0,0],jutsu:[9,6,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,6,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  poko:{hd:[108,50],H:2880,a:{idle:[0,5,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,7,12,0,0],jutsu:[9,8,12,0,0],buff:[10,7,10,0,0],stun:[11,4,8,1,0],victory:[12,7,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
+ utsushic:{hd:[96,55],H:640,a:{idle:[0,6,6,1,1],attack:[1,6,14,0,0],hurt:[2,3,10,0,0],vanish:[3,8,12,0,0]}},
  utsushi:{hd:[96,55],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
  keshin:{hd:[102,72],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
  yugami:{hd:[102,44],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],dodge:[7,7,12,0,0],seals:[8,6,12,0,0],jutsu:[9,7,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
@@ -29,6 +30,9 @@ for(const [id,v] of Object.entries(V2)){
     if(bd.length&&!sq&&!pp){ const ok=[...Array(f).keys()].filter(i=>!bd.includes(i)); if(ok.length>=2)sq=ok; }
     T[n]=[r,0,f,l,fps,V2BACK.includes(n)?'idle':undefined,pp,sq]; }
   for(const [g,p] of Object.entries(V2MAP)) if(!T[g]&&T[p])T[g]=T[p];
+  if(id==='utsushic'){
+    T.birth=[...T.vanish]; T.birth[7]=[7,6,5,4,3,2,1,0]; T.birth[5]='idle';
+  }
   SPR[id]=`url(spr/${id}_atlas.png)`;
   SH[id]={cw:192,ch:160,ax:96,ay:150,W:v.W||1536,H:v.H,k:1/3,hd:v.hd||[96,50],anim:T};
 }
@@ -46,7 +50,7 @@ const stAnim=(u,s)=>s?{R:'knockback',L:'launched',D:'knockdown'}[s]:'idle';
 const animMs=(u,n)=>{const a=an_of(u)[n]; return a?seqN(a)*1000/a[4]:0;};
 const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));
 let ACT=[];                                   // tudo que está sendo animado na tela
-function mkSpr(id,scale){ scale*=(N[id].size||1); const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
+function mkSpr(id,scale){ scale*=(N[id]?.size||1); const S=SH[id], e=scale*S.k, spr=document.createElement('div'); spr.className='spr';
   spr.style.cssText=`left:${-S.ax*e}px;top:${-S.ay*e}px;width:${S.cw*e}px;height:${S.ch*e}px;background-image:${SPR[id]};background-size:${S.W*e}px ${S.H*e}px;transform-origin:${S.ax*e}px ${S.ay*e}px`;
   return {id,spr,sc:scale,an:'idle',af:0,at:0,hold:false}; }
 function setAnim(u,n,f,hold){const a=an_of(u)[n]; if(!a)n='idle'; u.an=n;u.af=(f||0)%seqN(an_of(u)[n]);u.at=0;u.hold=!!hold;drawFrame(u);}

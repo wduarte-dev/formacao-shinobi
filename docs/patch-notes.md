@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9.1 · 25/11/2026
+- Legião de Ventos invoca até três clones com barra de vida própria nas casas livres. Eles protegem as fileiras por três rodadas. Só os ninjas decidem o resultado da batalha.
+
 ## 1.9 · 25/11/2026
 - Utsushi entra na Formação com três golpes de vento, Rajada Torta e a perseguição Rajada Fantasma (L → R). Nesta versão, Legião de Ventos dispara uma rajada.
 

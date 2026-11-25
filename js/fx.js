@@ -209,7 +209,7 @@ const FXMOVE={proj:'slide',hit:'slide',jutsu:'rise',chase:'rise',dragon:'slide',
 // pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
 // Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
+function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
   let n=0; if(onp)onp(0,fs.length);
   return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };

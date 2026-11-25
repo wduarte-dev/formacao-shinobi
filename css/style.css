@@ -173,6 +173,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 @keyframes auraB{from{opacity:.45;transform:scale(.9)}to{opacity:.85;transform:scale(1.08)}}
 @keyframes auraW{0%{opacity:0;transform:translateY(14px) scaleY(.5)}30%{opacity:.8}100%{opacity:0;transform:translateY(-22px) scaleY(1.15)}}
 .hpb{position:absolute;left:-36px;top:calc(var(--h)*-1 - 20px);width:72px;height:11px;background:#000b;border:2px solid #000}
+.u.clone .hpb{width:40px;height:6px;left:-20px}
+.u.clone .hpb .shb{width:40px}
 .hpb i{display:block;height:100%;background:#5fe06a;transform-origin:0 50%;transition:transform .25s}   /* barra por scaleX (width animado = layout a cada quadro em todo acerto) */
 .hpb i.shb,.u.e .hpb i.shb{position:absolute;left:-2px;top:-9px;width:72px;height:6px;border:1px solid #000;box-sizing:content-box;background:linear-gradient(#fff 0 50%,#cfd8e0 50%);transform:scaleX(0)}   /* escudo: barra separada acima da vida, sempre cheia ao aplicar (como no Naruto Online) */
 .u.e .hpb i{background:#f2a23a}
