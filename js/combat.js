@@ -249,7 +249,8 @@ async function chain(side,t,count,src){
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(CH.phases){
-    if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+    if(t.alive&&cause==='R')await knock(t,cause);
+    else if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
     const [,slam,land]=CH.phases;
     await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
     setAnim(c,land,0,true); await sleep(animMs(c,land));

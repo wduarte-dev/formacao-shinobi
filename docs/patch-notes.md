@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9 · 25/11/2026
+- Utsushi entra na Formação com três golpes de vento, Rajada Torta e a perseguição Rajada Fantasma (L → R). Nesta versão, Legião de Ventos dispara uma rajada.
+
 ## 1.8.2 · 25/11/2026
 - **Sons próprios do Keshin.** O Combo Relâmpago tem impactos secos, a Bomba Dinamite tem uma pancada grave com estilhaços, e a esquiva tem um rasante curto. A Aura Relâmpago acende com um estalo elétrico e um pulso grave. Keshin também ganhou vozes de golpe, jutsu, dano e derrota.
 

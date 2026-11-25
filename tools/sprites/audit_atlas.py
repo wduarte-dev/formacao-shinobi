@@ -101,11 +101,14 @@ def fix(path, rows):
     seams = 0
     for r in range(H // CH):
         for c in range(W // CW):
+            # O capuz e o redemoinho separados são o desaparecimento de Utsushi.
+            if (name, r, c) == ('utsushi', 19, 2): continue
             cell = a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW]; seams += 1 if seam_repair(cell) else 0; frag += edge_fragments(cell)
     Image.fromarray(a).save(path)
     for r in range(H // CH):
         for c in range(W // CW):
             iss = [x for x in audit_cell(a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW]) if x.startswith('!')]
+            if (name, r, c) == ('utsushi', 19, 2): continue
             if iss and r in rows.get(name, {}) and c < rows[name][r][1]: bad.setdefault(rows[name][r][0], []).append(c)
     print(f'{name}: {frag} fragmento(s) de borda apagado(s), {seams} corte(s) vertical(is) remendado(s); frames graves: {bad or "nenhum"}'); return name, bad
 

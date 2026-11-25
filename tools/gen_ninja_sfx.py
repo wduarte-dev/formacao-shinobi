@@ -12,6 +12,11 @@ V = {"jutsu": (1.0, "{v} ninja powerful battle shout releasing a special jutsu, 
      "dor":   (0.6, "{v} ninja short grunt of pain when hit, 0.0-0.3s: sharp pained exhale, 0.3-0.6s: breathy groan"),
      "queda": (1.2, "{v} ninja defeated, 0.0-0.4s: painful cry, 0.4-1.2s: weak breathy groan fading as the body drops")}
 NINJAS = {
+ "utsushi": {"timbre": "quiet, mischievous adult male", "sfx": [
+   ("utsushi-atk", .5, "short gust around a palm strike"),
+   ("utsushi-forte", .8, "sweeping rush of wind with a firm impact"),
+   ("utsushi-chase", .7, "vanishing flutter followed by a diving kick and scattering dust"),
+   ("esq-utsushi", .5, "cloth flutter fading into a thin gust")]},
  "keshin": {"timbre": "energetic, confident young adult male",
   "sfx": [
    ("keshin-atk", .5, "quick hand-to-hand contact, dry compact thump with a short cloth snap and softly fading warm electric crackle"),
