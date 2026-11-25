@@ -4,12 +4,16 @@
  "sheets": [
   {
    "file": "A1.png",
-   "rows": 3,
+   "rows": 4,
    "cols": 8,
    "anims": [
     "idle",
     "walk",
-    "dash"
+    "dash",
+    {
+     "name": "attack_old",
+     "skip": 1
+    }
    ]
   },
   {
