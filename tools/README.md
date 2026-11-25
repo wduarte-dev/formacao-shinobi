@@ -16,7 +16,19 @@ Vitória e derrota contam como missão concluída. A etapa retorna erro se a bat
 
 O teste de retratos aciona a apresentação real do jutsu no Chromium, congela a faixa já aberta e salva `retratos.png` com aliado e inimigo lado a lado. Estima quatro pontos da cabeça pela silhueta do primeiro quadro de selos e verifica recorte e sobreposição com a caixa do título no navegador a 1152×648. Cabelo, capuz, efeitos e espaços entre letras podem afetar essa estimativa. Use a prancha para julgar os casos marcados. A pose durante o restante da luta e os retratos de seleção têm enquadramentos próprios.
 
-## Próximas ferramentas propostas
+## Replay de uma ação
 
-- **Replay de um golpe sob comando.** Escolher atacante, alvo e estado inicial e reproduzir a ação pelo motor de batalha. Começar com o Chute Meteoro do Kaen e a Rajada Fantasma do Utsushi com zero a três clones. Economiza as rodadas necessárias para o combo acontecer e permite comparar a mesma ação antes e depois.
-- **Comparação visual de atlas entre commits.** Usar os metadados das animações para montar uma prancha antes/depois só das linhas alteradas. Destacar mudanças de pivô, quadros vazios e saltos da silhueta, mantendo movimentos intencionais para revisão visual.
+```sh
+python tools/qa_anim.py --replay kaen --expect-hits 1 --resumo
+python tools/qa_anim.py --replay kaen --side e --speed 2 --ko --resumo
+python tools/qa_anim.py --replay utsushi --clones 3 --expect-hits 4 --resumo
+python tools/qa_anim.py --replay fuuka --kind jutsu --target iwao --resumo
+```
+
+O replay monta uma luta com um ninja de cada lado e usa as rotinas do jogo para reproduzir uma perseguição, jutsu, Forte ou básico. Na perseguição, o motor coloca o alvo no estado exigido pelo golpe. Por padrão, o atacante fica do lado aliado, o alvo é Iwao e a ação é a perseguição. O alvo começa com os PV cheios, ou com 1 PV se usar `--ko`. As rolagens de combate usam um valor fixo. Com `--expect-hits`, a execução retorna erro se o contador do jogo registrar outro valor.
+
+Cada execução guarda vídeo, tira e relatório numa pasta temporária própria. Você também pode indicar com `--out` uma pasta vazia para guardar os artefatos. Use o replay para repetir o mesmo cenário antes e depois de uma mudança e as cinco missões para testar a interação com um time completo.
+
+## Próxima ferramenta proposta
+
+Uma comparação visual de atlas entre commits montaria uma prancha antes/depois só das linhas alteradas. Usaria os metadados para destacar mudanças de pivô, quadros vazios e saltos da silhueta.

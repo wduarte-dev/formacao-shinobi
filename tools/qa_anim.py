@@ -3,30 +3,50 @@
 marcados (anim trocando, dano, arremesso, efeito), pra enxergar dessincronia e "tempo morto" como um olho humano veria.
 
 Uso: python3 tools/qa_anim.py [--team kaen,iwao,raiden,mizuha] [--mis 0] [--js "N.mizuha.chase.tsunami=1"] [--only iwao] [--kind chase]
-                              [--fps 12] [--secs 90] [--out /tmp/qa]
+                              [--fps 12] [--secs 90] [--out pasta_vazia]
+Replay: python3 tools/qa_anim.py --replay kaen --expect-hits 1 --resumo
 Saída em --out: acao_NN_<ninja>_<tipo>.png (tira: cada quadro com o tempo em ms desde o início da ação; borda vermelha = quadro com
 dano, amarela = troca de anim do atacante, azul = arremesso/queda do alvo) + relatorio.txt (linha do tempo de cada ação e alertas
 de TEMPO MORTO: intervalo sem nenhum evento visual > 450 ms dentro da ação, e atraso entre o atacante chegar/pousar e o dano).
 Precisa: playwright (PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers na nuvem), ffmpeg, Pillow. Não muda nada no jogo: instrumenta por fora."""
-import sys, os, json, time, subprocess, argparse, glob, shutil
+import sys, os, time, subprocess, argparse, glob, shutil
+from functools import partial
+from http.server import ThreadingHTTPServer
+from tempfile import mkdtemp
+from threading import Thread
+
 from playwright.sync_api import sync_playwright
 from PIL import Image, ImageDraw
+
+from qa_retratos import QuietHandler
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--team', default='kaen,iwao,raiden,mizuha'); ap.add_argument('--mis', type=int, default=0)
 ap.add_argument('--js', default=''); ap.add_argument('--only', default=''); ap.add_argument('--kind', default='')
-ap.add_argument('--fps', type=int, default=12); ap.add_argument('--secs', type=int, default=90); ap.add_argument('--out', default='/tmp/qa')
+ap.add_argument('--fps', type=int, default=12); ap.add_argument('--secs', type=int, default=90); ap.add_argument('--out')
 ap.add_argument('--max', type=int, default=12, help='máximo de tiras geradas'); ap.add_argument('--w', type=int, default=288, help='largura de cada quadro na tira')
 ap.add_argument('--resumo', action='store_true', help='imprime só contagens e o caminho do relatório completo')
+ap.add_argument('--replay', metavar='NINJA', help='grava uma ação pela rotina real de combate')
+ap.add_argument('--target', default='iwao', help='ninja do lado oposto no replay')
+ap.add_argument('--side', choices=['p', 'e'], default='p', help='lado do atacante no replay')
+ap.add_argument('--clones', type=int, choices=range(4), default=0, help='clones vivos do Utsushi antes da ação')
+ap.add_argument('--ko', action='store_true', help='começa com o alvo a 1 PV')
+ap.add_argument('--speed', type=int, choices=[1, 2], default=1, help='velocidade do replay')
+ap.add_argument('--expect-hits', type=int, help='falha se o contador de hits do replay for diferente')
 a = ap.parse_args()
+if a.replay:
+    a.kind = a.kind or 'chase'
+    if a.kind not in ('chase', 'jutsu', 'forte', 'basico'):
+        ap.error('--kind deve ser chase, jutsu, forte ou basico')
+    if a.clones and a.replay != 'utsushi':
+        ap.error('--clones exige --replay utsushi')
+elif a.expect_hits is not None:
+    ap.error('--expect-hits exige --replay')
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-shutil.rmtree(a.out, ignore_errors=True); os.makedirs(a.out + '/vid', exist_ok=True)
-port = 8780 + a.mis
-srv = subprocess.Popen([sys.executable, '-m', 'http.server', str(port), '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
-
-if srv.poll() is not None:
-    sys.exit(f'Falha ao abrir servidor de QA na porta {port}')
-
+a.out = a.out or mkdtemp(prefix='shinobi-anim-')
+if os.path.isdir(a.out) and os.listdir(a.out):
+    ap.error('--out deve apontar para uma pasta vazia')
+os.makedirs(a.out + '/vid', exist_ok=True)
 # instrumentação: embrulha funções globais do jogo e anota eventos com Date.now()
 HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{k,ts:Date.now()}));
  const nm=u=>u&&u.id?u.id+(u.side?':'+u.side:''):'';
@@ -34,6 +54,7 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
  const wrapA=(f,pre,post)=>{ const o=window[f]; if(!o)return; window[f]=async function(...x){ try{pre(...x);}catch(e){} try{ return await o.apply(this,x); } finally{ try{post&&post(...x);}catch(e){} } }; };
  wrapA('doSkill',(u,sk,isJ)=>L('act',{u:nm(u),s:sk.name,kind:isJ?'jutsu':sk===u.d.strong?'forte':'basico'}),(u)=>L('actEnd',{u:nm(u)}));
  wrapA('chain',(side,t,count)=>L('chain',{t:nm(t),st:t.state}));
+ wrap('comboLine',(name,count,id)=>L('chasePlayed',{u:id,s:name}));
  wrap('setAnim',(u,n)=>{ if(u&&u.side)L('anim',{u:nm(u),n}); });
  wrap('hurt',(t,d,c)=>L('hurt',{u:nm(t),d,c}));
  wrap('knock',(t,s)=>L('knock',{u:nm(t),s}));
@@ -43,28 +64,78 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
  wrap('dashTo',u=>L('dash',{u:nm(u)}));
  wrap('shoot',u=>L('shot',{u:nm(u)}));
 }"""
+# Monta uma luta mínima com o HUD, sprites e efeitos normais, sem iniciar os turnos.
+REPLAY_SETUP = """async ({id, targetId, side, kind, clones}) => {
+    for (const ninja of [id, targetId]) {
+        if (!IDS.includes(ninja)) throw Error('Ninja desconhecido: ' + ninja);
+    }
+    const skill = N[id][{chase:'chase', basico:'normal', forte:'strong', jutsu:'jutsu'}[kind]];
+    if (!skill) throw Error(id + ' não tem ação ' + kind);
+    const [ally, enemy] = side === 'p' ? [id, targetId] : [targetId, id];
+    await preloadFx([ally, enemy], () => {});
+    run = () => {};
+    placed = [{id: ally, row: 1, depth: 1}];
+    FOES[foeIx] = {...FOES[foeIx], team: [[enemy, 1, 1]], mult: 1};
+    startBattle2();
+    round = 1;
+    if (clones) summonClones(U[side][0], {...N[id].jutsu, clones});
+}"""
+
+REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
+    const actor = U[side][0], target = U[side === 'p' ? 'e' : 'p'][0];
+    const skill = actor.d[{chase:'chase', basico:'normal', forte:'strong', jutsu:'jutsu'}[kind]];
+    speed = rate;
+    curSide = side;
+    if (ko) { target.hp = 1; upd(target); }
+    // Usa um valor fixo para as rolagens do motor, sem alterar as fórmulas de combate.
+    Math.random = () => .5;
+    const hp = target.hp, before = hitsR[side];
+    if (kind === 'chase') {
+        await knock(target, skill.on);
+        const u = actor.id + ':' + side;
+        QAL.push({k:'act', u, s:skill.name, kind, ts:Date.now()});
+        try { await chain(side, target, 1); }
+        finally { sceneOff(); QAL.push({k:'actEnd', u, ts:Date.now()}); }
+    } else {
+        await doSkill(actor, skill, kind === 'jutsu');
+    }
+    return {name:skill.name, hits:hitsR[side]-before, hp, left:target.hp, state:target.state};
+}"""
+
 errs = []
+server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=ROOT))
+Thread(target=server.serve_forever, daemon=True).start()
 try:
     with sync_playwright() as p:
         b = p.chromium.launch()
         ctx = b.new_context(viewport={'width': 1152, 'height': 648}, record_video_dir=a.out + '/vid', record_video_size={'width': 1152, 'height': 648})
         pg = ctx.new_page(); t_vid0 = time.time() * 1000
         pg.on('pageerror', lambda e: errs.append(str(e)))
-        pg.goto(f'http://localhost:{port}/index.html'); pg.wait_for_timeout(900); pg.click('#sTitle'); pg.wait_for_timeout(300)
+        pg.goto(f'http://127.0.0.1:{server.server_port}/index.html'); pg.wait_for_timeout(900); pg.click('#sTitle'); pg.wait_for_timeout(300)
         pg.evaluate(HOOK)
         # calibração: tela vermelha por 300ms; acha o 1º quadro vermelho no vídeo e alinha os eventos (Date.now) com o tempo do vídeo
         cal_ts = pg.evaluate("()=>{ const d=document.createElement('div'); d.style.cssText='position:fixed;inset:0;background:#f00;z-index:99999'; document.body.appendChild(d); const t=Date.now(); setTimeout(()=>d.remove(),300); return t; }")
         pg.wait_for_timeout(500)
-        pos = [(0, 0), (1, 0), (2, 1), (1, 2)]
-        pl = ','.join("{id:'%s',row:%d,depth:%d}" % (i, r, d) for i, (r, d) in zip(a.team.split(','), pos))
-        pg.evaluate("()=>{ dev=true; placed=[%s]; unlocked=4; foeIx=%d; autoP=true; speed=1; %s; startBattle(); }" % (pl, a.mis, a.js))
-        t0 = time.time()
-        while time.time() - t0 < a.secs:
-            pg.wait_for_timeout(1000)
-            if pg.evaluate("()=>U&&!battleOn&&!loadingB"): break
+        if a.replay:
+            pg.evaluate(REPLAY_SETUP, dict(id=a.replay, targetId=a.target, side=a.side,
+                                          kind=a.kind, clones=a.clones))
+            pg.wait_for_timeout(500)
+            replay = pg.evaluate(REPLAY_ACTION, dict(side=a.side, kind=a.kind, ko=a.ko, rate=a.speed))
+            pg.wait_for_timeout(300)
+            print(f"{replay['name']} | {replay['hits']} hits | alvo PV {replay['hp']} → {replay['left']}"
+                  f" | estado final: {replay['state'] or '-'}")
+        else:
+            pos = [(0, 0), (1, 0), (2, 1), (1, 2)]
+            pl = ','.join("{id:'%s',row:%d,depth:%d}" % (i, r, d) for i, (r, d) in zip(a.team.split(','), pos))
+            pg.evaluate("()=>{ dev=true; placed=[%s]; unlocked=4; foeIx=%d; autoP=true; speed=1; %s; startBattle(); }" % (pl, a.mis, a.js))
+            t0 = time.time()
+            while time.time() - t0 < a.secs:
+                pg.wait_for_timeout(1000)
+                if pg.evaluate("()=>U&&!battleOn&&!loadingB"): break
         ev = pg.evaluate("()=>QAL"); ctx.close(); b.close()
 finally:
-    srv.terminate()
+    server.shutdown()
+    server.server_close()
 
 vid = glob.glob(a.out + '/vid/*.webm')[0]
 off = 0
@@ -81,7 +152,7 @@ for e in ev:
     if e['k'] == 'act': cur = {'u': e['u'], 's': e['s'], 'kind': e['kind'], 'ev': [e], 'chains': 0}; acts.append(cur)
     elif cur:
         cur['ev'].append(e)
-        if e['k'] == 'chain': cur['chains'] += 1
+        if e['k'] == 'chasePlayed': cur['chains'] += 1
         if e['k'] == 'actEnd' and e['u'] == cur['u']: cur = None
 def want(x):
     if a.only and not any(ev_['u'].startswith(a.only) for ev_ in x['ev'] if ev_['k'] in ('act', 'anim')): return False
@@ -124,5 +195,7 @@ else:
     print('\n'.join(rep))
 total = len(glob.glob(a.out + '/acao_*.png'))
 print(f'{total} tiras em {a.out}', '| erros:', errs or 'nenhum')
-if a.resumo and (errs or not total):
+if a.expect_hits is not None and replay['hits'] != a.expect_hits:
+    sys.exit(f"Esperava {a.expect_hits} hits, obteve {replay['hits']}")
+if (a.resumo or a.replay) and (errs or not total):
     sys.exit(1)
