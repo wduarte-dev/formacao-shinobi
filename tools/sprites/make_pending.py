@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Monta a fila de geração de sprites pro ChatGPT em sprites_novos/GERAÇÃO_PENDENTE/.
+"""[DESCONTINUADO em 25/11/2026: o dono voltou a gerar os sheets sozinho e colocar em sprites_novos/; este script/fluxo do ChatGPT-agente não é mais usado. Mantido só como histórico.]
+Monta a fila de geração de sprites pro ChatGPT em sprites_novos/GERAÇÃO_PENDENTE/.
 Uso: python3 tools/sprites/make_pending.py <ninja> --rows   (MODO LINHA, o padrão novo do Utsushi)\n     python3 tools/sprites/make_pending.py <ninja> [A1 A1B A2 ...]   (modo sheet antigo)   (sem lotes = cadeia completa do ninja novo)
 Cria jobs/<NN>_<ninja>_<lote>/ com prompt.txt + refs + ANEXOS.txt + SAIDA.txt e acrescenta linhas em FILA.md.
 Prompts vêm de ../formacao-shinobi-ctx/docs/refs/<ninja>_<lote>_prompt.txt (gerados por gen_prompts_lotes.py)."""

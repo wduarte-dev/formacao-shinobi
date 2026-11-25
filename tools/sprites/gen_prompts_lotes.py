@@ -230,7 +230,7 @@ def row_prompts(k):
 def build(k):
     n = NINJAS[k]; P = n["pal"]; N = n["name"]
     def lot(rows, L, ref):
-        return RULES.format(N=rows[0], PAL=P, NAME=N, L=L) + "\n" + (REF if ref else TRUTH.format(NAME=N.title(), LOOK=n["look"])) + "\nROWS:\n" + rows[1] + "\n"
+        return RULES.format(N=rows[0], PAL=P, NAME=N, L=L) + "\n" + (REF if ref else TRUTH.format(NAME=N.title(), LOOK=n["look"])) + PIXEL + LOCKS + "\nROWS:\n" + rows[1] + "\n"
     out = {}
     out["A1"] = RULES.format(N=n["A1"].count("\nRow ")+1, PAL=P, NAME=N, L="A1") + "\n" + REF + "\n" + PIXEL + LOCKS + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nROWS:\n{n['A1']}\n"
     out["STYLE"] = STYLE_RULES.format(PAL=P, NAME=N) + "\n" + REF + "\n" + PIXEL + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nPOSE: one standing idle pose: {n.get('STYLEPOSE', 'a relaxed idle stance that shows his personality')}.\n"
@@ -239,8 +239,8 @@ def build(k):
     out["B2"] = lot((3, n["B2"]), "B2", False); out["C"] = lot((n["C"].count("\nRow ")+1, n["C"]), "C", False)
     if "A1B" in n: out["A1B"] = lot((3, n["A1B"]), "A1B", False)
     if "CH" in n: out["CH"] = lot((3, n["CH"]), "CH", False)
-    if "CL" in n: out["CL"] = RULES.format(N=4, PAL=P, NAME=N, L="CL") + "\n" + n["CLINTRO"] + "\nROWS:\n" + n["CL"] + "\n"
-    out["D"] = DBLOCK.format(PAL=P, NAME=N) + n["D"] + "\n"
+    if "CL" in n: out["CL"] = RULES.format(N=4, PAL=P, NAME=N, L="CL") + "\n" + n["CLINTRO"] + PIXEL + LOCKS + "\nROWS:\n" + n["CL"] + "\n"
+    out["D"] = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N) + n["D"] + "\n"
     return out
 if __name__ == "__main__":
     k = sys.argv[1]; P = build(k)

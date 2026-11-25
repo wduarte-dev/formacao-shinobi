@@ -1,3 +1,0 @@
-Anexe SÓ esta imagem: ref_elenco.png (desta pasta).
-
-ANTES de gerar: releia sprites_novos/GERAÇÃO_PENDENTE/DIRETRIZES.md inteiro.
