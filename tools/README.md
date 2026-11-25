@@ -41,11 +41,15 @@ python tools/qa_anim.py --replay kaen --expect-hits 1 --resumo
 python tools/qa_anim.py --replay kaen --side e --speed 2 --ko --expect-ko --resumo
 python tools/qa_anim.py --replay utsushi --clones 3 --expect-hits 4 --resumo
 python tools/qa_anim.py --replay fuuka --kind jutsu --target iwao --resumo
+python tools/qa_anim.py --replay kazan --kind dragao --expect-hits 3 --resumo
+python tools/qa_anim.py --replay kazan --kind contador --expect-hits 4 --resumo
 ```
 
 O replay monta uma luta com um ninja de cada lado e usa as rotinas do jogo para reproduzir uma perseguição, jutsu, Forte ou básico. Na perseguição, o motor coloca o alvo no estado exigido pelo golpe. Por padrão, o atacante fica do lado aliado, o alvo é Iwao e a ação é a perseguição. O alvo começa com os PV cheios, ou com 1 PV se usar `--ko`. As rolagens de combate usam um valor fixo. Com `--expect-hits`, a execução retorna erro se o contador do jogo registrar outro valor.
 
 Cada execução guarda vídeo, tira e relatório numa pasta temporária própria. Você também pode indicar com `--out` uma pasta vazia para guardar os artefatos. Use o replay para repetir o mesmo cenário antes e depois de uma mudança e as cinco missões para testar a interação com um time completo.
+
+No Kazan, o replay de `dragao` monta três inimigos e o de `contador` arma a reação de 10 contatos. Também há `entrada`, `guarda`, `idle`, `stun`, `victory` e `defeat`.
 
 ## Comparar atlas
 

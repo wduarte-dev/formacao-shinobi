@@ -8,14 +8,16 @@ function speedLines(state){ slineFx(state); }   // desenhadas no canvas #fxc (an
 function crack(x,y){ const c=document.createElement('div'); c.className='crack'; c.style.left=x+'px'; c.style.top=y+'px';
   for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.rotate=`${i*40+R(-14,14)}deg`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); setTimeout(()=>c.remove(),560); }
 // golpe que muda o estado do alvo: zoom no ponto do corte, câmera lenta, e o alvo sai voando
-async function smash(att,t,state){
-  const p=cur(t);
+async function smash(att,t,state,afterImpact,center){
+  if(t.d.immuneState){ kazanGuard(t); return; }
+  const p=center||cur(t);
   zoomTo(p.x,p.y-60,1.5); bigSlash(p.x,p.y-60,att,state); speedLines(state); flashSoft(); sfx.heavy();
   await hitstop(80);
-  zoomOut(true); await knock(t,state);
+  zoomOut(true); if(afterImpact)await afterImpact(); else await knock(t,state);
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Lançado sobe, Derrubado desaba no chão
 async function knock(t,state){
+  if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);
   if(state==='R'){t.off.x=(d>0?1082:70)-b.x; t.off.y=wasAir?-70:0;}
@@ -74,10 +76,12 @@ async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.lengt
 
 async function cine(u,sk,ts){
   const tag=$('jtag'), c=$('cut'), cp=$('cutP');
-  sceneOn([u]); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18);
+  sceneOn([u]); if(!sk.cutin){ setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); }
   skTag(u,sk.name);
   await sleep(260);
-  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r'); portrait(cp,u.id,5.2,520,290,'cast',8);
+  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r');
+  if(sk.cutin){ cp.classList.add('dragon'); kazanCutin(cp); }
+  else portrait(cp,u.id,5.2,520,290,'cast',8);
   retrig(c,'on'); await sleep(640);
   if(ts.some(t=>t.side!==u.side))markTargets(ts); else ts.forEach(sceneAdd);   // aliados (cura/escudo) só aparecem; inimigos ficam marcados
 }
@@ -96,7 +100,7 @@ async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
 function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
-function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,'idle');}
+function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,u.d.stationary&&u.stunned?'stun':'idle');}
 // frasco que se multiplica no ar (split): sobe até um ponto no meio do campo, estoura em vários e cada um cai num alvo
 async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.reduce((m,t)=>m+cur(t).x,0)/ts.length, m={x:(a.x+ax)/2, y:a.y-190};
   if(!fxShot(u,{x:m.x,y:m.y+66},220))flyDot(u,m,190); await sleep(220);
@@ -105,8 +109,9 @@ async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.redu
 function flyDot(u,to,ms,from){ const a=from||{x:cur(u).x+(u.side==='p'?54:-54),y:cur(u).y-72}, e=document.createElement('div');   // projétil genérico (sem atlas)
   e.className='proj'; e.style.left=a.x+'px'; e.style.top=a.y+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
   void e.offsetWidth; e.style.transform=`translate(${to.x-a.x}px,${to.y-a.y}px)`; setTimeout(()=>e.remove(),ms/speed); }
-async function shoot(u,t){ if(fxShot(u,t,320)){ await sleep(320); return; }
-  const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1, e=document.createElement('div');
-  e.className='proj'; e.style.left=(a.x+dir*54)+'px'; e.style.top=(a.y-72)+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
-  void e.offsetWidth; e.style.transform=`translate(${b.x-(a.x+dir*54)}px,${b.y-68-(a.y-72)}px)`; try{await sleep(190);}finally{e.remove();}}
+async function shoot(u,t,from,ms=320){ if(fxShot(u,t,ms,from)){ await sleep(ms); return; }
+  const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
+  flyDot(u,{x:b.x,y:b.y-68},from?ms:190,from||{x:a.x+dir*54,y:a.y-72});
+  await sleep(from?ms:190);
+}
 

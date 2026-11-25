@@ -12,6 +12,8 @@ V = {"jutsu": (1.0, "{v} ninja powerful battle shout releasing a special jutsu, 
      "dor":   (0.6, "{v} ninja short grunt of pain when hit, 0.0-0.3s: sharp pained exhale, 0.3-0.6s: breathy groan"),
      "queda": (1.2, "{v} ninja defeated, 0.0-0.4s: painful cry, 0.4-1.2s: weak breathy groan fading as the body drops")}
 NINJAS = {
+ "kazan": {"timbre": "gruff warm adult male blacksmith with a hollow metallic helmet resonance", "sfx": [
+   ("kazan-atk", .55, "one sharp heavy smithing hammer strike onto an iron anvil, first instant clean metallic clang, then a dry crackle of cinders")]},
  "utsushi": {"timbre": "quiet, mischievous adult male", "sfx": [
    ("utsushi-atk", .5, "short gust around a palm strike"),
    ("utsushi-forte", .8, "sweeping rush of wind with a firm impact"),

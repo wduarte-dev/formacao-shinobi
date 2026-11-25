@@ -2,17 +2,23 @@
 """Gera os efeitos de docs/prompts-sfx.md pela API do ElevenLabs (1 versão por prompt).
 Uso: python3 tools/gen_sfx.py [limite]   -> salva em audio/sfx/<id>.wav (pula o que já existe).
 A chave vai no header xi-api-key (na nuvem o proxy injeta; local: exporte ELEVEN_KEY)."""
-import re, os, sys, json, time, subprocess
+import argparse, re, os, sys, json, time, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MD, OUT = os.path.join(ROOT, "docs/prompts-sfx.md"), os.path.join(ROOT, "audio/sfx")
 ORDEM = [0, 1, 2, 3, 9, 7, 5, 4, 8, 10, 11, 12, 6, 13, 14]   # prioridade das seções
-LIMITE = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("limite", nargs="?", type=int, default=100)
+parser.add_argument("--section", type=int, help="gera só a seção indicada, em tools/audio/src/sfx")
+args = parser.parse_args()
+if args.section is not None:
+    ORDEM = [args.section]
+    OUT = os.path.join(ROOT, "tools/audio/src/sfx")
 os.makedirs(OUT, exist_ok=True)
 secs = {}
 for m in re.finditer(r"^## (\d+)\.|^\*\*(\S+)\*\* · ([\d.]+)s\n```\n(.+?)\n```", open(MD).read(), re.M):
     if m.group(1): cur = int(m.group(1)); secs[cur] = []
     else: secs[cur].append((m.group(2), float(m.group(3)), m.group(4)))
-fila = [it for s in ORDEM for it in secs.get(s, [])][:LIMITE]
+fila = [it for s in ORDEM for it in secs.get(s, [])][:args.limite]
 hdr = ["-H", "xi-api-key: " + os.environ["ELEVEN_KEY"]] if os.environ.get("ELEVEN_KEY") else []
 ok = pulou = 0
 for i, (nome, dur, txt) in enumerate(fila, 1):

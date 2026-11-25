@@ -130,6 +130,10 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #fog{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s;background:rgba(24,12,50,.5);z-index:9}
 #fog::before{content:"";position:absolute;left:0;top:0;width:200%;height:100%;background:radial-gradient(ellipse 25% 50% at 25% 65%,rgba(200,175,240,.5),transparent 68%),radial-gradient(ellipse 25% 50% at 75% 35%,rgba(125,106,168,.5),transparent 70%);background-size:50% 100%;background-repeat:repeat-x;animation:fogm 16s linear infinite;will-change:transform}
 #fog.on{opacity:1}
+#fog.forge{background:linear-gradient(rgba(104,22,25,.21),rgba(181,53,19,.35))}
+#fog.forge::before{background-image:radial-gradient(ellipse 25% 50% at 25% 72%,rgba(255,90,30,.34),transparent 73%),radial-gradient(ellipse 25% 50% at 75% 58%,rgba(255,115,40,.2),transparent 69%)}
+.tg .forge-count{color:#fff1d2;background:#662a18;border:1px solid #ef9b46;padding:1px 5px;white-space:nowrap}
+.cut .cp.dragon{filter:none}
 @keyframes fogm{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 #cam{position:absolute;inset:0;transition:transform .16s ease-out;will-change:transform}
 #cam.slow{transition:transform .3s ease-out}

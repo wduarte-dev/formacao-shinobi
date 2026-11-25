@@ -816,3 +816,30 @@ unstable glitch powering down, 0.0-0.6s: stuttering digital glitch static and wa
 ```
 lightning aura igniting around a fighter, 0.0-0.2s: sharp grounded electric pop, 0.2-0.7s: bolts climb and crackle with a strong bass pulse, 0.7-1.3s: quick warm fizz trailing off, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.3 seconds long, cuts off cleanly at the end
 ```
+
+## 15. Kazan — forja de lava
+
+**kazan-pour** · 0.75s
+```
+Thick molten lava pouring from an iron crucible onto a warm stone anvil, low viscous gurgle followed by three hot sparks and a brief sizzling release, no music or voices, dry game sound.
+```
+
+**jutsux-kazan** · 1.35s
+```
+Blacksmith furnace opening: layered low cracking iron, fluid hot lava spreading over stone, then rising cinders with a quickly fading furnace breath, no music or voices, dry game sound.
+```
+
+**kazan-dragon** · 1.55s
+```
+Lava erupts in a column, then a forged iron eastern dragon roars like a great blast furnace breathing through resonant metal plates, low fiery swoop, sudden cutoff before the eventual landing, no music or words.
+```
+
+**kazan-fireball** · 0.65s
+```
+Short anvil clang followed by four fast diverging fiery whooshes and crackling orange embers, percussive and clear, no music or voice, dry game sound.
+```
+
+**kazan-guard** · 0.55s
+```
+A glowing slab of volcanic rock rises and cracks against a sudden blow, short low rocky thud then a bright split and falling hard sparks, dry, no music or voice.
+```

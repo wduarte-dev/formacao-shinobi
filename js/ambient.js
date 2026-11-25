@@ -48,6 +48,17 @@ function ambStep(dt){
     b.globalCompositeOperation='source-over'; }
   if(C.flash){ ambNext-=dt; if(ambNext<=0){ ambFlash=1; ambNext=rr(C.flash.every[0],C.flash.every[1]); }
     if(ambFlash>0){ const v=ambFlash>.55&&ambFlash<.7?.15:ambFlash; b.fillStyle=`rgba(${C.flash.col},${.4*v*v})`; b.fillRect(0,0,AW,AH*.62); ambFlash-=dt*2.2; } }
+  if(fieldA?.fx.visual==='forge'){
+    const start=fieldA.side==='p'?12:AW*.51, n=lite?11:25;
+    for(let i=0;i<n;i++){
+      const life=(ambT*(.24+i%4*.08)+i*.381966)%1;
+      const x=start+i*73%(AW*.47)+Math.sin(ambT*2+i)*6;
+      const y=AH-12-i%5*11-life*122;
+      f.globalAlpha=(1-life)*.84;
+      f.fillStyle=i%3?'#ff841f':'#ffcf61'; f.fillRect(x|0,y|0,i%4?1:2,2);
+    }
+    f.globalAlpha=1;
+  }
   for(const p of ambP){
     if(p.k==='fly'){ p.ph+=dt*1.2; p.x+=Math.sin(p.ph*.7+p.s)*.25*k; p.y+=Math.cos(p.ph*.9)*.2*k; if(p.x<0)p.x=AW; if(p.x>AW)p.x=0; if(p.y<AH*.15)p.y=AH*.15; if(p.y>AH*.52)p.y=AH*.52;
       const a=Math.max(0,Math.sin(p.ph*1.6)); b.globalCompositeOperation='lighter'; b.fillStyle=p.c; b.globalAlpha=a*.9; b.fillRect(p.x|0,p.y|0,2,2); b.globalAlpha=a*.18; b.fillRect((p.x|0)-2,(p.y|0)-2,6,6); b.globalAlpha=1; b.globalCompositeOperation='source-over'; continue; }

@@ -16,6 +16,7 @@ const V2={
  mayoi:{hd:[85,65],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,8,12,0,0],seals:[8,6,12,0,0],jutsu:[9,8,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  doku:{hd:[100,69],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,6,12,0,0],jutsu:[9,6,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,6,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  poko:{hd:[108,50],H:2880,a:{idle:[0,5,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,6,12,0,0],seals:[8,7,12,0,0],jutsu:[9,8,12,0,0],buff:[10,7,10,0,0],stun:[11,4,8,1,0],victory:[12,7,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
+ kazan:{hd:[82,63],H:2400,a:{idle:[0,6,6,1,1],walk:[1,8,12,1,0],dash:[2,7,14,0,0],sit:[3,8,10,0,0],attack:[4,6,12,0,0],attackB:[5,6,14,0,0,[0,1,2,3,3,4,5]],attackC:[6,6,12,0,0],seals:[7,6,12,0,0],jutsu:[8,8,12,0,0],fireball:[9,6,12,0,0,[0,1,2,3,3,4,5]],guard:[10,4,8,0,0],hurt:[11,3,10,0,0],stun:[12,4,8,1,0],victory:[13,6,8,1,0],defeat:[14,8,8,0,0]}},
  utsushic:{hd:[96,55],H:640,a:{idle:[0,6,6,1,1],attack:[1,6,14,0,0],hurt:[2,3,10,0,0],vanish:[3,8,12,0,0]}},
  utsushi:{hd:[96,55],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
  keshin:{hd:[102,72],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
@@ -24,7 +25,7 @@ const V2={
 };
 // nomes do jogo -> nomes do pipeline; golpes voltam pro idle; sem 'hurt' usa 'guard'
 const V2MAP={move:'dash',atk1:'attack',atk2:'jutsu',atk3:'strong',cast:'seals',die:'defeat',down:'knockdown',hurt:'guard'};
-const V2BACK=['attack','attackB','attackC','chase3','strong','jutsu','guard','hurt','buff','dodge','landing','unhood'];
+const V2BACK=['attack','attackB','attackC','chase3','strong','jutsu','guard','hurt','buff','dodge','landing','unhood','sit','fireball'];
 for(const [id,v] of Object.entries(V2)){
   const T={}; for(const [n,[r,f,fps,l,pp,sq0]] of Object.entries(v.a)){ let sq=sq0; const bd=(typeof BADF!=='undefined'&&BADF[id]&&BADF[id][n])||[];   // quadros com defeito (js/badframes.js, gerado pelo audit_atlas.py) ficam de fora
     if(bd.length&&!sq&&!pp){ const ok=[...Array(f).keys()].filter(i=>!bd.includes(i)); if(ok.length>=2)sq=ok; }
@@ -59,15 +60,16 @@ const GHOST={iwao:{cast:1,atk2:1}};   // nomes do jogo (V2MAP: cast=seals, atk2=
 function ghostFade(u,bp){ if(typeof battleOn!=='undefined'&&!battleOn)return; const g=u.spr.cloneNode(false); g.style.backgroundPosition=bp; g.style.pointerEvents='none'; u.spr.parentNode.insertBefore(g,u.spr);
   const an=g.animate([{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(10px) scale(.96)'}],{duration:520,easing:'ease-in',fill:'forwards'}); an.onfinish=()=>g.remove(); setTimeout(()=>g.remove(),900);
   if(typeof stoneCrumble==='function')stoneCrumble(u); }
-function drawFrame(u){const S=SH[sid(u)], a=an_of(u)[u.an], e=u.sc*S.k, f=a[7]?a[7][u.af]:u.af<a[2]?u.af:2*a[2]-2-u.af; const prev=u.spr.style.backgroundPosition; u.spr.style.backgroundPosition=`${-(a[1]+f)*S.cw*e}px ${-a[0]*S.ch*e}px`; if(u.gl)for(const c of u.gl)c.style.backgroundPosition=u.spr.style.backgroundPosition; if(a[7]&&u.af===a[7].length-1&&u.af>0&&GHOST[u.id]&&GHOST[u.id][u.an])ghostFade(u,prev);}
+function drawFrame(u){const S=SH[sid(u)], a=an_of(u)[u.an], e=u.sc*S.k, f=a[7]?a[7][u.af]:u.af<a[2]?u.af:2*a[2]-2-u.af; const prev=u.spr.style.backgroundPosition, changed=u.frame!==f||u.frameAnim!==u.an; u.frame=f; u.frameAnim=u.an; u.spr.style.backgroundPosition=`${-(a[1]+f)*S.cw*e}px ${-a[0]*S.ch*e}px`; if(u.gl)for(const c of u.gl)c.style.backgroundPosition=u.spr.style.backgroundPosition; if(a[7]&&u.af===a[7].length-1&&u.af>0&&GHOST[u.id]&&GHOST[u.id][u.an])ghostFade(u,prev); if(changed&&u.d?.stationary)kazanPoseChanged(u);}
 function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.createElement('div'); el.className='sp'+(flip?' flip':''); el.style.left=x+'px'; el.style.top=y+'px';
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
 // FACE[id][anim] = centro do rosto (x,y no quadro 0 da linha), medido do topo da cabeça (tools: ver docs/pipeline-sprites.md "Retratos"); refazer se o atlas mudar
-const FACE={utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]}};
+const FACE={kazan:{idle:[82,49],cast:[83,47],idleOffset:9},utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]}};
 function portrait(el,id,scale,w,h,an,dy){ const S=SH[id], e=Math.min(scale*0.62,5)/((N[id]&&N[id].size)||1), a=an||'idle', row=S.anim[a][0], F=(FACE[id]&&FACE[id][a])||[S.hd[0],S.hd[1]-14];   // ninja grande (size) afasta o zoom pra caber (asa do Poko)
+  const offset=dy??(a==='idle'?FACE[id]?.idleOffset||0:0);
   el.style.backgroundImage=SPR[id]; el.style.backgroundSize=`${S.W*e}px ${S.H*e}px`;
-  el.style.backgroundPosition=`${-(F[0]*e-w/2)}px ${-((row*S.ch+F[1]+(dy||0))*e-h/2)}px`; }
+  el.style.backgroundPosition=`${-(F[0]*e-w/2)}px ${-((row*S.ch+F[1]+offset)*e-h/2)}px`; }
 
 /* ================= LAÇO DE ANIMAÇÃO ================= */
 // modo leve automático: se a batalha roda abaixo de ~30fps por ~3s seguidos (aparelho fraco), liga o modo leve sozinho (dá pra desligar no menu)
@@ -77,14 +79,14 @@ function autoLite(raw){ if(!battleOn||paused||lite||document.hidden||raw<=0){slo
   if(slowN>=120){ if(slowAcc/slowN>34){ lite=true; save(); document.body.classList.add('lite'); if(typeof liteUi==='function')liteUi(); } slowAcc=slowN=0; } }
 let speed=1, paused=false, frozen=false, battleOn=false, lastT=0;
 function tick(ts){
-  const raw=Math.min(50,ts-lastT); lastT=ts; const dt=raw*(battleOn?speed:1);
+  const elapsed=ts-lastT, raw=Math.min(50,elapsed); lastT=ts; const dt=raw*(battleOn?speed:1);
   if(!(battleOn&&(frozen||paused))){
     for(const u of ACT){ const a=an_of(u)[u.an], per=1000/a[4]; u.at+=dt*(u.ts||1);   // u.ts: câmera lenta por unidade (ex.: capuz do Yugami)
       while(u.at>=per){ u.at-=per;
         if(u.af<seqN(a)-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
         drawFrame(u);} }
   }
-  if(battleOn&&!paused)fxStep(dt/16.7);
+  if(battleOn&&!paused)fxStep(dt/16.7,Math.min(250,elapsed)*speed);
   autoLite(raw);
   requestAnimationFrame(tick);
 }

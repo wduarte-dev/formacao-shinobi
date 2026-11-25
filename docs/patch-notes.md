@@ -3,6 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.10 · 25/11/2026 · Kazan
+- Kazan já está liberado na Formação. O ferreiro luta sentado, acende o martelo no caldeirão e divide seu ataque de Terra em até duas chamas.
+- O Plano da Forja fortalece os aliados de Fogo e dá chakra ao time. Reative o botão enquanto o Plano estiver aceso para lançar o Dragão de Lava contra todos os inimigos.
+- A cada dez contatos do time, Kazan rebate quatro bolas de fogo. A rocha de lava evita Derrubado, Lançado e Repelido. Kazan continua recebendo dano.
+
 ## 1.9.14 · 25/11/2026
 - Poko ganhou novos selos e uma animação sem texto para o Zumbido Ensurdecedor. Os anéis saem do efeito do jogo.
 

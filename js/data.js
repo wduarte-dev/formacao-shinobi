@@ -3,7 +3,8 @@
 // hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
 // strong = golpe Forte: toda 3ª ação sem jutsu o básico vira ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
 const ST={D:'Derrubado',L:'Lançado',R:'Repelido'};
-const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados',self:'o próprio ninja'};
+const KAZAN_LIMIT=10;
+const TG={random:'inimigo aleatório',front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados',self:'o próprio ninja'};
 const N={
  kaen:{name:'Kaen',el:'Fogo',c:'#e5533d',role:'Atacante',hp:950,atk:135,def:20,
   normal:{name:'Corte Ardente',mult:1,target:'front',hits:[.3,.7]},
@@ -59,6 +60,15 @@ const N={
   jutsu:{name:'Legião de Ventos',target:'self',clones:3,duration:3,cost:35,cd:3,desc:'invoca até três clones nas casas livres por três rodadas. Relançar restaura os clones e renova a duração'},
   strong:{name:'Rajada Torta',an:'atk3',target:'front',mult:1.4},
   chase:{name:'Rajada Fantasma',cloneHit:.55,on:'L',cause:'R',mult:.8,phases:['chase1','chase2','chase3'],hits:[.54]}},
+ kazan:{name:'Kazan',el:'Fogo',c:'#e0701c',role:'Ferreiro de campo',hp:850,atk:100,def:14,dodge:0,
+  stationary:true,immuneState:true,
+  normal:{name:'Martelada da Forja',el:'Terra',mult:.6,target:'random',twoFlames:.75,burnChance:.5},
+  jutsu:{name:'Plano da Forja',cost:30,cd:0,target:'allies',instant:true,field:3,
+   fieldFx:{visual:'forge',allyAll:{Fogo:1.15},chakra:10},
+   desc:'3 rodadas de forja: +15% de dano para aliados de Fogo e +10 de chakra por rodada. Reative para lançar o Dragão de Lava'},
+  recast:{name:'Dragão de Lava',cost:20,cd:2,target:'all',instant:true,mult:.9,cause:'R',cutin:'kazan_dragon_cutin',
+   desc:'consome o Plano, repele e queima todos os inimigos'},
+  volley:{name:'Bola de Fogo',target:'random',mult:.25,shots:4}},
  keshin:{name:'Keshin',el:'Neutro',c:'#e8803a',role:'Atacante de combos',hp:940,atk:115,def:20,dodge:8,sfxEl:'Raio',
   normal:{name:'Combo Relâmpago',target:'front',cause:'L',mult:.3,sequence:['atk1','attackB','attackC'],hits:[.54,.54,.54],contactY:[-75,-89,-67]},
   jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
@@ -80,7 +90,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.9.14',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.10',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

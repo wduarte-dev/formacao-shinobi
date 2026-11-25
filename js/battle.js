@@ -10,6 +10,7 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'Sem o Auto, o botão do jutsu pulsa um pouco antes da vez de quem pode usar. É a sua deixa!',
  'Jutsu instantâneo sai entre ações. A Aura Relâmpago ainda deixa Keshin atacar na vez dele.',
  'Clique num inimigo pra marcar o alvo dos seus jutsus.',
+ 'O Kazan conta os contatos do time. No décimo, dispara quatro bolas de fogo.',
  'O escudo da Muralha de Pedra não acumula: fica o maior, e some depois de 2 rodadas.',
  'Jutsu que acerta todos ou uma fileira não dá pra desviar.',
  'Paralisado age normal, mas não consegue perseguir nem desviar. Gelo, raio e som adoram isso.',
@@ -30,7 +31,7 @@ function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t
 // enquanto isso: cenário da missão no fundo, dica girando e o time do jogador correndo em fila no canto (atores normais, o tick anima)
 function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=FOES[foeIx];
   bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=f.name;
-  const R=$('ldRun'); R.innerHTML=''; ACT=[]; placed.forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
+  const R=$('ldRun'); R.innerHTML=''; ACT=[]; placed.forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
   const ids=[...placed.map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
   const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
@@ -39,7 +40,7 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
 function startBattle2(){
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
   U={clones:[],p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
+  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on','forge'); resetKazanFx(); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
@@ -60,10 +61,15 @@ function mountUnit(u){
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
 function upd(u){
+  if(u.alive&&u.d.stationary){
+    if(u.an==='idle'&&u.stunned)setAnim(u,'stun');
+    else if(u.an==='stun'&&!u.stunned)setAnim(u,'idle');
+  }
   u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/(u.shM||u.shield)):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
   u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
   u.el.classList.toggle('powered',!!u.power&&u.alive);
-  u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'');
+  u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'')+
+    (u.d.volley?`<span class="forge-count">🔥 ${u.teamHits}/${KAZAN_LIMIT}</span>`:'');
   for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0), shm=U[s].reduce((x,v)=>x+(v.alive&&v.shield>0?v.shM||v.shield:0),0); tshEl(s).style.transform=`scaleX(${shm?Math.min(1,sh/shm):0})`;}
 }
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
@@ -72,6 +78,6 @@ function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;
 function fl(u,txt,cls){const f=document.createElement('div'); f.className='fl '+(cls||''); f.textContent=txt; u.mv.appendChild(f); setTimeout(()=>f.remove(),cls==='ord'?1150:950);}
 function log(html,cls){const l=$('log'), d=document.createElement('div'); if(cls)d.className=cls; d.innerHTML=html; l.appendChild(d); while(l.children.length>7)l.firstChild.remove();}
 const nm=u=>`<span style="color:${u.d.c}">${u.d.name}</span>`;
-function setState(t,s){t.state=s; t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
+function setState(t,s){if(s&&t.d.immuneState){ kazanGuard(t); return; } t.state=s; t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
   if(!s){t.off={x:0,y:0}; t.mv.style.transform='';}}
 function dust(t,n){const p=cur(t); em(n,()=>prt(p.x,p.y,R(-8,8),-R(0,6),R(-2.6,2.6),R(-1.6,-.2),.03,R(14,26),R(4,8),0,pk(['#ffffff','#e8d8b8','#bfae8e']),1));}

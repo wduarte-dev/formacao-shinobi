@@ -35,10 +35,13 @@ ap.add_argument('--speed', type=int, choices=[1, 2], default=1, help='velocidade
 ap.add_argument('--expect-hits', type=int, help='falha se o contador de hits do replay for diferente')
 ap.add_argument('--expect-ko', action='store_true', help='falha se o alvo sobreviver ao replay')
 a = ap.parse_args()
+KAZAN_REPLAYS = ('dragao', 'contador', 'entrada', 'guarda', 'idle', 'stun', 'victory', 'defeat')
 if a.replay:
     a.kind = a.kind or 'chase'
-    if a.kind not in ('chase', 'jutsu', 'forte', 'basico'):
-        ap.error('--kind deve ser chase, jutsu, forte ou basico')
+    if a.kind not in ('chase', 'jutsu', 'forte', 'basico', *KAZAN_REPLAYS):
+        ap.error('--kind deve ser chase, jutsu, forte, basico ou uma ação específica do Kazan')
+    if a.kind in KAZAN_REPLAYS and (a.replay != 'kazan' or a.side != 'p'):
+        ap.error('as ações específicas do Kazan exigem --replay kazan --side p')
     if a.clones and a.replay != 'utsushi':
         ap.error('--clones exige --replay utsushi')
 elif a.expect_hits is not None or a.expect_ko:
@@ -53,12 +56,22 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
  const nm=u=>u&&u.id?u.id+(u.side?':'+u.side:''):'';
  const wrap=(f,fn)=>{ const o=window[f]; if(!o)return; window[f]=function(...x){ try{fn(...x);}catch(e){} return o.apply(this,x); }; };
  const wrapA=(f,pre,post)=>{ const o=window[f]; if(!o)return; window[f]=async function(...x){ try{pre(...x);}catch(e){} try{ return await o.apply(this,x); } finally{ try{post&&post(...x);}catch(e){} } }; };
- wrapA('doSkill',(u,sk,isJ)=>L('act',{u:nm(u),s:sk.name,kind:isJ?'jutsu':sk===u.d.strong?'forte':'basico'}),(u)=>L('actEnd',{u:nm(u)}));
+ wrapA('doSkill',(u,sk,isJ)=>{ if(window.qaReplayCounter&&sk===u.d.volley)return; L('act',{u:nm(u),s:sk.name,kind:sk===u.d.volley?'contador':sk===u.d.recast?'dragao':isJ?'jutsu':sk===u.d.strong?'forte':'basico'}); },(u,sk)=>{ if(!window.qaReplayCounter||sk!==u.d.volley)L('actEnd',{u:nm(u)}); });
  wrapA('chain',(side,t,count)=>L('chain',{t:nm(t),st:t.state}));
  wrap('comboLine',(name,count,id)=>L('chasePlayed',{u:id,s:name}));
  wrap('setAnim',(u,n)=>{ if(u&&u.side)L('anim',{u:nm(u),n}); });
  wrap('hurt',(t,d,c)=>L('hurt',{u:nm(t),d,c}));
  wrap('knock',(t,s)=>L('knock',{u:nm(t),s}));
+ wrap('retrig',(el)=>{ if(el.id==='cut')L('fx',{n:'cut-in'}); });
+ wrap('ink',text=>L('fx',{n:text}));
+ wrap('kazanPoseChanged',u=>{ if(u.an!=='idle')L('frame',{u:nm(u),n:u.an+' '+(u.frame+1)}); });
+ let dragonPart=-1;
+ wrap('kazanDrawDragon',(c,d)=>{
+   const part=Math.floor(d.t/260);
+   if(part!==dragonPart){ dragonPart=part; L('fx',{u:'kazan',n:part<2?'erupção':'voo do dragão'}); }
+ });
+ wrap('kazanShock',p=>L('fx',{u:'kazan',n:'onda de choque'}));
+ wrap('kazanCinders',(p,n)=>{ if(n>=13)L('fx',{u:'kazan',n:'brasas'}); });
  wrap('fxSpr',(id,name)=>L('fx',{u:id,n:name}));
  wrap('waveFx',o=>L('fx',{u:'mizuha',n:o&&o.x!=null?'onda':'tsunami'}));
  wrap('dust',t=>L('dust',{u:nm(t)}));
@@ -66,17 +79,19 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
  wrap('shoot',u=>L('shot',{u:nm(u)}));
 }"""
 # Monta uma luta mínima com o HUD, sprites e efeitos normais, sem iniciar os turnos.
-REPLAY_SETUP = """async ({id, targetId, side, kind, clones}) => {
+REPLAY_SETUP = """async ({id, targetId, side, kind, clones, custom}) => {
     for (const ninja of [id, targetId]) {
         if (!IDS.includes(ninja)) throw Error('Ninja desconhecido: ' + ninja);
     }
     const skill = N[id][{chase:'chase', basico:'normal', forte:'strong', jutsu:'jutsu'}[kind]];
-    if (!skill) throw Error(id + ' não tem ação ' + kind);
+    if (!skill && !custom) throw Error(id + ' não tem ação ' + kind);
     const [ally, enemy] = side === 'p' ? [id, targetId] : [targetId, id];
-    await preloadFx([ally, enemy], () => {});
+    const enemies = [[enemy, 1, 1]];
+    if (kind === 'dragao') enemies.push(['raiden', 0, 1], ['mizuha', 2, 1]);
+    await preloadFx([ally, ...enemies.map(e => e[0])], () => {});
     run = () => {};
     placed = [{id: ally, row: 1, depth: 1}];
-    FOES[foeIx] = {...FOES[foeIx], team: [[enemy, 1, 1]], mult: 1};
+    FOES[foeIx] = {...FOES[foeIx], team: enemies, mult: 1};
     startBattle2();
     round = 1;
     if (clones) summonClones(U[side][0], {...N[id].jutsu, clones});
@@ -97,10 +112,38 @@ REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
         QAL.push({k:'act', u, s:skill.name, kind, ts:Date.now()});
         try { await chain(side, target, 1); }
         finally { sceneOff(); QAL.push({k:'actEnd', u, ts:Date.now()}); }
-    } else {
+    } else if (skill) {
         await doSkill(actor, skill, kind === 'jutsu');
+    } else {
+        const u = actor.id + ':' + side;
+        QAL.push({k:'act', u, s:kind, kind, ts:Date.now()});
+        try {
+            if (kind === 'dragao') {
+                setField(actor, actor.d.jutsu.field);
+                await kazanSkill(actor, actor.d.recast);
+            } else if (kind === 'contador') {
+                window.qaReplayCounter = true;
+                actor.teamHits = KAZAN_LIMIT - 1;
+                kazanCount(side);
+                await kazanReactions();
+            } else if (kind === 'guarda') {
+                curSide = target.side;
+                landHit(target, actor, 1, true, '');
+                await knock(actor, 'R');
+                await sleep(animMs(actor, 'guard'));
+            } else if (kind === 'entrada') {
+                await intro();
+            } else {
+                const anim = kind === 'defeat' ? 'die' : kind;
+                setAnim(actor, anim, 0, true);
+                await sleep(animMs(actor, anim) + 120);
+            }
+        } finally {
+            endCine(); sceneOff();
+            QAL.push({k:'actEnd', u, ts:Date.now()});
+        }
     }
-    return {name:skill.name, hits:hitsR[side]-before, hp, left:target.hp, state:target.state, alive:target.alive};
+    return {name:skill?.name || kind, hits:hitsR[side]-before, hp, left:target.hp, state:target.state, alive:target.alive};
 }"""
 
 errs = []
@@ -119,7 +162,7 @@ try:
         pg.wait_for_timeout(500)
         if a.replay:
             pg.evaluate(REPLAY_SETUP, dict(id=a.replay, targetId=a.target, side=a.side,
-                                          kind=a.kind, clones=a.clones))
+                                          kind=a.kind, clones=a.clones, custom=a.kind in KAZAN_REPLAYS))
             pg.wait_for_timeout(500)
             replay = pg.evaluate(REPLAY_ACTION, dict(side=a.side, kind=a.kind, ko=a.ko, rate=a.speed))
             pg.wait_for_timeout(300)
@@ -180,7 +223,7 @@ for i, x in enumerate(sel):
     name = f"{a.out}/acao_{i:02d}_{x['u'].split(':')[0]}_{x['kind']}{'_combo' if x['chains'] else ''}.png"; sheet.save(name); shutil.rmtree(fr)
     # relatório: linha do tempo + tempo morto
     t0e = x['ev'][0]['ms']; lines = [f"== {os.path.basename(name)}: {x['u']} {x['s']} ({x['kind']}, {x['chains']} perseguição(ões))"]
-    vis = [e for e in x['ev'] if e['k'] in ('anim', 'hurt', 'knock', 'fx', 'dust', 'dash', 'shot', 'chain')]
+    vis = [e for e in x['ev'] if e['k'] in ('anim', 'frame', 'hurt', 'knock', 'fx', 'dust', 'dash', 'shot', 'chain')]
     for e in vis: lines.append(f"   {int(e['ms']-t0e):5d} ms  {e['k']:5s} {e.get('u','')} {e.get('n', e.get('s', e.get('d','')))}")
     for p_, q in zip(vis, vis[1:]):
         if q['ms'] - p_['ms'] > 450: lines.append(f"   !! TEMPO MORTO {int(q['ms']-p_['ms'])} ms entre '{p_['k']} {p_.get('n','')}' e '{q['k']} {q.get('n','')}' (em {int(p_['ms']-t0e)} ms)")

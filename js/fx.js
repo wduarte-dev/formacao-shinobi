@@ -6,8 +6,9 @@ const R=(a,b)=>a+Math.random()*(b-a), pk=a=>a[Math.random()*a.length|0];
 function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;i<n&&FX.length<cap;i++)FX.push(f(i));}
 // valores em "unidades de efeito": o K converte para o tamanho do palco
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
-function fxStep(k){
-  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+function fxStep(k,elapsed){
+  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length&&!U?.p.some(u=>u.d.stationary)){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+  kazanDraw(c,k,elapsed);
   for(let i=WAVES.length-1;i>=0;i--){ const w=WAVES[i]; w.t+=k; if(!w.hit&&w.t>=w.crashT){w.hit=true; w.onCrash&&w.onCrash();} if(w.t>=w.end){WAVES.splice(i,1);continue;} drawWave(c,w); }
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}
     c.globalAlpha=Math.min(1,p.life/p.max*1.6)*(p.round?.7:1); c.fillStyle=p.col;
@@ -182,6 +183,7 @@ const FXA={
  poko:{c:8,a:{arc:[0,6],slash:[1,6],buzz:[2,6],reap:[3,6],impact:[4,6],aura:[5,6]}},
  utsushi:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
  keshin:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
+ kazan:{c:8,a:{proj:[0,6],pour:[1,6],wave:[2,6],bigfire:[3,6],impact:[4,6],aura:[5,6]}},
  yugami:{c:8,a:{shard:[0,6],fenda:[1,6],lacre:[2,6],rasgo:[3,6],estouro:[4,6],halo:[5,6]}}
 };
 // qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva,
@@ -197,11 +199,12 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
   poko:{hit:'slash',jutsu:'buzz',chase:'reap',imp:'impact',aura:'aura',proj:'arc'},
   utsushi:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura',proj:'proj'},
   keshin:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura'},
+  kazan:{jutsu:'wave',imp:'impact',aura:'aura',proj:'proj',psc:.55},
   yugami:{hit:'fenda',jutsu:'lacre',chase:'rasgo',imp:'estouro',aura:'halo',proj:'shard'}};
 // como cada efeito se mexe (nada fica parado feito PNG colado):
 // slide = entra deslizando a partir do atacante · dive = desce na diagonal de cima · rise = sobe do chão
 // fall = cai de cima · spin = gira leve · float = sobe flutuando · drift = escorrega devagar pra frente
-const FXMOVE={proj:'slide',hit:'slide',jutsu:'rise',chase:'rise',dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
+const FXMOVE={pour:'fall',bigfire:'spin',proj:'slide',hit:'slide',jutsu:'rise',chase:'rise',dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
   meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide',shard:'slide',fenda:'slide',lacre:'float',rasgo:'rise',estouro:'spin',halo:'float'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),
@@ -209,7 +212,7 @@ const FXMOVE={proj:'slide',hit:'slide',jutsu:'rise',chase:'rise',dragon:'slide',
 // pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
 // Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
+function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(N[id]?.stationary)fs.push(...Object.keys(KAZAN_ART).map(kazanArtPath)); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
   let n=0; if(onp)onp(0,fs.length);
   return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };
@@ -255,8 +258,7 @@ function fxAt(u,kind,t,sc,dy,ex){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)retur
 // projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
 // t pode ser um ninja ou um ponto {x,y} (pés); from = ponto de saída opcional (frasco multiplicado). psc = escala do projétil por ninja
 function fxShot(u,t,ms,from){ const U_=FXUSE[u.id]||{}, nm=U_.proj; if(!nm)return false; const a=cur(u), b=t.el?cur(t):t, d=u.side==='p'?1:-1;
-  fxSpr(u.id,nm,{x:from?from.x:a.x+d*60,y:from?from.y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:U_.psc||.75,fps:6/(ms/1000)});
-  return true; }
+  return !!fxSpr(u.id,nm,{x:from?from.x:a.x+d*60,y:from?from.y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:U_.psc||.75,fps:6/(ms/1000)}); }
 
 // ícone de jutsu (estilo barra do NO): recorta o centro do efeito do jutsu e anima os quadros em loop (CSS steps)
 function fxIcon(el,id,sz){ const A=FXA[id], nm=(FXUSE[id]||{}).jutsu; if(!A||!nm||!A.a[nm])return false;
