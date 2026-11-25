@@ -1,16 +1,34 @@
 # Teste automático: python3 tools/test_battle.py <pasta_do_jogo> <pasta_saida> [missao 0-4]   (P3=yugami troca o Raiden pelo Yugami)
 # Sobe servidor local, joga uma batalha com Auto + 2x, salva prints e lista erros do console.
-import sys, subprocess, time, os
+import argparse, sys, subprocess, time, os
 from playwright.sync_api import sync_playwright
-root, out = sys.argv[1], sys.argv[2]; mis = int(sys.argv[3]) if len(sys.argv)>3 else 0
+parser = argparse.ArgumentParser(description='Joga uma missão e registra o resultado e os erros.')
+parser.add_argument('root')
+parser.add_argument('out')
+parser.add_argument('mis', type=int, nargs='?', default=0, choices=range(5))
+parser.add_argument('--strict', action='store_true', help='falha se houver erro ou a batalha não terminar')
+args = parser.parse_args()
+root, out, mis = args.root, args.out, args.mis
 os.makedirs(out, exist_ok=True)
 srv = subprocess.Popen([sys.executable,'-m','http.server',str(8765+mis),'-d',root],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1)
+if srv.poll() is not None:
+    sys.exit(f'Falha ao abrir servidor da missão na porta {8765+mis}')
 errs=[]
+font_errors=[]
+def console_error(msg):
+    if msg.type != 'error':
+        return
+    url = msg.location.get('url', '')
+    if url.startswith(('https://fonts.googleapis.com/', 'https://fonts.gstatic.com/')):
+        font_errors.append(msg.text)
+    else:
+        errs.append(msg.text)
+
 try:
   with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={'width':1152,'height':648})
     pg.on('pageerror',lambda e:errs.append(str(e)))
-    pg.on('console',lambda m:m.type=='error' and errs.append(m.text))
+    pg.on('console',console_error)
     pg.goto('http://localhost:%d/'%(8765+mis)+'index.html'); pg.wait_for_timeout(800)
     pg.screenshot(path=f'{out}/0_titulo.png')
     pg.click('#sTitle'); pg.wait_for_timeout(300)
@@ -27,3 +45,6 @@ try:
     print('resultado:',res,'| rodadas:',rnd,'| tempo: %.0fs'%(time.time()-t0)); b.close()
 finally: srv.terminate()
 print('erros:',errs if errs else 'nenhum')
+if font_errors: print('aviso: fonte externa indisponível')
+if args.strict and (res is None or errs):
+    sys.exit(1)

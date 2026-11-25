@@ -17,11 +17,15 @@ ap.add_argument('--team', default='kaen,iwao,raiden,mizuha'); ap.add_argument('-
 ap.add_argument('--js', default=''); ap.add_argument('--only', default=''); ap.add_argument('--kind', default='')
 ap.add_argument('--fps', type=int, default=12); ap.add_argument('--secs', type=int, default=90); ap.add_argument('--out', default='/tmp/qa')
 ap.add_argument('--max', type=int, default=12, help='máximo de tiras geradas'); ap.add_argument('--w', type=int, default=288, help='largura de cada quadro na tira')
+ap.add_argument('--resumo', action='store_true', help='imprime só contagens e o caminho do relatório completo')
 a = ap.parse_args()
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 shutil.rmtree(a.out, ignore_errors=True); os.makedirs(a.out + '/vid', exist_ok=True)
 port = 8780 + a.mis
 srv = subprocess.Popen([sys.executable, '-m', 'http.server', str(port), '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
+
+if srv.poll() is not None:
+    sys.exit(f'Falha ao abrir servidor de QA na porta {port}')
 
 # instrumentação: embrulha funções globais do jogo e anota eventos com Date.now()
 HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{k,ts:Date.now()}));
@@ -114,4 +118,11 @@ for i, x in enumerate(sel):
             if h and h['ms'] - e['ms'] > 260 and e['k'] == 'dust' and e.get('u','').split(':')[1:] != h.get('u','').split(':')[1:]: lines.append(f"   !! ATRASO: pouso/poeira em {int(e['ms']-t0e)} ms e dano só em {int(h['ms']-t0e)} ms")
     rep += lines
 open(a.out + '/relatorio.txt', 'w').write('\n'.join(rep) + '\n')
-print('\n'.join(rep)); print(f'{len(sel)} tiras em {a.out}', '| erros:', errs or 'nenhum')
+if a.resumo:
+    print(f'{len(acts)} ações capturadas, {sum("!!" in line for line in rep)} alertas para revisão. Relatório: {a.out}/relatorio.txt')
+else:
+    print('\n'.join(rep))
+total = len(glob.glob(a.out + '/acao_*.png'))
+print(f'{total} tiras em {a.out}', '| erros:', errs or 'nenhum')
+if a.resumo and (errs or not total):
+    sys.exit(1)
