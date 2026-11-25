@@ -7,9 +7,9 @@ STRICT RULES (highest priority, never break):
 4. Every frame is fully opaque and complete, nothing touches or crosses the cell edge.
 5. NO character, NO person, NO body in any cell. The attached image is only a color and style reference: do NOT draw the character.
 6. Effects must be BIG and dramatic, filling most of the cell, much larger than a person. Same style and scale across the frames of a row. Effects travel LEFT to RIGHT.
-7. Colors: ink black, charcoal, ash gray, bone white, pale amber only, dark 1px outline, max 16 colors. NO green anywhere. Nothing turquoise, aqua, teal or greenish. No border, no grid lines, no shadows, no text except the label.
+7. Colors: storm gray, charcoal, off-white fur, sand ochre, pale gray-blue wind lines only, dark 1px outline, max 16 colors. NO green anywhere. Nothing turquoise, aqua, teal or greenish. No border, no grid lines, no shadows, no text except the label.
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
 LABEL: top-left corner only, small plain white pixel text "UTSUSHI - FX_CHASE" on a thin dark strip above the grid.
 
 ROW (one effect, 6 frames):
-Row 1: AMBUSH (pursuit): a huge crossing X of ash-gray and bone-white slashes with dark tendrils whipping out, growing then fading.
+Row 1: AMBUSH (pursuit): a huge spiral of pale gray-blue and off-white wind with crossing slash lines, growing then fading.
