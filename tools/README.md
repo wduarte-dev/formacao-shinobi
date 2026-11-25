@@ -47,6 +47,10 @@ O replay monta uma luta com um ninja de cada lado e usa as rotinas do jogo para 
 
 Cada execução guarda vídeo, tira e relatório numa pasta temporária própria. Você também pode indicar com `--out` uma pasta vazia para guardar os artefatos. Use o replay para repetir o mesmo cenário antes e depois de uma mudança e as cinco missões para testar a interação com um time completo.
 
-## Próxima ferramenta proposta
+## Comparar atlas
 
-Uma comparação visual de atlas entre commits montaria uma prancha antes/depois só das linhas alteradas. Usaria os metadados para destacar mudanças de pivô, quadros vazios e saltos da silhueta.
+`python tools/qa_atlas_diff.py [ninja] [--base HEAD~1] [--salto 24]`
+
+Sem ID, seleciona os atlas de `spr/` que diferem do commit base, incluindo arquivos novos ainda sem rastreamento. Usa o V2 de cada versão e salva uma prancha por ninja com as linhas alteradas. O relatório temporário guarda os deslocamentos por quadro e as linhas que excedem a saída do terminal.
+
+O pivô estimado usa a faixa inferior da silhueta como referência para os pés. A ferramenta sai com código 1 quando falta um quadro, algum eixo do pivô difere mais de 3 px de (96,150) ou o salto entre centros de quadros consecutivos excede o limite em pixels. Para atlas novos, mede pivô e quadros vazios e gera somente o relatório. Requer Pillow.

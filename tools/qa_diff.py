@@ -24,9 +24,9 @@ SCENARIOS = {
 }
 
 
-def changed_paths(base):
+def changed_paths(base, root=None):
     def paths(*args):
-        output = subprocess.check_output(['git', *args], cwd=ROOT)
+        output = subprocess.check_output(['git', *args], cwd=root or ROOT)
         return set(filter(None, output.decode('utf-8', errors='surrogateescape').split('\0')))
 
     return (paths('diff', '--name-only', '-z', '--no-renames', base, '--')

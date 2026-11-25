@@ -4,7 +4,12 @@
 import sys, glob, os, numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
-CW, CH = 192, 160
+from pathlib import Path
+
+if __package__:
+    from .atlas_registry import CH, CW, registry
+else:
+    from atlas_registry import CH, CW, registry
 
 def audit_cell(cell):
     al = cell[..., 3] > 40
@@ -71,11 +76,10 @@ def seam_repair(cell):
     return n
 
 def anim_rows(root):
-    # lê js/sprites.js: ninja -> {linha: nome da anim}
-    import re; t = open(os.path.join(root, 'js', 'sprites.js'), encoding='utf-8').read(); out = {}
-    for m in re.finditer(r'^\s*(\w+):\{hd:.*?a:\{(.*?)\}\},?\s*$', t, re.M):
-        out[m.group(1)] = {int(r): (n, int(f)) for n, r, f in re.findall(r'(\w+):\[(\d+),(\d+),', m.group(2))}
-    return out
+    atlases = registry((Path(root) / 'js/sprites.js').read_text(encoding='utf-8'))
+    return {ninja: {anim.row: (name, anim.frames) for name, anim in atlas.animations.items()}
+            for ninja, atlas in atlases.items()}
+
 
 def run(path):
     a = np.array(Image.open(path).convert('RGBA')); H, W = a.shape[:2]; bad = []
