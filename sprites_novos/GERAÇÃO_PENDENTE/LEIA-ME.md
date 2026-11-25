@@ -20,6 +20,7 @@ Você gera **sheets de sprite** (uma imagem por job), mostra no chat, pergunta a
    - cada linha com o número de quadros pedido; células restantes vazias, só verde;
    - fundo verde chapado, sem xadrez, sem moldura, sem sombra, sem texto além do rótulo no canto superior esquerdo;
    - o personagem igual em todos os quadros (mesmo desenho, cores, proporção), sem nada verde/turquesa nele;
+   - **objetos iguais em todos os quadros** (regra 20 do `DIRETRIZES.md`): arma com o mesmo comprimento do começo ao fim (nunca encolhendo nem ficando só o cabo no golpe), mesma quantidade de armas/acessórios, mesma mão, mesmo gorro/lenço/capa/tatuagens/cores;
    - nada cortado pela borda da célula; nenhum quadro "fantasma" translúcido.
    Se reprovar, **não gere de novo sozinho**: mostre a imagem, diga o que falhou e pergunte ao dono se tenta de novo.
 6. **Mostre a imagem aqui no chat** (não salve nada no repo ainda) junto com o resultado da conferência do passo 5, e pergunte: **"Aprova ou não?"**. **PARE e espere a resposta do dono.** Gere **no máximo UM job por mensagem do dono**: depois de mostrar a imagem, não comece outro job, não gere outra imagem e não faça mais nada.

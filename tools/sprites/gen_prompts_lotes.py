@@ -9,7 +9,7 @@ RULES = """STRICT RULES (highest priority, never break):
 2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
 3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
 4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
-5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it. Weapons, accessories and every held or worn item keep the SAME length, size, shape, count and hand in EVERY frame (a blade never shrinks or turns into only a hilt; a motion smear is an EXTRA drawn next to the full weapon, never a replacement for it).
 6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
 7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
 8. No big effects. Only small glows or thin element lines near the body. Effect colors: {PAL}, NEVER a color outside the palette.

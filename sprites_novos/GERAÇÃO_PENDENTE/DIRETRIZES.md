@@ -420,3 +420,23 @@ Antes de gerar, verifique se alguma pose, golpe, arma longa, efeito, rastro, cha
 - Posicione cada frame **centrado na própria célula** (salvo animação que peça deslocamento) para a pose mais larga não encostar nas bordas.
 - Se, mesmo assim, a combinação grade + poses não permitir folga (ex.: muitos quadros largos numa imagem pequena), **avise o dono em uma frase e sugira dividir em duas gerações** antes de gerar (regra 12).
 - Conferência pós-geração (regra 13): procure quadros que encostam na borda, efeitos que invadem a célula do lado ou dois corpos na mesma célula; se achar, **avise o dono** (não regere sozinho).
+
+## 20. Coerência de objetos e detalhes entre frames (anti-mutação)
+
+Tudo que o personagem veste ou carrega tem **o mesmo tamanho, forma, cor, posição relativa e quantidade em TODOS os frames**. O erro mais comum é um objeto "derreter" ou mudar no meio da animação. Antes de gerar, liste mentalmente os itens fixos do personagem (as referências mostram quais são) e as proporções deles (ex.: "a lâmina tem mais de metade da altura do corpo"), e mantenha-as em cada frame, inclusive nas poses extremas e nos frames de golpe.
+
+**Exemplos do que NÃO pode acontecer:**
+- **Arma encolhendo:** a espada/lâmina ficar curta no meio do corte, ou aparecer só o cabo, sem lâmina, em um frame. O mesmo vale pra katana, punhal, cajado, foice, lança, corrente ou arco. O comprimento da arma é constante; o **smear/rastro do golpe é um efeito EXTRA desenhado junto da arma inteira**, nunca no lugar dela.
+- **Arma sumindo ou mudando de mão:** a arma que estava na mão direita aparecer na esquerda, sumir num frame e voltar no outro, ou virar um objeto diferente (espada que vira bastão).
+- **Quantidade mudando:** dois punhais viram um, uma lanterna vira duas, três cubos flutuantes viram dois, um anel/chakram vira três, as asas ficam com tamanhos diferentes.
+- **Bainha e arma nas costas:** a bainha da katana nas costas aparecer num frame e sumir no outro, ou trocar de lado.
+- **Acessórios mudando:** gorro/chapéu/máscara/bandana/faixa/amuleto crescer, encolher, mudar de lado ou de cor; o lenço, a capa e o cabelo aparecerem com comprimentos totalmente diferentes sem ser movimento (vento, giro), e adereços do cinto trocarem de número.
+- **Detalhes do corpo:** tatuagens, cicatriz, olheiras, mecha de cabelo, tom de pele, luvas, ataduras e faixas mudarem de forma, posição ou cor.
+- **Roupa:** a estampa, os botões, a gola, a manga (dobrada num frame, comprida no outro), o cinto, a cor do tecido ou o comprimento do casaco mudarem sem motivo.
+- **Criaturas e invocações que acompanham o personagem** (golem, borboletas, clones): mudarem de desenho, tamanho ou cor entre frames.
+- **Equipamento de luta:** manoplas, ombreiras, proteções de braço ou perna aparecerem e sumirem; punho cerrado ficar com dedos de quantidade diferente.
+- **Proporção do corpo:** cabeça, tronco ou pernas variando de tamanho de um frame pro outro (o personagem "cresce" ou "encolhe" na animação).
+
+**Só pode variar** o que o movimento justifica: perspectiva, rotação, sobreposição (um braço na frente da arma), balanço do tecido e do cabelo, e deformação intencional de squash/stretch (sempre simétrica nos dois lados e sem apagar partes).
+
+**Conferência obrigatória depois de gerar (acrescenta à regra 13):** percorra os frames de uma linha comparando cada item fixo (arma, acessórios, cabelo, roupa, cor) com o frame de referência. Se algum objeto encolheu, sumiu, mudou de lado, de número ou de cor, **avise o dono qual frame e qual item**, em vez de declarar a sheet perfeita.
