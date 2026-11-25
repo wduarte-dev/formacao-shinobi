@@ -1,5 +1,3 @@
-> ⛔ **PAUSADO (25/11/2026): redesenho do Utsushi. Não gere nada enquanto a `FILA.md` mostrar o aviso de pausa. O dono avisa quando liberar.**
-
 # LEIA-ME — MODO LINHA (instruções pro ChatGPT; seguir à risca)
 
 Você gera **sprites do ninja Utsushi, UMA animação por imagem** (uma linha de 6 a 8 quadros por geração, nunca várias linhas juntas). O dono aprova **só o job STYLE** (1 frame de idle). Depois disso, você roda a fila inteira **sozinho, em sequência, mantendo o contexto**. Quem recorta e integra no jogo é o Claude (outro assistente). **Você não mexe em código nem em outros arquivos.**
@@ -24,7 +22,7 @@ O "SIM" do STYLE vale como ordem pra **toda a fila**. Para cada job ⬜, **de ci
    - exatamente 1 linha, com o número de quadros do prompt; células restantes vazias, só verde;
    - fundo verde #00FF00 chapado, sem xadrez, moldura, sombra nem texto além do rótulo no canto;
    - personagem igual ao STYLE em todos os quadros (cabelo, gorro, roupa, tatuagens, cores) e sem nada verde/turquesa;
-   - **objetos iguais em todos os quadros** (regra 20): a lâmina longa com o MESMO comprimento do começo ao fim (nunca encolhendo nem só o cabo), uma lâmina só, mesma mão, mesmo gorro/casaco;
+   - **objetos iguais em todos os quadros** (regra 20): **os dois punhais curtos sempre nas mãos, sempre dois, do mesmo tamanho** (nunca encolhendo, sumindo, trocando de número ou ficando só o cabo), mesmo gorro/casaco/tatuagens;
    - **espaço entre os quadros** (regra 19): nada cortado pela borda, nada invadindo o quadro vizinho, nenhum quadro fantasma/translúcido, dois corpos na mesma célula = reprovado.
 4. **Se perceber algum erro na imagem: NUNCA gere de novo a mesma animação** (nem automaticamente, nem "só mais uma vez"). Salve a imagem como está em `sprites_novos/UTSUSHI/<ANIM>_REVISAR.png`, marque o job **⚠** na fila com o motivo curto (qual quadro e qual defeito) e **siga pro próximo job**. Quem decide se refaz é o dono; só regere se ele mandar.
 5. **Se não houver erro:** salve **direto** em `sprites_novos/UTSUSHI/<ANIM>.png` (nome exato do `SAIDA.txt`; se já existir, não sobrescreva: `<ANIM>_v2.png`), marque o job ✅ na `FILA.md`, commit só da imagem + `FILA.md` (`Gera <job>`) e push na `main` (se der conflito na `FILA.md`, refaça só a sua linha).

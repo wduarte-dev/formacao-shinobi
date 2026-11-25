@@ -10,7 +10,7 @@ STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE CLONE_VANISH" on a thin dark strip above the grid.
 
-Attached image is the ABSOLUTE source of truth for the character's design, proportions and pixel scale (Utsushi). Draw HIM again in SHADOW CLONE FORM: exactly the same body, pose style, cap, coat, tattoos and the long blade on the shoulder, but the whole figure is a flat ink-black silhouette with thin ash-gray outline highlights, a few bone-white details (the cap trim and the blade guard) and two small glowing bone-white eyes. Fully opaque, no transparency, NO other colors. It must clearly read as a dark copy of the same ninja.
+Attached image is the ABSOLUTE source of truth for the character's design, proportions and pixel scale (Utsushi). Draw HIM again in SHADOW CLONE FORM: exactly the same body, pose style, cap, coat, tattoos and the two short daggers in reverse grip, but the whole figure is a flat ink-black silhouette with thin ash-gray outline highlights, a few bone-white details (the cap trim and the dagger guards) and two small glowing bone-white eyes. Fully opaque, no transparency, NO other colors. It must clearly read as a dark copy of the same ninja.
 Proportions: realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed.
 
 ROWS:

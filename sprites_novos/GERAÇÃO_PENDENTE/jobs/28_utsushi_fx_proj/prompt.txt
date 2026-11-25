@@ -10,4 +10,4 @@ BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradie
 LABEL: top-left corner only, small plain white pixel text "UTSUSHI - FX_PROJ" on a thin dark strip above the grid.
 
 ROW (one effect, 6 frames):
-Row 1: SHADOW WAVE: a thin crescent-shaped wave of ink black with a bone-white edge flying through the air from left to right with a short dark trail.
+Row 1: SHADOW KUNAI: a small spinning black kunai with a bone-white edge flying through the air from left to right with a short ink-black trail.
