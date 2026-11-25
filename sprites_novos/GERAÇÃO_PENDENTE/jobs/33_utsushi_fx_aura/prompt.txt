@@ -1,3 +1,5 @@
+ART STYLE (mandatory, highest priority): this is true PIXEL ART for a 2D game, exactly like the characters in the attached style roster image: visible hard-edged pixel clusters, a dark 1px outline, max 16 colors per character, flat cel shading, small game-sprite scale. It is NOT a smooth digital illustration, NOT anime key art, NOT painted, NOT 3D, NO soft gradients, NO smooth anti-aliased lines, NO large detailed drawing.
+
 STRICT RULES (highest priority, never break):
 1. LAYOUT: the image has EXACTLY 1 row and EXACTLY 6 columns, a fixed grid of identical LANDSCAPE cells. Do NOT add, remove, merge or skip rows. The image has 1 row, not more.
 2. ONE effect per row. A row contains ONLY its own effect, never a frame of another effect.

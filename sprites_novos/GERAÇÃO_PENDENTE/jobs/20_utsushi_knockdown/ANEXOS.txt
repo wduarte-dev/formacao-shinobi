@@ -1,3 +1,3 @@
-Anexe SÓ esta imagem: sprites_novos/UTSUSHI/STYLE.png (o visual já APROVADO).
+Anexe DUAS imagens, nesta ordem: 1) sprites_novos/GERAÇÃO_PENDENTE/ref_elenco.png (estilo pixel art do jogo); 2) sprites_novos/UTSUSHI/STYLE.png (o visual já APROVADO). Nenhuma outra imagem (nunca imagens geradas por você no chat).
 
 ANTES de gerar: releia sprites_novos/GERAÇÃO_PENDENTE/DIRETRIZES.md inteiro.

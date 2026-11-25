@@ -19,6 +19,11 @@ LABEL: top-left corner only, small plain white pixel text "{NAME} - LOTE {L}" on
 REF = ("Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.\n")
 PROP = "realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed"
 TRUTH = "Attached image is the ABSOLUTE source of truth for the character ({NAME}): copy exactly {LOOK}, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.\n"
+PIXEL = ("ART STYLE (mandatory, highest priority): this is true PIXEL ART for a 2D game, exactly like the characters in the attached style roster image: "
+         "visible hard-edged pixel clusters, a dark 1px outline, max 16 colors per character, flat cel shading, small game-sprite scale. "
+         "It is NOT a smooth digital illustration, NOT anime key art, NOT painted, NOT 3D, NO soft gradients, NO smooth anti-aliased lines, NO large detailed drawing.\n")
+ROWREF = ("Two images are attached. FIRST image = the PIXEL-ART STYLE ROSTER (several other characters of the same game): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions, NEVER their faces, hair, clothes or colors. "
+          "SECOND image = the APPROVED DESIGN of the new character ({NAME}): the ABSOLUTE source of truth for who he is.\n")
 STYLE_RULES = """STRICT RULES (highest priority, never break):
 1. The image contains EXACTLY ONE character, shown ONCE, in ONE single standing idle pose, FULL BODY visible, centered. NO grid, NO rows, NO columns, NO other frames, NO other characters, NO second pose, NO turnaround. LANDSCAPE image.
 2. The character faces RIGHT (side or three-quarter view). Nothing touches or crosses the image edge. Fully opaque, NO ghost or translucent parts.
@@ -211,11 +216,11 @@ def row_prompts(k):
         for a, rw in zip(anims, rws):
             r1 = re.sub(r"^Row \d+:", "Row 1:", rw)
             if lote == "D":
-                t = DBLOCK.format(PAL=P, NAME=N).replace("EXACTLY 6 rows and EXACTLY 6 columns", "EXACTLY 1 row and EXACTLY 6 columns").replace("The image has 6 rows, not more.", "The image has 1 row, not more.").replace("LOTE D", a.upper()).replace("ROWS (each one effect, 6 frames):", "ROW (one effect, 6 frames):") + r1 + "\n"
+                t = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N).replace("EXACTLY 6 rows and EXACTLY 6 columns", "EXACTLY 1 row and EXACTLY 6 columns").replace("The image has 6 rows, not more.", "The image has 1 row, not more.").replace("LOTE D", a.upper()).replace("ROWS (each one effect, 6 frames):", "ROW (one effect, 6 frames):") + r1 + "\n"
             elif lote == "CL":
-                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
             else:
-                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
             out.append((a, t))
     return out
 
@@ -225,7 +230,7 @@ def build(k):
         return RULES.format(N=rows[0], PAL=P, NAME=N, L=L) + "\n" + (REF if ref else TRUTH.format(NAME=N.title(), LOOK=n["look"])) + "\nROWS:\n" + rows[1] + "\n"
     out = {}
     out["A1"] = RULES.format(N=n["A1"].count("\nRow ")+1, PAL=P, NAME=N, L="A1") + "\n" + REF + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nROWS:\n{n['A1']}\n"
-    out["STYLE"] = STYLE_RULES.format(PAL=P, NAME=N) + "\n" + REF + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nPOSE: one standing idle pose: {n.get('STYLEPOSE', 'a relaxed idle stance that shows his personality')}.\n"
+    out["STYLE"] = STYLE_RULES.format(PAL=P, NAME=N) + "\n" + REF + "\n" + PIXEL + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nPOSE: one standing idle pose: {n.get('STYLEPOSE', 'a relaxed idle stance that shows his personality')}.\n"
     if n.get("styleref"): out["A1"] = out["A1"].replace("\nCHARACTER (original", STYLEREF.format(NAME=N.title(), LOOK=n["look"]) + "\nCHARACTER (original", 1)
     out["A2"] = lot((4, n["A2"]), "A2", False); out["B1"] = lot((3, n["B1"]), "B1", False)
     out["B2"] = lot((3, n["B2"]), "B2", False); out["C"] = lot((n["C"].count("\nRow ")+1, n["C"]), "C", False)
