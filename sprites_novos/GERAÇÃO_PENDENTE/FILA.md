@@ -8,7 +8,7 @@ Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo ·
 | 01_utsushi_STYLE | ✅ | `sprites_novos/UTSUSHI/STYLE.png` | `jobs/01_utsushi_STYLE/` |
 | 02_utsushi_idle | ⚠ fundo fora de #00FF00 nos quadros 1–8 | `sprites_novos/UTSUSHI/IDLE_REVISAR.png` | `jobs/02_utsushi_idle/` |
 | 03_utsushi_walk | ⚠ fundo fora de #00FF00 nos quadros 1–8 e casaco junto à borda no quadro 2 | `sprites_novos/UTSUSHI/WALK_REVISAR.png` | `jobs/03_utsushi_walk/` |
-| 04_utsushi_dash | ⬜ | `sprites_novos/UTSUSHI/DASH.png` | `jobs/04_utsushi_dash/` |
+| 04_utsushi_dash | ⚠ segundo punhal não visível nos quadros 1–8 e fundo fora de #00FF00 | `sprites_novos/UTSUSHI/DASH_REVISAR.png` | `jobs/04_utsushi_dash/` |
 | 05_utsushi_attack1 | ⬜ | `sprites_novos/UTSUSHI/ATTACK1.png` | `jobs/05_utsushi_attack1/` |
 | 06_utsushi_attack2 | ⬜ | `sprites_novos/UTSUSHI/ATTACK2.png` | `jobs/06_utsushi_attack2/` |
 | 07_utsushi_attack3 | ⬜ | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
