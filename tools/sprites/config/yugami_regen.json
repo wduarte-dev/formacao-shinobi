@@ -1,0 +1,19 @@
+{
+ "name": "yugami_regen",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "YUGAMI_CHASE.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "chase"
+   ],
+   "color_ref": "../tools/sprites/src/yugami/A1.jpg",
+   "outline": 0.35,
+   "ref": [
+    "chase:0"
+   ]
+  }
+ ]
+}

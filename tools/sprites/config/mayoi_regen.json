@@ -1,0 +1,21 @@
+{
+ "name": "mayoi_regen",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "REGEN_HIYORY.png",
+   "rows": 2,
+   "cols": 8,
+   "anims": [
+    "strong",
+    "hurt"
+   ],
+   "color_ref": "../tools/sprites/src/mayoi/A1.png",
+   "outline": 0.35,
+   "ref": [
+    "strong:0",
+    "hurt:0"
+   ]
+  }
+ ]
+}

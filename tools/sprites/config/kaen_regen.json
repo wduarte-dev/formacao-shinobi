@@ -1,0 +1,58 @@
+{
+ "name": "kaen_regen",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "E_KAEN.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "rise",
+     "fps": 16,
+     "loop": 0,
+     "anchor": "feet"
+    },
+    {
+     "name": "meteor",
+     "fps": 16,
+     "loop": 0,
+     "anchor": "feet"
+    },
+    {
+     "name": "landing",
+     "fps": 12,
+     "loop": 0
+    }
+   ],
+   "color_ref": "../tools/sprites/src/kaen/A1.jpg",
+   "outline": 0.35,
+   "ref": [
+    "landing:5"
+   ]
+  },
+  {
+   "file": "FORTE_KAEN.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "strong"
+   ],
+   "color_ref": "../tools/sprites/src/kaen/A1.jpg",
+   "outline": 0.35,
+   "ref": [
+    "strong:0"
+   ]
+  },
+  {
+   "file": "KAEN_SELOS.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "seals"
+   ],
+   "color_ref": "../tools/sprites/src/kaen/A1.jpg",
+   "outline": 0.35
+  }
+ ]
+}

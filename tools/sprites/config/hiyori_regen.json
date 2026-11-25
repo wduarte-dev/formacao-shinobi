@@ -1,0 +1,21 @@
+{
+ "name": "hiyori_regen",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "REGEN_HYORIREAL.png",
+   "rows": 2,
+   "cols": 8,
+   "anims": [
+    "attack",
+    "jutsu"
+   ],
+   "color_ref": "../tools/sprites/src/hiyori/A1.png",
+   "outline": 0.35,
+   "ref": [
+    "attack:7",
+    "jutsu:0"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "name": "iwao_regen",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "FORTE_IWAOI.png",
+   "rows": 1,
+   "cols": 8,
+   "anims": [
+    "strong"
+   ],
+   "color_ref": "../tools/sprites/src/iwao/A.jpg",
+   "outline": 0.35,
+   "ref": [
+    "strong:0"
+   ]
+  },
+  {
+   "file": "IWAO_REGEN.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "attack",
+    "jutsu",
+    "chase"
+   ],
+   "color_ref": "../tools/sprites/src/iwao/A.jpg",
+   "outline": 0.35,
+   "ref": [
+    "attack:5"
+   ]
+  }
+ ]
+}
