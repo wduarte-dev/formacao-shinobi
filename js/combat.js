@@ -261,8 +261,8 @@ async function chain(side,t,count,src){
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
     // a anim do golpe começa JÁ no salto: ele sobe, segura no alto e despenca de modo que o pouso caia exatamente no quadro do soco
     const hitT=Math.max(430,CHA(c,an)); setAnim(c,an,0,true); sfx.swing(); c.el.style.zIndex=60;
-    put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,'transform .3s cubic-bezier(.2,.9,.35,1)'); await sleep(hitT-130);
-    put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,'transform .13s cubic-bezier(.6,0,1,.6)'); await sleep(130);
+    put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,`transform ${300/speed}ms cubic-bezier(.2,.9,.35,1)`); await sleep(hitT-130);
+    put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,`transform ${130/speed}ms cubic-bezier(.6,0,1,.6)`); await sleep(130);
     dust(c,14); shake(); sfx.thud();   // pouso = soco: poeira, tremor, som e (logo abaixo) o dano no mesmo instante
   }else if(c.d.chase.cast){   // invocador (Onda da Mizuha): chega só até uma distância segura, faz o selo/jutsu e a magia surge no alvo (nada de ir socar)
     const ja=an_of(c).atk2?'atk2':an, gx=tb.x-dir*250*(c.d.size||1);
