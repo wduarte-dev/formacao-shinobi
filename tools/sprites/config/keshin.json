@@ -1,0 +1,132 @@
+{
+ "name": "keshin",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "A1.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash"
+   ]
+  },
+  {
+   "file": "A1B.png",
+   "rows": 3,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    {
+     "name": "attack",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "attackB",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "attackC",
+     "fps": 14,
+     "loop": 0
+    }
+   ]
+  },
+  {
+   "file": "A2.png",
+   "rows": 4,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    "strong",
+    "guard",
+    "hurt",
+    "dodge"
+   ]
+  },
+  {
+   "file": "B1.png",
+   "rows": 3,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    "seals",
+    "jutsu",
+    "buff"
+   ]
+  },
+  {
+   "file": "B2.png",
+   "rows": 3,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    "stun",
+    "victory",
+    "defeat"
+   ]
+  },
+  {
+   "file": "C.png",
+   "rows": 3,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown"
+   ]
+  },
+  {
+   "file": "CH.png",
+   "rows": 3,
+   "cols": 8,
+   "color_ref": "A1.png",
+   "outline": 0.35,
+   "anims": [
+    {
+     "name": "chase1",
+     "fps": 12,
+     "loop": 0,
+     "anchor": "cell",
+     "air": 1
+    },
+    {
+     "name": "chase2",
+     "fps": 14,
+     "loop": 0,
+     "anchor": "cell",
+     "air": 1
+    },
+    {
+     "name": "chase3",
+     "fps": 12,
+     "loop": 0,
+     "anchor": "cell"
+    }
+   ]
+  }
+ ],
+ "fx": {
+  "file": "D.png",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "proj",
+   "hit",
+   "jutsu",
+   "chase",
+   "impact",
+   "aura"
+  ]
+ }
+}
