@@ -39,7 +39,26 @@ NINJAS = {
 Row 2: WALK, 8 frames, a confident springy walking cycle to the right, shoulders relaxed, full 8 columns.
 Row 3: DASH, 8 frames: fast low sprint forward, body leaning hard, fists back, a thin warm-orange speed line at most, full 8 columns.
 Row 4: BASIC ATTACK "Combo Relampago", 8 frames, a fast three-hit bare-handed combo, each hit a clearly DIFFERENT move: frames 1-2 a straight punch with the lead fist, frames 3-4 a high roundhouse kick, frames 5-6 a rising elbow or uppercut that lifts the target, frame 7 follow-through, frame 8 back to the fighting guard. Only small orange motion lines near the limbs (full 8 columns).""",
-  A2="TODO", B1="TODO", B2="TODO", C="TODO", D="TODO"),
+  A2="""Row 1: STRONG ATTACK "Soco Dinamite", 7 frames: he plants his feet, pulls one fist far back with a loud grin turning into a grimace, steps in and drives a huge straight punch forward with his whole body, holds the extended pose, a small orange burst at the fist only, pulls back, returns to the fighting guard (cell 8 EMPTY).
+Row 2: GUARD, 4 frames: he crosses both wrapped forearms in front of his face and braces his legs wide, holds, relaxes with a small grin (cells 5 to 8 EMPTY).
+Row 3: HURT, 3 frames: hit from the front, head snaps back, body recoils, steps back, grits his teeth and recovers (cells 4 to 8 EMPTY).
+Row 4: DODGE, 6 frames: a quick springy sidestep and backward hop, hair and wraps trailing, lands bouncing on the balls of his feet in guard (cells 7 to 8 EMPTY).""",
+  B1="""Row 1: HAND SEALS, 6 frames: he brings both fists together in front of his chest, then claps and rubs them, takes a deep breath and tenses his whole body, a few small orange sparks gather around his fists, a fired-up grin (cells 7 to 8 EMPTY).
+Row 2: RELEASE JUTSU "Aura Relampago", 8 frames: he crouches and roars, a warm gold and orange aura bursts out of his whole body and flames upward, his hair stands even higher, he rises with fists clenched, holds a heroic pose. Only a SMALL aura hugging the body, the big aura comes later (full 8 columns).
+Row 3: BUFF, 6 frames: an orange and gold glow pulses around his body, he flexes, bounces in guard with the aura flickering, gives a thumbs-up with a huge grin (cells 7 to 8 EMPTY).""",
+  B2="""Row 1: STUNNED, 4 frames: dazed, swaying on his feet, arms hanging loose, head drooping, small gold stars circling the head (cells 5 to 8 EMPTY).
+Row 2: VICTORY, 6 frames: he spins, strikes a heroic pose with one fist raised to the sky, a huge confident grin, flashes a thumbs-up, a tiny gold sparkle (cells 7 to 8 EMPTY).
+Row 3: DEFEAT, 8 frames: hit, staggers, drops to his knees still trying to stand, a last proud smile, collapses forward and lies still on the ground (full 8 columns).""",
+  C="""Row 1: KNOCKED BACK (repelled), 8 frames: hit by a heavy blow, flung backwards off his feet, body leaning back and sliding away, ending in a hard skid (full 8 columns).
+Row 2: LAUNCHED, 8 frames: thrown up into the air by a blow from below, body rising and rotating, peaks at the top, starts to hang in the air (full 8 columns).
+Row 3: KNOCKED DOWN, 8 frames: falls and %s, bounces once, then lies still, then slowly starts to get back up (full 8 columns).
+Row 4: CHASE "Bomba Dinamite", 8 frames: he crouches, leaps high, reaches up and grabs an airborne enemy by the waist, flips over in the air and slams downward head-first-diagonal, lands crouched with fists on the ground (full 8 columns). Only small orange motion lines near the body, no enemy drawn."""%DOWN,
+  D="""Row 1: SHOCK PUNCH: a crescent-shaped wave of compressed air and orange sparks flying through the air from left to right, with a short gold trail.
+Row 2: COMBO BURSTS (basic attack): three quick impact bursts in a row, a straight-punch shock ring, a kick arc and a rising uppercut streak, each with orange and white sparks.
+Row 3: LIGHTNING AURA (jutsu): a huge roaring aura of gold and orange flames and light streaks swirling upward around an EMPTY body-sized space, growing, flaring, then steadying.
+Row 4: DYNAMITE SLAM (pursuit): a massive ground impact: a crater of broken stone, a big orange shock ring and flying rubble, growing then fading.
+Row 5: IMPACT: a sharp orange and white hit burst with radial spikes and a few gold sparks.
+Row 6: AURA RING: a ring of swirling gold and orange flames around an EMPTY space the size of a body, rising upward."""),
  "hiyori": dict(name="HIYORI", pal="ice blue, white, deep navy, pale silver",
   look="the long ice-blue hair, snowflake hairpin, short white kimono with deep navy trim, navy obi, white wrapped sleeves, dark boots",
   char="HIYORI, a young ice ninja. Long straight ice-blue hair down to the waist, a snowflake hairpin clearly visible. Short white kimono with deep navy trim, a deep navy obi, white wrapped arm sleeves, dark boots. No weapon in hand (ice blades only appear in attacks). Calm, cold, composed expression. Nothing turquoise, aqua or teal anywhere: the ice is pale sky blue and white only.",
