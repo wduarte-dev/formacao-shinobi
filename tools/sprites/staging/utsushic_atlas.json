@@ -1,0 +1,47 @@
+{
+ "cw": 192,
+ "ch": 160,
+ "ax": 96,
+ "base": 150,
+ "cols": 8,
+ "w": 1536,
+ "h": 640,
+ "anims": [
+  {
+   "name": "idle",
+   "row": 0,
+   "col": 0,
+   "n": 6,
+   "fps": 6,
+   "loop": 1,
+   "pingpong": 1
+  },
+  {
+   "name": "attack",
+   "row": 1,
+   "col": 0,
+   "n": 6,
+   "fps": 14,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "hurt",
+   "row": 2,
+   "col": 0,
+   "n": 3,
+   "fps": 10,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "vanish",
+   "row": 3,
+   "col": 0,
+   "n": 8,
+   "fps": 12,
+   "loop": 0,
+   "pingpong": 0
+  }
+ ]
+}

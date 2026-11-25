@@ -32,7 +32,8 @@
    "ref": [
     "idle:0"
    ],
-   "outline": 0.35
+   "outline": 0.35,
+   "ghost": 0.01
   }
  ]
 }
