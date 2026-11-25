@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.8.1 · 25/11/2026
+- **Golpes do Keshin com mais impacto.** O soco e o chute dão um tranco no alvo no quadro do contato. O último golpe dá uma batida mais forte antes de lançar, e a Bomba Dinamite espalha poeira e faíscas no chão no instante da queda.
+
 ## 1.8 · 24/11/2026
 - **Keshin disponível na Formação e na Galeria.** O Combo Relâmpago emenda três golpes e lança o inimigo no último. Se o alvo cair antes, Keshin termina a sequência no próximo. A perseguição Bomba Dinamite agarra o alvo no ar e o derruba.
 - **Aura Relâmpago:** jutsu instantâneo que sai entre ações e mantém o ataque normal. Custa 30 de chakra e até 18% da vida máxima, atravessa o escudo e deixa pelo menos 1 PV. Durante três rodadas, Keshin ganha 1, 2 e 3 golpes extras, com +20% de dano.

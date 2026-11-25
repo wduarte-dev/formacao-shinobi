@@ -143,6 +143,23 @@ function auraBurst(u){
   }
 }
 function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.2,1.5),.12,R(10,18),3,0,pk([col,'#ffffff'])));}
+function strikeFx(u,t,dy,finisher){
+  const p=cur(t), dir=u.side==='p'?1:-1, x=p.x-dir*23, y=p.y+dy, cols=[u.d.c,'#ffcb76','#fff5d6'];
+  const o={x,y,dir,flip:dir<0};
+  const used=FXUSE[u.id]||{};
+  fxSpr(u.id,used.hit,{...o,mv:'spin',sc:finisher?1.02:.73});
+  fxSpr(u.id,used.imp,{...o,sc:finisher?.75:.49,lo:true});
+  em(finisher?18:9,()=>prt(x,y,R(-3,3),R(-4,4),dir*R(.6,5),finisher?R(-6.5,-1.5):R(-2.6,2.6),.14,
+    R(9,18),finisher?R(2,4):R(4,8),finisher?R(5,9):R(1,2),pk(cols)));
+}
+function slamFx(t,col){
+  const p=cur(t);
+  dust(t,16);
+  em(24,i=>{
+    const a=i*2.4, x=Math.cos(a), y=Math.sin(a);
+    return prt(p.x,p.y,x*4,y*2,x*R(3,6),y*1.4-R(.2,1.8),.13,R(11,19),R(4,9),R(1,3),pk([col,'#ffcd82','#fff5d6']));
+  });
+}
 
 
 /* ---- efeitos desenhados (lote D de cada ninja): atlas de 288x192 por quadro, 6 linhas ---- */

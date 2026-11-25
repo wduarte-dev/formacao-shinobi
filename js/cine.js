@@ -36,6 +36,14 @@ async function knock(t,state){
 }
 // hit-stop: congela anims (não os efeitos) por um instante no impacto
 async function hitstop(ms){const f=$('field'); f.classList.add('hs'); frozen=true; try{await sleep(ms);}finally{frozen=false; f.classList.remove('hs');}}
+function strikeRecoil(t,dir,finisher){
+  const x=dir*(finisher?19:12), y=finisher?-16:-3;
+  t.st.animate([
+    {translate:`${x}px ${y}px`},
+    {translate:`${x*.35}px ${y*.45}px`,offset:.6},
+    {translate:'0 0'}
+  ],{duration:(finisher?135:120)/speed,easing:'ease-out'});
+}
 function retrig(el,cls){el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);}
 // flash e tremor via Web Animations (só opacity/translate = compositor; sem reflow forçado nem animar margin do campo inteiro)
 function flash(){ $('flash').animate([{opacity:.85},{opacity:0}],{duration:300/speed,easing:'ease-out'}); }

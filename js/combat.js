@@ -76,16 +76,23 @@ async function strikeSequence(u,sk){
       dodged=!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
       await dashTo(u,t);
     }
-    const part=i===total-1?last:i%last, an=sk.sequence[part];
+    const finisher=i===total-1, part=finisher?last:i%last, an=sk.sequence[part];
     const ms=animMs(u,an), impact=ms*sk.hits[part];
     sfx.swing(); setAnim(u,an,0,true); await sleep(impact);
     if(dodged){ await evade(t); log(`${nm(t)} desvia de <b>${sk.name}</b>`); break; }
-    fxAt(u,'hit',t,.98); fxAt(u,'imp',t,.55,-8); spark(t,u.d.c,7);
+    strikeFx(u,t,sk.contactY?.[part]??-75,finisher);
     sfx.hit(u,'atk'); if(i===0)sfx.voz(u,'golpe',.6);
     damage+=hurt(t,dmgOf(u,t,sk.mult,true),''); hits++;
+    strikeRecoil(t,u.side==='p'?1:-1,finisher);
     if(result()){ await finale(t); break; }
-    if(i===total-1&&t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
-    await hitstop(28); await sleep(ms-impact);
+    if(finisher){
+      shake(.65);
+      if(t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
+      sfx.heavy();
+    }
+    // Troca parte da recuperação pela pausa no contato, mantendo o ritmo do combo.
+    const stop=finisher?70:48;
+    await hitstop(stop); await sleep(Math.max(0,ms-impact+28-stop));
   }
   if(hits)log(`${nm(u)} usa <b>${sk.name}</b> (${hits} golpes): ${damage} de dano`);
   home(u);
@@ -201,7 +208,7 @@ async function chain(side,t,count,src){
     put(c,ground.x+dx-dir*65-h0.x,ground.y-h0.y,fall);
     await sleep(fallMs);
     t.off={x:dx,y:0}; t.mv.style.transition=''; c.mv.style.transition='';
-    dust(t,16); crack(ground.x+dx,ground.y); shake(); flashSoft(); sfx.thud();
+    slamFx(t,c.d.c); crack(ground.x+dx,ground.y); shake(1.2); flashSoft(); sfx.thud();
   }else if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,'transform .34s cubic-bezier(.2,.8,.3,1)');
@@ -244,7 +251,7 @@ async function chain(side,t,count,src){
   if(CH.phases){
     if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
     const [,slam,land]=CH.phases;
-    await hitstop(55); await sleep(animMs(c,slam)-CHA(c,slam));
+    await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
     setAnim(c,land,0,true); await sleep(animMs(c,land));
   }else if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
     await hitstop(35); const g=pos(t), fall='transform .3s cubic-bezier(.55,0,.9,.55)';

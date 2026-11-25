@@ -32,12 +32,13 @@ Peça ao dono os arquivos de que precisa (ele sobe pelo GitHub). Entregue **patc
 
 ---
 ## Estado atual (atualizar a cada passagem de bastão)
-**Última atualização: 24/11/2026 (Codex).**
+**Última atualização: 25/11/2026 (Codex).**
 
 ### Keshin — integrado na versão 1.8
 - Jogável na Formação e com sequências de ataque e perseguição na Galeria. Atlas de 22 linhas e efeitos em `spr/`. Ficha e números em `docs/ninjas.md`.
 - `castInstants` processa a fila manual entre ações e o Auto na abertura da rodada. Aura Relâmpago custa chakra e vida perfurante, mantém a ação normal e dá 4/5/6 golpes com +20% de dano.
 - Bomba Dinamite encadeia salto, queda e pouso (L→D). O último básico lança e ativa o fluxo existente de perseguições.
+- Na 1.8.1, a pausa no quadro do contato e o tranco do alvo reforçam cada golpe. O último golpe ganha um tremor curto, e a Bomba Dinamite espalha poeira e faíscas no chão no instante do impacto.
 - Os scripts têm prompts próprios do Keshin. Sem chave ElevenLabs no ambiente, a versão usa os efeitos de áudio genéricos e o som de raio para a Aura. Quando os OGGs estiverem em `audio/sfx/`, tirar `customSfx:false` da ficha.
 
 ### Decisão nova de regra do jogo (ainda NÃO implementada)
