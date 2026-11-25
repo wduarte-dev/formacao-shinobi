@@ -1,0 +1,19 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: burnt orange, warm gold, white, charcoal, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "KESHIN - LOTE C" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character (Keshin): copy exactly the tall spiky dark-brown hair with a swept-up front tuft, wide confident grin, tan skin, open sleeveless charcoal vest over a bare chest, burnt-orange wraps on both fists and forearms, loose charcoal pants tied at the ankles with orange wraps, dark sandals, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.
+
+ROWS:
+Row 1: KNOCKED BACK (repelled), 8 frames: hit by a heavy blow, flung backwards off his feet, body leaning back and sliding away, ending in a hard skid (full 8 columns).
+Row 2: LAUNCHED, 8 frames: thrown up into the air by a blow from below, body rising and rotating, peaks at the top, starts to hang in the air (full 8 columns).
+Row 3: KNOCKED DOWN, 8 frames: falls and lies FLAT on the ground, body horizontal and parallel to the ground (never vertical), bounces once, then lies still, then slowly starts to get back up (full 8 columns).
+Row 4: CHASE "Bomba Dinamite", 8 frames: he crouches, leaps high, reaches up and grabs an airborne enemy by the waist, flips over in the air and slams downward head-first-diagonal, lands crouched with fists on the ground (full 8 columns). Only small orange motion lines near the body, no enemy drawn.
