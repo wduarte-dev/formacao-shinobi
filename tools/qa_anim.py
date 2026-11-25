@@ -33,6 +33,7 @@ ap.add_argument('--clones', type=int, choices=range(4), default=0, help='clones 
 ap.add_argument('--ko', action='store_true', help='começa com o alvo a 1 PV')
 ap.add_argument('--speed', type=int, choices=[1, 2], default=1, help='velocidade do replay')
 ap.add_argument('--expect-hits', type=int, help='falha se o contador de hits do replay for diferente')
+ap.add_argument('--expect-ko', action='store_true', help='falha se o alvo sobreviver ao replay')
 a = ap.parse_args()
 if a.replay:
     a.kind = a.kind or 'chase'
@@ -40,8 +41,8 @@ if a.replay:
         ap.error('--kind deve ser chase, jutsu, forte ou basico')
     if a.clones and a.replay != 'utsushi':
         ap.error('--clones exige --replay utsushi')
-elif a.expect_hits is not None:
-    ap.error('--expect-hits exige --replay')
+elif a.expect_hits is not None or a.expect_ko:
+    ap.error('--expect-hits e --expect-ko exigem --replay')
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 a.out = a.out or mkdtemp(prefix='shinobi-anim-')
 if os.path.isdir(a.out) and os.listdir(a.out):
@@ -99,7 +100,7 @@ REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
     } else {
         await doSkill(actor, skill, kind === 'jutsu');
     }
-    return {name:skill.name, hits:hitsR[side]-before, hp, left:target.hp, state:target.state};
+    return {name:skill.name, hits:hitsR[side]-before, hp, left:target.hp, state:target.state, alive:target.alive};
 }"""
 
 errs = []
@@ -197,5 +198,7 @@ total = len(glob.glob(a.out + '/acao_*.png'))
 print(f'{total} tiras em {a.out}', '| erros:', errs or 'nenhum')
 if a.expect_hits is not None and replay['hits'] != a.expect_hits:
     sys.exit(f"Esperava {a.expect_hits} hits, obteve {replay['hits']}")
+if a.expect_ko and replay['alive']:
+    sys.exit('Esperava nocaute, o alvo sobreviveu')
 if (a.resumo or a.replay) and (errs or not total):
     sys.exit(1)

@@ -16,11 +16,29 @@ Vitória e derrota contam como missão concluída. A etapa retorna erro se a bat
 
 O teste de retratos aciona a apresentação real do jutsu no Chromium, congela a faixa já aberta e salva `retratos.png` com aliado e inimigo lado a lado. Estima quatro pontos da cabeça pela silhueta do primeiro quadro de selos e verifica recorte e sobreposição com a caixa do título no navegador a 1152×648. Cabelo, capuz, efeitos e espaços entre letras podem afetar essa estimativa. Use a prancha para julgar os casos marcados. A pose durante o restante da luta e os retratos de seleção têm enquadramentos próprios.
 
+## QA pelo diff
+
+```sh
+python tools/qa_diff.py --plano
+python tools/qa_diff.py
+python tools/qa_diff.py --base HEAD~1
+```
+
+O comando compara a árvore de trabalho com o commit indicado, por padrão `HEAD`. Inclui arquivos preparados, alterações locais e arquivos novos que o Git não ignora. Use `--plano` para ver a seleção sem abrir o navegador.
+
+- **Atlas em `spr/`** aciona a prancha do ninja e seu replay. Ninjas novos entram pelo nome do atlas e usam o jutsu da própria ficha até terem um cenário cadastrado. Efeitos `_fx.png` acionam o replay. Variantes do Yugami e dos clones acionam o ninja correspondente. Para revisar o Yugami sem capuz, confira também o Lacre Rompido em batalha.
+- **CSS, HTML ou módulos compartilhados de retrato** acionam a prancha do elenco.
+- **JavaScript alterado** passa pela conferência de sintaxe. Módulos novos e mudanças nos módulos de combate também reproduzem Chute Meteoro, Rajada Fantasma e Tufão Cortante. Os cenários salvos em `SCENARIOS`, em `qa_diff.py`, conferem os hits e o nocaute do Kaen a 2×. Acrescente ali um caso quando uma mecânica nova precisar de uma verificação específica.
+
+O terminal lista uma linha por verificação. As falhas retornam código 1 e incluem o caminho do log. Relatórios, vídeo e pranchas ficam juntos na pasta temporária impressa no início. Use `qa_etapa.py` antes de publicar para conferir as cinco missões e a animação em batalha completa.
+
+Para conferir as regras de seleção sem abrir o navegador, rode `python tools/test_qa_diff.py`.
+
 ## Replay de uma ação
 
 ```sh
 python tools/qa_anim.py --replay kaen --expect-hits 1 --resumo
-python tools/qa_anim.py --replay kaen --side e --speed 2 --ko --resumo
+python tools/qa_anim.py --replay kaen --side e --speed 2 --ko --expect-ko --resumo
 python tools/qa_anim.py --replay utsushi --clones 3 --expect-hits 4 --resumo
 python tools/qa_anim.py --replay fuuka --kind jutsu --target iwao --resumo
 ```
