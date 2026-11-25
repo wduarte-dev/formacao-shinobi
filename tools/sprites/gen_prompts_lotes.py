@@ -32,6 +32,14 @@ LABEL: top-left corner only, small plain white pixel text "{NAME} - LOTE D" on a
 ROWS (each one effect, 6 frames):
 """
 NINJAS = {
+ "keshin": dict(name="KESHIN", pal="burnt orange, warm gold, white, charcoal",
+  look="the tall spiky dark-brown hair with a swept-up front tuft, wide confident grin, tan skin, open sleeveless charcoal vest over a bare chest, burnt-orange wraps on both fists and forearms, loose charcoal pants tied at the ankles with orange wraps, dark sandals",
+  char="KESHIN, a young martial-arts ninja, a charismatic show-off hero type who fights with bare fists and feet only. Tall, lean and very muscular but fast-looking. Tall spiky dark-brown hair with a swept-up front tuft, tan skin, a wide confident grin, bright eager eyes (normal eyebrows, nothing exaggerated). Open sleeveless charcoal vest over a bare chest, a white bandage across the waist, thick burnt-orange wraps covering both fists and forearms, loose charcoal pants tied at the ankles with orange wraps, dark sandals. No weapon. Nothing turquoise, aqua, teal or greenish anywhere.",
+  A1="""Row 1: IDLE, 6 frames: a lively fighting guard, he bounces on the balls of his feet, fists raised, rolls his shoulders, flashes a confident grin and gives a small beckoning 'come on' gesture with one hand (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames, a confident springy walking cycle to the right, shoulders relaxed, full 8 columns.
+Row 3: DASH, 8 frames: fast low sprint forward, body leaning hard, fists back, a thin warm-orange speed line at most, full 8 columns.
+Row 4: BASIC ATTACK "Combo Relampago", 8 frames, a fast three-hit bare-handed combo, each hit a clearly DIFFERENT move: frames 1-2 a straight punch with the lead fist, frames 3-4 a high roundhouse kick, frames 5-6 a rising elbow or uppercut that lifts the target, frame 7 follow-through, frame 8 back to the fighting guard. Only small orange motion lines near the limbs (full 8 columns).""",
+  A2="TODO", B1="TODO", B2="TODO", C="TODO", D="TODO"),
  "hiyori": dict(name="HIYORI", pal="ice blue, white, deep navy, pale silver",
   look="the long ice-blue hair, snowflake hairpin, short white kimono with deep navy trim, navy obi, white wrapped sleeves, dark boots",
   char="HIYORI, a young ice ninja. Long straight ice-blue hair down to the waist, a snowflake hairpin clearly visible. Short white kimono with deep navy trim, a deep navy obi, white wrapped arm sleeves, dark boots. No weapon in hand (ice blades only appear in attacks). Calm, cold, composed expression. Nothing turquoise, aqua or teal anywhere: the ice is pale sky blue and white only.",

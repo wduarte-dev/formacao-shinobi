@@ -1,0 +1,21 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: burnt orange, warm gold, white, charcoal, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "KESHIN - LOTE A1" on a thin dark strip above the grid.
+
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
+
+CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): KESHIN, a young martial-arts ninja, a charismatic show-off hero type who fights with bare fists and feet only. Tall, lean and very muscular but fast-looking. Tall spiky dark-brown hair with a swept-up front tuft, tan skin, a wide confident grin, bright eager eyes (normal eyebrows, nothing exaggerated). Open sleeveless charcoal vest over a bare chest, a white bandage across the waist, thick burnt-orange wraps covering both fists and forearms, loose charcoal pants tied at the ankles with orange wraps, dark sandals. No weapon. Nothing turquoise, aqua, teal or greenish anywhere.
+
+ROWS:
+Row 1: IDLE, 6 frames: a lively fighting guard, he bounces on the balls of his feet, fists raised, rolls his shoulders, flashes a confident grin and gives a small beckoning 'come on' gesture with one hand (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames, a confident springy walking cycle to the right, shoulders relaxed, full 8 columns.
+Row 3: DASH, 8 frames: fast low sprint forward, body leaning hard, fists back, a thin warm-orange speed line at most, full 8 columns.
+Row 4: BASIC ATTACK "Combo Relampago", 8 frames, a fast three-hit bare-handed combo, each hit a clearly DIFFERENT move: frames 1-2 a straight punch with the lead fist, frames 3-4 a high roundhouse kick, frames 5-6 a rising elbow or uppercut that lifts the target, frame 7 follow-through, frame 8 back to the fighting guard. Only small orange motion lines near the limbs (full 8 columns).
