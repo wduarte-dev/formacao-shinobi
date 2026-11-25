@@ -1,0 +1,173 @@
+{
+ "cw": 192,
+ "ch": 160,
+ "ax": 96,
+ "base": 150,
+ "cols": 8,
+ "w": 1536,
+ "h": 2880,
+ "anims": [
+  {
+   "name": "idle",
+   "row": 0,
+   "col": 0,
+   "n": 6,
+   "fps": 6,
+   "loop": 1,
+   "pingpong": 1
+  },
+  {
+   "name": "walk",
+   "row": 1,
+   "col": 0,
+   "n": 8,
+   "fps": 10,
+   "loop": 1,
+   "pingpong": 0
+  },
+  {
+   "name": "dash",
+   "row": 2,
+   "col": 0,
+   "n": 8,
+   "fps": 14,
+   "loop": 1,
+   "pingpong": 0
+  },
+  {
+   "name": "attack",
+   "row": 3,
+   "col": 0,
+   "n": 6,
+   "fps": 14,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "attackB",
+   "row": 4,
+   "col": 0,
+   "n": 6,
+   "fps": 14,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "attackC",
+   "row": 5,
+   "col": 0,
+   "n": 6,
+   "fps": 14,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "seals",
+   "row": 6,
+   "col": 0,
+   "n": 6,
+   "fps": 12,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "jutsu",
+   "row": 7,
+   "col": 0,
+   "n": 8,
+   "fps": 12,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "buff",
+   "row": 8,
+   "col": 0,
+   "n": 6,
+   "fps": 10,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "stun",
+   "row": 9,
+   "col": 0,
+   "n": 4,
+   "fps": 8,
+   "loop": 1,
+   "pingpong": 0
+  },
+  {
+   "name": "victory",
+   "row": 10,
+   "col": 0,
+   "n": 6,
+   "fps": 8,
+   "loop": 1,
+   "pingpong": 0
+  },
+  {
+   "name": "defeat",
+   "row": 11,
+   "col": 0,
+   "n": 8,
+   "fps": 8,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "knockback",
+   "row": 12,
+   "col": 0,
+   "n": 8,
+   "fps": 10,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "launched",
+   "row": 13,
+   "col": 0,
+   "n": 8,
+   "fps": 10,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "knockdown",
+   "row": 14,
+   "col": 0,
+   "n": 8,
+   "fps": 8,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "chase1",
+   "row": 15,
+   "col": 0,
+   "n": 6,
+   "fps": 12,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "chase2",
+   "row": 16,
+   "col": 0,
+   "n": 6,
+   "fps": 14,
+   "loop": 0,
+   "pingpong": 0
+  },
+  {
+   "name": "chase3",
+   "row": 17,
+   "col": 0,
+   "n": 6,
+   "fps": 12,
+   "loop": 0,
+   "pingpong": 0
+  }
+ ]
+}

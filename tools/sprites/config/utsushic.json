@@ -1,0 +1,38 @@
+{
+ "name": "utsushic",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "UTSUSHI_CL.png",
+   "rows": 4,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "idle",
+     "fps": 6,
+     "loop": 1,
+     "pingpong": 1
+    },
+    {
+     "name": "attack",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "hurt",
+     "fps": 10,
+     "loop": 0
+    },
+    {
+     "name": "vanish",
+     "fps": 12,
+     "loop": 0
+    }
+   ],
+   "ref": [
+    "idle:0"
+   ],
+   "outline": 0.35
+  }
+ ]
+}

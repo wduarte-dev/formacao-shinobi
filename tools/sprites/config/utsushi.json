@@ -1,0 +1,137 @@
+{
+ "name": "utsushi",
+ "body_h": 115,
+ "sheets": [
+  {
+   "file": "UTSUSHI_A1.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "idle",
+    "walk",
+    "dash"
+   ]
+  },
+  {
+   "file": "UTSUSHI_A1B.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "attack",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "attackB",
+     "fps": 14,
+     "loop": 0
+    },
+    {
+     "name": "attackC",
+     "fps": 14,
+     "loop": 0
+    }
+   ],
+   "color_ref": "UTSUSHI_A1.png",
+   "outline": 0.35,
+   "ref": [
+    "attack:5"
+   ]
+  },
+  {
+   "file": "UTSUSHI_B1.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "seals",
+    "jutsu",
+    "buff"
+   ],
+   "color_ref": "UTSUSHI_A1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "UTSUSHI_B2.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "stun",
+    "victory",
+    "defeat"
+   ],
+   "color_ref": "UTSUSHI_A1.png",
+   "outline": 0.35
+  },
+  {
+   "file": "UTSUSHI_C.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    "knockback",
+    "launched",
+    "knockdown"
+   ],
+   "color_ref": "UTSUSHI_A1.png",
+   "outline": 0.35,
+   "ref": [
+    "knockback:0"
+   ]
+  },
+  {
+   "file": "UTSUSHI_CH.png",
+   "rows": 3,
+   "cols": 8,
+   "anims": [
+    {
+     "name": "chase1",
+     "fps": 12,
+     "loop": 0,
+     "anchor": "cell",
+     "air": 1
+    },
+    {
+     "name": "chase2",
+     "fps": 14,
+     "loop": 0,
+     "anchor": "cell",
+     "air": 1
+    },
+    {
+     "name": "chase3",
+     "fps": 12,
+     "loop": 0,
+     "anchor": "cell"
+    }
+   ],
+   "color_ref": "UTSUSHI_A1.png",
+   "outline": 0.35,
+   "ref": [
+    "chase3:5"
+   ],
+   "ghost": 0.05,
+   "erase": [
+    [
+     0,
+     0,
+     2172,
+     34
+    ]
+   ]
+  }
+ ],
+ "fx": {
+  "file": "UTSUSHI_D.png",
+  "rows": 6,
+  "cols": 6,
+  "fps": 12,
+  "names": [
+   "proj",
+   "hit",
+   "jutsu",
+   "chase",
+   "impact",
+   "aura"
+  ]
+ }
+}
