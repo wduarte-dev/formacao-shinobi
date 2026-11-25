@@ -1,5 +1,5 @@
 > **LEIA ESTE ARQUIVO INTEIRO ANTES DE CADA GERAÇÃO DE IMAGEM** (toda vez, mesmo que já tenha lido antes).
-> **Precedência:** o fluxo de trabalho do `LEIA-ME.md` desta pasta (só gerar quando o dono mandar, um job por vez, mostrar a imagem e perguntar "aprova ou não?", não editar o `prompt.txt`, salvar em `sprites_novos/` só com o SIM) **vale mais** que qualquer trecho abaixo. Estas diretrizes mandam na **qualidade artística e técnica** da imagem. A regra 19 (espaçamento) vale sempre.
+> **Precedência:** o fluxo do `LEIA-ME.md` desta pasta (MODO LINHA: aprovação do dono só no STYLE; depois a fila roda sozinha, UMA linha por imagem; não editar o `prompt.txt`; salvar nos caminhos do `SAIDA.txt`) **vale mais** que qualquer trecho abaixo. Estas diretrizes mandam na **qualidade artística e técnica** da imagem. As regras 19 (espaçamento) e 20 (coerência de objetos) valem sempre.
 
 # SPRITE FACTORY — DIRETRIZES PERMANENTES
 

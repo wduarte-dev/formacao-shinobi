@@ -1,0 +1,13 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 1 row and EXACTLY 6 columns, a fixed grid of identical LANDSCAPE cells. Do NOT add, remove, merge or skip rows. The image has 1 row, not more.
+2. ONE effect per row. A row contains ONLY its own effect, never a frame of another effect.
+3. Use EXACTLY 6 frames in every row, using all 6 columns.
+4. Every frame is fully opaque and complete, nothing touches or crosses the cell edge.
+5. NO character, NO person, NO body in any cell. The attached image is only a color and style reference: do NOT draw the character.
+6. Effects must be BIG and dramatic, filling most of the cell, much larger than a person. Same style and scale across the frames of a row. Effects travel LEFT to RIGHT.
+7. Colors: ink black, charcoal, ash gray, bone white, pale amber only, dark 1px outline, max 16 colors. NO green anywhere. Nothing turquoise, aqua, teal or greenish. No border, no grid lines, no shadows, no text except the label.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - FX_HIT" on a thin dark strip above the grid.
+
+ROW (one effect, 6 frames):
+Row 1: SLASH ARCS (basic attack): three quick long slash arcs in a row, ash gray and bone white with small ink-black sparks and a touch of pale amber.

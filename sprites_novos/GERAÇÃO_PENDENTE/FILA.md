@@ -1,15 +1,40 @@
-# FILA de geração
+# FILA de geração (MODO LINHA)
 
-Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar (só com ordem do dono) · 🔒 bloqueado (espera o job de que depende ficar ✅) · ✅ aprovado pelo dono (arquivo já em `sprites_novos/`) · ⚠ conferência reprovou (avisar o dono) · ⏭ pulado (o dono gerou por conta própria; esperar o arquivo em `sprites_novos/`) · ♻ dono pediu pra regerar. Antes da aprovação a imagem só existe no chat; a fila só muda depois do SIM.
+Leia primeiro o `LEIA-ME.md`. **Só o job STYLE precisa de aprovação do dono.** Depois do STYLE aprovado (✅), os outros rodam em sequência, sozinhos, UMA linha (uma animação) por imagem.
+Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo · ⚠ gerado mas a conferência reprovou depois das tentativas (revisar) · ♻ dono mandou refazer.
 
-| Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |
-|---|---|---|---|---|---|
-| 01_utsushi_A1 | ✅ | `UTSUSHI_A1.png` | — | SIM | `jobs/01_utsushi_A1/` |
-| 02_utsushi_A1B | ✅ | `UTSUSHI_A1B.png` | UTSUSHI_A1 | SIM | `jobs/02_utsushi_A1B/` |
-| 03_utsushi_A2 | ⬜ | `UTSUSHI_A2.png` | UTSUSHI_A1 | — | `jobs/03_utsushi_A2/` |
-| 04_utsushi_B1 | 🔒 | `UTSUSHI_B1.png` | UTSUSHI_A2 | — | `jobs/04_utsushi_B1/` |
-| 05_utsushi_B2 | 🔒 | `UTSUSHI_B2.png` | UTSUSHI_B1 | — | `jobs/05_utsushi_B2/` |
-| 06_utsushi_C | 🔒 | `UTSUSHI_C.png` | UTSUSHI_B2 | — | `jobs/06_utsushi_C/` |
-| 07_utsushi_CH | 🔒 | `UTSUSHI_CH.png` | UTSUSHI_C | — | `jobs/07_utsushi_CH/` |
-| 08_utsushi_CL | ⬜ | `UTSUSHI_CL.png` | UTSUSHI_A1 | — | `jobs/08_utsushi_CL/` |
-| 09_utsushi_D | ⬜ | `UTSUSHI_D.png` | UTSUSHI_A1 | — | `jobs/09_utsushi_D/` |
+| Job | Status | Saída | Pasta |
+|---|---|---|---|
+| 01_utsushi_STYLE | ⬜ | `sprites_novos/UTSUSHI/STYLE.png` | `jobs/01_utsushi_STYLE/` |
+| 02_utsushi_idle | 🔒 | `sprites_novos/UTSUSHI/IDLE.png` | `jobs/02_utsushi_idle/` |
+| 03_utsushi_walk | 🔒 | `sprites_novos/UTSUSHI/WALK.png` | `jobs/03_utsushi_walk/` |
+| 04_utsushi_dash | 🔒 | `sprites_novos/UTSUSHI/DASH.png` | `jobs/04_utsushi_dash/` |
+| 05_utsushi_attack1 | 🔒 | `sprites_novos/UTSUSHI/ATTACK1.png` | `jobs/05_utsushi_attack1/` |
+| 06_utsushi_attack2 | 🔒 | `sprites_novos/UTSUSHI/ATTACK2.png` | `jobs/06_utsushi_attack2/` |
+| 07_utsushi_attack3 | 🔒 | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
+| 08_utsushi_strong | 🔒 | `sprites_novos/UTSUSHI/STRONG.png` | `jobs/08_utsushi_strong/` |
+| 09_utsushi_guard | 🔒 | `sprites_novos/UTSUSHI/GUARD.png` | `jobs/09_utsushi_guard/` |
+| 10_utsushi_hurt | 🔒 | `sprites_novos/UTSUSHI/HURT.png` | `jobs/10_utsushi_hurt/` |
+| 11_utsushi_dodge | 🔒 | `sprites_novos/UTSUSHI/DODGE.png` | `jobs/11_utsushi_dodge/` |
+| 12_utsushi_seals | 🔒 | `sprites_novos/UTSUSHI/SEALS.png` | `jobs/12_utsushi_seals/` |
+| 13_utsushi_jutsu | 🔒 | `sprites_novos/UTSUSHI/JUTSU.png` | `jobs/13_utsushi_jutsu/` |
+| 14_utsushi_buff | 🔒 | `sprites_novos/UTSUSHI/BUFF.png` | `jobs/14_utsushi_buff/` |
+| 15_utsushi_stun | 🔒 | `sprites_novos/UTSUSHI/STUN.png` | `jobs/15_utsushi_stun/` |
+| 16_utsushi_victory | 🔒 | `sprites_novos/UTSUSHI/VICTORY.png` | `jobs/16_utsushi_victory/` |
+| 17_utsushi_defeat | 🔒 | `sprites_novos/UTSUSHI/DEFEAT.png` | `jobs/17_utsushi_defeat/` |
+| 18_utsushi_knockback | 🔒 | `sprites_novos/UTSUSHI/KNOCKBACK.png` | `jobs/18_utsushi_knockback/` |
+| 19_utsushi_launched | 🔒 | `sprites_novos/UTSUSHI/LAUNCHED.png` | `jobs/19_utsushi_launched/` |
+| 20_utsushi_knockdown | 🔒 | `sprites_novos/UTSUSHI/KNOCKDOWN.png` | `jobs/20_utsushi_knockdown/` |
+| 21_utsushi_chase1 | 🔒 | `sprites_novos/UTSUSHI/CHASE1.png` | `jobs/21_utsushi_chase1/` |
+| 22_utsushi_chase2 | 🔒 | `sprites_novos/UTSUSHI/CHASE2.png` | `jobs/22_utsushi_chase2/` |
+| 23_utsushi_chase3 | 🔒 | `sprites_novos/UTSUSHI/CHASE3.png` | `jobs/23_utsushi_chase3/` |
+| 24_utsushi_clone_idle | 🔒 | `sprites_novos/UTSUSHI/CLONE_IDLE.png` | `jobs/24_utsushi_clone_idle/` |
+| 25_utsushi_clone_attack | 🔒 | `sprites_novos/UTSUSHI/CLONE_ATTACK.png` | `jobs/25_utsushi_clone_attack/` |
+| 26_utsushi_clone_hurt | 🔒 | `sprites_novos/UTSUSHI/CLONE_HURT.png` | `jobs/26_utsushi_clone_hurt/` |
+| 27_utsushi_clone_vanish | 🔒 | `sprites_novos/UTSUSHI/CLONE_VANISH.png` | `jobs/27_utsushi_clone_vanish/` |
+| 28_utsushi_fx_proj | 🔒 | `sprites_novos/UTSUSHI/FX_PROJ.png` | `jobs/28_utsushi_fx_proj/` |
+| 29_utsushi_fx_hit | 🔒 | `sprites_novos/UTSUSHI/FX_HIT.png` | `jobs/29_utsushi_fx_hit/` |
+| 30_utsushi_fx_jutsu | 🔒 | `sprites_novos/UTSUSHI/FX_JUTSU.png` | `jobs/30_utsushi_fx_jutsu/` |
+| 31_utsushi_fx_chase | 🔒 | `sprites_novos/UTSUSHI/FX_CHASE.png` | `jobs/31_utsushi_fx_chase/` |
+| 32_utsushi_fx_impact | 🔒 | `sprites_novos/UTSUSHI/FX_IMPACT.png` | `jobs/32_utsushi_fx_impact/` |
+| 33_utsushi_fx_aura | 🔒 | `sprites_novos/UTSUSHI/FX_AURA.png` | `jobs/33_utsushi_fx_aura/` |

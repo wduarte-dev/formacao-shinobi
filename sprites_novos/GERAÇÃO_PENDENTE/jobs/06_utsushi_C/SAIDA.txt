@@ -1,2 +1,0 @@
-Mostrar a imagem no chat e perguntar ao dono "aprova ou não?". Só com o SIM salvar EXATAMENTE como sprites_novos/UTSUSHI_C.png.
-(lote C: repelido, lançado, derrubado)

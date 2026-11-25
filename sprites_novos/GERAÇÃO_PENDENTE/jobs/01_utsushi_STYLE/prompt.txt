@@ -1,0 +1,14 @@
+STRICT RULES (highest priority, never break):
+1. The image contains EXACTLY ONE character, shown ONCE, in ONE single standing idle pose, FULL BODY visible, centered. NO grid, NO rows, NO columns, NO other frames, NO other characters, NO second pose, NO turnaround. LANDSCAPE image.
+2. The character faces RIGHT (side or three-quarter view). Nothing touches or crosses the image edge. Fully opaque, NO ghost or translucent parts.
+3. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+4. No border, no drop shadow, no ground, no extra text except the label.
+5. No big effects. Effect colors: ink black, charcoal, ash gray, bone white, pale amber, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient.
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - STYLE" on a thin dark strip.
+
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
+
+CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): UTSUSHI, a young shadow ninja with a calm, sarcastic, lazy-confident attitude. Tall and lean, a relaxed slouching posture, dark circles under half-lidded eyes and a thin lopsided smirk. A dark charcoal knit cap with a cream-white trim pulled low over one side of his head, over messy short jet-black hair. Thin abstract ink-black tattoo lines (only lines and patterns, NO letters, NO text) on both forearms and the backs of both hands. A long charcoal coat worn open, sleeves rolled up to the elbows, with a bone-white shirt underneath, loose dark pants and dark boots. A very long, thin, straight black blade with a bone-white guard and a hilt wrapped in pale amber cloth, carried resting on one shoulder (always visible, identical in every frame). Colors only ink black, charcoal, ash gray, bone white and a small touch of pale amber on the hilt wrap. Nothing turquoise, aqua or teal anywhere.
+
+POSE: one standing idle pose: a lazy slouch with the long blade resting on his shoulder, head slightly tilted, a thin smirk.

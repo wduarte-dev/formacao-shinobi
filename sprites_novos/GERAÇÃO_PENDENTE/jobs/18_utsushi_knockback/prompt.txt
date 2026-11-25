@@ -1,0 +1,17 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 1 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 1 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it. Weapons, accessories and every held or worn item keep the SAME length, size, shape, count and hand in EVERY frame (a blade never shrinks or turns into only a hilt; a motion smear is an EXTRA drawn next to the full weapon, never a replacement for it).
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: ink black, charcoal, ash gray, bone white, pale amber, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE KNOCKBACK" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character (Utsushi): copy exactly the charcoal knit cap with a cream-white trim pulled low over one side, messy short jet-black hair, dark circles under half-lidded eyes, thin lopsided smirk, thin abstract ink-black tattoo lines on both forearms and the backs of the hands, long charcoal coat worn open with rolled sleeves over a bone-white shirt, loose dark pants, dark boots, and the very long thin straight black blade with a bone-white guard and pale-amber wrapped hilt, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.
+Proportions: realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed.
+
+ROWS:
+Row 1: KNOCKED BACK (repelled), 8 frames: hit by a heavy blow, flung backwards off his feet, body leaning back and sliding away, ending in a hard skid (full 8 columns).

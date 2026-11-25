@@ -195,6 +195,30 @@ Row 4: STINGER (pursuit): a gigantic needle of violet energy plunging diagonally
 Row 5: IMPACT: a sharp violet and pale lilac hit burst with radial spikes and a few droplets.
 Row 6: AURA RING: a ring of swirling violet and magenta poison vapor around an EMPTY space the size of a body, rising upward, with small bubbles."""),
 }
+
+# ---- MODO LINHA (25/11/2026): UMA animação por imagem (1 linha), em vez de sheets de 3-6 linhas ----
+ROWMAP = [('A1', ['idle', 'walk', 'dash']), ('A1B', ['attack1', 'attack2', 'attack3']), ('A2', ['strong', 'guard', 'hurt', 'dodge']),
+          ('B1', ['seals', 'jutsu', 'buff']), ('B2', ['stun', 'victory', 'defeat']), ('C', ['knockback', 'launched', 'knockdown']),
+          ('CH', ['chase1', 'chase2', 'chase3']), ('CL', ['clone_idle', 'clone_attack', 'clone_hurt', 'clone_vanish']),
+          ('D', ['fx_proj', 'fx_hit', 'fx_jutsu', 'fx_chase', 'fx_impact', 'fx_aura'])]
+def row_prompts(k):
+    """Lista de (anim, texto do prompt de UMA linha). Usa os mesmos textos dos lotes (n[lote]), uma linha por prompt."""
+    import re
+    n = NINJAS[k]; P = n["pal"]; N = n["name"]; out = []
+    for lote, anims in ROWMAP:
+        if lote not in n: continue
+        rws = [l for l in n[lote].split("\n") if l.startswith("Row ")]
+        for a, rw in zip(anims, rws):
+            r1 = re.sub(r"^Row \d+:", "Row 1:", rw)
+            if lote == "D":
+                t = DBLOCK.format(PAL=P, NAME=N).replace("EXACTLY 6 rows and EXACTLY 6 columns", "EXACTLY 1 row and EXACTLY 6 columns").replace("The image has 6 rows, not more.", "The image has 1 row, not more.").replace("LOTE D", a.upper()).replace("ROWS (each one effect, 6 frames):", "ROW (one effect, 6 frames):") + r1 + "\n"
+            elif lote == "CL":
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+            else:
+                t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
+            out.append((a, t))
+    return out
+
 def build(k):
     n = NINJAS[k]; P = n["pal"]; N = n["name"]
     def lot(rows, L, ref):
