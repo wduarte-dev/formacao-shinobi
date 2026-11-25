@@ -10,7 +10,7 @@ Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo ·
 | 03_utsushi_walk | ⚠ fundo fora de #00FF00 nos quadros 1–8 e casaco junto à borda no quadro 2 | `sprites_novos/UTSUSHI/WALK_REVISAR.png` | `jobs/03_utsushi_walk/` |
 | 04_utsushi_dash | ⚠ segundo punhal não visível nos quadros 1–8 e fundo fora de #00FF00 | `sprites_novos/UTSUSHI/DASH_REVISAR.png` | `jobs/04_utsushi_dash/` |
 | 05_utsushi_attack1 | ⚠ punhal do quadro 4 sem lâmina visível, mão invade quadro 5 e fundo fora de #00FF00 | `sprites_novos/UTSUSHI/ATTACK1_REVISAR.png` | `jobs/05_utsushi_attack1/` |
-| 06_utsushi_attack2 | ⬜ | `sprites_novos/UTSUSHI/ATTACK2.png` | `jobs/06_utsushi_attack2/` |
+| 06_utsushi_attack2 | ⚠ mãos e punhais extras nos quadros 2–5, casaco do quadro 4 invade a célula 3 e fundo fora de #00FF00 | `sprites_novos/UTSUSHI/ATTACK2_REVISAR.png` | `jobs/06_utsushi_attack2/` |
 | 07_utsushi_attack3 | ⬜ | `sprites_novos/UTSUSHI/ATTACK3.png` | `jobs/07_utsushi_attack3/` |
 | 08_utsushi_strong | ⬜ | `sprites_novos/UTSUSHI/STRONG.png` | `jobs/08_utsushi_strong/` |
 | 09_utsushi_guard | ⬜ | `sprites_novos/UTSUSHI/GUARD.png` | `jobs/09_utsushi_guard/` |
