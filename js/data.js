@@ -54,7 +54,7 @@ const N={
   jutsu:{name:'Zumbido Ensurdecedor',cost:40,cd:4,mult:.8,target:'all',stun:'all',an:'atk2',wave:1,desc:'paralisa todos (não perseguem)'},
   strong:{name:'Estridulação',an:'atk3',mult:1.4,target:'front',ranged:true,cause:'R'},
   chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}},
- keshin:{name:'Keshin',el:'Neutro',c:'#e8803a',role:'Atacante de combos',hp:940,atk:115,def:20,dodge:8,sfxEl:'Raio',customSfx:false,
+ keshin:{name:'Keshin',el:'Neutro',c:'#e8803a',role:'Atacante de combos',hp:940,atk:115,def:20,dodge:8,sfxEl:'Raio',
   normal:{name:'Combo Relâmpago',target:'front',cause:'L',mult:.3,sequence:['atk1','attackB','attackC'],hits:[.54,.54,.54],contactY:[-75,-89,-67]},
   jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
    aura:{rounds:3,bonusHits:[1,2,3],dmg:.2},
@@ -75,7 +75,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.8.1',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.8.2',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
