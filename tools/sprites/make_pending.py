@@ -16,9 +16,9 @@ DESC = {'A1': 'idle, andar, investida', 'A1B': 'básico em 3 golpes (18 quadros)
 def main():
     nin = sys.argv[1].lower(); sel = [x.upper() for x in sys.argv[2:]]
     chain = [c for c in CHAIN if not sel or c[0] in sel]
-    os.makedirs(os.path.join(BASE, 'jobs'), exist_ok=True)
+    os.makedirs(os.path.join(BASE, 'jobs'), exist_ok=True); os.makedirs(os.path.join(R, 'sprites_novos', 'APROVAÇÃO'), exist_ok=True)
     fila = os.path.join(BASE, 'FILA.md')
-    head = '# FILA de geração\n\nLeia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto · 🔒 bloqueado (espera o job de que depende ser ✅ e APROVADO pelo dono) · ✅ gerado · ⚠ gerado com problema (revisar) · ♻ dono pediu pra regerar.\n\n| Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |\n|---|---|---|---|---|---|\n'
+    head = '# FILA de geração\n\nLeia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar · 🔒 bloqueado (espera o job de que depende ficar ✅) · ⏳ gerado, na pasta `sprites_novos/APROVAÇÃO/` esperando o dono dizer sim ou não · ✅ aprovado (arquivo já em `sprites_novos/`) · ⚠ gerado com problema na conferência (avisar o dono) · ♻ dono pediu pra regerar.\n\n| Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |\n|---|---|---|---|---|---|\n'
     rows = open(fila, encoding='utf8').read() if os.path.exists(fila) else head
     n0 = len(re.findall(r'^\| \d\d ', rows, re.M))
     for i, (lote, dep) in enumerate(chain, n0 + 1):
@@ -33,10 +33,10 @@ def main():
             dep_txt, status = '—', '⬜'
         else:
             dep_out = f'{nin.upper()}_{dep}.png'
-            anex = f'Anexe SÓ esta imagem: sprites_novos/{dep_out} (o sheet {dep} já gerado e aprovado).'
+            anex = f'Anexe SÓ esta imagem: sprites_novos/{dep_out} (o sheet {dep} já APROVADO, na pasta sprites_novos/, não o da pasta APROVAÇÃO).'
             dep_txt, status = f'{nin.upper()}_{dep}', '🔒'
         open(os.path.join(d, 'ANEXOS.txt'), 'w', encoding='utf8').write(anex + '\n')
-        open(os.path.join(d, 'SAIDA.txt'), 'w', encoding='utf8').write(f'Salvar o resultado EXATAMENTE como: sprites_novos/{out}\n(lote {lote}: {DESC.get(lote, "")})\n')
+        open(os.path.join(d, 'SAIDA.txt'), 'w', encoding='utf8').write(f'Gerar e salvar PRIMEIRO em sprites_novos/APROVAÇÃO/{out} e perguntar ao dono 'aprova ou não?'. Só depois do SIM mover pra sprites_novos/{out}.\n(lote {lote}: {DESC.get(lote, "")})\n')
         if f'| {job} |' not in rows:
             rows += f'| {job} | {status} | `{out}` | {dep_txt} | — | `jobs/{job}/` |\n'
     open(fila, 'w', encoding='utf8').write(rows); print('ok ->', BASE)

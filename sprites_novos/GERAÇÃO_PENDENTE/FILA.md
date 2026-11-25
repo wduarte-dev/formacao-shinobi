@@ -1,6 +1,6 @@
 # FILA de geração
 
-Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto · 🔒 bloqueado (espera o job de que depende ser ✅ e APROVADO pelo dono) · ✅ gerado · ⚠ gerado com problema (revisar) · ♻ dono pediu pra regerar.
+Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar · 🔒 bloqueado (espera o job de que depende ficar ✅) · ⏳ gerado, na pasta `sprites_novos/APROVAÇÃO/` esperando o dono dizer sim ou não · ✅ aprovado (arquivo já em `sprites_novos/`) · ⚠ gerado com problema na conferência (avisar o dono) · ♻ dono pediu pra regerar.
 
 | Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |
 |---|---|---|---|---|---|

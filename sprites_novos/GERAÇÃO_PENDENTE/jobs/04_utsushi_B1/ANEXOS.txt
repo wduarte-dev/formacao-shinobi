@@ -1,1 +1,1 @@
-Anexe SÓ esta imagem: sprites_novos/UTSUSHI_A2.png (o sheet A2 já gerado e aprovado).
+Anexe SÓ esta imagem: sprites_novos/UTSUSHI_A2.png (o sheet A2 já APROVADO, na pasta sprites_novos/, não o da pasta APROVAÇÃO).
