@@ -8,6 +8,7 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'A cada 3ª ação sem jutsu, quem tem golpe Forte solta ele no lugar do básico.',
  'O chakra sobe 20 por rodada. Jutsu caro na hora errada é chakra jogado fora.',
  'Sem o Auto, o botão do jutsu pulsa um pouco antes da vez de quem pode usar. É a sua deixa!',
+ 'Jutsu instantâneo sai entre ações. A Aura Relâmpago ainda deixa Keshin atacar na vez dele.',
  'Clique num inimigo pra marcar o alvo dos seus jutsus.',
  'O escudo da Muralha de Pedra não acumula: fica o maior, e some depois de 2 rodadas.',
  'Jutsu que acerta todos ou uma fileira não dá pra desviar.',
@@ -59,6 +60,7 @@ function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=docum
 function upd(u){
   u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/(u.shM||u.shield)):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
   u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
+  u.el.classList.toggle('powered',!!u.power&&u.alive);
   u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'');
   for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0), shm=U[s].reduce((x,v)=>x+(v.alive&&v.shield>0?v.shM||v.shield:0),0); tshEl(s).style.transform=`scaleX(${shm?Math.min(1,sh/shm):0})`;}
 }

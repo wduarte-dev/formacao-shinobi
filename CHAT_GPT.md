@@ -32,26 +32,19 @@ Peça ao dono os arquivos de que precisa (ele sobe pelo GitHub). Entregue **patc
 
 ---
 ## Estado atual (atualizar a cada passagem de bastão)
-**Última atualização: 25/11/2026 (Claude).**
+**Última atualização: 24/11/2026 (Codex).**
 
-### Keshin (ninja novo) — sprites recortados e validados, FALTA integrar
-- Conceito (`docs/ninjas.md`): humano lutador carismático (mistura de Lee/Guy/Ay só na atitude), **elemento neutro/físico**, básico de vários golpes (último hit lança o alvo), jutsu **Aura Relâmpago INSTANTÂNEO**: ativa antes de todos e ainda ataca; mais ataques básicos por ação e + % de dano; custo ~15–20% da vida máx., **perfurante (ignora escudo), nunca mata (piso 1 HP)**; recarga 2 turnos. Perseguição "Bomba Dinamite" (L→D). Forte "Soco Dinamite" (opcional).
-- Sheets em `tools/sprites/src/keshin/` (A1, A1B, A2, B1, B2, C, CH, D; originais ficam também em `sprites_novos/`). Config: `tools/sprites/config/keshin.json`. Recorte rodado: contagem de quadros bateu em todas as linhas, `audit_atlas.py` = 0 suspeitas. Atlas em `tools/sprites/out/` (git ignora): refazer com `cd tools/sprites && python3 shinobi_atlas.py config/keshin.json` (precisa `pip install numpy pillow scipy`).
-- Atlas: 22 linhas: idle, walk, dash, **attack, attackB, attackC** (6 quadros cada, contato no quadro 4), strong, guard, hurt, dodge, seals, jutsu, buff, stun, victory, defeat, knockback, launched, knockdown, **chase1, chase2, chase3** (6 quadros cada). Efeitos (D): proj, hit, jutsu, chase, impact, aura.
-- Observação visual: no `walk` os quadros 3–4 ficam meio de costas/deslocados (pequeno; avaliar no jogo).
-
-### O que falta (ordem sugerida)
-1. Copiar `out/keshin_atlas.png`/`_fx.png` pra `spr/`; `python3 tools/new_ninja.py snippets keshin` → colar `V2`, `FXA/FXUSE/FXMOVE`, `N`; medir `FACE`; `audit_atlas.py --fix`.
-2. **Código novo no motor**: básico que alterna `attack/attackB/attackC` (cada golpe tem o contato no quadro 4 de 6; definir as frações de `hits` conferindo com `qa_anim.py`), perseguição que encadeia `chase1→2→3` (impacto no quadro 5 do chase2), `instant` (jutsu que sai entre ações sem gastar a ação), ataques múltiplos variáveis por buff, dano `pierce` (ignora escudo) pro custo em vida com piso 1 HP.
-3. Complemento em código dos efeitos (aura, cratera, onda de ar) em `js/fx.js` (regra de 22/11).
-4. Sons (`tools/gen_ninja_sfx.py`, entrada `keshin`) e prompts de som do jutsu.
-5. Teste automático + `qa_anim.py`, patch notes, versão, commit na `main`.
+### Keshin — integrado na versão 1.8
+- Jogável na Formação e com sequências de ataque e perseguição na Galeria. Atlas de 22 linhas e efeitos em `spr/`. Ficha e números em `docs/ninjas.md`.
+- `castInstants` processa a fila manual entre ações e o Auto na abertura da rodada. Aura Relâmpago custa chakra e vida perfurante, mantém a ação normal e dá 4/5/6 golpes com +20% de dano.
+- Bomba Dinamite encadeia salto, queda e pouso (L→D). O último básico lança e ativa o fluxo existente de perseguições.
+- Os scripts têm prompts próprios do Keshin. Sem chave ElevenLabs no ambiente, a versão usa os efeitos de áudio genéricos e o som de raio para a Aura. Quando os OGGs estiverem em `audio/sfx/`, tirar `customSfx:false` da ficha.
 
 ### Decisão nova de regra do jogo (ainda NÃO implementada)
-**Curva de chakra por rodada para os dois times**: +20, +20, +40, +40, +60, +60, +80… (sobe 20 a cada 2 rodadas), **teto 100**. Hoje é +20 fixo em `js/combat.js` (~linha 220). Rebalancear as 5 missões com `test_battle.py` e atualizar a dica em `js/battle.js` (`TIPS`).
+**Curva de chakra por rodada para os dois times**: +20, +20, +40, +40, +60, +60, +80… (sobe 20 a cada 2 rodadas), **teto 100**. Hoje é +20 fixo em `js/combat.js` . Rebalancear as 5 missões com `test_battle.py` e atualizar a dica em `js/battle.js` (`TIPS`).
 
 ### Fila de ondas (ver `docs/ondas.md`)
-Feitas: 1 Escudo, 2 Triângulo elemental. Pendentes: 3 Status novos, 4 Ordem por Movimento, 5 Jutsu Instantâneo (parte entra com o Keshin), 6 Perseguição por combo, 7 Plano geral, 8 Passivas, 9 Missão secreta do Yugami. Ideias anotadas: dano perfurante e contundente.
+Feitas: 1 Escudo, 2 Triângulo elemental. Pendentes: 3 Status novos, 4 Ordem por Movimento, 5 Jutsu Instantâneo (base em uso com o Keshin), 6 Perseguição por combo, 7 Plano geral, 8 Passivas, 9 Missão secreta do Yugami. Ideias anotadas: dano perfurante e contundente.
 
 ### Ferramentas e contas
 - Gemini: texto grátis e visão (`tools/qa_gemini.py`); imagem não. ElevenLabs: SFX e vozes. **Plano Plus do ChatGPT não inclui API** (a API da OpenAI é cobrada à parte). Dono gera os sprites na IA de imagem dele e sobe em `sprites_novos/` ou `tools/sprites/src/<ninja>/`.

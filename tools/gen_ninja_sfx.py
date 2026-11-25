@@ -12,6 +12,11 @@ V = {"jutsu": (1.0, "{v} ninja powerful battle shout releasing a special jutsu, 
      "dor":   (0.6, "{v} ninja short grunt of pain when hit, 0.0-0.3s: sharp pained exhale, 0.3-0.6s: breathy groan"),
      "queda": (1.2, "{v} ninja defeated, 0.0-0.4s: painful cry, 0.4-1.2s: weak breathy groan fading as the body drops")}
 NINJAS = {
+ "keshin": {"timbre": "energetic, confident young adult male",
+  "sfx": [
+   ("keshin-atk", .5, "quick hand-to-hand contact, dry compact thump with a short cloth snap and softly fading warm electric crackle"),
+   ("keshin-chase", .7, "heavy ground slam, first frame low thud and sharp ground crack, then pebbles scattering and a short expanding air ring"),
+   ("esq-keshin", .5, "quick sidestep by an agile fighter, sharp cloth rustle with a light sandal skid and a short airy tail")]},
  "iwao": {"timbre": "deep heavy calm adult male",   # só o Forte novo (Punho de Pedra, 1.5); as vozes já existem e são puladas
   "sfx": [("iwao-forte", 1.0, "massive stone fist punch, 0.0-0.25s: heavy grinding wind-up of rock gauntlets, 0.25-0.45s: huge crunching rock impact thump, 0.45-1.0s: pebbles scattering and a deep rumble decay")]},
  "yugami": {"timbre": "calm slightly mischievous young male",

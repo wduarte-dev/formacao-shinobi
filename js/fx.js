@@ -29,7 +29,7 @@ function trailFx(x0,y0,x1,y1,state){ const hz=state==='R', n=lite?5:10;
   for(let i=0;i<n;i++){ const f=i/n, x=x0+(x1-x0)*f, y=y0+(y1-y0)*f;
     FX.push(prt(x,y,R(-4,4)*(hz?0:1),R(-14,14)*(hz?1:.3),0,0,0,8+f*10,hz?R(14,30):1.2,hz?1.2:R(14,30),'#ffffffcc')); } }
 const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9fd4ff','#3d8fe5','#2a5fb0'],Raio:['#ffffff','#fff27a','#e5c33d'],Terra:['#d9b27a','#9a7748','#5a4634'],
-  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Som:['#fff3c2','#e8b83a','#e8643a'],'Espaço':['#ffffff','#fff3b0','#f2c14e','#1b2a5c']};
+  Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Neutro:['#fff3d6','#ffbe64','#e8803a','#8c462b'],Som:['#fff3c2','#e8b83a','#e8643a'],'Espaço':['#ffffff','#fff3b0','#f2c14e','#1b2a5c']};
 // ondas sonoras desenhadas em código (jutsu com wave): anéis dourados saem do conjurador e cobrem o campo; cada alvo vibra com anéis menores
 function soundWave(u,ts){ const a=cur(u), cy=a.y-58*(u.d.size||1), n=lite?3:6, cols=['#ffd34d','#ff9a3c','#fff0b0'];
   const ring=(x,y,size,t,delay,c,bw)=>setTimeout(()=>{ const e=document.createElement('div'); e.className='swave'; e.style.left=x+'px'; e.style.top=y+'px'; if(bw)e.style.setProperty('--b',bw+'px');
@@ -129,6 +129,19 @@ function stoneWall(a){ const p=cur(a), d=a.side==='p'?1:-1, n=lite?5:12;
   em(n,()=>prt(p.x+d*R(26,46),p.y+4,0,0,R(-.3,.3),R(-4.2,-2.4),.16,R(30,40),R(5,9),R(5,9),pk(PAL.Terra))); dust(a,8); }
 // o Gigante de Pedra se desfaz: pedras caem da altura dele e poeira no chão (acompanha o fade do fantasma em ghostFade)
 function stoneCrumble(a){ const p=cur(a), n=lite?6:16; em(n,()=>prt(p.x+R(-55,55),p.y-R(40,150),0,0,R(-.6,.6),R(-1,.8),.2,R(26,38),R(5,10),R(5,10),pk(PAL.Terra))); dust(a,lite?5:10); }
+function auraBurst(u){
+  const p=cur(u), pal=PAL[u.d.el]||PAL.Raio;
+  dust(u,12);
+  em(24,i=>{
+    const a=i*2.4, r=R(8,20);
+    return prt(p.x,p.y,Math.cos(a)*r,Math.sin(a)*4,Math.cos(a)*1.7,R(-5.5,-2.8),.02,R(18,31),R(2,4),R(5,10),pk(pal));
+  });
+  for(let j=0;j<(lite?2:4);j++){
+    const d=j%2?1:-1, pts=[];
+    for(let i=0;i<7;i++)pts.push([p.x+d*(14+i*7)+R(-8,8),p.y-i*19-j*4]);
+    BOLT.push({pts,life:7+j*2,col:pal[j%pal.length],lw:j===0?2:1});
+  }
+}
 function spark(t,col,n){const p=cur(t); em(n,()=>prt(p.x,p.y,0,-28,R(-3,3),R(-3.2,1.5),.12,R(10,18),3,0,pk([col,'#ffffff'])));}
 
 
@@ -144,6 +157,7 @@ const FXA={
  mayoi:{c:8,a:{swarm:[0,7],cloud:[1,7],wave:[2,7],impact:[3,7],aura:[4,6],flash:[5,6]}},
  doku:{c:8,a:{vial:[0,6],burst:[1,6],mist:[2,6],stinger:[3,6],impact:[4,6],aura:[5,6]}},
  poko:{c:8,a:{arc:[0,6],slash:[1,6],buzz:[2,6],reap:[3,6],impact:[4,6],aura:[5,6]}},
+ keshin:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
  yugami:{c:8,a:{shard:[0,6],fenda:[1,6],lacre:[2,6],rasgo:[3,6],estouro:[4,6],halo:[5,6]}}
 };
 // qual efeito cada ninja usa em cada momento: hit = básico, jutsu, chase = perseguição, dodge = esquiva,
@@ -157,11 +171,12 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
   mayoi:{hit:'impact',jutsu:'cloud',chase:'swarm',dodge:'cloud',imp:'flash',aura:'aura',proj:'swarm'},
   doku:{hit:'burst',jutsu:'mist',chase:'stinger',imp:'impact',aura:'aura',proj:'vial',psc:.38},   // o frasco do atlas novo enche a célula: escala menor
   poko:{hit:'slash',jutsu:'buzz',chase:'reap',imp:'impact',aura:'aura',proj:'arc'},
+  keshin:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura'},
   yugami:{hit:'fenda',jutsu:'lacre',chase:'rasgo',imp:'estouro',aura:'halo',proj:'shard'}};
 // como cada efeito se mexe (nada fica parado feito PNG colado):
 // slide = entra deslizando a partir do atacante · dive = desce na diagonal de cima · rise = sobe do chão
 // fall = cai de cima · spin = gira leve · float = sobe flutuando · drift = escorrega devagar pra frente
-const FXMOVE={dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
+const FXMOVE={hit:'slide',jutsu:'rise',chase:'rise',dragon:'slide',wave:'slide',slash:'slide',gust:'slide',crescent:'slide',crescents:'slide',blade:'slide',swarm:'slide',chain:'slide',bolt:'slide',jet:'slide',fist:'slide',
   meteor:'dive',pillar:'rise',crack:'drift',rocks:'rise',prison:'fall',rain:'fall',dome:'rise',tornado:'drift',whirlwind:'spin',
   impact:'spin',orb:'spin',flash:'spin',spark:'spin',aura:'float',dust:'float',ground:'float',cloud:'drift',splash:'rise',vial:'slide',burst:'rise',mist:'drift',stinger:'dive',arc:'slide',shard:'slide',fenda:'slide',lacre:'float',rasgo:'rise',estouro:'spin',halo:'float'};
 // toca um efeito do atlas. o: {x,y} centro, flip (inimigo ataca da direita), sc escala, to {x,y} destino (viaja),

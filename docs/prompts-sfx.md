@@ -811,3 +811,8 @@ deafening insect buzz jutsu, 0.0-0.3s: rapid wing flutter building up, 0.3-1.5s:
 ```
 unstable glitch powering down, 0.0-0.6s: stuttering digital glitch static and warped tones, 0.6-1.1s: energy being sucked back in reverse whoosh, 1.1-1.6s: soft cloth hood rustle and a quiet sealing click, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.6 seconds long, cuts off cleanly at the end
 ```
+
+**jutsux-keshin** · 1.3s
+```
+lightning aura igniting around a fighter, 0.0-0.2s: sharp grounded electric pop, 0.2-0.7s: bolts climb and crackle with a strong bass pulse, 0.7-1.3s: quick warm fizz trailing off, crisp, punchy, no music, no voice, no speech, game sound effect, stylized anime action, exactly 1.3 seconds long, cuts off cleanly at the end
+```

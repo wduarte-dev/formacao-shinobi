@@ -3,7 +3,7 @@
 // hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
 // strong = golpe Forte: toda 3ª ação sem jutsu o básico vira ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
 const ST={D:'Derrubado',L:'Lançado',R:'Repelido'};
-const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados'};
+const TG={front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados',self:'o próprio ninja'};
 const N={
  kaen:{name:'Kaen',el:'Fogo',c:'#e5533d',role:'Atacante',hp:950,atk:135,def:20,
   normal:{name:'Corte Ardente',mult:1,target:'front',hits:[.3,.7]},
@@ -53,7 +53,13 @@ const N={
   normal:{name:'Rufo de Foices',mult:1.05,target:'front',hits:[.2,.35,.5,.65,.8]},
   jutsu:{name:'Zumbido Ensurdecedor',cost:40,cd:4,mult:.8,target:'all',stun:'all',an:'atk2',wave:1,desc:'paralisa todos (não perseguem)'},
   strong:{name:'Estridulação',an:'atk3',mult:1.4,target:'front',ranged:true,cause:'R'},
-  chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}}
+  chase:{name:'Ceifa Relâmpago',on:'R',cause:'L',mult:.7,mv:'rise'}},
+ keshin:{name:'Keshin',el:'Neutro',c:'#e8803a',role:'Atacante de combos',hp:940,atk:115,def:20,dodge:8,sfxEl:'Raio',customSfx:false,
+  normal:{name:'Combo Relâmpago',target:'front',cause:'L',mult:.3,sequence:['atk1','attackB','attackC'],hits:[.54,.54,.54]},
+  jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
+   aura:{rounds:3,bonusHits:[1,2,3],dmg:.2},
+   desc:'instantâneo, mantém a ação. Dá +1/+2/+3 golpes e +20% de dano por 3 rodadas. Custa 18% da vida máxima, ignora escudo e deixa pelo menos 1 PV'},
+  chase:{name:'Bomba Dinamite',on:'L',cause:'D',mult:.8,phases:['chase1','chase2','chase3'],hits:[.7]}}
 };
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
 const LOCK={poko:2};   // Fuuka/Hiyori/Mayoi/Doku saíram do LOCK em 22/11/2026, depois de regerados no estilo realista. Modo dev libera
@@ -69,7 +75,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.7.2',d:'24/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.8',d:'24/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

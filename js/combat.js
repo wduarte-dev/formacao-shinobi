@@ -12,7 +12,7 @@ function drawJ(){
       if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
-      x.onclick=()=>{ if(!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)
+      x.onclick=()=>{ if(!battleOn||result()||!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)
         if(chakra.p>=j.cost){u.armed=true;chakra.p-=j.cost;} else return;
         sfx.arm(); upd(u); drawJ(); };
       w.appendChild(x); w.appendChild(lb); b.appendChild(w); u.sk=x; u.skl=lb; u.skc=x.querySelector('.cdv'); }); }
@@ -20,7 +20,7 @@ function drawJ(){
     const can=u.alive&&u.cd===0&&(u.armed||chakra.p>=j.cost);
     x.classList.toggle('armed',!!u.armed); x.classList.toggle('off',!can);
     u.skc.textContent=u.alive&&u.cd>0?u.cd:!u.alive?'✕':'';
-    u.skl.textContent=u.armed?'preparado':j.name; });
+    u.skl.textContent=u.armed?(j.instant?'na fila':'preparado'):j.name; });
 }
 // campo (Noite de Névoa): efeitos vêm de jutsu.fieldFx do dono do campo (data.js)
 function fieldMul(a,basic){ if(!fieldA)return 1; const fx=fieldA.fx, mine=a.side===fieldA.side;
@@ -33,11 +33,18 @@ function clearField(){ if(!fieldA)return; fieldA=null; $('fog').classList.remove
 const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
 let EVADV=0, EVTXT='';   // dmgOf deixa aqui o resultado do triângulo; hurt consome (cor azul/cinza + texto) e zera
 function elemMul(a,t){ const x=ELBASE[a.d.el], y=ELBASE[t.d.el]; if(!x||!y)return 1; if(ELBEAT[x]===y)return ELADV; if(ELBEAT[y]===x)return ELDIS; return 1; }
-function dmgOf(a,t,m,basic){const em=elemMul(a,t); EVADV=em>1?1:em<1?-1:0; EVTXT=em>1?`${a.d.el} vence ${t.d.el}`:em<1?`${t.d.el} resiste a ${a.d.el}`:''; return Math.max(1,Math.round(em*a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
-function hurt(t,d,cls){
-  let r=d; if(t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
-  const hp0=t.hp; if(cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
+function dmgOf(a,t,m,basic){const em=elemMul(a,t); EVADV=em>1?1:em<1?-1:0; EVTXT=em>1?`${a.d.el} vence ${t.d.el}`:em<1?`${t.d.el} resiste a ${a.d.el}`:''; return Math.max(1,Math.round(em*a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*(1+(a.power?.dmg||0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+function hurt(t,d,cls,{pierce=false}={}){
+  const cost=cls==='cost';
+  let r=d; if(!pierce&&t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
+  const hp0=t.hp; if(!cost&&cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
   const adv=EVADV, evt=EVTXT; EVADV=0; EVTXT='';
+  if(cost){
+    t.hp-=r;
+    if(r>0)fl(t,'-'+r+' PV','dot');
+    if(t.side==='p'&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+    upd(t); return r;
+  }
   t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':'')); if(adv&&r>0)fl(t,evt,'elem'+(adv>0?' adv':' dis'));
   const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); setTimeout(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
@@ -57,9 +64,52 @@ function pick(u,mode,isJ){
     const c=fs.filter(x=>x.row===r).sort((a,b)=>a.depth-b.depth); if(c.length)return c[0]; }
   return fs[0];
 }
+async function strikeSequence(u,sk){
+  const extra=u.power?.bonusHits[Math.min(round-u.power.start,u.power.bonusHits.length-1)]||0;
+  const last=sk.sequence.length-1, total=sk.sequence.length+extra;
+  let t=null, dodged=false, launched=false, damage=0, hits=0;
+  for(let i=0;i<total;i++){
+    await gate();
+    if(!t?.alive){
+      t=pick(u,sk.target,false);
+      if(!t)break;
+      dodged=!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
+      await dashTo(u,t);
+    }
+    const part=i===total-1?last:i%last, an=sk.sequence[part];
+    const ms=animMs(u,an), impact=ms*sk.hits[part];
+    sfx.swing(); setAnim(u,an,0,true); await sleep(impact);
+    if(dodged){ await evade(t); log(`${nm(t)} desvia de <b>${sk.name}</b>`); break; }
+    fxAt(u,'hit',t,.98); fxAt(u,'imp',t,.55,-8); spark(t,u.d.c,7);
+    sfx.hit(u,'atk'); if(i===0)sfx.voz(u,'golpe',.6);
+    damage+=hurt(t,dmgOf(u,t,sk.mult,true),''); hits++;
+    if(result()){ await finale(t); break; }
+    if(i===total-1&&t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
+    await hitstop(28); await sleep(ms-impact);
+  }
+  if(hits)log(`${nm(u)} usa <b>${sk.name}</b> (${hits} golpes): ${damage} de dano`);
+  home(u);
+  if(launched){
+    comboShow(u,t); await chain(u.side,t,1,u);
+    if(t.alive){ await sleep(140); setState(t,null); t.el.style.zIndex=t.z; }
+  }
+  await sleep(160);
+}
 async function doSkill(u,sk,isJ){
   curSide=u.side; const dir=u.side==='p'?1:-1;
   try{
+    if(sk.sequence){ await strikeSequence(u,sk); return; }
+    if(sk.aura){
+      await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
+      await sleep(hitAt(u,'atk2'));
+      const paid=hurt(u,Math.min(u.hp-1,Math.round(u.max*sk.lifeCost)),'cost',{pierce:true});
+      u.power={...sk.aura,start:u.power?.start??round,end:round+sk.aura.rounds};
+      upd(u); sfx.jutsu(u); sfx.voz(u,'jutsu');
+      fxAt(u,'jutsu',u,1.16,12); auraBurst(u); flashSoft();
+      fl(u,sk.name,'shieldf');
+      log(`${nm(u)} ativa <b>${sk.name}</b> e gasta ${paid} PV`);
+      await sleep(animMs(u,'atk2')-hitAt(u,'atk2')); home(u); return;
+    }
     if(sk.unleash){   // Lacre Rompido (Yugami): tira o capuz, troca pro atlas solto + distorção em código, buff por N rodadas
       const was=u.solto;
       if(isJ&&!was){await cine(u,sk,[u]); sfx.jutsu(u);}   // sem kiai: o som do lacre quebrando com glitch já diz tudo
@@ -134,12 +184,25 @@ async function chain(side,t,count,src){
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
   c.chaseUsed=true; count++; sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
-  const cause=c.d.chase.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
-  const CHA=(u,a)=>c.d.chase.hits?Math.max(120,c.d.chase.hits[0]*animMs(u,a)):hitAt(u,a);
+  const CH=c.d.chase, cause=CH.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
+  const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
   const air=!!an_of(c).rise&&t.state==='L';
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
   const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
-  if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
+  if(CH.phases){
+    const [grab,slam]=CH.phases, ground=pos(t), dx=Math.max(70,Math.min(1082,tb.x+dir*38))-ground.x;
+    const riseMs=animMs(c,grab), fallMs=CHA(c,slam);
+    setAnim(c,grab,0,true); sfx.swing(); c.el.style.zIndex=60;
+    put(c,tb.x-dir*65-h0.x,tb.y-20-h0.y,`transform ${riseMs*.72/speed}ms cubic-bezier(.15,.8,.35,1)`);
+    await sleep(riseMs);
+    setAnim(c,slam,0,true); speedLines('D');
+    const fall=`transform ${fallMs/speed}ms cubic-bezier(.55,0,.9,.55)`;
+    put(t,dx,0,fall);
+    put(c,ground.x+dx-dir*65-h0.x,ground.y-h0.y,fall);
+    await sleep(fallMs);
+    t.off={x:dx,y:0}; t.mv.style.transition=''; c.mv.style.transition='';
+    dust(t,16); crack(ground.x+dx,ground.y); shake(); flashSoft(); sfx.thud();
+  }else if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,'transform .34s cubic-bezier(.2,.8,.3,1)');
     await sleep(Math.max(340,animMs(c,'rise')*.8));
@@ -157,17 +220,17 @@ async function chain(side,t,count,src){
     setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
-  const CH0=c.d.chase, tsu=CH0.tsunami&&Math.random()<CH0.tsunami&&foes(c).length>1;
+  const tsu=CH.tsunami&&Math.random()<CH.tsunami&&foes(c).length>1;
   let tsFoes=[];
   if(tsu){ ink('TSUNAMI!'); sfx.heavy(); shake(.6);   // parede de água desenhada em código: brota do chão, sobe, avança e desaba no time inteiro
     tsFoes=foes(c); tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=55; });   // todo mundo que vai levar o golpe aparece e fica marcado; z 55 = ABAIXO do canvas de efeitos (#fxc, 66): a onda passa por cima deles
     const W=tsunamiFx(dir); for(let n=0;!W.hit&&n<90;n++){ await gate(); await sleep(30); }   // espera a crista bater (respeita pausa/velocidade; teto de segurança)
     sfx.heavy(); shake(1.3); flashSoft(); }
-  else if(CH0.surge){   // Onda normal: onda de água em código que brota embaixo do alvo, cresce, curva e quebra em cima dele (sprite de respingo só como complemento no impacto)
+  else if(CH.surge){   // Onda normal: onda de água em código que brota embaixo do alvo, cresce, curva e quebra em cima dele (sprite de respingo só como complemento no impacto)
     const p=cur(t), W=waveFx({dir,x:p.x,y:p.y}); for(let n=0;!W.hit&&n<70;n++){ await gate(); await sleep(30); }
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
-  sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH0.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8);
-  const CH=c.d.chase, ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
+  sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25,CH.phases?36:0); fxAt(c,'imp',t,.6,-8);
+  const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     d+=hurt(t,dmgOf(c,t,cm/ch.length),'chase'); }
@@ -178,7 +241,12 @@ async function chain(side,t,count,src){
   if(result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
-  if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
+  if(CH.phases){
+    if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+    const [,slam,land]=CH.phases;
+    await hitstop(55); await sleep(animMs(c,slam)-CHA(c,slam));
+    setAnim(c,land,0,true); await sleep(animMs(c,land));
+  }else if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
     await hitstop(35); const g=pos(t), fall='transform .3s cubic-bezier(.55,0,.9,.55)';
     zoomTo(tb.x,(tb.y+g.y)/2-60,1.22); speedLines('D'); t.el.style.zIndex=55;
     t.off.y=-26; put(t,t.off.x,t.off.y,fall); put(c,tb.x-dir*72-h0.x,g.y-50-h0.y,fall);
@@ -201,7 +269,31 @@ function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive); return !
 function wants(u,rate){const j=u.d.jutsu;
   if(j.unleash)return !u.solto&&Math.random()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
+  if(j.aura)return !u.power&&u.hp>u.max*.25&&Math.random()<rate;
   return Math.random()<rate;}
+async function castInstants(opening=false){
+  // O laço da luta é o único que executa jutsus: cliques durante uma ação aguardam a próxima janela.
+  let pending;
+  do{
+    pending=false;
+    for(const u of all()){
+      if(result())return;
+      const j=u.d.jutsu;
+      if(!j.instant||!u.alive||u.cd>0)continue;
+      const autoRate=u.side==='p'?(autoP?1:0):foe.ai;
+      if(!u.armed&&(!opening||!autoRate||chakra[u.side]<j.cost||!wants(u,autoRate)))continue;
+      await gate();
+      if(!u.armed){
+        if(chakra[u.side]<j.cost)continue;
+        chakra[u.side]-=j.cost;
+      }
+      pending=true;
+      u.armed=false; u.cd=j.cd; upd(u); drawJ();
+      await doSkill(u,j,true);
+    }
+    opening=false;
+  }while(pending&&all().some(u=>u.armed&&u.d.jutsu.instant));
+}
 async function intro(){
   for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,'move',Math.random()*8|0);}
   $('rd').textContent=foe.name; await sleep(120);
@@ -220,6 +312,7 @@ async function run(){
         chakra.p=Math.min(100,chakra.p+20); chakra.e=Math.min(100,chakra.e+20); sfx.round(); sfx.chakra();
         if(fieldA&&--fieldA.rounds<=0)clearField();
         for(const u of all()){ if(!u.alive)continue; if(u.cd>0)u.cd--; if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
+          if(u.power&&round>=u.power.end){u.power=null; upd(u);}
           if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
@@ -227,26 +320,35 @@ async function run(){
       for(let i=0;i<4;i++)for(const u of [U.p[i],U.e[i]])if(u&&u.alive)fl(u,String(i+1),'ord');
       drawJ(); await sleep(round===1?900:650);
       if((res=result()))break;
+      await castInstants(true);
+      if((res=result()))break;
       for(let i=0;i<4;i++)for(const u of [U.p[i],U.e[i]]){
         if(!u||!u.alive)continue;
         await gate();
+        await castInstants();
+        if((res=result()))break outer;
+        if(!u.alive)continue;
         const wasStun=u.stunned;   // paralisia (como no Naruto Online): o ninja age normal (básico, jutsu), só não consegue PERSEGUIR; passa depois da ação dele
         if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
         let sk=u.d.normal,isJ=false; const j=u.d.jutsu;
-        if(u.side==='p'&&!autoP&&!u.armed&&u.cd===0&&chakra.p>=j.cost){   // janela pra armar o jutsu: o botão pulsa um instante antes do golpe
+        if(!j.instant&&u.side==='p'&&!autoP&&!u.armed&&u.cd===0&&chakra.p>=j.cost){   // janela pra armar o jutsu: o botão pulsa um instante antes do golpe
           u.el.classList.add('turn'); u.sk.classList.add('ready');
-          for(let w=0;w<1100&&!u.armed&&u.alive;w+=60){ await gate(); await sleep(60); }
+          for(let w=0;w<1100&&!u.armed&&u.alive;w+=60){ await gate(); await castInstants(); await sleep(60); }
           u.sk.classList.remove('ready'); }
-        if(u.side==='p'){
+        if((res=result()))break outer;
+        if(!u.alive)continue;
+        if(!j.instant&&u.side==='p'){
           if(!u.armed&&autoP&&u.cd===0&&chakra.p>=j.cost&&wants(u,1)){u.armed=true;chakra.p-=j.cost;}
           if(u.armed){u.armed=false;u.cd=j.cd;sk=j;isJ=true;upd(u);} }
-        else if(u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
+        else if(!j.instant&&u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
         if(!isJ&&u.d.strong&&++u.nc%3===0)sk=u.d.strong;   // toda 3ª ação sem jutsu vira o golpe Forte
         u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn');
         if(wasStun&&u.alive){u.stunned=false; upd(u);}
         drawJ();
         if((res=result()))break outer;
       }
+      await castInstants();
+      if((res=result()))break;
       if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=s('p')>s('e')?'win':'lose'; byTime=true; break;}
     }
     musStop(); await sleep(350); $('flash').className='long'; sfx.end(); ink('FIM DO COMBATE',true); await sleep(1500);

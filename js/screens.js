@@ -126,10 +126,24 @@ function drawGal(){
     const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.ui('clique');drawGal();}; L.appendChild(b); });
   const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,170,290,V);
   const A=$('gAn'); A.innerHTML=''; A.className='many';
+  const d=N[sel], j=d.jutsu, n=d.normal, a=gal;
+  const previews={atk1:n.sequence,chase:d.chase.phases};
+  let preview=0;
   [['Parado','idle'],['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Lançado','launched'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Vitória','victory'],['Derrota','die']]
-   .filter(([,an])=>an_of(gal)[an]).forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t;
-    b.onclick=()=>{setAnim(gal,an); if(['atk1','atk2','atk3','chase','dodge'].includes(an))sfx.swing();}; A.appendChild(b); });
-  const d=N[sel], j=d.jutsu, n=d.normal, causes=[n.cause,j.cause,d.chase.cause,d.strong&&d.strong.cause].filter(Boolean);
+   .filter(([,an])=>(previews[an]||an_of(a)[an])&&!(an==='atk3'&&n.sequence&&!d.strong)).forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t;
+    b.onclick=async()=>{
+      const p=++preview, seq=previews[an];
+      if(['atk1','atk2','atk3','chase','dodge'].includes(an))sfx.swing();
+      if(!seq){setAnim(a,an); return;}
+      for(const phase of seq){
+        setAnim(a,phase,0,true);
+        await new Promise(resolve=>setTimeout(resolve,animMs(a,phase)));
+        if(p!==preview||!ACT.includes(a))return;
+      }
+      setAnim(a,'idle');
+    };
+    A.appendChild(b); });
+  const causes=[n.cause,j.cause,d.chase.cause,d.strong&&d.strong.cause].filter(Boolean);
   const after=IDS.filter(o=>o!==sel&&causes.includes(N[o].chase.on)).map(o=>N[o].name);
   const before=IDS.filter(o=>o!==sel&&[N[o].normal.cause,N[o].jutsu.cause,N[o].chase.cause,N[o].strong&&N[o].strong.cause].includes(d.chase.on)).map(o=>N[o].name);
   const st=(t,v,m,c)=>`<div class="stt"><span>${t}</span><div class="bar ${c}"><i style="width:${Math.round(v/m*100)}%"></i></div><b>${v}</b></div>`;

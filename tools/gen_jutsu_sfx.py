@@ -17,6 +17,7 @@ SONS = [
  ("jutsux-doku", 1.8, "toxic fog jutsu, 0.0-0.3s: wet bubbling hiss, 0.3-1.4s: thick poisonous gas spraying and spreading with sizzling acid bubbles, 1.4-1.8s: lingering gurgle"),
  ("jutsux-yugami", 2.0, "dark seal breaking with digital glitch, 0.0-0.3s: cloth hood pulled back swish, 0.3-0.6s: sharp seal shattering crack, 0.6-1.6s: intense glitch distortion, bitcrushed stutter and warped static surge, 1.6-2.0s: low unstable dimensional hum"),
  ("jutsux-poko", 1.8, "deafening insect buzz jutsu, 0.0-0.3s: rapid wing flutter building up, 0.3-1.5s: piercing loud cicada screech with a pulsing sonic shockwave, 1.5-1.8s: ringing ear tinnitus fade"),
+ ("jutsux-keshin", 1.3, "lightning aura igniting around a fighter, 0.0-0.2s: sharp grounded electric pop, 0.2-0.7s: bolts climb and crackle with a strong bass pulse, 0.7-1.3s: quick warm fizz trailing off"),
  ("yugami-rehood", 1.6, "unstable glitch powering down, 0.0-0.6s: stuttering digital glitch static and warped tones, 0.6-1.1s: energy being sucked back in reverse whoosh, 1.1-1.6s: soft cloth hood rustle and a quiet sealing click"),
 ]
 pedidos = set(sys.argv[1:]); os.makedirs(OUT, exist_ok=True); ok = 0
