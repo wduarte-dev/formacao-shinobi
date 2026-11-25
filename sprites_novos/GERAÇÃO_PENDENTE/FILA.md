@@ -1,7 +1,7 @@
 # FILA de geração (MODO LINHA)
 
 Leia primeiro o `LEIA-ME.md`. **Só o job STYLE precisa de aprovação do dono.** Depois do STYLE aprovado (✅), os outros rodam em sequência, sozinhos, UMA linha (uma animação) por imagem.
-Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo · ⚠ gerado mas a conferência reprovou depois das tentativas (revisar) · ♻ dono mandou refazer.
+Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo · ⚠ gerado com erro percebido: salvo como `_REVISAR`, sem regerar (o dono decide) · ♻ dono mandou refazer.
 
 | Job | Status | Saída | Pasta |
 |---|---|---|---|

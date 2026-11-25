@@ -21,7 +21,7 @@ def rows_mode(nin):
     os.makedirs(os.path.join(BASE, 'jobs'), exist_ok=True); os.makedirs(os.path.join(R, 'sprites_novos', N), exist_ok=True)
     fila = os.path.join(BASE, 'FILA.md')
     head = ('# FILA de geração (MODO LINHA)\n\nLeia primeiro o `LEIA-ME.md`. **Só o job STYLE precisa de aprovação do dono.** Depois do STYLE aprovado (✅), os outros rodam em sequência, sozinhos, UMA linha (uma animação) por imagem.\n'
-            'Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo · ⚠ gerado mas a conferência reprovou depois das tentativas (revisar) · ♻ dono mandou refazer.\n\n'
+            'Estados: ⬜ pronto · 🔒 espera o STYLE ser aprovado · ✅ gerado e salvo · ⚠ gerado com erro percebido: salvo como `_REVISAR`, sem regerar (o dono decide) · ♻ dono mandou refazer.\n\n'
             '| Job | Status | Saída | Pasta |\n|---|---|---|---|\n')
     rows = head
     for i, (a, t) in enumerate(jobs, 1):
