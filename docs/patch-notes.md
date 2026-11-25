@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9.13 · 25/11/2026
+- Mizuha ganhou novos selos para a Chuva Serena e um jato que muda de forma durante a animação.
+
 ## 1.9.12 · 25/11/2026
 - O Chute Meteoro do Kaen agora emenda o contato no ar, a queda e o pouso. O impacto no chão levanta poeira e faíscas.
 
