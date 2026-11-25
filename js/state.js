@@ -17,6 +17,7 @@ function summonClones(owner,sk){
     if(group.length===sk.clones)return group;
     if(side.some(u=>u.alive&&u.row===row&&u.depth===depth))continue;
     const d={name:'Clone de vento',el:owner.d.el,c:owner.d.c,size:.78,
+      normal:{name:'Palma de Vento',target:'front',mult:1},
       hp:Math.round(owner.max*.35),atk:owner.atk*.35,def:owner.def,dodge:owner.d.dodge};
     const c=mk('utsushic',owner.side,owner.slot,row,depth,1,d,3*d.size);
     c.owner=owner; c.expires=round+sk.duration; U.clones.push(c); group.push(c); side.push(c);

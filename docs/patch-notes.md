@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.9.2 · 25/11/2026
+- Os clones atacam depois de Utsushi. Substituição sacrifica um clone para evitar o primeiro golpe da rodada. Ataques em área dissipam os clones atingidos.
+
 ## 1.9.1 · 25/11/2026
 - Legião de Ventos invoca até três clones com barra de vida própria nas casas livres. Eles protegem as fileiras por três rodadas. Só os ninjas decidem o resultado da batalha.
 

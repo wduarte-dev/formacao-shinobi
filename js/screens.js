@@ -152,6 +152,7 @@ function drawGal(){
    <p><u>Normal:</u> ${n.name}. Alvo: ${TG[n.target]}${n.cause?'. Deixa '+ST[n.cause]:''}${n.dot?'. Envenena':''}${n.split?`. ${Math.round(n.split*100)}% de chance de se multiplicar e acertar todos`:''}.</p>
    ${d.strong?`<p><u>Forte</u> (toda 3ª ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
    <p><u>Jutsu:</u> ${j.name} (${j.cost} de chakra, recarga ${j.cd}). Alvo: ${TG[j.target]}; ${j.desc}${j.cause?'. Deixa '+ST[j.cause]:''}.</p>
+   ${d.passive?`<p><u>${d.passive}</u> — um clone absorve o primeiro golpe recebido na rodada.</p>`:''}
    <p><u>Combo:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>
    <p><u>Abre combo para:</u> ${after.join(', ')||'ninguém'}.<br><u>Continua o combo de:</u> ${before.join(', ')||'ninguém'}.</p>`;
 }

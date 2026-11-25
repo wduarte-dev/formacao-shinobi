@@ -34,6 +34,19 @@ const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Ág
 let EVADV=0, EVTXT='';   // dmgOf deixa aqui o resultado do triângulo; hurt consome (cor azul/cinza + texto) e zera
 function elemMul(a,t){ const x=ELBASE[a.d.el], y=ELBASE[t.d.el]; if(!x||!y)return 1; if(ELBEAT[x]===y)return ELADV; if(ELBEAT[y]===x)return ELDIS; return 1; }
 function dmgOf(a,t,m,basic){const em=elemMul(a,t); EVADV=em>1?1:em<1?-1:0; EVTXT=em>1?`${a.d.el} vence ${t.d.el}`:em<1?`${t.d.el} resiste a ${a.d.el}`:''; return Math.max(1,Math.round(em*a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*(1+(a.power?.dmg||0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+// null indica que a Substituição também evitou o estado associado ao contato.
+function landHit(a,t,m,basic,cls,area=false){
+  if(t.d.passive==='Substituição'&&t.subRound!==round){
+    const clone=livingClones(t)[0];
+    if(clone){
+      t.subRound=round; sceneAdd(clone); vanishClone(clone); dust(t,8);
+      fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>');
+      hitsR[curSide]++; showHits(); return null;
+    }
+  }
+  const damage=dmgOf(a,t,m,basic);
+  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls);
+}
 function hurt(t,d,cls,{pierce=false}={}){
   const cost=cls==='cost';
   let r=d; if(!pierce&&t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
@@ -83,12 +96,12 @@ async function strikeSequence(u,sk){
     if(dodged){ await evade(t); log(`${nm(t)} desvia de <b>${sk.name}</b>`); break; }
     strikeFx(u,t,sk.contactY?.[part]??-75,finisher);
     sfx.hit(u,'atk'); if(i===0)sfx.voz(u,'golpe',.6);
-    damage+=hurt(t,dmgOf(u,t,sk.mult,true),''); hits++;
-    strikeRecoil(t,u.side==='p'?1:-1,finisher);
+    const dealt=landHit(u,t,sk.mult,true,'');
+    if(dealt!==null){ damage+=dealt; hits++; strikeRecoil(t,u.side==='p'?1:-1,finisher); }
     if(result()){ await finale(t); break; }
     if(finisher){
       shake(.65);
-      if(t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
+      if(dealt!==null&&t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
       sfx.heavy();
     }
     // Troca parte da recuperação pela pausa no contato, mantendo o ritmo do combo.
@@ -154,7 +167,7 @@ async function doSkill(u,sk,isJ){
     const canDodge=t=>!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
     const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
-    const dodgedSet=new Set(sk.target==='all'&&!isJ?ts.filter(canDodge):[]);
+    const dodgedSet=new Set(sk.target==='all'&&!isJ?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
     if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong)skTag(u,sk.name);
     if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
     let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
@@ -170,16 +183,17 @@ async function doSkill(u,sk,isJ){
       for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
         if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(!ts.some(t=>t.alive&&!dodgedSet.has(t)))break; }
         ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; if(!(isJ&&sk.wave))fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
-          tot+=hurt(t,dmgOf(u,t,sk.mult/nh,sk===u.d.normal),isJ?'big':''); spark(t,u.d.c,isJ?10:6); });
+          const dealt=landHit(u,t,sk.mult/nh,sk===u.d.normal,isJ?'big':'',area||split);
+          if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,isJ?10:6); } });
         if(nh>1&&k<nh-1)sfx.hit(); }
-      ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return;
+      connected.forEach(t=>{ if(!t.alive)return;
         if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
       if(sk.dispel)clearField();
       if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
       log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`);
       if(result())await finale(main); }
-    const ko=!dodged&&!dodgedSet.has(main)&&sk.cause&&main.alive;
+    const ko=connected.has(main)&&sk.cause&&main.alive;
     if(ko){ endCine(); await smash(u,main,sk.cause); } else if(!dodged)await hitstop(isJ?70:25);
     // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
     if(ko)await sleep(60); else{ await sleep(Math.max(isJ?0:200, animMs(u,an)-hit)); if(isJ)await fxWait(420,1400); }   // abriu combo: a perseguição começa já (antes esperava ~650ms o resto da anim do atacante)
@@ -246,17 +260,19 @@ async function chain(side,t,count,src){
     const p=cur(t), W=waveFx({dir,x:p.x,y:p.y}); for(let n=0;!W.hit&&n<70;n++){ await gate(); await sleep(30); }
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
   sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25,CH.phases?36:0); fxAt(c,'imp',t,.6,-8);
-  const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0;
+  const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0, connected=false;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
-    d+=hurt(t,dmgOf(c,t,cm/ch.length),'chase'); }
-  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); hurt(o,dmgOf(c,o,CH.mult*.6),'chase');
+    const dealt=landHit(c,t,cm/ch.length,false,'chase',tsu);
+    if(dealt!==null){connected=true; d+=dealt;} }
+  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); landHit(c,o,CH.mult*.6,false,'chase',true);
       if(o.alive){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
         setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240/speed); } }
     setTimeout(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
   if(result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
+  if(!connected){ setState(t,null); home(c); return; }
   if(CH.phases){
     if(t.alive&&cause==='R')await knock(t,cause);
     else if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
@@ -319,6 +335,13 @@ async function intro(){
   for(const u of all()){u.mv.style.transition=''; setAnim(u,'idle',Math.random()*8|0);}
   ink('Rodada 1'); await sleep(700); ink('LUTAR!'); sfx.start(); await sleep(1000);
 }
+function* turnOrder(){
+  for(let i=0;i<4;i++)for(const owner of [U.p[i],U.e[i]]){
+    if(!owner)continue;
+    yield owner;
+    yield* livingClones(owner);
+  }
+}
 async function run(){
   let res=null, byTime=false; finDone=false;
   try{
@@ -339,12 +362,17 @@ async function run(){
       if((res=result()))break;
       await castInstants(true);
       if((res=result()))break;
-      for(let i=0;i<4;i++)for(const u of [U.p[i],U.e[i]]){
+      for(const u of turnOrder()){
         if(!u||!u.alive)continue;
         await gate();
         await castInstants();
         if((res=result()))break outer;
         if(!u.alive)continue;
+        if(u.owner){
+          await doSkill(u,u.d.normal,false); u.stunned=false; upd(u);
+          if((res=result()))break outer;
+          continue;
+        }
         const wasStun=u.stunned;   // paralisia (como no Naruto Online): o ninja age normal (básico, jutsu), só não consegue PERSEGUIR; passa depois da ação dele
         if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
         let sk=u.d.normal,isJ=false; const j=u.d.jutsu;
