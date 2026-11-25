@@ -250,14 +250,16 @@ async function chain(side,t,count,src){
     await sleep(fallMs);
     t.off={x:dx,y:0}; t.mv.style.transition=''; c.mv.style.transition='';
     slamFx(t,c.d.c); crack(ground.x+dx,ground.y); shake(1.2); flashSoft(); sfx.thud();
-  }else if(air){   // perseguição aérea (lote E): salta acima do alvo, mergulha no chute e os dois descem juntos até o chão
+  }else if(air){
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     const riseMs=animMs(c,'rise');
-    put(c,tb.x-dir*120-h0.x,tb.y-120-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.2,.8,.3,1)`);
+    put(c,tb.x-dir*105-h0.x,Math.max(180,tb.y-76)-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.2,.75,.5,1)`);
     await sleep(riseMs);
-    setAnim(c,'meteor',0,true); fxAt(c,'chase',t,1.25);
-    const contactMs=animMs(c,'meteor')*.66;   // quadro 6: o chute chega ao alvo
-    put(c,tb.x-dir*72-h0.x,tb.y-24-h0.y,`transform ${contactMs/speed}ms ease-in`); await sleep(contactMs);
+    setAnim(c,'meteor',0,true); speedLines('D');
+    const contactMs=animMs(c,'meteor')*.9;   // último quadro: pé estendido, antes das chamas cortadas
+    put(c,tb.x-dir*54-h0.x,tb.y-52-h0.y,`transform ${contactMs/speed}ms ease-in`);
+    await sleep(contactMs);
+    setAnim(c,'meteor',seqN(an_of(c).meteor)-1,true);   // garante a pose do contato mesmo com queda de FPS
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
     // a anim do golpe começa JÁ no salto: ele sobe, segura no alto e despenca de modo que o pouso caia exatamente no quadro do soco
     const hitT=Math.max(430,CHA(c,an)); setAnim(c,an,0,true); sfx.swing(); c.el.style.zIndex=60;
@@ -294,9 +296,36 @@ async function chain(side,t,count,src){
     await sleep(animMs(c,strike)-CHA(c,strike)); setAnim(c,landing,0,true);
     const [extra]=await Promise.all([cloneVolley(c,t),sleep(animMs(c,landing))]); d+=extra;
   }
-  if(result())await finale(t);
+  if(!air&&result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
+  if(air){
+    const ground=pos(t), landX=Math.max(70,Math.min(1082,tb.x+dir*36)), fallMs=220;
+    const fall=`transform ${fallMs/speed}ms cubic-bezier(.55,0,.9,.55)`;
+    if(connected){
+      shake(.65); flashSoft();
+      await hitstop(35);
+      if(t.alive||!t.owner){
+        put(t,landX-ground.x,0,fall);
+        trailFx(tb.x,tb.y-50,landX,ground.y-50,'D');
+      }
+    }
+    put(c,landX-dir*75-h0.x,ground.y-h0.y,fall);
+    await sleep(fallMs);
+    c.mv.style.transition='';
+    setAnim(c,'landing',0,true);
+    if(connected&&(t.alive||!t.owner)){
+      t.off={x:landX-ground.x,y:0}; t.mv.style.transition='';
+      if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+      slamFx(t,c.d.c); sfx.thud();
+    }
+    if(result())await finale(t);
+    await sleep(animMs(c,'landing'));
+    if(!connected)setState(t,null);
+    home(c);
+    if(connected&&t.alive)await chain(side,t,count);
+    return;
+  }
   if(!connected){ setState(t,null); home(c); return; }
   if(CH.phases){
     if(t.alive&&cause==='R')await knock(t,cause);
@@ -306,22 +335,12 @@ async function chain(side,t,count,src){
       await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
       setAnim(c,land,0,true); await sleep(animMs(c,land));
     }
-  }else if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
-    await hitstop(35); const g=pos(t), fall='transform .3s cubic-bezier(.55,0,.9,.55)';
-    zoomTo(tb.x,(tb.y+g.y)/2-60,1.22); speedLines('D'); t.el.style.zIndex=55;
-    t.off.y=-26; put(t,t.off.x,t.off.y,fall); put(c,tb.x-dir*72-h0.x,g.y-50-h0.y,fall);
-    em(10,()=>prt(tb.x,tb.y,R(-10,10),-30,R(-1,1),R(1.5,3),0,R(12,20),R(4,7),0,pk(PAL.Fogo)));
-    await sleep(300); t.mv.style.transition=''; c.mv.style.transition='';
-    await smash(c,t,'D');
   }else if(t.alive){
     if(CH.mv==='rise'&&cause==='L'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
       put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
     await smash(c,t,cause);
     if(CH.mv==='rise'&&cause==='L'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
   }else await hitstop(40);
-  if(air&&an_of(c).landing){ const g=pos(t);   // pousa agachado do lado do alvo e levanta
-    put(c,cur(t).x-dir*82-h0.x,g.y-h0.y,'transform .12s ease-in'); setAnim(c,'landing',0,true); dust(c,10);
-    await sleep(animMs(c,'landing')*.7); c.mv.style.transition=''; }
   await sleep(110); home(c);
   if(t.alive)await chain(side,t,count);
 }
