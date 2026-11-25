@@ -1,1 +1,3 @@
 Anexe SÓ esta imagem: sprites_novos/UTSUSHI_A2.png (o sheet A2 já APROVADO, em sprites_novos/).
+
+ANTES de gerar: releia sprites_novos/GERAÇÃO_PENDENTE/DIRETRIZES.md inteiro.

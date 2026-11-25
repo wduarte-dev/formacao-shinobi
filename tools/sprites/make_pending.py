@@ -45,7 +45,7 @@ def main():
             dep_out = f'{nin.upper()}_{dep}.png'
             anex = f'Anexe SÓ esta imagem: sprites_novos/{dep_out} (o sheet {dep} já APROVADO, em sprites_novos/).'
             dep_txt, status = f'{nin.upper()}_{dep}', '🔒'
-        open(os.path.join(d, 'ANEXOS.txt'), 'w', encoding='utf8').write(anex + '\n')
+        open(os.path.join(d, 'ANEXOS.txt'), 'w', encoding='utf8').write(anex + '\n\nANTES de gerar: releia sprites_novos/GERAÇÃO_PENDENTE/DIRETRIZES.md inteiro.\n')
         open(os.path.join(d, 'SAIDA.txt'), 'w', encoding='utf8').write(f'Mostrar a imagem no chat e perguntar ao dono "aprova ou não?". Só com o SIM salvar EXATAMENTE como sprites_novos/{out}.\n(lote {lote}: {DESC.get(lote, "")})\n')
         if f'| {job} |' not in rows:
             rows += f'| {job} | {status} | `{out}` | {dep_txt} | — | `jobs/{job}/` |\n'

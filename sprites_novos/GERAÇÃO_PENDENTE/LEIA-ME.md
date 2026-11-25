@@ -4,6 +4,7 @@ Você gera **sheets de sprite** (uma imagem por job), mostra no chat, pergunta a
 
 ## O que existe aqui
 - `FILA.md`: a lista de jobs com status. É a única fonte de verdade do que fazer.
+- `DIRETRIZES.md`: as diretrizes de arte/animação/técnica (SPRITE FACTORY). **Ler inteiro antes de cada geração.**
 - `jobs/<NN>_<ninja>_<lote>/`: uma pasta por job, com TUDO que você precisa:
   - `prompt.txt`: o texto FINAL do prompt. **Use exatamente como está** (copie e cole inteiro; não resuma, não traduza, não "melhore", não troque palavras).
   - `ANEXOS.txt`: qual imagem anexar (e só essa). Pode ser `ref_elenco.png` (na pasta do job) ou um sheet já gerado em `sprites_novos/`.
@@ -13,7 +14,7 @@ Você gera **sheets de sprite** (uma imagem por job), mostra no chat, pergunta a
 1. `git pull` (ou atualize o repo) antes de começar.
 2. **Só comece se o dono mandou gerar agora** (veja "Permissão pra gerar"). Abra `FILA.md`. Pegue **o primeiro job com status ⬜** (de cima pra baixo). **Nunca execute 🔒, ⏭, ✅ ou ⚠** (⏭ = o dono gerou por conta própria); ♻ (regerar) só com a permissão do dono. Se não houver ⬜, avise o dono ("fila vazia ou aguardando sua aprovação") e pare.
 3. Abra a pasta do job. Leia `ANEXOS.txt`, `SAIDA.txt` e `prompt.txt`. **Se faltar o `prompt.txt` ou qualquer anexo, PARE e avise o dono. Nunca invente prompt nem gere imagem "sem prompt".**
-4. Gere **UMA** imagem com a ferramenta de geração de imagens: anexe **somente** o arquivo de `ANEXOS.txt` e cole o `prompt.txt` inteiro. Formato esperado: sheet **paisagem**, grade de linhas x colunas escrita no prompt, fundo verde #00FF00 chapado.
+4. **ANTES de gerar, releia `sprites_novos/GERAÇÃO_PENDENTE/DIRETRIZES.md` inteiro** (toda vez; é obrigatório, inclui a regra 19 de espaçamento entre frames). Gere **UMA** imagem com a ferramenta de geração de imagens: anexe **somente** o arquivo de `ANEXOS.txt` e cole o `prompt.txt` inteiro. Formato esperado: sheet **paisagem**, grade de linhas x colunas escrita no prompt, fundo verde #00FF00 chapado.
 5. **Confira a imagem antes de salvar** (checklist):
    - número de linhas e colunas igual ao do prompt (conte);
    - cada linha com o número de quadros pedido; células restantes vazias, só verde;
