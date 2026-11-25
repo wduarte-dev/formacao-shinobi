@@ -1,3 +1,5 @@
+> ⛔ **FILA PAUSADA (25/11/2026): o dono vai mudar o estilo do ninja. NÃO gere mais nada e NÃO execute nenhum job até o dono avisar. O Claude vai refazer a fila.**
+
 # FILA de geração (MODO LINHA)
 
 Leia primeiro o `LEIA-ME.md`. **Só o job STYLE precisa de aprovação do dono.** Depois do STYLE aprovado (✅), os outros rodam em sequência, sozinhos, UMA linha (uma animação) por imagem.
