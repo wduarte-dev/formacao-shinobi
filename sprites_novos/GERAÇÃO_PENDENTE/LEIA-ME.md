@@ -28,7 +28,7 @@ O "SIM" do STYLE vale como ordem pra **toda a fila**. Para cada job ⬜, **de ci
 5. **Se não houver erro:** salve **direto** em `sprites_novos/UTSUSHI/<ANIM>.png` (nome exato do `SAIDA.txt`; se já existir, não sobrescreva: `<ANIM>_v2.png`), marque o job ✅ na `FILA.md`, commit só da imagem + `FILA.md` (`Gera <job>`) e push na `main` (se der conflito na `FILA.md`, refaça só a sua linha).
 6. **Passe direto pro próximo job ⬜**, sem esperar o dono.
 
-**Pare e avise o dono** quando: a fila acabar; ele disser "pare/espera"; 3 jobs seguidos ficarem ⚠ (avise antes de continuar); faltar prompt/anexo; ou a ferramenta de imagem falhar/limitar. Ao parar, responda com um **resumo curto**: quantos ✅, quais ⚠ (com o motivo) e qual é o próximo job.
+**Pare e avise o dono** quando: a fila acabar; ele disser "pare/espera"; faltar prompt/anexo; ou a ferramenta de imagem falhar/limitar. Ao parar, responda com um **resumo curto**: quantos ✅, quais ⚠ (com o motivo) e qual é o próximo job.
 
 ## Regras de ouro
 - Personagem **original**; nunca personagem protegido, logo ou marca. Nunca chave de API, token ou dado pessoal em arquivo.
