@@ -31,6 +31,11 @@ Navegador, por turnos, estilo Naruto Online: formação 3x3, 4v4, combos e perse
 Peça ao dono os arquivos de que precisa (ele sobe pelo GitHub). Entregue **patches por trecho** (arquivo, onde entra, trecho antigo → novo) e comandos pra ele rodar, nunca o arquivo inteiro. Você não substitui o teste automático: diga claramente o que não conseguiu rodar.
 
 ---
+## Passagem de bastão (vale pros dois assistentes)
+- **Começar:** `git fetch origin && git merge origin/main`; ler "Estado atual" abaixo e `git log -10`.
+- **Terminar cada etapa:** atualizar "Estado atual" (data e quem atualizou), escrever 3 linhas (o que mudou / o que testou / o que ficou pendente), commit e `git push origin HEAD:main`.
+- Decisão de design, regra nova ou ferramenta nova: registrar também no `CLAUDE.md` ou no `docs/` certo. Nunca apagar trabalho do outro; conflito se resolve mesclando.
+
 ## Estado atual (atualizar a cada passagem de bastão)
 **Última atualização: 25/11/2026 (Codex).**
 
