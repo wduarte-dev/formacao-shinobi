@@ -209,6 +209,24 @@ function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
 // no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
 function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
   if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
+// As palmas dos clones viajam durante a recuperação do chute. Cada clone
+// acrescenta um contato ao contador de golpes da mesma perseguição.
+async function cloneVolley(owner,target){
+  const clones=livingClones(owner);
+  if(!clones.length||!target.alive)return 0;
+  for(const clone of clones){ sceneAdd(clone); setAnim(clone,'atk1'); }
+  await sleep(hitAt(clones[0],'atk1'));
+  let damage=0;
+  for(const clone of clones){
+    if(!target.alive)break;
+    const p=cur(clone);
+    fxShot(owner,target,100,{x:p.x+(owner.side==='p'?32:-32),y:p.y-52});
+    await sleep(100);
+    const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
+    if(dealt!==null){ damage+=dealt; spark(target,owner.d.c,5); }
+  }
+  return damage;
+}
 async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase?.on===t.state);
   if(!c)return;
@@ -269,6 +287,11 @@ async function chain(side,t,count,src){
       if(o.alive){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
         setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240/speed); } }
     setTimeout(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
+  if(CH.cloneHit&&connected&&t.alive&&livingClones(c).length){
+    const [,strike,landing]=CH.phases;
+    await sleep(animMs(c,strike)-CHA(c,strike)); setAnim(c,landing,0,true);
+    const [extra]=await Promise.all([cloneVolley(c,t),sleep(animMs(c,landing))]); d+=extra;
+  }
   if(result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
@@ -277,8 +300,10 @@ async function chain(side,t,count,src){
     if(t.alive&&cause==='R')await knock(t,cause);
     else if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
     const [,slam,land]=CH.phases;
-    await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
-    setAnim(c,land,0,true); await sleep(animMs(c,land));
+    if(c.an!==land){
+      await hitstop(80); await sleep(animMs(c,slam)-CHA(c,slam)-25);
+      setAnim(c,land,0,true); await sleep(animMs(c,land));
+    }
   }else if(air&&t.alive){   // o chute empurra o alvo pra baixo: os dois caem juntos, câmera acompanha
     await hitstop(35); const g=pos(t), fall='transform .3s cubic-bezier(.55,0,.9,.55)';
     zoomTo(tb.x,(tb.y+g.y)/2-60,1.22); speedLines('D'); t.el.style.zIndex=55;

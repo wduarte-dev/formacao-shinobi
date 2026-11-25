@@ -51,7 +51,18 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
         check(group.every(c=>!c.alive),id+' limpa os clones');
         owner.hp=owner.max; owner.dot=null; owner.stunned=false;
       }
-      const remaining=summonClones(owner,sk); vanishClone(remaining[0]);
+      const remaining=summonClones(owner,sk);
+      const chaseTarget=U.e[0]; chaseTarget.hp=chaseTarget.max;
+      setState(chaseTarget,'L'); curSide=owner.side;
+      const count=hitsR.p; await chain('p',chaseTarget,1,owner);
+      check(hitsR.p===count+4 && chaseTarget.state==='R','perseguição e três contatos extras');
+      vanishClone(remaining[0]);
+      const two=hitsR.p; await cloneVolley(owner,chaseTarget);
+      check(hitsR.p===two+2,'apenas clones vivos participam');
+      const hpLast=chaseTarget.hp; chaseTarget.hp=1;
+      const one=hitsR.p; await cloneVolley(owner,chaseTarget);
+      check(!chaseTarget.alive && hitsR.p===one+1,'fim da rajada quando o alvo cai');
+      chaseTarget.alive=true; chaseTarget.hp=hpLast;
       const blockers=[];
       for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++)
         if(!team('p').some(u=>u.alive&&u.row===row&&u.depth===depth))
@@ -62,7 +73,21 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       owner.alive=true; summonClones(enemy,sk); U.e.forEach(e=>e.alive=false);
       check(result()==='win','vitória mesmo com clones inimigos vivos');
     }""")
+    # No desempate, três clones com vida cheia não podem inverter a derrota.
+    page.reload()
+    page.evaluate("""() => {
+      loadSfx=()=>{}; sleep=async()=>{}; intro=async()=>{};
+      placed=[{id:'utsushi',row:0,depth:2}]; FOES[0].team=[['iwao',0,0]];
+      autoP=true;
+      doSkill=async u=>{
+        if(u.id==='utsushi'){ u.hp=u.max/2; summonClones(u,u.d.jutsu); }
+      };
+      startBattle2();
+    }""")
+    page.wait_for_selector("#resWin:not(.hide)")
+    assert page.locator("#ovT").inner_text() == "Derrota"
+    assert "decidido por tempo" in page.locator("#ovP").inner_text()
     browser.close()
     server.shutdown()
     assert not errors, errors
-print("Invocação, ataques, Substituição, área e resultado conferidos.")
+print("Invocação, ataques, Substituição, área, perseguição e desempate conferidos.")

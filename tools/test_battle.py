@@ -20,7 +20,7 @@ try:
     while time.time()-t0<240:
       pg.wait_for_timeout(1500)
       if shots<3 and time.time()-t0>3+shots*6: pg.screenshot(path=f'{out}/{shots+1}_batalha.png'); shots+=1
-      res=pg.evaluate("()=>U&&!battleOn?result():null")
+      res=pg.evaluate("()=>U&&!battleOn&&!$('resWin').classList.contains('hide')?({'Vitória':'win','Derrota':'lose'}[$('ovT').textContent]):null")
       if res: break
     pg.wait_for_timeout(1200); pg.screenshot(path=f'{out}/9_fim.png')
     rnd=pg.evaluate("()=>round")

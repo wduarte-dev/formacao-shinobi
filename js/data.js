@@ -58,7 +58,7 @@ const N={
   normal:{name:'Combo do Vendaval',target:'front',cause:'L',mult:.3,sequence:['atk1','attackB','attackC'],hits:[.54,.54,.54],contactY:[-78,-16,-110]},
   jutsu:{name:'Legião de Ventos',target:'self',clones:3,duration:3,cost:35,cd:3,desc:'invoca até três clones nas casas livres por três rodadas. Relançar restaura os clones e renova a duração'},
   strong:{name:'Rajada Torta',an:'atk3',target:'front',mult:1.4},
-  chase:{name:'Rajada Fantasma',on:'L',cause:'R',mult:.8,phases:['chase1','chase2','chase3'],hits:[.54]}},
+  chase:{name:'Rajada Fantasma',cloneHit:.55,on:'L',cause:'R',mult:.8,phases:['chase1','chase2','chase3'],hits:[.54]}},
  keshin:{name:'Keshin',el:'Neutro',c:'#e8803a',role:'Atacante de combos',hp:940,atk:115,def:20,dodge:8,sfxEl:'Raio',
   normal:{name:'Combo Relâmpago',target:'front',cause:'L',mult:.3,sequence:['atk1','attackB','attackC'],hits:[.54,.54,.54],contactY:[-75,-89,-67]},
   jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
@@ -80,7 +80,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.9.2',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.9.3',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
