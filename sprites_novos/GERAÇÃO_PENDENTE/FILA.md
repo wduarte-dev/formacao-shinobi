@@ -5,7 +5,7 @@ Leia primeiro o `LEIA-ME.md`. Estados: ⬜ pronto pra gerar (só com ordem do do
 | Job | Status | Saída (sprites_novos/) | Depende de | Aprovado pelo dono? | Pasta |
 |---|---|---|---|---|---|
 | 01_utsushi_A1 | ✅ | `UTSUSHI_A1.png` | — | SIM | `jobs/01_utsushi_A1/` |
-| 02_utsushi_A1B | ♻ | `UTSUSHI_A1B.png` | UTSUSHI_A1 | — | `jobs/02_utsushi_A1B/` |
+| 02_utsushi_A1B | ✅ | `UTSUSHI_A1B.png` | UTSUSHI_A1 | SIM | `jobs/02_utsushi_A1B/` |
 | 03_utsushi_A2 | ⬜ | `UTSUSHI_A2.png` | UTSUSHI_A1 | — | `jobs/03_utsushi_A2/` |
 | 04_utsushi_B1 | 🔒 | `UTSUSHI_B1.png` | UTSUSHI_A2 | — | `jobs/04_utsushi_B1/` |
 | 05_utsushi_B2 | 🔒 | `UTSUSHI_B2.png` | UTSUSHI_B1 | — | `jobs/05_utsushi_B2/` |
