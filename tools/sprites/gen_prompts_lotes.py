@@ -227,7 +227,8 @@ Row 2: LAVA POUR: a thick stream of glowing molten lava pouring down and splashi
 Row 3: LAVA WAVE (jutsu): a low wide wave of molten lava rolling along the ground from left to right, crusted with dark rock, flame licking the crest, embers rising.
 Row 4: BIG FIREBALL (counter): a huge blazing fireball of orange and molten gold flames with a dark core, flying from left to right, growing.
 Row 5: IMPACT: a sharp orange, gold and white hit burst with radial spikes and a few lava droplets.
-Row 6: AURA RING: a ring of swirling embers and small sparks around an EMPTY space the size of a body, rising upward.""",
+Row 6: AURA RING: a ring of swirling embers and small sparks around an EMPTY space the size of a body, rising upward.
+EVERY row: the 6 frames are 6 clearly different stages of the effect (start, build-up, peak, peak variation, decay, fade), never a repeated frame, and every frame stays fully inside its cell with a margin.""",
   # Dragão de lava (ult): PEÇAS GRANDES, uma imagem por peça, 1 linha com poucos quadros enormes (o código monta e anima o dragão inteiro)
   DR={
    "DR1": """STRICT RULES: LANDSCAPE image with EXACTLY 1 row and EXACTLY 2 columns, two huge frames of identical size, each frame fills at least 85% of its cell, nothing touches the cell edge. Solid flat pure green #00FF00 background, no checkerboard, no gradient, no border, no grid lines, no shadow, no text except the label. No green, turquoise or teal on the dragon. Fully opaque, no ghosting.
