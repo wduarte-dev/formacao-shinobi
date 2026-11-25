@@ -1,0 +1,19 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: ink black, charcoal, ash gray, bone white, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE A2" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character (Utsushi): copy exactly the messy jet-black hair with a few ash-gray strands over one eye, pale skin, sly lopsided smirk, the bone-white half-mask pushed up on the side of his head, ragged charcoal-black sleeveless short coat with a frayed hem, ash-gray forearm wraps, loose black pants, an ash-gray belt with small bone-white charms, dark boots, and the twin short black daggers with bone-white grips, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.
+
+ROWS:
+Row 1: STRONG ATTACK "Estocada das Sombras", 7 frames: he slides low, both daggers pulled back, lunges forward in a long diagonal stab with both arms, holds the stab, a thin ink-black line trailing the blades, pulls back, returns to stance (cell 8 EMPTY).
+Row 2: GUARD, 4 frames: he crosses both daggers in an X in front of his face and braces, holds, relaxes with a smirk (cells 5 to 8 EMPTY).
+Row 3: HURT, 3 frames: hit from the front, head snaps back, hair swings, body recoils, steps back and recovers (cells 4 to 8 EMPTY).
+Row 4: DODGE, 6 frames: a quick sideways flicker: he leans away from the hit, his body blurs into a small puff of ash-gray smoke at his feet, he reappears one step back in a different, relaxed pose with a smirk (cells 7 to 8 EMPTY).

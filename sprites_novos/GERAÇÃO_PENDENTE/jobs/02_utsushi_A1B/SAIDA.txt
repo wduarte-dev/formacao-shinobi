@@ -1,0 +1,2 @@
+Salvar o resultado EXATAMENTE como: sprites_novos/UTSUSHI_A1B.png
+(lote A1B: básico em 3 golpes (18 quadros))

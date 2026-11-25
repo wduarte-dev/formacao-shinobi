@@ -1,0 +1,18 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 3 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 3 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: ink black, charcoal, ash gray, bone white, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE CH" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character (Utsushi): copy exactly the messy jet-black hair with a few ash-gray strands over one eye, pale skin, sly lopsided smirk, the bone-white half-mask pushed up on the side of his head, ragged charcoal-black sleeveless short coat with a frayed hem, ash-gray forearm wraps, loose black pants, an ash-gray belt with small bone-white charms, dark boots, and the twin short black daggers with bone-white grips, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.
+
+ROWS:
+Row 1: CHASE "Emboscada" part 1 (vanish and reappear), 6 frames, no enemy drawn. Frame 1 he crouches, daggers ready. Frame 2 he sinks into his own shadow on the ground with a puff of ash-gray smoke. Frame 3 he is almost gone, only the head and a wisp of smoke. Frame 4 he bursts out of the shadow into the air. Frame 5 rising, daggers drawn back. Frame 6 at the top, body coiled (cells 7 to 8 EMPTY).
+Row 2: CHASE part 2 (the sweep), 6 frames, no enemy drawn. Frame 1 he drops down, both daggers wide. Frame 2 wind-up. Frame 3 SMEAR: a big sweeping double slash drawn as ONE opaque flat curved streak of ash gray and bone white (not translucent). Frame 4 CONTACT: both daggers sweeping through at full extension, the strongest pose of the whole action. Frame 5 follow-through. Frame 6 the momentum carries him past (cells 7 to 8 EMPTY).
+Row 3: CHASE part 3 (landing), 6 frames, no enemy drawn. Frame 1 lands low in a crouch. Frame 2 holds the crouch, daggers trailing. Frame 3 rises. Frame 4 flicks the daggers. Frame 5 straightens with a smirk. Frame 6 back to the loose fighting stance (cells 7 to 8 EMPTY).

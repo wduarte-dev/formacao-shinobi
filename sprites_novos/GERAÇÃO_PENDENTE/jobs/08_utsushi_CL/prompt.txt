@@ -1,0 +1,19 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 4 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 4 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: ink black, charcoal, ash gray, bone white, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE CL" on a thin dark strip above the grid.
+
+Attached image is the ABSOLUTE source of truth for the character's design, proportions and pixel scale (Utsushi). Draw HIM again in SHADOW CLONE FORM: exactly the same body, pose style, hair, half-mask, coat and twin daggers, but the whole figure is a flat ink-black silhouette with thin ash-gray outline highlights, a few bone-white details (the half-mask and the dagger grips) and two small glowing bone-white eyes. Fully opaque, no transparency, NO other colors. It must clearly read as a dark copy of the same ninja.
+
+ROWS:
+Row 1: CLONE IDLE, 6 frames: the same loose playful stance as the original, swaying slightly, spinning a dagger, a slow breath (cells 7 to 8 EMPTY).
+Row 2: CLONE ATTACK, 6 frames: a fast single diagonal slash: anticipation, coil, SMEAR (one opaque flat ash-gray streak), contact, follow-through, back to the stance (cells 7 to 8 EMPTY).
+Row 3: CLONE HURT, 3 frames: hit from the front, head snaps back, body recoils, recovers (cells 4 to 8 EMPTY).
+Row 4: CLONE VANISH, 8 frames: the clone cracks like ink, breaks into ink drops and ash-gray smoke, the figure collapses into swirling dark smoke, frame 7 only small wisps, frame 8 a few tiny wisps left (full 8 columns).

@@ -1,0 +1,20 @@
+STRICT RULES (highest priority, never break):
+1. LAYOUT: the image has EXACTLY 3 rows and EXACTLY 8 columns, a fixed grid of identical cells, LANDSCAPE image. Do NOT add, remove, merge or skip rows. The image has 3 rows, not more.
+2. ONE animation per row. A row contains ONLY its own animation. NEVER put a frame of another animation in a leftover cell of a row.
+3. Use EXACTLY the number of frames listed for each row, starting at column 1. The remaining cells of that row stay EMPTY flat green (no sprite, no fragment, no smear).
+4. Every frame is fully opaque and complete. NO ghost, translucent, half-faded, duplicated or cropped frames. Nothing touches or crosses the cell edge.
+5. The character is IDENTICAL in every frame: same design, colors, proportions, pixel scale and outline. Faces RIGHT (side or three-quarter view). Pose and position inside the cell are FREE: the body may lean, slide, float, jump or shift anywhere in the cell, as long as it stays fully inside it.
+6. No green on the character, outfit, outline or glow (the background is green). Nothing turquoise, aqua, teal or greenish.
+7. No border, no grid lines, no drop shadow, no ground, no extra text except the label.
+8. No big effects. Only small glows or thin element lines near the body. Effect colors: ink black, charcoal, ash gray, bone white, NEVER a color outside the palette.
+BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
+LABEL: top-left corner only, small plain white pixel text "UTSUSHI - LOTE A1" on a thin dark strip above the grid.
+
+Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.
+
+CHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed): UTSUSHI, a young shadow trickster ninja: lean, agile, always looks like he has a trick up his sleeve. Messy jet-black hair with a few ash-gray strands falling over one eye, pale skin, a sly lopsided smirk and bright mischievous eyes. A bone-white half-mask shaped like a fox, pushed up on the side of his head (always visible, identical in every frame). Ragged charcoal-black sleeveless short coat, open at the front, with a frayed hem, ash-gray cloth wraps on both forearms, loose black pants, an ash-gray belt with a few small bone-white charms hanging from it, dark boots. Twin short black daggers with bone-white grips, one in each hand when he fights (holstered at the back of the belt otherwise). Colors only ink black, charcoal, ash gray and bone white. Nothing turquoise, aqua or teal anywhere.
+
+ROWS:
+Row 1: IDLE, 6 frames: a loose playful stance, weight shifting from foot to foot, he spins a dagger around his finger, glances sideways with a smirk, flips the dagger back into his hand (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames, a cocky sneaky walking cycle to the right with a slight swagger, daggers held low, full 8 columns.
+Row 3: DASH, 8 frames: very low fast sprint forward, body almost horizontal, daggers trailing behind, a few thin ink-black wisps at most, full 8 columns.

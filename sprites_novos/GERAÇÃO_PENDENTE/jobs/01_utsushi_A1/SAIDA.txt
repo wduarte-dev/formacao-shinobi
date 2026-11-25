@@ -1,0 +1,2 @@
+Salvar o resultado EXATAMENTE como: sprites_novos/UTSUSHI_A1.png
+(lote A1: idle, andar, investida)

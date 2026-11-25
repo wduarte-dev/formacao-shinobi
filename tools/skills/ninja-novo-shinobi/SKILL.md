@@ -10,7 +10,7 @@ Tudo mecânico está em script. Não reescreva na mão o que um comando já gera
 ## 1. Ficha e prompts
 1. Decidir com ele (AskUserQuestion): elemento, papel, jutsu, perseguição, personalidade. Registrar a ficha em `docs/ninjas.md` e a pendência em `docs/ondas.md`.
 2. Nova entrada em `NINJAS` de `tools/sprites/gen_prompts_lotes.py` (modelo: `keshin`). **Ação premium = 18 quadros** (lotes `A1B` básico 3x6 e `CH` perseguição 3x6; chaves opcionais `A1B`/`CH`; o `C` fica com 3 linhas).
-3. `OUT=/tmp/x python3 tools/sprites/gen_prompts_lotes.py <id>` → copiar os `.txt` pra `docs/refs/<id>_<lote>_prompt.txt` e mandar com `SendUserFile` (+ `docs/refs/elenco_ref.png` no A1). Um lote por vez. Anexos: A1←elenco_ref, A1B←A1, A2←A1, B1←A2, B2←B1, C←B2, CH←C, D←qualquer.
+3. `OUT=/tmp/x python3 tools/sprites/gen_prompts_lotes.py <id>` → copiar os `.txt` pra `docs/refs/<id>_<lote>_prompt.txt` (repo de contexto) e rodar **`python3 tools/sprites/make_pending.py <id>`**: monta `sprites_novos/GERAÇÃO_PENDENTE/` (fila + jobs com prompt e ref) que o **ChatGPT executa sozinho** (regra de 25/11/2026; nada de prompt no chat). Ele salva `sprites_novos/<NINJA>_<LOTE>.png`; recortar só quando o dono avisar. Anexos: A1←elenco_ref (atualizada, com os oficiais), A1B←A1, A2←A1, B1←A2, B2←B1, C←B2, CH←C, CL←A1, D←A1.
 
 ## 2. Recorte
 1. `python3 tools/new_ninja.py config <id> --premium` (sem `--premium` = template antigo de 4 linhas) → escreve `tools/sprites/config/<id>.json`.

@@ -8,6 +8,7 @@ As instruções de trabalho completas, as pendências (`ondas`), as fichas, os p
 2. Ler o `CLAUDE.md` de lá (regras completas, tom, fluxo de ondas, commits, testes) e a seção "Estado atual" do `CHAT_GPT.md` de lá. Na raiz do repo de contexto: `CLAUDE.md`, `CHAT_GPT.md`, `docs/`.
 3. Ao terminar: atualizar "Estado atual" e os docs **no repo de contexto** (commit + push lá), e o código aqui (`git push origin HEAD:main`).
 Regras que valem sempre aqui: testar com `python3 tools/test_battle.py . /tmp/shots` antes de commitar; commits pequenos em português direto na `main`; ao mexer no jogo, notas em `docs/patch-notes.md` + `python3 tools/patch_notes.py` + `python3 tools/bump_version.py <n>`. Nunca colocar chaves de API no repo. Se não conseguir acessar o repo de contexto, **pare e avise o dono** em vez de adivinhar as regras.
+Sprites novos: o ChatGPT gera sheets seguindo `sprites_novos/GERAÇÃO_PENDENTE/LEIA-ME.md` (fila em `FILA.md`) e salva em `sprites_novos/`; o Claude recorta quando o dono avisar. `python3 tools/sprites/make_pending.py <ninja>` monta a fila.
 Ferramentas que escrevem doc (`gen_prompts_lotes.py`, `new_ninja.py`) usam `../formacao-shinobi-ctx/docs/` quando existe.
 
 ## Estrutura
