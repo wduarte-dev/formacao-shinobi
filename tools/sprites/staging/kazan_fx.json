@@ -1,0 +1,45 @@
+{
+ "cw": 288,
+ "ch": 192,
+ "cols": 8,
+ "w": 2304,
+ "h": 1152,
+ "fx": [
+  {
+   "name": "proj",
+   "row": 0,
+   "n": 6,
+   "fps": 12
+  },
+  {
+   "name": "hit",
+   "row": 1,
+   "n": 6,
+   "fps": 12
+  },
+  {
+   "name": "jutsu",
+   "row": 2,
+   "n": 6,
+   "fps": 12
+  },
+  {
+   "name": "chase",
+   "row": 3,
+   "n": 6,
+   "fps": 12
+  },
+  {
+   "name": "impact",
+   "row": 4,
+   "n": 6,
+   "fps": 12
+  },
+  {
+   "name": "aura",
+   "row": 5,
+   "n": 6,
+   "fps": 12
+  }
+ ]
+}

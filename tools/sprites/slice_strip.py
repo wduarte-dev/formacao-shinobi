@@ -15,20 +15,28 @@ import sys, os, json, argparse
 import numpy as np
 from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from shinobi_atlas import key_hard, despill
+from shinobi_atlas import key_hard, despill, green_fix
+from scipy import ndimage as ndi
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('sheet'); ap.add_argument('cols', type=int); ap.add_argument('out')
     ap.add_argument('--pad', type=int, default=4); ap.add_argument('--attach', choices=['left', 'right'])
-    ap.add_argument('--label-h', type=int, default=40)
+    ap.add_argument('--label-h', type=int, default=40); ap.add_argument('--no-green-fix', action='store_true')
     a = ap.parse_args()
     img = np.array(Image.open(a.sheet).convert('RGB')).astype(np.float32)
     H, W = img.shape[:2]
     fg = key_hard(img, {})
     fg[:a.label_h, :] = False
-    rgb = despill(img).astype(np.uint8)
+    # restos finos do rótulo/grade (linha horizontal comprida e baixa): fora
+    lab, n = ndi.label(fg, structure=np.ones((3, 3)))
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+        if h <= 10 and w >= 60 and w / h >= 8: fg[sl][lab[sl] == i] = False
+    rgb = despill(img)
+    if not a.no_green_fix: rgb = green_fix(rgb, fg)   # faíscas/placas esverdeadas (deriva da IA) voltam pra laranja
+    rgb = rgb.astype(np.uint8)
     rgba = np.dstack([rgb, (fg * 255).astype(np.uint8)])
     cw = W / a.cols; frames = []
     for c in range(a.cols):

@@ -1,0 +1,16 @@
+// js/sprites.js — objeto V2 (ajuste hd com o pescoço/cabeça do quadro 0):
+ kazan:{hd:[96,55],H:2400,a:{idle:[0,6,6,1,1],walk:[1,8,12,1,0],dash:[2,7,14,0,0],sit:[3,8,10,0,0],attack:[4,6,12,0,0],attackB:[5,6,14,0,0],attackC:[6,6,12,0,0],seals:[7,6,12,0,0],jutsu:[8,8,12,0,0],fireball:[9,6,12,0,0],guard:[10,4,8,0,0],hurt:[11,3,10,0,0],stun:[12,4,8,1,0],victory:[13,6,8,1,0],defeat:[14,8,8,0,0]}},
+
+// js/fx.js — FXA (lista do atlas de efeitos):
+ kazan:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
+// js/fx.js — FXUSE (qual efeito cada momento usa; troque pelos nomes certos):
+ kazan:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura',proj:'proj'},
+// + FXMOVE (como cada efeito se mexe) e complemento em código (fxCont/jutsuFx), regra de 22/11.
+
+// js/data.js — objeto N (esqueleto; hits = fração do contato de cada golpe, ver docs/fluidez.md):
+ kazan:{name:'Kazan',el:'Neutro',c:'#e8803a',role:'Atacante',hp:900,atk:100,def:15,dodge:10,
+  normal:{name:'Basico',mult:.45,target:'front',hits:[.2,.5,.8]},
+  jutsu:{name:'Jutsu',cost:40,cd:2,mult:1,target:'front',an:'atk2',desc:'...'},
+  chase:{name:'Perseguicao',on:'L',cause:'D',mult:.8,mv:'slam'}}
+
+Depois: copiar out/<id>_atlas.png e _fx.png pra spr/, FACE (comando face), audit_atlas.py --fix, gen_ninja_sfx.py, audio.js, test_battle.py. Veja `checklist`.
