@@ -8,7 +8,7 @@ function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
 function fxStep(k,elapsed){
   const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length&&!U?.p.some(u=>u.d.stationary)){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
-  kazanDraw(c,k,elapsed);
+  kazanDraw(c,elapsed);
   for(let i=WAVES.length-1;i>=0;i--){ const w=WAVES[i]; w.t+=k; if(!w.hit&&w.t>=w.crashT){w.hit=true; w.onCrash&&w.onCrash();} if(w.t>=w.end){WAVES.splice(i,1);continue;} drawWave(c,w); }
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}
     c.globalAlpha=Math.min(1,p.life/p.max*1.6)*(p.round?.7:1); c.fillStyle=p.col;
@@ -33,8 +33,8 @@ const PAL={Fogo:['#fff3a0','#ffb327','#e5533d','#8a2424'],'Água':['#ffffff','#9
   Vento:['#ffffff','#c9f5e2','#5fc9a0'],Sombra:['#c9b4ff','#9a7fe0','#2a2340','#000000'],Névoa:['#ffffff','#d9c8f5','#b79ae0','#7d6aa8'],Gelo:['#ffffff','#c8f1fb','#7fd3e8'],Veneno:['#ead6ff','#a46be0','#6a2d9c'],Neutro:['#fff3d6','#ffbe64','#e8803a','#8c462b'],Som:['#fff3c2','#e8b83a','#e8643a'],'Espaço':['#ffffff','#fff3b0','#f2c14e','#1b2a5c']};
 // ondas sonoras desenhadas em código (jutsu com wave): anéis dourados saem do conjurador e cobrem o campo; cada alvo vibra com anéis menores
 function soundWave(u,ts){ const a=cur(u), cy=a.y-58*(u.d.size||1), n=lite?3:6, cols=['#ffd34d','#ff9a3c','#fff0b0'];
-  const ring=(x,y,size,t,delay,c,bw)=>setTimeout(()=>{ const e=document.createElement('div'); e.className='swave'; e.style.left=x+'px'; e.style.top=y+'px'; if(bw)e.style.setProperty('--b',bw+'px');
-    e.style.width=size+'px'; e.style.height=(size*.62)+'px'; e.style.setProperty('--c',c); e.style.setProperty('--t',t+'s'); $('fx').appendChild(e); setTimeout(()=>e.remove(),t*1000+60); },delay/speed);
+  const ring=(x,y,size,t,delay,c,bw)=>battleAfter(()=>{ const e=document.createElement('div'); e.className='swave'; e.style.left=x+'px'; e.style.top=y+'px'; if(bw)e.style.setProperty('--b',bw+'px');
+    e.style.width=size+'px'; e.style.height=(size*.62)+'px'; e.style.setProperty('--c',c); e.style.setProperty('--t',t+'s'); $('fx').appendChild(e); battleAfter(()=>e.remove(),t*1000+60); },delay/speed);
   for(let i=0;i<n;i++){ ring(a.x,cy,1400,1.2,i*120,cols[i%3],12); ring(a.x,cy,620,.7,i*120+40,cols[(i+1)%3],8); }   // pulsos grandes + médios
   ts.forEach((t,j)=>{ const p=cur(t); for(let k=0;k<(lite?2:4);k++)ring(p.x,p.y-56*(t.d.size||1),210,.5,220+j*40+k*130,cols[k%3],9); });   // alvo vibrando
   em(lite?10:24,()=>prt(a.x,cy,R(-10,10),R(-10,10),R(-3,3),R(-2,2),0,R(18,30),R(3,5),0,pk(cols)));
@@ -65,7 +65,7 @@ function waveFx(o){ const d=o.dir, loc=o.x!=null, fwd=x=>d>0?x:383-x;
   w.onCrash=o.onCrash; WAVES.push(w);
   // jatos brotando do chão antes da parede (no alvo, ou espalhados no lado inimigo)
   const sp=loc?(lite?2:4):(lite?5:10);
-  for(let j=0;j<sp;j++){ const x=loc?o.x+R(-50,50):(d>0?R(560,1120):R(32,592)), y=loc?o.y+R(-6,6):R(470,560); setTimeout(()=>{ if(!battleOn)return;
+  for(let j=0;j<sp;j++){ const x=loc?o.x+R(-50,50):(d>0?R(560,1120):R(32,592)), y=loc?o.y+R(-6,6):R(470,560); battleAfter(()=>{ if(!battleOn)return;
     em(lite?4:(loc?6:9),()=>prt(x,y,R(-3,3),0,R(-.6,.6),R(loc?-5.5:-7.5,loc?-3:-4.5),.32,R(14,24),R(2,4),R(4,7),pk([WCOL.foam,WCOL.lt,WCOL.md]))); },j*(loc?35:45)/speed); }
   return w; }
 const tsunamiFx=(dir,onCrash)=>waveFx({dir,onCrash});
@@ -95,7 +95,7 @@ function drawWave(c,w){ const t=w.t/(w.crashT/62), d=w.dir, G=w.G, Hm=w.Hm, L=w.
   c.globalAlpha=1; }
 // continuação em código dos efeitos desenhados: o sprite é o núcleo; o canvas faz o efeito "nascer" e "morrer" no cenário
 // (brota do chão, deixa rastro, respinga no chão) em vez de aparecer e sumir como um bloco recortado
-function fxCont(id,name,mv,x,y,tx,ty,w,h,ms,d){ if(!N[id])return; const pal=PAL[N[id].el]||['#fff'], tk=token, later=(f,t)=>setTimeout(()=>{ if(tk===token&&battleOn)f(); },t);
+function fxCont(id,name,mv,x,y,tx,ty,w,h,ms,d){ if(!N[id])return; const pal=PAL[N[id].el]||['#fff'], tk=token, later=(f,t)=>battleAfter(()=>{ if(tk===token&&battleOn)f(); },t);
   const n=lite?.4:1, base=ty+h*.32;
   if(mv==='rise'||mv==='surge'){   // brota do chão: terra/água espirrando pra cima e um anel no chão
     em(16*n|0,()=>prt(tx+R(-w*.3,w*.3),base,0,0,R(-1.4,1.4),R(-5.5,-2),.26,R(16,28),R(3,6),0,pk(pal)));
@@ -108,7 +108,7 @@ function fxCont(id,name,mv,x,y,tx,ty,w,h,ms,d){ if(!N[id])return; const pal=PAL[
 }
 // assinatura em código de cada elemento no golpe do jutsu (soma com o sprite e com o elFx): o efeito "anda" pelo campo
 function jutsuFx(u,ts){ const el=u.d.el, pal=PAL[el]||['#fff'], dir=u.side==='p'?1:-1, a=cur(u), tk=token, n=lite?.45:1,
-    later=(f,t)=>setTimeout(()=>{ if(tk===token&&battleOn)f(); },t/speed);
+    later=(f,t)=>battleAfter(()=>{ if(tk===token&&battleOn)f(); },t/speed);
   if(!ts.length)return;
   if(u.id==='utsushi'){
     for(const t of ts){ const b=cur(t);
@@ -212,7 +212,9 @@ const FXMOVE={pour:'fall',bigfire:'spin',proj:'slide',hit:'slide',jutsu:'rise',c
 // pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
 // Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(N[id]?.stationary)fs.push(...Object.keys(KAZAN_ART).map(kazanArtPath)); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
+function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(id==='kazan')fs.push(...Object.keys(KAZAN_ART).map(kazanArtPath));
+    const plan=PLAN_SCENES[N[id]?.jutsu.fieldFx?.visual];
+    if(plan)fs.push(plan.image); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
   let n=0; if(onp)onp(0,fs.length);
   return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };
@@ -242,7 +244,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   if(sc>=.95&&!o.lo&&!o.to)fxCont(id,name,mv,x,y,tx,ty,w,h,dur/speed,d);
   const ms=dur/speed;
   // entra crescendo e vai até o destino durante quase toda a anim; some esmaecendo no fim
-  box.style.transition=`transform ${ms*.85}ms cubic-bezier(.2,.7,.3,1)`;
+  box.style.transition=`transform ${o.linear?ms:ms*.85}ms ${o.linear?'linear':'cubic-bezier(.2,.7,.3,1)'}`;
   rs.style.transition=`transform ${ms*(mv==='surge'?1:.9)}ms ${mv==='surge'?'cubic-bezier(.25,.6,.35,1)':'cubic-bezier(.2,1.4,.4,1)'},opacity ${Math.min(120,ms*.25)}ms`;
   box.style.transform=`translate(${tx-x}px,${ty-y}px)`; rs.style.opacity=1;
   rs.style.transform=`rotate(${rot2}deg) scale(${mv==='travel'?1:1.08})`;
@@ -250,7 +252,7 @@ function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLiv
   const step=()=>{ if(f>=n||tk!==token){box.remove();fxLive--;return;}
     if(!paused){ img.style.backgroundPosition=`${-f*w}px ${-r*h}px`; f++;
       if(f===n-1){rs.style.transition=`opacity ${1000/fps/speed*1.4}ms linear,transform ${1000/fps/speed*1.4}ms`; rs.style.opacity=0; rs.style.transform+=' scale(1.06)';} }
-    setTimeout(step,1000/fps/speed); };
+    battleAfter(step,1000/fps/speed); };
   step(); return dur; }
 // efeito do ninja u (tipo kind) em cima do alvo t; sobra (dy) sobe ou desce o ponto
 function fxAt(u,kind,t,sc,dy,ex){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)return 0; const p=cur(t);
@@ -258,7 +260,7 @@ function fxAt(u,kind,t,sc,dy,ex){ const nm=(FXUSE[u.id]||{})[kind]; if(!nm)retur
 // projétil desenhado: sai do atacante e viaja até o alvo. Devolve false se o ninja não tem projétil.
 // t pode ser um ninja ou um ponto {x,y} (pés); from = ponto de saída opcional (frasco multiplicado). psc = escala do projétil por ninja
 function fxShot(u,t,ms,from){ const U_=FXUSE[u.id]||{}, nm=U_.proj; if(!nm)return false; const a=cur(u), b=t.el?cur(t):t, d=u.side==='p'?1:-1;
-  return !!fxSpr(u.id,nm,{x:from?from.x:a.x+d*60,y:from?from.y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:U_.psc||.75,fps:6/(ms/1000)}); }
+  return !!fxSpr(u.id,nm,{x:from?from.x:a.x+d*60,y:from?from.y:a.y-70,to:{x:b.x-d*20,y:b.y-66},flip:d<0,dir:d,sc:U_.psc||.75,fps:6/(ms/1000),linear:u.id==='kazan'}); }
 
 // ícone de jutsu (estilo barra do NO): recorta o centro do efeito do jutsu e anima os quadros em loop (CSS steps)
 function fxIcon(el,id,sz){ const A=FXA[id], nm=(FXUSE[id]||{}).jutsu; if(!A||!nm||!A.a[nm])return false;

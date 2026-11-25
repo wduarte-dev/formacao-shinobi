@@ -10,7 +10,7 @@ function drawJ(){
       w.className='skw'; x.className='sk'; x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
       const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
       const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
-      if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.6,30,30); } else portrait(kp,u.id,2.7,58,58);
+      if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.16,32,32,'icon'); } else portrait(kp,u.id,2.7,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
       x.onclick=()=>{ if(!battleOn||result()||!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)
@@ -33,23 +33,27 @@ function dodgeOf(t){return (t.d.dodge||0)+(unl(t)?unl(t).uDodge||0:0)+(fieldA&&f
 function setField(u,rounds){
   clearField();
   fieldA={side:u.side,rounds,owner:u,fx:u.d.jutsu.fieldFx||{}};
-  $('fog').classList.toggle('forge',fieldA.fx.visual==='forge');
-  $('fog').classList.add('on'); drawJ();
+  showFieldScene(fieldA.fx.visual||null); drawJ();
 }
 function refundArm(u){
   chakra[u.side]=Math.min(100,chakra[u.side]+(u.armedSkill||u.d.jutsu).cost);
   u.armed=false; u.armedSkill=null;
 }
-function clearField(consumed=false){
+function clearField(consumed=false,keepForgeScene=false){
   if(!fieldA)return;
   const {owner,fx}=fieldA;
-  fieldA=null; $('fog').classList.remove('on','forge');
+  fieldA=null; $('fog').classList.remove('on');
+  if(!keepForgeScene)showFieldScene(null);
   if(owner.d.recast){
     if(owner.armedSkill===owner.d.recast)refundArm(owner);
     owner.cd=owner.d.recast.cd;
   }
   if(!consumed)log(fx.visual==='forge'?'O Plano da Forja se apaga':'O campo de névoa se dissipa');
   drawJ();
+}
+async function dismissField(){
+  if(fieldA?.fx.visual)await transitionField(fieldA.fx.visual,false,clearField);
+  else clearField();
 }
 // triângulo elemental (docs/referencia-no.md §15): Fogo>Vento>Raio>Terra>Água>Fogo; Névoa e Gelo herdam Água, Som herda Vento; Espaço e Veneno neutros
 const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
@@ -82,12 +86,12 @@ function hurt(t,d,cls,{pierce=false}={}){
     upd(t); return r;
   }
   t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':'')); if(adv&&r>0)fl(t,evt,'elem'+(adv>0?' adv':' dis'));
-  const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); setTimeout(()=>hs.forEach(x=>x.classList.remove('hit')),120);
+  const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
   if(t.hp<=0&&t.owner){ vanishClone(t); return r; }
   if(t.hp<=0&&t.alive){t.alive=false; sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); t.dot=null; if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
-    if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; setTimeout(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
+    if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; battleAfter(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
     if(t.armed)refundArm(t);}
   else if(t.alive&&!t.state)setAnim(t,'hurt');
   upd(t); return r;
@@ -171,16 +175,24 @@ async function doSkill(u,sk,isJ){
       log(`${nm(u)} usa <b>${sk.name}</b>: +${Math.round((sk.uDmg||0)*100)}% de dano e +${sk.uDodge||0}% de esquiva por ${sk.unleash} rodadas`);
       await sleep(Math.max(700,animMs(u,'unhood'))); setAnim(u,'idle'); return;
     }
+    if(sk.field){
+      skTag(u,sk.name); setAnim(u,'cast',0,true);
+      sfx.cast(u); fxAt(u,'aura',u,1.04);
+      await sleep(animMs(u,'cast')*.65);
+      sfx.jutsu(u);
+      await transitionField(sk.fieldFx.visual,true,()=>setField(u,sk.field));
+      log(`${nm(u)} usa <b>${sk.name}</b> por ${sk.field} rodadas`);
+      setAnim(u,'idle'); return;
+    }
     if(sk.target==='allies'){
       const al=team(u.side).filter(a=>a.alive);
       if(isJ){await cine(u,sk,al); sfx.jutsu(u);}   // cura/escudo/campo: sem kiai (o grito ficava sem sentido, ex.: Iwao gemendo ao erguer o Gigante)
       setAnim(u,'cast');
-      if(sk.field){setField(u,sk.field); log(`${nm(u)} usa <b>${sk.name}</b>: névoa por ${sk.field} rodadas`);}
-      al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1); if(sk.field){em(14,()=>prt(p.x,p.y,R(-20,20),-R(0,50),R(-1,1),R(-1.4,-.2),0,R(30,50),R(8,14),0,pk(PAL['Névoa']),1)); return;}
+      al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1);
         if(sk.heal){sfx.heal(); healRain(a); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
         if(sk.shield){sfx.shield(); stoneWall(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shM=a.shield; a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
         upd(a);});
-      if(!sk.field)log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
+      log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }
     const main=pick(u,sk.target,isJ); if(!main)return;
     const area=sk.target==='row'||sk.target==='all';
@@ -213,7 +225,7 @@ async function doSkill(u,sk,isJ){
       connected.forEach(t=>{ if(!t.alive)return;
         if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all'))t.stunned=true; upd(t); });
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
-      if(sk.dispel)clearField();
+      if(sk.dispel)await dismissField();
       if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
       log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`);
       if(result())await finale(main); }
@@ -253,6 +265,61 @@ async function cloneVolley(owner,target){
   }
   return damage;
 }
+async function aimKeshinKick(c,t,put,dir){
+  const {phases:[grab,slam],kick}=c.d.chase;
+  const home=pos(c), ground=pos(t), target=cur(t);
+  const dx=Math.max(70,Math.min(1082,target.x+dir*30))-ground.x;
+  const y=Math.max(t.off.y,-150);
+  const poseOffset=new DOMMatrixReadOnly(getComputedStyle(t.st).transform);
+  const faceScale=t.sc*SH[t.id].k, footScale=c.sc*SH[c.id].k;
+  const contact={
+    x:target.x+poseOffset.m41,
+    y:ground.y+y+poseOffset.m42-(150-96)*faceScale
+  };
+  const x=contact.x-(kick.foot[0]-96)*dir*footScale-home.x;
+  const footY=contact.y-(kick.foot[1]-150)*footScale-home.y;
+  const rise=animMs(c,grab), step=1000/an_of(c)[slam][4];
+  setAnim(t,'launched',0,true);
+  setAnim(c,grab,0,true); sfx.swing(); c.el.style.zIndex=60;
+  const jump=`transform ${rise*.84/speed}ms cubic-bezier(.16,.75,.3,1)`;
+  put(t,t.off.x,y,jump);
+  put(c,x-dir*29,footY+14,jump);
+  await sleep(rise);
+  t.off.y=y; t.mv.style.transition='';
+  setAnim(c,slam,0,true);
+  put(c,x,footY,`transform ${step/speed}ms ease-out`);
+  await sleep(step*kick.frame);
+  put(c,x,footY,'none');
+  setAnim(c,slam,kick.frame,true);
+  em(10,i=>{
+    const angle=i*.628;
+    return prt(contact.x,contact.y,0,0,Math.cos(angle)*3.2,Math.sin(angle)*2.8,.1,
+      R(10,17),R(2,4),1,'#ffce72');
+  });
+  sfx.hit(c,'atk');
+  return {ground,dx,step};
+}
+async function landKeshinKick(c,t,put,dir,aim,connected){
+  const {phases:[,slam,land],kick,cause}=c.d.chase;
+  const {ground,dx,step}=aim, home=pos(c), x=ground.x+dx;
+  await hitstop(80);
+  const ms=step*(kick.landing-kick.frame);
+  const fall=`transform ${ms/speed}ms cubic-bezier(.55,0,.9,.55)`;
+  if(connected&&(t.alive||!t.owner))put(t,dx,0,fall);
+  put(c,x-dir*38-home.x,ground.y-home.y,fall);
+  speedLines('D');
+  await sleep(ms);
+  setAnim(c,slam,kick.landing,true);
+  c.mv.style.transition='';
+  if(connected&&(t.alive||!t.owner)){
+    t.off={x:dx,y:0}; t.mv.style.transition='';
+    if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+    slamFx(t,c.d.c); crack(x,ground.y); shake(1.15); sfx.thud();
+  }
+  if(result())await finale(t);
+  await sleep(animMs(c,slam)-step*kick.landing);
+  setAnim(c,land,0,true); await sleep(animMs(c,land));
+}
 async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase?.on===t.state);
   if(!c)return;
@@ -263,7 +330,9 @@ async function chain(side,t,count,src){
   const air=!!an_of(c).rise&&t.state==='L';
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
   const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
-  if(CH.phases){
+  let kickAim;
+  if(CH.kick)kickAim=await aimKeshinKick(c,t,put,dir);
+  else if(CH.phases){
     const [grab,slam]=CH.phases, ground=pos(t), dx=Math.max(70,Math.min(1082,tb.x+dir*38))-ground.x;
     const riseMs=animMs(c,grab), fallMs=CHA(c,slam);
     setAnim(c,grab,0,true); sfx.swing(); c.el.style.zIndex=60;
@@ -307,7 +376,8 @@ async function chain(side,t,count,src){
   else if(CH.surge){   // Onda normal: onda de água em código que brota embaixo do alvo, cresce, curva e quebra em cima dele (sprite de respingo só como complemento no impacto)
     const p=cur(t), W=waveFx({dir,x:p.x,y:p.y}); for(let n=0;!W.hit&&n<70;n++){ await gate(); await sleep(30); }
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
-  sfx.chase(c); spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25,CH.phases?36:0); fxAt(c,'imp',t,.6,-8);
+  sfx.chase(c);
+  if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25,CH.phases?36:0); fxAt(c,'imp',t,.6,-8); }
   const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0, connected=false;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
@@ -315,14 +385,14 @@ async function chain(side,t,count,src){
     if(dealt!==null){connected=true; d+=dealt;} }
   if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); landHit(c,o,CH.mult*.6,false,'chase',true);
       if(o.alive&&!o.d.stationary){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
-        setTimeout(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; setTimeout(()=>{o.mv.style.transition='';},340); },240/speed); } }
-    setTimeout(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
+        battleAfter(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; battleAfter(()=>{o.mv.style.transition='';},340); },240/speed); } }
+    battleAfter(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
   if(CH.cloneHit&&connected&&t.alive&&livingClones(c).length){
     const [,strike,landing]=CH.phases;
     await sleep(animMs(c,strike)-CHA(c,strike)); setAnim(c,landing,0,true);
     const [extra]=await Promise.all([cloneVolley(c,t),sleep(animMs(c,landing))]); d+=extra;
   }
-  if(!air&&result())await finale(t);
+  if(!air&&!kickAim&&result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(air){
@@ -348,6 +418,13 @@ async function chain(side,t,count,src){
     if(result())await finale(t);
     await sleep(animMs(c,'landing'));
     if(!connected)setState(t,null);
+    home(c);
+    if(connected&&t.alive)await chain(side,t,count);
+    return;
+  }
+  if(kickAim){
+    await landKeshinKick(c,t,put,dir,kickAim,connected);
+    if(!connected&&t.alive)setState(t,null);
     home(c);
     if(connected&&t.alive)await chain(side,t,count);
     return;
@@ -430,7 +507,7 @@ async function run(){
         }
         sfx.round(); sfx.chakra();
         for(const u of all())if(u.alive&&u.cd>0)u.cd--;
-        if(fieldA&&--fieldA.rounds<=0)clearField();
+        if(fieldA&&--fieldA.rounds<=0)await dismissField();
         for(const u of all()){ if(!u.alive)continue; if(u.owner&&round>=u.expires){vanishClone(u);continue;} if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
           if(u.power&&round>=u.power.end){u.power=null; upd(u);}
           if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
@@ -476,6 +553,7 @@ async function run(){
       if((res=result()))break;
       if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=s('p')>s('e')?'win':'lose'; byTime=true; break;}
     }
+    if(fieldA)await dismissField();
     musStop(); await sleep(350);
     if(res==='win')for(const u of U.p)if(u.alive&&u.d.stationary)setAnim(u,'victory',0,true);
     $('flash').className='long'; sfx.end(); ink('FIM DO COMBATE',true); await sleep(1500);
@@ -483,7 +561,7 @@ async function run(){
   sfx[res](); battleOn=false; ACT=[];
   const hasNext=res==='win'&&foeIx<FOES.length-1;
   if(res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
-  const newN=res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); setTimeout(()=>sfx.ui('desbloqueio'),900);}
+  const newN=res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); battleAfter(()=>sfx.ui('desbloqueio'),900);}
   $('ink').className=''; $('clist').innerHTML='';
   $('ovT').textContent=res==='win'?'Vitória':'Derrota';
   $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`+(byTime?' · decidido por tempo (mais vida restante)':'');

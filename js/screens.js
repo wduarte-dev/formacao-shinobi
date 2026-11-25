@@ -8,7 +8,7 @@ function show(id){ SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[];
 // própria imagem ESPELHADAS (emenda invisível, chão na mesma altura). Gera uma vez por imagem (canvas → blob) e guarda.
 const BGX={}, BGE=300;
 function bgExt(el,src){ el.classList.remove('ext'); el.style.backgroundImage=`url(${src})`; el.dataset.bg=src;
-  (BGX[src]||(BGX[src]=new Promise(res=>{ const im=new Image(); im.onerror=()=>res(null);
+  return (BGX[src]||(BGX[src]=new Promise(res=>{ const im=new Image(); im.onerror=()=>res(null);
     im.onload=()=>{ try{ const w=im.width, h=im.height, E=Math.round(BGE*w/1152), c=document.createElement('canvas'), x=c.getContext('2d'); c.width=w+2*E; c.height=h;
       x.drawImage(im,E,0); x.save(); x.translate(E,0); x.scale(-1,1); x.drawImage(im,0,0,E,h,0,0,E,h); x.restore();
       x.save(); x.translate(E+w,0); x.scale(-1,1); x.drawImage(im,w-E,0,E,h,-E,0,E,h); x.restore();
@@ -20,8 +20,13 @@ document.querySelectorAll('.bgi').forEach(el=>{ const m=(el.getAttribute('style'
 function fitStage(){ const full=document.fullscreenElement||document.webkitFullscreenElement||matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches||navigator.standalone;
   let w=innerWidth, h=innerHeight;
   if(full&&screen.width&&screen.height){ const land=w>=h; w=land?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height); h=land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height); }
-  const s=Math.min(w/1152,h/648); $('stage').style.transform=`translate(-50%,-50%) scale(${s})`; }
-let fitT=0; addEventListener('resize',()=>{ clearTimeout(fitT); fitT=setTimeout(fitStage,120); }); document.addEventListener('fullscreenchange',fitStage); fitStage();
+  const s=Math.min(w/1152,h/648), stage=$('stage');
+  const bleed=Math.max(0,Math.ceil((w/s-1152)/2))+22;
+  stage.style.setProperty('--field-bleed',`${Math.max(300,bleed)}px`);
+  stage.style.setProperty('--plan-bleed',`${bleed}px`);
+  stage.style.transform=`translate(-50%,-50%) scale(${s})`; }
+let fitT=0;
+addEventListener('resize',()=>{ cancelAnimationFrame(fitT); fitT=requestAnimationFrame(fitStage); }); document.addEventListener('fullscreenchange',fitStage); fitStage();
 function stagePt(e){const r=$('stage').getBoundingClientRect(); return{x:(e.clientX-r.left)/r.width*1152,y:(e.clientY-r.top)/r.height*648};}
 document.querySelectorAll('.petals').forEach(p=>{for(let i=0;i<22;i++){const d=document.createElement('i'); d.className='petal'; d.style.left=(Math.random()*1800-320)+'px'; d.style.animationDuration=(6+Math.random()*7)+'s'; d.style.animationDelay=(-Math.random()*12)+'s'; p.appendChild(d);}});
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{sfx.ui('cancela');show('sHub');});

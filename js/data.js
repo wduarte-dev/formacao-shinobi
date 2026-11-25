@@ -31,7 +31,7 @@ const N={
  mayoi:{name:'Mayoi',el:'Névoa',c:'#b79ae0',role:'Esquiva/campo',hp:780,atk:110,def:15,dodge:15,
   normal:{name:'Bengala e Mariposas',mult:.9,target:'front'},
   jutsu:{name:'Noite de Névoa',cost:40,cd:5,target:'allies',field:3,an:'atk2',desc:'campo de 3 rodadas',
-   fieldFx:{dodge:25,ally:{Gelo:1.15},foe:{Fogo:.85},dot:{Veneno:1}}},   // dentro do campo: dono +25 de esquiva; Gelo aliado +15% no básico; Fogo inimigo -15%; veneno aliado +1 rodada
+   fieldFx:{visual:'mist',dodge:25,ally:{Gelo:1.15},foe:{Fogo:.85},dot:{Veneno:1}}},   // dentro do campo: dono +25 de esquiva; Gelo aliado +15% no básico; Fogo inimigo -15%; veneno aliado +1 rodada
   strong:{name:'Onda de Névoa',an:'atk3',mult:1.3,target:'front',ranged:true},
   chase:{name:'Tempestade de Mariposas',on:'L',cause:'R',mult:.7,ranged:true}},
  hiyori:{name:'Hiyori',el:'Gelo',c:'#7fd3e8',role:'Controle',hp:880,atk:105,def:25,dodge:10,
@@ -74,7 +74,7 @@ const N={
   jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
    aura:{rounds:3,bonusHits:[1,2,3],dmg:.2},
    desc:'instantâneo, mantém a ação. Dá +1/+2/+3 golpes e +20% de dano por 3 rodadas. Custa 18% da vida máxima, ignora escudo e deixa pelo menos 1 PV'},
-  chase:{name:'Bomba Dinamite',on:'L',cause:'D',mult:.8,phases:['chase1','chase2','chase3'],hits:[.7]}}
+  chase:{name:'Bomba Dinamite',on:'L',cause:'D',mult:.8,phases:['chase1','chase2','chase3'],kick:{frame:1,foot:[122,56],landing:4}}}
 };
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
 const LOCK={poko:2};   // Fuuka/Hiyori/Mayoi/Doku saíram do LOCK em 22/11/2026, depois de regerados no estilo realista. Modo dev libera
@@ -90,7 +90,7 @@ const $=id=>document.getElementById(id);
 const IDS=Object.keys(N);
 
 /* ================= ESTADO SALVO ================= */
-const VERSION={v:'1.10',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.10.1',d:'25/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

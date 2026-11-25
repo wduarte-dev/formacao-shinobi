@@ -34,6 +34,10 @@ O terminal lista uma linha por verificação. As falhas retornam código 1 e inc
 
 Para conferir as regras de seleção sem abrir o navegador, rode `python tools/test_qa_diff.py`.
 
+## Planos e Congelar
+
+`python tools/test_planos.py --out /tmp/planos` verifica as duas transições, o enquadramento em quatro resoluções e a pausa de câmera, animações e efeitos em modo dev. As capturas ficam no diretório de saída.
+
 ## Replay de uma ação
 
 ```sh

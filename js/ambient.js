@@ -11,6 +11,7 @@ const AMB={
   noite:{ fall:{n:70,kind:'snow',col:['#ffffff','#dff4ff','#bfe6ff'],vx:[-.08,.12],vy:[.12,.34],sw:.8},
     glow:[[.19,.5,.03],[.255,.42,.025],[.805,.41,.03],[.895,.5,.03],[.73,.475,.022],[.51,.19,.2]], gcol:'255,170,90',
     mist:{y:.55,a:.1,col:'200,230,255',n:2} },
+  noite_nevoa:{fly:{n:32,col:['#a9b6f4','#e2e2ff']},mist:{y:.65,a:.22,col:'159,172,213',n:4}},
   floresta:{ fly:{n:26,col:['#d8ff7a','#b8f060']}, mist:{y:.5,a:.2,col:'140,200,190',n:4} },
   cinzas:{ fall:{n:34,kind:'ash',col:['#9a8d88','#7d716d','#b5a8a0'],vx:[.2,.5],vy:[.15,.35]},
     rise:{n:30,col:['#ff9a3c','#ff6a20','#ffd070']},
@@ -31,7 +32,7 @@ function ambStart(bg){
   ambT=0; const t=ambTok; let last=performance.now();
   (function loop(now){ if(t!==ambTok||$('sBattle').classList.contains('hide'))return; const el=now-last; if(el<30){requestAnimationFrame(loop);return;}   // ambiente a ~30fps: metade do custo, ninguém nota
     const dt=Math.min(.05,el/1000); last=now;
-    if(!paused&&!document.hidden)ambStep(dt); requestAnimationFrame(loop); })(last);
+    if(!paused&&!devFrozen&&!document.hidden)ambStep(dt); requestAnimationFrame(loop); })(last);
 }
 let mistC=null, mistK=null;
 function mistSpr(C){ if(mistK===C)return mistC; mistK=C; mistC=document.createElement('canvas'); mistC.width=mistC.height=128; const g=mistC.getContext('2d'), gr=g.createRadialGradient(64,64,0,64,64,64);
@@ -48,11 +49,11 @@ function ambStep(dt){
     b.globalCompositeOperation='source-over'; }
   if(C.flash){ ambNext-=dt; if(ambNext<=0){ ambFlash=1; ambNext=rr(C.flash.every[0],C.flash.every[1]); }
     if(ambFlash>0){ const v=ambFlash>.55&&ambFlash<.7?.15:ambFlash; b.fillStyle=`rgba(${C.flash.col},${.4*v*v})`; b.fillRect(0,0,AW,AH*.62); ambFlash-=dt*2.2; } }
-  if(fieldA?.fx.visual==='forge'){
-    const start=fieldA.side==='p'?12:AW*.51, n=lite?11:25;
+  if($('planBg').dataset.theme==='forge'){
+    const start=12, n=lite?11:25;
     for(let i=0;i<n;i++){
       const life=(ambT*(.24+i%4*.08)+i*.381966)%1;
-      const x=start+i*73%(AW*.47)+Math.sin(ambT*2+i)*6;
+      const x=start+i*73%(AW*.93)+Math.sin(ambT*2+i)*6;
       const y=AH-12-i%5*11-life*122;
       f.globalAlpha=(1-life)*.84;
       f.fillStyle=i%3?'#ff841f':'#ffcf61'; f.fillRect(x|0,y|0,i%4?1:2,2);

@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.10.1 · 25/11/2026 · Planos cinematográficos
+- Plano da Forja e Noite de Névoa ganharam cenários próprios, transições de entrada e saída e cobertura em telas largas.
+- Kazan descansa com mais calma. A martelada solta faíscas antes das chamas e o Dragão sai pela boca do caldeirão, cresce durante o voo e explode em colunas de lava com som próprio.
+- Reenquadrados os retratos da barra de jutsus. A Bomba Dinamite acerta no quadro em que o pé de Keshin encosta.
+- No modo dev, use Congelar ou a tecla F para segurar qualquer quadro do combate. Use o mesmo controle para retomar.
+
 ## 1.10 · 25/11/2026 · Kazan
 - Kazan já está liberado na Formação. O ferreiro luta sentado, acende o martelo no caldeirão e divide seu ataque de Terra em até duas chamas.
 - O Plano da Forja fortalece os aliados de Fogo e dá chakra ao time. Reative o botão enquanto o Plano estiver aceso para lançar o Dragão de Lava contra todos os inimigos.

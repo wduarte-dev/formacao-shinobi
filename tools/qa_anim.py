@@ -70,6 +70,8 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
    const part=Math.floor(d.t/260);
    if(part!==dragonPart){ dragonPart=part; L('fx',{u:'kazan',n:part<2?'erupção':'voo do dragão'}); }
  });
+ wrap('kazanDragonBurst',()=>L('fx',{u:'kazan',n:'explosão de lava'}));
+ wrapA('transitionField',(theme,enter)=>L('fx',{n:(enter?'entrada ':'saída ')+theme}),(theme)=>L('fx',{n:'revelação '+theme}));
  wrap('kazanShock',p=>L('fx',{u:'kazan',n:'onda de choque'}));
  wrap('kazanCinders',(p,n)=>{ if(n>=13)L('fx',{u:'kazan',n:'brasas'}); });
  wrap('fxSpr',(id,name)=>L('fx',{u:id,n:name}));

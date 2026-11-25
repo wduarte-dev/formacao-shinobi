@@ -49,7 +49,7 @@ const SFXD='audio/sfx/', BUF={}, SLAST={}, FILEMODE=location.protocol==='file:';
 // variações: <nome>_1.._N (as da API + as que ele baixou à mão no site)
 const VAR={swing:11,hit:7,heavy:6,chase:3,cast:8,heal:5,shield:5}, V=k=>Array.from({length:VAR[k]},(_,i)=>k+'_'+(i+1));
 const RECORDED=IDS.filter(id=>N[id].customSfx!==false);
-const FORGE_SFX=['pour','dragon','fireball','guard'];
+const FORGE_SFX=['pour','dragon','fireball','guard','blast'];
 const SFILES=('amb-cinzas amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
   +RECORDED.map(n=>`${n}-atk${N[n].chase?` ${n}-chase esq-${n}`:''}`+(N[n].strong?` ${n}-forte`:'')).join(' ')+' '
   +'fire water lightning earth wind mist ice poison sound space'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
@@ -112,9 +112,13 @@ function ambSndStop(){ if(AMBA){AMBA.pause(); AMBA=null;} }
 const XF=3;
 function xloop(src,vol){ const mk=()=>{const a=new Audio(src); a.volume=0; a.play().catch(()=>{}); return a;};
   const o={dataset:{v:vol}, a:mk(), b:null};
-  o.iv=setInterval(()=>{ const a=o.a, d=a.duration, tv=sndOn?vol:0;
-    if(!o.b&&d&&a.currentTime>d-XF){ o.b=mk(); o.t0=performance.now(); }
-    if(o.b){ const k=Math.min(1,(performance.now()-o.t0)/(XF*1000)); a.volume=tv*(1-k); o.b.volume=tv*k; if(k>=1){a.pause(); o.a=o.b; o.b=null;} }
+  let last=performance.now();
+  o.iv=setInterval(()=>{
+    const now=performance.now(), elapsed=now-last; last=now;
+    if(devFrozen){ if(o.b)o.t0+=elapsed; return; }
+    const a=o.a, d=a.duration, tv=sndOn?vol:0;
+    if(!o.b&&d&&a.currentTime>d-XF){ o.b=mk(); o.t0=now; }
+    if(o.b){ const k=Math.min(1,(now-o.t0)/(XF*1000)); a.volume=tv*(1-k); o.b.volume=tv*k; if(k>=1){a.pause(); o.a=o.b; o.b=null;} }
     else a.volume=tv; },100);
   o.pause=()=>{ clearInterval(o.iv); o.a.pause(); if(o.b)o.b.pause(); };
   return o; }
@@ -127,5 +131,5 @@ function musStop(){ clearInterval(musT); musT=null; if(MUSA){MUSA.pause(); MUSA=
 function bgSound(hide){ try{
   if(hide){ if(AC&&AC.state==='running')AC.suspend(); if(AMBA)AMBA.pause(); if(MUSA){MUSA.a.pause(); if(MUSA.b)MUSA.b.pause();} }
   else if(sndOn){ if(AC&&AC.state==='suspended')AC.resume(); if(AMBA)AMBA.play().catch(()=>{}); if(MUSA){MUSA.a.play().catch(()=>{}); if(MUSA.b)MUSA.b.play().catch(()=>{});} } }catch(e){} }
-document.addEventListener('visibilitychange',()=>bgSound(document.hidden)); addEventListener('pagehide',()=>bgSound(true));
+document.addEventListener('visibilitychange',()=>bgSound(document.hidden||devFrozen)); addEventListener('pagehide',()=>bgSound(true));
 function sndApply(){ if(AMBA)AMBA.volume=sndOn?+AMBA.dataset.v:0; }   // a música (xloop) acompanha o sndOn sozinha

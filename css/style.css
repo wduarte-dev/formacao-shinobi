@@ -127,16 +127,29 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #dimv{position:absolute;inset:0;background:#06040c;opacity:0;transition:opacity .2s;pointer-events:none}   /* escurece o fundo na cena de jutsu (overlay em vez de filter: filter no fundo inteiro re-rasteriza e trava no celular) */
 .field.dim #dimv{opacity:.8}
 /* campo Noite de Névoa: escurece e passa névoa em movimento (só código, sem sprite) */
-#fog{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s;background:rgba(24,12,50,.5);z-index:9}
+#fog{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .85s;background:rgba(24,12,50,.17);z-index:2}
 #fog::before{content:"";position:absolute;left:0;top:0;width:200%;height:100%;background:radial-gradient(ellipse 25% 50% at 25% 65%,rgba(200,175,240,.5),transparent 68%),radial-gradient(ellipse 25% 50% at 75% 35%,rgba(125,106,168,.5),transparent 70%);background-size:50% 100%;background-repeat:repeat-x;animation:fogm 16s linear infinite;will-change:transform}
 #fog.on{opacity:1}
-#fog.forge{background:linear-gradient(rgba(104,22,25,.21),rgba(181,53,19,.35))}
-#fog.forge::before{background-image:radial-gradient(ellipse 25% 50% at 25% 72%,rgba(255,90,30,.34),transparent 73%),radial-gradient(ellipse 25% 50% at 75% 58%,rgba(255,115,40,.2),transparent 69%)}
-.tg .forge-count{color:#fff1d2;background:#662a18;border:1px solid #ef9b46;padding:1px 5px;white-space:nowrap}
+#planBg{z-index:1;opacity:0;pointer-events:none;left:calc(-1 * var(--plan-bleed,22px));right:calc(-1 * var(--plan-bleed,22px));background-position:center 60%;background-size:cover}
+.field.plan-active.dim #dimv{opacity:.5}
+#planBg.on{opacity:1}
+#dimv{z-index:3}
+#units{position:absolute;inset:0;z-index:10;pointer-events:none}
+#units .hb{pointer-events:auto}
+#planCurtain{position:absolute;inset:0;z-index:98;pointer-events:none;overflow:hidden}
+#planCurtain .veil{position:absolute;inset:0;background:#050407;opacity:0}
+#planCurtain[data-theme=mist] .veil{background:#25283d}
+#planCurtain .mist{position:absolute;inset:-18% -20%;opacity:0;background:radial-gradient(ellipse at 32% 78%,#dce1fa 4%,#9caccbcc 29%,transparent 63%),radial-gradient(ellipse at 75% 60%,#cfd4ed 6%,#667599df 38%,transparent 66%),radial-gradient(ellipse at 51% 90%,#c9c7e9 8%,transparent 64%)}
+#planCurtain .magma{position:absolute;left:0;right:0;bottom:-25%;height:78%;opacity:0;transform:translateY(90%);background:radial-gradient(ellipse at 52% 80%,#ffd17a 0%,#fa6220 30%,#932622 54%,transparent 74%)}
+#planCurtain .magma i{position:absolute;left:19%;bottom:11%;width:24%;height:70%;background:linear-gradient(0deg,#f54412,#ffb24a 74%,#ffd77f);clip-path:polygon(0 100%,14% 66%,28% 73%,44% 15%,51% 11%,54% 0,60% 16%,72% 46%,84% 52%,100% 100%);opacity:.78}
+#planCurtain .magma i:nth-child(2){left:39%;height:93%;transform:scaleX(-1)}
+#planCurtain .magma i:nth-child(3){left:63%;height:52%}
+#sBattle .bgi.ext,#fog,#planCurtain,#field #dimv,#field #flash{left:calc(-1 * var(--field-bleed,300px));right:calc(-1 * var(--field-bleed,300px))}
 .cut .cp.dragon{filter:none}
 @keyframes fogm{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 #cam{position:absolute;inset:0;transition:transform .16s ease-out;will-change:transform}
 #cam.slow{transition:transform .3s ease-out}
+#cam.tracking{transition:none}
 .bslash{position:absolute;width:340px;height:18px;margin:-9px -170px;border-radius:9px;background:linear-gradient(90deg,transparent,#fff 30%,#fff 70%,transparent);box-shadow:0 0 18px 6px var(--c);animation:bsl .3s ease-out forwards;z-index:70}
 .bslash.b{height:6px;margin:-3px -170px;animation-delay:.05s;opacity:0}
 @keyframes bsl{0%{opacity:1;transform:rotate(var(--r)) scaleX(.05)}35%{opacity:1;transform:rotate(var(--r)) scaleX(1.15)}100%{opacity:0;transform:rotate(var(--r)) scaleX(1.3) scaleY(.2)}}
@@ -236,9 +249,9 @@ body.lite .swave{box-shadow:none}
 .cut .lines{position:absolute;top:0;bottom:0;left:0;width:calc(100% + 360px);background:repeating-linear-gradient(90deg,var(--c) 0 56px,transparent 56px 92px,#fff3 92px 102px,transparent 102px 180px);opacity:.75;animation:ln .25s linear infinite;will-change:transform}
 @keyframes ln{from{transform:translateX(0)}to{transform:translateX(-360px)}}
 .cut .cp{position:absolute;top:-20px;width:520px;height:290px;background-repeat:no-repeat;filter:drop-shadow(0 0 4px #fff)}
-.cut .cp.l{left:170px}.cut .cp.r{right:170px;transform:scaleX(-1)}
-.cut .cn{position:absolute;top:78px;font-size:66px;font-weight:800;font-style:italic;color:#fff;letter-spacing:2px;white-space:nowrap;-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 var(--c)}
-.cut .cn.l{right:150px}.cut .cn.r{left:150px}   /* nome do jutsu do lado oposto ao retrato */
+.cut .cp.l{left:126px}.cut .cp.r{right:126px;transform:scaleX(-1)}
+.cut .cn{position:absolute;top:0;bottom:0;width:57%;display:flex;align-items:center;justify-content:center;font-size:var(--cut-size,60px);font-weight:800;font-style:italic;color:#fff;letter-spacing:1px;white-space:nowrap;-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 var(--c)}
+.cut .cn.l{right:58px}.cut .cn.r{left:58px}
 .jtag{position:absolute;bottom:128px;z-index:82;display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#000d,#0008 80%,transparent);padding:5px 70px 5px 8px;border-left:7px solid var(--c);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;transform:translateX(-30px)}
 .jtag.r{right:18px;flex-direction:row-reverse;background:linear-gradient(270deg,#000d,#0008 80%,transparent);padding:5px 8px 5px 70px;border-left:0;border-right:7px solid var(--c);transform:translateX(30px)}
 .jtag.l{left:18px}
@@ -282,7 +295,8 @@ body.lite .swave{box-shadow:none}
 .hud.r .ckn{text-align:right}
 #rd{left:50%;top:12px;transform:translateX(-50%);z-index:60}
 #sbar{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;gap:10px;z-index:75;padding:6px 12px 4px;background:#1a0f08cc;border:3px solid #6b4a2a;border-radius:6px}
-.skw{width:84px;text-align:center;font-size:13px;line-height:1;color:#f8e9c4;text-shadow:1px 1px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skw{width:84px;text-align:center;font-size:12px;color:#f8e9c4;text-shadow:1px 1px 0 #000}
+.skw .lb{display:grid;place-items:center;min-height:2.2em;line-height:1.1;overflow-wrap:anywhere}
 .sk{display:block;margin:0 auto 2px;width:72px;height:72px;position:relative;background:url(../ui/skill_slot.png) center/100% 100%;border:0;margin-bottom:2px}
 .sk .kp{position:absolute;inset:7px;background-repeat:no-repeat;background-color:var(--c)}
 .sk .cost{position:absolute;left:10px;bottom:6px;font-weight:700;font-size:22px;color:#bfe6ff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000}
@@ -291,17 +305,20 @@ body.lite .swave{box-shadow:none}
 .sk.ready{animation:skr .5s ease-in-out infinite alternate}
 @keyframes skr{from{transform:scale(1);filter:drop-shadow(0 0 2px #fff)}to{transform:scale(1.1);filter:drop-shadow(0 0 10px #fff)}}
 .sk.armed{background-image:url(../ui/skill_slot_active.png);filter:drop-shadow(0 0 8px #ffd24a)}
-.sk.off .kp{filter:grayscale(.9) brightness(.5)}
+.sk.off .kp{filter:saturate(.88) brightness(.88)}
 /* ícone do jutsu (frame do efeito, animado quando dá pra usar) + retratinho no canto, como no NO */
 .sk .ki{position:absolute;inset:7px;background-repeat:no-repeat;background-color:#120a1c;display:none}
 .sk.ic .ki{display:block;box-shadow:inset 0 0 14px var(--c)}
 .sk:not(.off).ic .ki{animation:kic 1s infinite}
 @keyframes kic{from{background-position-x:var(--x0)}to{background-position-x:var(--x1)}}
 .sk.off .ki{filter:grayscale(.9) brightness(.45)}
-.sk.ic .kp{inset:auto;right:3px;top:3px;width:30px;height:30px;border-radius:50%;border:2px solid var(--c);box-shadow:0 0 0 1px #000,0 0 6px var(--c)}
+.sk.ic .kp{inset:auto;right:3px;top:3px;width:36px;height:36px;z-index:1;border-radius:50%;border:2px solid var(--c);background-color:#2a252c;box-shadow:0 0 0 1px #000,0 0 6px var(--c)}
+.sk.ic .cdv{place-content:end start;padding:0 3px 3px;font-size:27px}
 .sk.ic .cost::before{content:'';display:inline-block;width:9px;height:9px;margin-right:3px;border-radius:50%;background:#5ff0ff;box-shadow:0 0 6px #5ff0ff;vertical-align:2px}
 #ctl{position:absolute;right:10px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;z-index:75;width:216px}
 #ctl .btn{height:40px}
+#bFreeze{position:absolute;z-index:100;right:10px;bottom:103px;width:105px;height:36px}
+#bFreeze[aria-pressed=true]{outline:2px solid #ffa540}
 #log{position:absolute;left:10px;bottom:10px;width:300px;height:104px;overflow:hidden;font-size:13px;line-height:1.2;color:#eee;background:#0008;border:2px solid #0009;padding:4px 8px;z-index:60;font-family:ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-end}
 #log .r{color:#ffd24a}#log .x{color:#ff8ad0}
 #log{transition:height .25s ease-out}

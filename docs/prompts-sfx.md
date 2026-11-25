@@ -843,3 +843,8 @@ Short anvil clang followed by four fast diverging fiery whooshes and crackling o
 ```
 A glowing slab of volcanic rock rises and cracks against a sudden blow, short low rocky thud then a bright split and falling hard sparks, dry, no music or voice.
 ```
+
+**kazan-blast** · 1.55s
+```
+A colossal volcanic iron dragon crashes physically into a cavern arena. Start instantly on a single enormous layered impact: deep cinematic sub thud, tearing stone and a sharp molten pressure crack, then wide rushing fire, heavy falling basalt chunks and sizzling lava debris. The loudest point is in the first tenth of a second. Short powerful arcade boss impact, no voice or music, clean decay with no long reverb tail.
+```

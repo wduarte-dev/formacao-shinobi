@@ -2,7 +2,45 @@
 "use strict";
 let U=null, chakra, round, autoP=false, token=0, maxCombo, foe, hitsR={p:0,e:0}, curSide='p', mark=null, fieldA=null;   // fieldA: campo ativo {side,rounds} (Noite de Névoa)
 const ABORT={};
-function sleep(ms){const t=token;return new Promise((res,rej)=>setTimeout(()=>t===token?res():rej(ABORT),ms/speed));}
+let devFrozen=false;
+const battleTimers=new Set(), freezeAnimations=new Set();
+function armBattleTimer(timer){
+  timer.started=performance.now();
+  timer.id=setTimeout(()=>{
+    battleTimers.delete(timer);
+    timer.fn();
+  },timer.left);
+}
+function battleAfter(fn,ms){
+  const timer={fn,left:Math.max(0,ms),started:0,id:null};
+  battleTimers.add(timer);
+  if(!devFrozen)armBattleTimer(timer);
+}
+function setDevFreeze(on){
+  if(on===devFrozen)return;
+  devFrozen=on;
+  const now=performance.now();
+  for(const timer of battleTimers){
+    if(on){
+      clearTimeout(timer.id);
+      timer.left=Math.max(0,timer.left-(now-timer.started));
+    }else armBattleTimer(timer);
+  }
+  if(on){
+    for(const animation of $('sBattle').getAnimations({subtree:true})){
+      if(animation.playState!=='running'&&!animation.pending)continue;
+      animation.pause();
+      freezeAnimations.add(animation);
+    }
+  }else{
+    for(const animation of freezeAnimations)if(animation.playState==='paused')animation.play();
+    freezeAnimations.clear();
+  }
+  $('bFreeze').textContent=on?'Retomar':'Congelar';
+  $('bFreeze').setAttribute('aria-pressed',String(on));
+  bgSound(on||document.hidden);
+}
+function sleep(ms){const t=token;return new Promise((res,rej)=>battleAfter(()=>t===token?res():rej(ABORT),ms/speed));}
 async function gate(){const t=token;while(paused){await new Promise(r=>setTimeout(r,120));if(t!==token)throw ABORT;}}
 const all=()=>[...U.p,...U.e,...U.clones];
 function mk(id,side,slot,row,depth,m,d=N[id],scale=3){const a=mkSpr(id,scale);
@@ -30,7 +68,7 @@ function vanishClone(c){
   if(mark===c){mark=null; c.el.classList.remove('mk');}
   setAnim(c,'vanish',0,true); dust(c,8); upd(c);
   const battle=U;
-  setTimeout(()=>{
+  battleAfter(()=>{
     c.el.remove(); battle.clones=battle.clones.filter(u=>u!==c);
     if(U===battle)ACT=ACT.filter(u=>u!==c);
   },animMs(c,'vanish')/speed);

@@ -1,22 +1,77 @@
 // cine.js — câmera, smash/knock, cenas de jutsu, deslocamentos
 "use strict";
+const PLAN_SCENES={
+  forge:{image:'bg/forja.png',ambient:'cinzas',sound:'cinzas'},
+  mist:{image:'bg/noite-nevoa.png',ambient:'noite_nevoa',sound:'noite'}
+};
+function resetFieldScene(){
+  $('planBg').classList.remove('on');
+  $('planBg').dataset.theme='';
+  $('planCurtain').getAnimations({subtree:true}).forEach(animation=>animation.cancel());
+}
+function showFieldScene(theme){
+  const bg=$('planBg'), plan=PLAN_SCENES[theme];
+  if(bg.dataset.theme===(theme||''))return;
+  bg.dataset.theme=theme||'';
+  bg.style.backgroundImage=plan?`url(${plan.image})`:'';
+  bg.classList.toggle('on',!!plan);
+  $('fog').classList.toggle('on',theme==='mist');
+  $('field').classList.toggle('plan-active',!!plan);
+  if(foe){ ambStart(plan?.ambient||foe.bg); ambSndStart(plan?.sound||foe.bg); }
+}
+async function transitionField(theme,enter,change){
+  const curtain=$('planCurtain'), veil=curtain.querySelector('.veil');
+  const forge=theme==='forge', effect=curtain.querySelector(forge?'.magma':'.mist');
+  curtain.dataset.theme=theme;
+  const animations=[], battle=token;
+  const animate=(el,frames,ms)=>{
+    const animation=el.animate(frames,{duration:ms/speed,fill:'both',easing:'ease-in-out'});
+    animations.push(animation);
+    return animation.finished;
+  };
+  try{
+    if(forge){
+      await animate(veil,[{opacity:0},{opacity:1}],320);
+      await animate(effect,enter?
+        [{opacity:0,transform:'translateY(65%)'},{opacity:1,transform:'translateY(-15%)'}]:
+        [{opacity:0,transform:'translateY(25%)'},{opacity:.83,transform:'translateY(-18%)',offset:.32},
+          {opacity:0,transform:'translateY(70%)'}],enter?400:320);
+    }else{
+      await Promise.all([
+        animate(effect,[{opacity:0,transform:'translate(-16%,36%) scale(.95)'},
+          {opacity:.87,transform:'translate(0,6%) scale(1.13)',offset:.65},
+          {opacity:1,transform:'translate(7%,-6%) scale(1.23)'}],690),
+        animate(veil,[{opacity:0},{opacity:.08,offset:.57},{opacity:.93}],690)
+      ]);
+    }
+    if(battle!==token)throw ABORT;
+    change();
+    await animate(curtain,[{opacity:1},{opacity:0}],forge?440:590);
+    if(battle!==token)throw ABORT;
+  }catch(error){
+    if(battle!==token)throw ABORT;
+    throw error;
+  }finally{
+    animations.forEach(animation=>animation.cancel());
+  }
+}
 function zoomTo(x,y,s,slow){const c=$('cam'); c.classList.toggle('slow',!!slow); c.style.transformOrigin=`${x}px ${y}px`; c.style.transform=`scale(${s})`;}
 function zoomOut(slow){const c=$('cam'); c.classList.toggle('slow',!!slow); c.style.transform='';}
 function bigSlash(x,y,att,state){ const dir=att.side==='p'?1:-1, ang={R:-6,L:-58,D:52}[state]*dir;
-  for(const k of ['','b']){const e=document.createElement('div'); e.className='bslash '+k; e.style.left=x+'px'; e.style.top=(y+(k?14:0))+'px'; e.style.setProperty('--c',att.d.c); e.style.setProperty('--r',ang+'deg'); $('fx').appendChild(e); setTimeout(()=>e.remove(),420);} }
+  for(const k of ['','b']){const e=document.createElement('div'); e.className='bslash '+k; e.style.left=x+'px'; e.style.top=(y+(k?14:0))+'px'; e.style.setProperty('--c',att.d.c); e.style.setProperty('--r',ang+'deg'); $('fx').appendChild(e); battleAfter(()=>e.remove(),420);} }
 function speedLines(state){ slineFx(state); }   // desenhadas no canvas #fxc (antes: camada de 1552x1048 animando background-position = repintura gigante)
 function crack(x,y){ const c=document.createElement('div'); c.className='crack'; c.style.left=x+'px'; c.style.top=y+'px';
-  for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.rotate=`${i*40+R(-14,14)}deg`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); setTimeout(()=>c.remove(),560); }
+  for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.rotate=`${i*40+R(-14,14)}deg`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); battleAfter(()=>c.remove(),560); }
 // golpe que muda o estado do alvo: zoom no ponto do corte, câmera lenta, e o alvo sai voando
-async function smash(att,t,state,afterImpact,center){
+async function smash(att,t,state){
   if(t.d.immuneState){ kazanGuard(t); return; }
-  const p=center||cur(t);
+  const p=cur(t);
   zoomTo(p.x,p.y-60,1.5); bigSlash(p.x,p.y-60,att,state); speedLines(state); flashSoft(); sfx.heavy();
   await hitstop(80);
-  zoomOut(true); if(afterImpact)await afterImpact(); else await knock(t,state);
+  zoomOut(true); await knock(t,state);
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Lançado sobe, Derrubado desaba no chão
-async function knock(t,state){
+async function knock(t,state,quietCamera=false){
   if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);
@@ -31,7 +86,8 @@ async function knock(t,state){
   await sleep(240);
   t.el.classList.remove('flyR','flyL','flyD');
   const p=cur(t);
-  if(state==='R'){ shake(); sfx.wall(); dust(t,20); crack(p.x+d*26,p.y-60); zoomTo(p.x,p.y-60,1.16); await sleep(120); zoomOut(true);
+  if(state==='R'){ sfx.wall(); dust(t,20); crack(p.x+d*26,p.y-60);
+    if(!quietCamera){ shake(); zoomTo(p.x,p.y-60,1.16); await sleep(120); zoomOut(true); }
     if(wasAir){t.off.y=0; t.mv.style.transform=`translate(${t.off.x}px,0)`;} }
   else if(state==='D'){ sfx.thud(); dust(t,wasAir?22:12); shake(); if(wasAir){zoomTo(p.x,p.y,1.14); await sleep(110); zoomOut(true);} }
   await sleep(150); t.el.classList.remove('fly');
@@ -56,7 +112,7 @@ function shake(k){ const m=k||1; if(shakeA)shakeA.cancel();
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
 function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
   if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
-function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,2.2,34,34); sfx.combo(count); c.appendChild(d); setTimeout(()=>d.remove(),1900);}
+function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,2.2,34,34); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}
 
 // cena isolada (jutsu e perseguição): fundo escuro e só os participantes visíveis, do começo ao fim.
 // sceneAdd revela mais gente (a perseguição acumula); sceneOff só roda quando todos voltaram pra casa.
@@ -79,7 +135,7 @@ async function cine(u,sk,ts){
   sceneOn([u]); if(!sk.cutin){ setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); }
   skTag(u,sk.name);
   await sleep(260);
-  c.style.setProperty('--c',u.d.c); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r');
+  c.style.setProperty('--c',u.d.c); c.style.setProperty('--cut-size',`${Math.min(60,Math.floor(595/(sk.name.length*.68)))}px`); cp.className='cp '+(u.side==='p'?'l':'r'); $('cutN').textContent=sk.name; $('cutN').className='cn '+(u.side==='p'?'l':'r');
   if(sk.cutin){ cp.classList.add('dragon'); kazanCutin(cp); }
   else portrait(cp,u.id,5.2,520,290,'cast',8);
   retrig(c,'on'); await sleep(640);
@@ -108,7 +164,7 @@ async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.redu
   ts.forEach(t=>{ const b=cur(t); if(!fxShot(u,b,260,m))flyDot(u,{x:b.x,y:b.y-68},230,m); }); await sleep(260); }
 function flyDot(u,to,ms,from){ const a=from||{x:cur(u).x+(u.side==='p'?54:-54),y:cur(u).y-72}, e=document.createElement('div');   // projétil genérico (sem atlas)
   e.className='proj'; e.style.left=a.x+'px'; e.style.top=a.y+'px'; e.style.setProperty('--c',u.d.c); $('fx').appendChild(e);
-  void e.offsetWidth; e.style.transform=`translate(${to.x-a.x}px,${to.y-a.y}px)`; setTimeout(()=>e.remove(),ms/speed); }
+  void e.offsetWidth; e.style.transform=`translate(${to.x-a.x}px,${to.y-a.y}px)`; battleAfter(()=>e.remove(),ms/speed); }
 async function shoot(u,t,from,ms=320){ if(fxShot(u,t,ms,from)){ await sleep(ms); return; }
   const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   flyDot(u,{x:b.x,y:b.y-68},from?ms:190,from||{x:a.x+dir*54,y:a.y-72});

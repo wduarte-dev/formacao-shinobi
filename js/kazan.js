@@ -12,26 +12,15 @@ const kazanArtPath=part=>`spr/kazan_dragon_${part}.png`;
 const KAZAN_COLORS=['#ffe6a0','#ffb632','#ff691d','#db3015'];
 const kazanDir=u=>u.side==='p'?1:-1;
 const kazanClamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const KAZAN_CAULDRON=[85,54];
+const KAZAN_ERUPTION=760, KAZAN_TAKEOFF=440, KAZAN_FLIGHT=2650, KAZAN_IMPACT=KAZAN_TAKEOFF+KAZAN_FLIGHT;
 let kazanTime=0, kazanDragon=null;
 const kazanEffects=[];
 
 // Coordenadas no atlas, relativas à mesma âncora que mkSpr.
 const KAZAN_HEAD={
   idle:[[82,36],[83,34],[83,32],[85,37],[85,36],[84,36]],
-  walk:[[126,43],[126,44],[137,43],[129,42],[120,43],[119,44],[126,43],[128,44]],
-  dash:[[82,40],[81,45],[79,38],[79,42],[75,48],[77,46],[82,47]],
-  sit:[[80,42],[86,54],[93,62],[72,43],[85,72],[69,49],[81,44],[80,45]],
-  atk1:[[83,46],[85,49],[91,57],[95,61],[91,50],[81,45]],
-  attackB:[[87,49],[88,52],[85,55],[84,67],[86,54],[86,47]],
-  attackC:[[85,49],[90,51],[91,52],[86,49],[86,45],[88,46]],
-  cast:[[87,49],[87,49],[88,51],[87,51],[88,46],[87,50]],
-  atk2:[[83,57],[89,55],[101,61],[98,65],[94,67],[96,62],[93,48],[85,55]],
-  fireball:[[86,47],[87,57],[84,56],[93,48],[90,51],[84,47]],
-  guard:[[80,53],[76,51],[76,48],[81,55]],
-  hurt:[[76,49],[73,52],[83,46]],
-  stun:[[90,48],[81,48],[80,54],[82,52]],
-  victory:[[83,49],[84,52],[85,51],[81,47],[79,47],[80,47]],
-  die:[[79,43],[81,48],[89,56],[125,72]]
+  dash:[[82,40],[81,45],[79,38],[79,42],[75,48],[77,46],[82,47]]
 };
 // Pontas desenhadas só onde o martelo perde o bloco ou muda de mão.
 const KAZAN_HAMMER={
@@ -98,9 +87,9 @@ function kazanFlight(u,t,from,ms,large=false){
   kazanEffect(ms,(c,k)=>{
     c.save();
     for(let i=5;i>=0;i--){
-      const progress=kazanClamp(k-i*.037,0,1), along=1-Math.pow(1-progress,2.6);
+      const along=kazanClamp(k-i*.037,0,1);
       const x=(from.x+(end.x-dir*20-from.x)*along)/3;
-      const y=(from.y+(end.y-66-from.y)*along-Math.sin(along*Math.PI)*(large?23:5))/3;
+      const y=(from.y+(end.y-66-from.y)*along-Math.sin(along*Math.PI)*(large?6:3))/3;
       const w=(large?3.9:2.2)*(1-i*.14);
       c.globalAlpha=(1-i*.14)*Math.min(1,k*7)*Math.min(1,(1-k)*9)*.9;
       c.fillStyle=KAZAN_COLORS[Math.min(3,i)];
@@ -121,43 +110,26 @@ function kazanPoseChanged(u){
   }
 }
 function kazanDrawNinja(c,u){
-  if(!u.el||u.el.classList.contains('ghost')||u.an==='die'&&u.frame>=3)return;
-  const p=kazanHead(u), t=kazanTime;
-  const scale={dash:1.44,fireball:1.5,victory:1.72,hurt:.76,die:[.78,.42,.18][u.frame]}[u.an]??.93;
-  const x=p.x/3+(u.an==='hurt'?Math.sin(t*.085)*2.4:0), y=p.y/3;
-  const h=(5+2*Math.sin(t*.024))*scale;
-  if(h>0){
-    c.save(); c.globalAlpha=.92; c.translate(x,y);
-    for(let i=0;i<3;i++){
-      c.fillStyle=KAZAN_COLORS[3-i]; const dx=Math.sin(t*.017+i*2)*1.7;
-      c.beginPath(); c.moveTo(-3+i,1); c.lineTo(-3+i,-2); c.lineTo(dx-1,-h*.9+i);
-      c.lineTo(dx+.8,-h*1.48+i); c.lineTo(3-i*.4,-h*.55); c.lineTo(3-i,1); c.closePath(); c.fill();
-    }
-    c.restore();
-  }
+  if(!u.el||u.el.classList.contains('ghost'))return;
+  const t=kazanTime;
   const hammer=KAZAN_HAMMER[u.an]?.[u.frame];
   if(hammer){
     const p=kazanFramePoint(u,hammer);
     kazanCrust(c,p.x/3,p.y/3,7.2,6.1,t);
   }
 }
-function kazanDraw(c,k,elapsed){
+function kazanDraw(c,elapsed){
   const units=U?.p.filter(u=>u.d.stationary)||[];
   if(!units.length&&!kazanEffects.length&&!kazanDragon)return;
-  const dt=k*16.7;
+  const dt=elapsed;
   kazanTime+=dt;
-  if(fieldA?.fx.visual==='forge'){
-    for(const u of team(fieldA.side)){
-      if(u.alive)kazanPool(c,pos(u),26,kazanTime+u.slot*193,.64);
-    }
-  }
   units.forEach(u=>kazanDrawNinja(c,u));
+  if(kazanDragon){ kazanDragon.t+=elapsed; kazanDrawDragon(c,kazanDragon); }
   for(let i=kazanEffects.length-1;i>=0;i--){
     const e=kazanEffects[i]; e.t+=dt;
     if(e.t>=e.duration)kazanEffects.splice(i,1);
     else e.draw(c,e.t/e.duration,e.t);
   }
-  if(kazanDragon){ kazanDragon.t+=elapsed; kazanDrawDragon(c,kazanDragon); }
 }
 
 async function kazanSit(u){
@@ -204,7 +176,7 @@ function kazanGuard(u){
 function kazanCutin(el){
   const [w,h]=KAZAN_ART.cutin;
   el.style.backgroundImage=`url(${kazanArtPath('cutin')})`;
-  el.style.backgroundSize=`${Math.min(520,w*290/h)}px auto`;
+  el.style.backgroundSize=`${Math.min(452,w*290/h)}px auto`;
   el.style.backgroundPosition='center';
 }
 function kazanArt(c,part,i,x,y,angle,sx,sy,right=false){
@@ -216,90 +188,185 @@ function kazanArt(c,part,i,x,y,angle,sx,sy,right=false){
   c.drawImage(im,i*w+at[0],at[1],cw,ch,at[0]-anchor[0],at[1]-anchor[1],cw,ch);
   c.restore();
 }
-function kazanPath(a,b){
-  const dx=b.x-a.x, dir=Math.sign(dx)||1;
-  const top=Math.max(210,Math.min(a.y,b.y)-165);
-  const crest={x:b.x-dir*205,y:top};
-  // A curva segue o pescoço: a boca fica bem adiante da âncora do PNG.
-  const neck={x:b.x+dir*157,y:b.y-225};
-  const sections=[
-    [a,{x:a.x+dir*104,y:a.y-113},{x:crest.x-dir*115,y:top-26},crest],
-    [crest,{x:crest.x+dir*132,y:top+25},{x:neck.x+dir*130,y:top-60},
-      {x:neck.x+dir*45,y:top-25}],
-    [{x:neck.x+dir*45,y:top-25},{x:neck.x+dir*36,y:top+5},
-      {x:neck.x+dir*26,y:neck.y-39},neck]
-  ];
-  let last=a, length=0;
+function kazanPath(a,b,dir){
+  const reach=268, dx=Math.max(90,(b.x-a.x)*dir);
+  const forward=kazanClamp(dx*.62,76,242);
+  const rise=Math.sqrt(reach**2-forward**2);
+  const neck={x:b.x-dir*forward,y:b.y-rise};
+  const run=Math.max(30,(neck.x-a.x)*dir);
+  const climb={x:a.x+dir*run*.25,y:Math.max(160,a.y-172)};
+  const crest={x:neck.x-dir*run*.32,y:Math.max(102,neck.y-68)};
   const points=[{...a,s:0}];
-  for(const [p0,p1,p2,p3] of sections)for(let i=1;i<=46;i++){
-    const t=i/46, q=1-t;
-    const coord=k=>q*q*q*p0[k]+3*q*q*t*p1[k]+3*q*t*t*p2[k]+t*t*t*p3[k];
-    const p={x:coord('x'),y:coord('y')};
-    length+=Math.hypot(p.x-last.x,p.y-last.y);
-    points.push({...p,s:length}); last=p;
+  let last=a, length=0;
+  for(let i=1;i<=64;i++){
+    const t=i/64, q=1-t;
+    const coordinate=k=>q*q*q*a[k]+3*q*q*t*climb[k]+3*q*t*t*crest[k]+t*t*t*neck[k];
+    const point={x:coordinate('x'),y:coordinate('y')};
+    length+=Math.hypot(point.x-last.x,point.y-last.y);
+    points.push({...point,s:length}); last=point;
   }
-  const at=s=>{
+  return {length,impactAngle:Math.atan2(rise,forward),at(s){
     if(s<=0)return points[0];
     const i=points.findIndex(p=>p.s>=s);
     if(i<1)return points.at(-1);
     const p=points[i-1], q=points[i], t=(s-p.s)/(q.s-p.s);
     return {x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t};
-  };
-  return {length,at};
+  }};
+}
+function trackKazanDragon(x,y,zoom){
+  const cam=$('cam');
+  cam.classList.add('tracking');
+  cam.style.transformOrigin='0 0';
+  const dx=kazanClamp(576-x*zoom,1152*(1-zoom),0);
+  const dy=kazanClamp(306-y*zoom,648*(1-zoom),0);
+  cam.style.transform=`translate(${dx}px,${dy}px) scale(${zoom})`;
 }
 function kazanDrawDragon(c,d){
-  const eruption=540, flight=1250;
   c.save(); c.scale(1/3,1/3); c.imageSmoothingEnabled=false;
-  if(d.t<eruption){
-    const i=Math.min(5,Math.floor(d.t/90));
-    kazanArt(c,'erupt',i,d.a.x,d.a.y,0,.43,.43);
+  if(d.t<KAZAN_ERUPTION){
+    const i=Math.min(5,Math.floor(d.t*6/KAZAN_ERUPTION));
+    kazanArt(c,'erupt',i,d.a.x,d.a.y,0,.40,.40);
   }
-  if(d.t>=310){
-    const p=kazanClamp((d.t-310)/flight,0,1);
-    const path=d.path, s=p*path.length;
-    const front=path.at(s), guide=path.at(s>9?s-9:s+9);
-    const angle=s>9?Math.atan2(front.y-guide.y,front.x-guide.x):Math.atan2(guide.y-front.y,guide.x-front.x);
-    const scale=.37, segment=180;
-    const alpha=kazanClamp(1-(d.t-1560)/380,0,1);
-    const n=Math.min(4,Math.ceil(s/segment));
-    const pulse=Math.floor(d.t/104);
-    for(let i=n-1;i>=0;i--){
-      const f=path.at(s-i*segment), b=path.at(s-(i+1)*segment);
-      const len=Math.hypot(f.x-b.x,f.y-b.y);
-      const theta=Math.atan2(f.y-b.y,f.x-b.x);
-      c.globalAlpha=alpha*Math.min(1,len/45);
-      if(i===n-1&&s>120){
-        const tailTurn=Math.abs(theta)<Math.PI/2?theta:theta+Math.PI;
-        const tailScale=Math.min(1,(s-120)/220)*scale;
-        kazanArt(c,'tail',pulse%2,b.x+Math.cos(theta)*13,b.y+Math.sin(theta)*13,tailTurn,
-          Math.cos(theta)>=0?-tailScale:tailScale,tailScale*1.3);
+  if(d.t>=KAZAN_TAKEOFF){
+    const p=kazanClamp((d.t-KAZAN_TAKEOFF)/KAZAN_FLIGHT,0,1);
+    const progress=p*p*(3-2*p);
+    const path=d.path, distance=progress*path.length;
+    const front=path.at(distance);
+    const before=path.at(distance-18), after=path.at(distance+18);
+    const tangent=Math.atan2(after.y-before.y,Math.abs(after.x-before.x));
+    const dive=kazanClamp((p-.58)/.42,0,1);
+    const tilt=kazanClamp(tangent,-.53,.83)*(1-dive)+path.impactAngle*dive;
+    const dir=d.dir, scale=.14+.26*progress;
+    const segment=475*scale, alpha=kazanClamp(1-(d.t-KAZAN_IMPACT)/400,0,1);
+    const tipDistance=Math.max(0,distance-segment*3.05);
+    const tailAttach=tipDistance+Math.min(340*scale,distance*.28);
+    const pulse=Math.floor(d.t/165), bodyLength=distance-tailAttach;
+    if(distance>15 && tailAttach-tipDistance>3){
+      const root=path.at(tailAttach), tip=path.at(tipDistance);
+      const extent=Math.hypot(root.x-tip.x,root.y-tip.y);
+      const tilt=Math.atan2(root.y-tip.y,Math.abs(root.x-tip.x))*dir;
+      c.save();
+      if(tipDistance<31){
+        // A parte que ainda está dentro do caldeirão fica escondida pelo aro.
+        c.beginPath(); c.rect(0,0,1152,d.a.y-1); c.clip();
       }
-      if(len>1)kazanArt(c,'body',(pulse+i)%4,f.x+Math.cos(theta)*10,f.y+Math.sin(theta)*10,theta,(len+24)/534,scale,true);
+      c.globalAlpha=alpha*Math.min(1,distance/94);
+      kazanArt(c,'tail',pulse%2,root.x,root.y,tilt,-dir*extent/1000,scale*1.3);
+      c.restore();
     }
-    c.globalAlpha=alpha*Math.min(1,(d.t-310)/180);
-    const mirror=Math.cos(angle)>=0?1:-1;
-    const dive=kazanClamp((p-.72)/.22,0,1);
-    const turn=kazanClamp(Math.atan2(Math.sin(angle)*mirror,Math.abs(Math.cos(angle))),-.54-.54*dive,.81);
-    kazanArt(c,'head',p>.42?1:0,front.x-Math.cos(angle)*20,front.y-Math.sin(angle)*20,turn,scale*mirror,scale);
-    if(d.t-d.sparkAt>52){
+    const count=Math.min(4,Math.ceil(bodyLength/segment));
+    for(let i=count-1;i>=0;i--){
+      const f=path.at(distance-i*segment), back=Math.max(tailAttach,distance-(i+1)*segment), b=path.at(back);
+      const len=Math.hypot(f.x-b.x,f.y-b.y);
+      const theta=Math.atan2(f.y-b.y,Math.abs(f.x-b.x))*dir;
+      if(len<=1)continue;
+      c.save();
+      if(back<41){ c.beginPath(); c.rect(0,0,1152,d.a.y+1); c.clip(); }
+      c.globalAlpha=alpha*Math.min(1,len/31);
+      kazanArt(c,'body',(pulse+i)%4,f.x+dir*13,f.y,theta,dir*(len+24)/534,scale,true);
+      c.restore();
+    }
+    c.globalAlpha=alpha*Math.min(1,(d.t-KAZAN_TAKEOFF)/280);
+    kazanArt(c,'head',p>.58?1:0,front.x-dir*15,front.y,tilt*dir,dir*scale,scale);
+    if(d.t-d.sparkAt>69){
       d.sparkAt=d.t;
-      kazanCinders(d.t>1560?path.at(Math.max(0,s-R(0,490))):front,d.t>1560?13:5,8);
+      kazanCinders(d.impact?path.at(Math.max(0,distance-R(0,260))):front,d.impact?12:5,8);
     }
-    if(!d.impact&&d.t-d.cameraAt>84){
-      d.cameraAt=d.t;
-      zoomTo(kazanClamp(front.x+Math.cos(angle)*100,130,1020),kazanClamp(front.y+Math.sin(angle)*86,190,500),1.07);
+    if(!d.impact){
+      trackKazanDragon(front.x+dir*Math.cos(tilt)*scale*460,front.y+Math.sin(tilt)*scale*340,1+.19*progress);
     }
-    if(d.t>=1560)d.impact=true;
-    if(d.t>=1940)kazanDragon=null;
+    if(d.t>=KAZAN_IMPACT)d.impact=true;
+    if(d.t>=KAZAN_IMPACT+400)kazanDragon=null;
   }
   c.restore();
+}
+// Silhueta em degraus, com as camadas quentes crescendo de dentro para fora.
+function kazanBlastTongue(c,x,y,w,h,dir,alpha){
+  c.save(); c.translate(x,y); c.scale(dir,1); c.globalAlpha=alpha;
+  const colors=['#f64a1b','#ff9b32','#ffd56c','#fff2bf'];
+  colors.forEach((color,i)=>{
+    const half=w*(1-i*.2), top=h*(1-i*.17);
+    c.fillStyle=color;
+    c.beginPath();
+    c.moveTo(-half,3);
+    c.lineTo(-half,Math.round(-top*.22));
+    c.lineTo(Math.round(-half*.74),Math.round(-top*.22));
+    c.lineTo(Math.round(-half*.75),Math.round(-top*.56));
+    c.lineTo(Math.round(-half*.35),Math.round(-top*.56));
+    c.lineTo(Math.round(-half*.26),Math.round(-top*.82));
+    c.lineTo(Math.round(half*.13),Math.round(-top*.82));
+    c.lineTo(Math.round(half*.38),-Math.round(top));
+    c.lineTo(Math.round(half*.49),Math.round(-top*.57));
+    c.lineTo(Math.round(half*.8),Math.round(-top*.57));
+    c.lineTo(Math.round(half*.95),Math.round(-top*.3));
+    c.lineTo(half,3);
+    c.closePath(); c.fill();
+  });
+  c.restore();
+}
+function kazanDragonBurst(p,targets){
+  const ground={x:p.x,y:p.y+18};
+  crack(ground.x,ground.y);
+  shake(2.05);
+  $('flash').animate([{opacity:.58},{opacity:.26,offset:.18},{opacity:0}],
+    {duration:240/speed,easing:'ease-out'});
+  sfx.forge('blast',()=>{sfx.heavy(); sfx.thud();});
+  const vents=[{x:ground.x,y:ground.y,delay:0,w:28,h:107,dir:1}];
+  for(const t of targets){
+    const a=cur(t), dir=a.x<ground.x?-1:1;
+    vents.push({x:a.x+dir*30,y:a.y-2,delay:.07,w:20,h:74,dir});
+    crack(a.x,a.y);
+    kazanSmoke(a,12);
+  }
+  for(const dir of [-1,1]){
+    vents.push({x:ground.x+dir*127,y:ground.y+6,delay:.13,w:21,h:73,dir});
+    vents.push({x:ground.x+dir*219,y:ground.y+11,delay:.23,w:15,h:53,dir});
+  }
+  const hotRock=['#462329','#6e3028','#ec501b','#ffa534','#ffdc79'];
+  em(85,i=>{
+    const angle=i*2.3999, push=R(3,12), size=R(2,7);
+    return prt(ground.x,ground.y,R(-26,26),R(-12,4),Math.cos(angle)*push,-R(2,9),.29,
+      R(23,49),size,R(2,6),pk(hotRock));
+  });
+  kazanEffect(1080,(c,k,t)=>{
+    const x=ground.x/3, y=ground.y/3;
+    if(k<.69){
+      const glow=Math.min(1,k*28), fade=(1-k/.69)**1.4;
+      const radius=14+83*glow+64*k;
+      const bloom=c.createRadialGradient(x,y-24,0,x,y-24,radius);
+      bloom.addColorStop(0,'#fff4c2');
+      bloom.addColorStop(.28,'#ffb343db');
+      bloom.addColorStop(.65,'#ff5d24a8');
+      bloom.addColorStop(1,'#ff421200');
+      c.save(); c.globalAlpha=fade*.75; c.fillStyle=bloom;
+      c.fillRect(x-radius,y-24-radius,2*radius,2*radius); c.restore();
+    }
+    for(const vent of vents){
+      const q=(k-vent.delay)/(1-vent.delay);
+      if(q<=0||q>=1)continue;
+      const rapid=Math.min(1,q*7);
+      const collapse=(1-q)**.77;
+      kazanPool(c,vent,vent.w*(.62+q*.65),t,(1-q)*.89);
+      kazanBlastTongue(c,vent.x/3,vent.y/3,vent.w*(.65+q*.5),vent.h*rapid*collapse,vent.dir,Math.min(1,collapse*2.1));
+    }
+    for(let i=0;i<3;i++){
+      const sweep=(k-i*.103)*1.42;
+      if(sweep<=0||sweep>=1)continue;
+      const travel=1-(1-sweep)**2;
+      c.save(); c.globalAlpha=(1-sweep)*.92;
+      c.lineWidth=1.6+(1-sweep)*2.2;
+      c.strokeStyle=['#fff0a0','#ff9b32','#ff6424'][i];
+      c.beginPath(); c.ellipse(x,y,4+(125-i*16)*travel,1+(25-i*5)*travel,0,0,Math.PI*2); c.stroke();
+      c.restore();
+    }
+  });
 }
 
 const kazanPick=ts=>ts[Math.floor(Math.random()*ts.length)];
 function kazanCount(side){
   for(const u of U[side]){
     if(!u.alive||!u.d.volley||u.teamHits>=KAZAN_LIMIT)continue;
-    u.teamHits++; upd(u);
+    u.teamHits++;
   }
 }
 async function kazanReactions(){
@@ -307,7 +374,7 @@ async function kazanReactions(){
     if(result())return;
     if(u.alive&&u.d.volley&&u.teamHits===KAZAN_LIMIT){
       await gate();
-      u.teamHits=0; upd(u);
+      u.teamHits=0;
       await doSkill(u,u.d.volley,false);
     }
   }
@@ -327,7 +394,7 @@ async function kazanContact(u,anim,p,onContact){
   setAnim(u,anim,3,true);
   kazanShock(p,1.15); shake(.35); flashSoft();
   onContact();
-  await hitstop(75);
+  await hitstop(105);
   // A pose do quadro 4 continua pelo passo repetido em seq, depois do hit-stop.
   await sleep(animMs(u,anim)-impact);
 }
@@ -357,9 +424,9 @@ async function kazanBasic(u,sk){
   await kazanContact(u,'attackB',a,()=>sfx.hit(u,'atk'));
   sceneOn([u,...ts]); markTargets(ts);
   setAnim(u,'attackC',0,true);
-  await sleep(92);
+  await sleep(180);
   kazanCinders(a,16); sfx.shoot(u);
-  await Promise.all(ts.map(t=>kazanFlight(u,t,a,290)));
+  await Promise.all(ts.map(t=>kazanFlight(u,t,a,540)));
   let damage=0;
   const burns=Math.random()<sk.burnChance;
   await Promise.all(ts.map(async t=>{
@@ -372,41 +439,39 @@ async function kazanBasic(u,sk){
   else await hitstop(30);
 }
 async function kazanForge(u,sk){
-  await cine(u,sk,team(u.side).filter(t=>t.alive));
+  skTag(u,sk.name);
+  setAnim(u,'cast',0,true); sfx.cast(u);
+  await sleep(animMs(u,'cast')*.74);
   setAnim(u,'atk2',0,true);
-  await sleep(330);
-  setField(u,sk.field); sfx.jutsu(u);
-  const dir=kazanDir(u);
-  for(const t of team(u.side)){
-    if(!t.alive)continue;
-    const p=pos(t);
-    fxSpr(u.id,'wave',{x:p.x-dir*40,y:p.y-22,sc:.8,dir,flip:dir<0,lo:true});
-    kazanCinders(p,13,26);
-  }
+  await sleep(300);
+  sfx.jutsu(u);
+  const p=kazanAnvil(u), dir=kazanDir(u);
+  fxSpr(u.id,'wave',{x:p.x,y:p.y+22,sc:.72,dir,flip:dir<0});
+  kazanCinders(p,19,12);
+  await transitionField('forge',true,()=>setField(u,sk.field));
   log(`${nm(u)} ativa <b>${sk.name}</b> por ${sk.field} rodadas`);
-  await sleep(animMs(u,'atk2')-330);
 }
 async function kazanDragonSkill(u,sk){
   if(fieldA?.owner!==u)return;
-  clearField(true);
+  clearField(true,true);
   u.cd=sk.cd;
   const ts=foes(u);
-  if(!ts.length)return;
-  setAnim(u,'idle');
+  if(!ts.length){ await transitionField('forge',false,()=>showFieldScene(null)); return; }
+  setAnim(u,'idle',0,true); u.ts=0;
   await cine(u,sk,ts);
   sfx.voz(u,'jutsu',.65);
-  const a=kazanHead(u), ps=ts.map(cur);
+  const a=kazanFramePoint(u,KAZAN_CAULDRON), ps=ts.map(cur);
   const b={x:ps.reduce((sum,p)=>sum+p.x,0)/ps.length,y:ps.reduce((sum,p)=>sum+p.y,0)/ps.length-18};
-  const flight={a,path:kazanPath(a,b),t:0,sparkAt:0,cameraAt:0,impact:false};
+  const dir=kazanDir(u);
+  const flight={a,dir,path:kazanPath(a,b,dir),t:0,sparkAt:0,impact:false};
   kazanDragon=flight;
   sfx.forge('dragon',()=>sfx.jutsu(u)); kazanCinders(a,20);
-  const dir=kazanDir(u);
   u.kazanRecoil=-8*dir;
   u.st.animate([{translate:'0'},{translate:`${-12*dir}px 3px`,offset:.27},{translate:'0'}],
     {duration:290/speed,easing:'ease-out'});
   await sleep(290); u.kazanRecoil=0;
   while(!flight.impact){ await gate(); await sleep(28); }
-  kazanShock(b,2.8); crack(b.x,b.y); shake(1.4);
+  kazanDragonBurst(b,ts);
   const connected=[];
   let damage=0;
   for(const t of ts){
@@ -415,18 +480,18 @@ async function kazanDragonSkill(u,sk){
   }
   log(`${nm(u)} solta <b>${sk.name}</b>: ${damage} de dano`);
   const primary=connected.find(t=>!t.d.immuneState);
-  const focus=primary||ts.find(t=>!t.d.immuneState);
-  if(focus)await smash(u,focus,sk.cause,()=>Promise.all(connected.map(t=>knock(t,sk.cause))),{x:b.x,y:b.y+48});
-  else{
-    connected.forEach(kazanGuard);
-    flashSoft(); sfx.heavy(); zoomOut(true);
-  }
+  await hitstop(165);
+  $('cam').classList.remove('tracking');
+  zoomOut(true);
+  await Promise.all(connected.map(t=>knock(t,sk.cause,true)));
   if(result())await finale(ts.find(t=>!t.alive)||ts[0]);
   for(const t of connected){
     if(!t.state)continue;
     if(t===primary){ endCine(); comboShow(u,t); await chain(u.side,t,1,u); }
     if(t.alive){ setState(t,null); t.el.style.zIndex=t.z; }
   }
+  await sleep(205);
+  await transitionField('forge',false,()=>showFieldScene(null));
 }
 async function kazanVolley(u,sk){
   await kazanRitual(u);
@@ -436,7 +501,7 @@ async function kazanVolley(u,sk){
     sfx.forge('fireball',()=>sfx.hit(u,'atk'));
     fxSpr(u.id,'bigfire',{x:p.x,y:p.y,sc:.6,dir:kazanDir(u),flip:u.side==='e',fps:16});
     skTag(u,sk.name);
-    shots=kazanVolleyShots(u,sk,p).catch(error=>({error}));
+    shots=sleep(140).then(()=>kazanVolleyShots(u,sk,p)).catch(error=>({error}));
   });
   const {damage,last,error}=await shots;
   if(error)throw error;
@@ -452,7 +517,7 @@ async function kazanVolleyShots(u,sk,p){
     if(!t)break;
     const from={x:p.x+i*11*kazanDir(u),y:p.y-i*9};
     markTargets([t]); sfx.shoot(u);
-    await kazanFlight(u,t,from,170,true);
+    await kazanFlight(u,t,from,425,true);
     kazanCinders(cur(t),7,4);
     damage+=kazanHit(u,t,sk,sk.mult,'volley')||0;
     last=t;
@@ -466,6 +531,7 @@ async function kazanSkill(u,sk){
     else if(sk===u.d.recast)await kazanDragonSkill(u,sk);
     else if(sk===u.d.volley)await kazanVolley(u,sk);
   }finally{
+    if(sk===u.d.recast){ u.ts=1; u.kazanRecoil=0; }
     home(u);
   }
 }
