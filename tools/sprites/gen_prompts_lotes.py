@@ -202,13 +202,79 @@ Row 3: TOXIC MIST (jutsu): a huge swirling cloud of violet and magenta poison ga
 Row 4: STINGER (pursuit): a gigantic needle of violet energy plunging diagonally downward with a magenta shock ring at the tip, growing and fading.
 Row 5: IMPACT: a sharp violet and pale lilac hit burst with radial spikes and a few droplets.
 Row 6: AURA RING: a ring of swirling violet and magenta poison vapor around an EMPTY space the size of a body, rising upward, with small bubbles."""),
+ # KAZAN (25/11/2026): ferreiro SENTADO na bigorna, nunca levanta; todo golpe é martelada na bigorna (à distância). Sem perseguição (combo por contador).
+ "kazan": dict(name="KAZAN", colors="up to 32 colors", pal="ember orange, molten gold, charcoal, dark steel gray, clay brown, warm ash gray, a little cream",
+  look="the dark-red hair tied in a short topknot with a worn cream headband, a soot smudge across the cheek, tan skin, thick eyebrows and calm smug amber eyes, a sleeveless charcoal shirt, thick bare forearms with brown leather bracers, a heavy brown leather apron with a burnt-orange stripe, dark pants and boots, SEATED on a squat clay-brown stone stool behind a big dark-steel anvil (the anvil always clearly visible in front of him, to his right as he faces right), holding a long iron-handled hammer whose head is a block of glowing molten-orange metal wrapped in a small flame",
+  char="KAZAN, a young blacksmith ninja who NEVER stands up or runs: he is always SEATED on a squat clay-brown stone stool behind a big dark-steel anvil (the anvil is clearly visible in EVERY frame, in front of him on the right side as he faces right, same size and shape). He fights by FORGING: every attack is a hammer blow on the anvil. Stocky, broad-shouldered, thick bare forearms with small burn scars and brown leather bracers. Dark-red hair tied in a short topknot with a worn cream headband, a smudge of soot across one cheek, thick eyebrows, calm smug amber eyes, a lazy half-smile. Sleeveless charcoal shirt, a heavy brown leather apron with a burnt-orange stripe, dark pants and boots. In his right hand a long iron-handled hammer whose head is a block of glowing molten-orange metal wrapped in a small flame (clearly visible in every frame, same size). Small embers drift up from the anvil. Colors only ember orange, molten gold, charcoal, dark steel gray, clay brown, warm ash gray and a little cream. Nothing turquoise, aqua, teal or greenish anywhere.",
+  STYLEPOSE="seated on the stone stool behind the anvil, the glowing hammer resting on his shoulder, one forearm on his knee, a calm smug half-smile, small embers drifting up from the anvil",
+  A1="""Row 1: IDLE, 6 frames: seated at the anvil, he taps the hammer head lightly against the anvil in a slow lazy rhythm, embers rise and drift, his shoulders lift with a breath, he glances at the glowing hammer head and blows on it, a tiny spark pops (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames: he never stands: the whole forge station (him on his stool plus the anvil) glides to the right as one piece, hovering a hand's width above the ground on small jets of embers under the stool and the anvil, bobbing gently, hammer resting on his shoulder, full 8 columns.
+Row 3: DASH, 8 frames: the whole forge station (him on his stool plus the anvil) zooms to the right as one piece, leaning forward, a stream of embers and sparks trailing behind, hammer held back, full 8 columns.""",
+  A1B="""Row 1: BASIC HIT 1 "Martelada de Pedra", 6 frames, starts and ends seated in the idle pose. Frame 1 ANTICIPATION: he lifts the hammer over his shoulder. Frame 2 body coiled, hammer high. Frame 3 SMEAR: the hammer swing drawn as ONE opaque flat arc streak in ember orange and molten gold (not translucent). Frame 4 CONTACT: the hammer head slams onto the anvil, a burst of sparks and a few small clay-brown rock shards flying forward to the right, the strongest pose of the hit. Frame 5 follow-through, the anvil ringing. Frame 6 back to the seated idle (cells 7 to 8 EMPTY).
+Row 2: BASIC HIT 2 "Lasca Girada", 6 frames, starts and ends seated. Frame 1 ANTICIPATION: he flips the hammer in his hand. Frame 2 body twisting. Frame 3 SMEAR: a sideways backhand swing drawn as ONE opaque flat curved streak of ember orange and clay brown (not translucent). Frame 4 CONTACT: the hammer clips the edge of the anvil, sparks and rock chips spraying out in a wide arc to the right, the strongest pose of the hit. Frame 5 follow-through. Frame 6 back to the seated idle (cells 7 to 8 EMPTY).
+Row 3: BASIC HIT 3 "Golpe Duplo", the heaviest hit of the combo, 6 frames, starts seated and ends in a proud seated pose. Frame 1 ANTICIPATION: both hands on the handle, hammer drawn far back. Frame 2 full coil, hammer overhead, eyes locked forward. Frame 3 SMEAR: the downward slam drawn as ONE opaque flat arc of molten gold, ember orange and white (not translucent). Frame 4 CONTACT: the hammer crashes onto the anvil, a ring of sparks and a spray of rock shards forward, the strongest pose of the whole combo. Frame 5 holds the slam, embers flying up. Frame 6 straightens with a smug grin, hammer on the shoulder (cells 7 to 8 EMPTY).""",
+  A2="""Row 1: STRONG ATTACK "Forja Pesada", 7 frames: he lifts the hammer high with both hands, the hammer head flares brighter, he holds a tense beat, slams it down on the anvil in one huge blow, a thick burst of sparks and clay-brown rock shards forward, holds the extended pose, settles back on the stool (cell 8 EMPTY).
+Row 2: GUARD, 4 frames: he lifts the hammer handle vertically in front of his face like a shield and ducks behind the anvil, bracing, holds, relaxes with a smirk (cells 5 to 8 EMPTY).
+Row 3: HURT, 3 frames: hit from the front, head snaps back, he is shoved back on the stool, gets a grip on the hammer and recovers (cells 4 to 8 EMPTY).
+Row 4: DODGE, 6 frames: his body bursts into a small puff of drifting ash and embers (opaque small pieces) while he slips behind the anvil, and he pops back up seated on the stool a beat later with a smug shrug, the anvil never moves (cells 7 to 8 EMPTY).""",
+  B1="""Row 1: HAND SEALS, 6 frames, EVERY frame visibly different: he lays the hammer across the anvil, claps both hands together, rubs the palms and a glowing thread of heat stretches between them, his fingers cross into a seal, a ring of small embers rises, he grabs the hammer again (cells 7 to 8 EMPTY).
+Row 2: RELEASE JUTSU "Plano da Forja", 8 frames: he lifts the hammer slowly, brings it down on the anvil in ONE clean ringing strike, a shimmering ring of heat ripple and orange sparks spreads out from the anvil, the air around him seems to bend, he lowers the hammer and smirks as the ripple settles. Only SMALL heat ripples and sparks near the body and anvil, the big plane comes later (full 8 columns).
+Row 3: BUFF, 6 frames: he taps the hammer on the anvil in a steady rhythm, an ember-orange and gold glow pulses around the anvil and his body, he rolls his shoulders and grins (cells 7 to 8 EMPTY).""",
+  B2="""Row 1: STUNNED, 4 frames: dazed, slumped on the stool, the hammer head resting on the anvil, head drooping, small gold stars circling the head (cells 5 to 8 EMPTY).
+Row 2: VICTORY, 6 frames: from his seat he raises the hammer overhead and brings it down on the anvil in a proud ring of sparks, a huge grin, wipes the soot off his cheek (cells 7 to 8 EMPTY).
+Row 3: DEFEAT, 8 frames: hit, he sags, the hammer slips from his hand, he topples sideways off the stool, falls and %s, the anvil stays standing (full 8 columns)."""%DOWN,
+  C="""Row 1: KNOCKED BACK (repelled), 8 frames: hit by a heavy blow, the whole forge station (him on the stool plus the anvil) is shoved backward to the left as one piece, tipping, embers flying, ending in a hard skid (full 8 columns).
+Row 2: LAUNCHED, 8 frames: thrown up into the air by a blow from below, the whole forge station (him, stool and anvil together) rises, rotating, peaks at the top, starts to hang in the air (full 8 columns).
+Row 3: KNOCKED DOWN, 8 frames: the stool tips over and he falls and %s beside the anvil, bounces once, then lies still, then slowly starts to get back up (full 8 columns)."""%DOWN,
+  U="""Row 1: ULT "Dragao de Lava" part 1 (the forging), 6 frames, no dragon drawn (the game adds it). Frame 1 he raises the hammer overhead with both hands, eyes lit. Frame 2 the hammer head blazes brighter, a ring of embers rising around the anvil. Frame 3 SMEAR: the downward swing drawn as ONE opaque flat arc of molten gold and white (not translucent). Frame 4 CONTACT: the hammer slams onto the anvil, the strongest pose of the whole action, a bright burst of sparks only at the anvil face. Frame 5 he holds the slam, head down, steam rising from the anvil. Frame 6 slowly lifts the head (cells 7 to 8 EMPTY).
+Row 2: ULT part 2 (the command), 6 frames, no dragon drawn. Frame 1 he lifts the hammer from the anvil. Frame 2 he rises a little from the stool, hammer dragging a trail of embers. Frame 3 he points the hammer forward toward the enemies. Frame 4 the strongest pose: arm fully extended, hammer pointing forward, mouth open in a roar. Frame 5 holds, embers streaming past. Frame 6 sits back on the stool with a smug grin, hammer on the shoulder (cells 7 to 8 EMPTY).
+Row 3: COUNTER "Bola de Fogo", 6 frames, NO ball drawn (the game adds it). Frame 1 he pulls the hammer far back as if batting something off the anvil. Frame 2 body coiled, hammer glowing white. Frame 3 SMEAR: the swing drawn as ONE opaque flat arc of ember orange and molten gold (not translucent). Frame 4 CONTACT: the hammer swung forward at full extension just above the anvil face, a flash of sparks only at the hammer head, the strongest pose. Frame 5 follow-through, embers trailing. Frame 6 back to the seated idle (cells 7 to 8 EMPTY).""",
+  D="""Row 1: MOLTEN SLAG SHOT: a glowing chunk of molten metal with a rocky crust flying through the air from left to right, a short trail of embers and sparks.
+Row 2: STONE SHARDS (basic attack): three quick bursts of clay-brown rock chips and orange sparks flying forward one after another.
+Row 3: FORGE RIPPLE (jutsu): a ring of shimmering heat waves and orange and gold sparks expanding outward from an EMPTY center the size of the anvil, growing then fading.
+Row 4: FIREBALL (counter): a huge blazing fireball of orange and molten gold flames with a dark core, flying from left to right with a thick flame tail, growing.
+Row 5: IMPACT: a sharp orange, gold and white hit burst with radial spikes and a few rock chips.
+Row 6: AURA RING: a ring of swirling embers and small sparks around an EMPTY space the size of a body and an anvil, rising upward.""",
+  # Dragão de lava (ult): PEÇAS GRANDES, uma imagem por peça, 1 linha com poucos quadros enormes (o código monta e anima o dragão inteiro)
+  DR={
+   "DR1": """STRICT RULES: LANDSCAPE image with EXACTLY 1 row and EXACTLY 2 columns, two huge frames of identical size, each frame fills at least 85% of its cell, nothing touches the cell edge. Solid flat pure green #00FF00 background, no checkerboard, no gradient, no border, no grid lines, no shadow, no text except the label. No green, turquoise or teal on the dragon. Fully opaque, no ghosting.
+ART STYLE: pixel art for a 2D game with a dark 1px outline, up to 32 colors, hard-edged pixel clusters, flat cel shading, no soft gradients, no smooth painting.
+SUBJECT: the HEAD of a giant LAVA DRAGON seen in pure side view FACING RIGHT, drawn HUGE (much bigger than any ninja). A long serpentine eastern-style dragon: obsidian-black scales with glowing ember-orange magma cracks between them, two long curved obsidian horns swept back, small spiked crest, golden slit eyes, a magma glow inside the throat, smoldering ember sparks. The neck ends on the LEFT edge of the frame as a clean wide round stump of thickness exactly 40% of the cell height, centered vertically, so a body segment can be attached there; nothing else touches the left edge.
+Frame 1: mouth CLOSED, jaws shut, menacing. Frame 2: mouth WIDE OPEN roaring, rows of fangs, a molten-gold glow and flames inside the throat, horns and crest the same size and position as frame 1.
+Colors only: obsidian black, charcoal, dark steel gray, ember orange, molten gold, a little white-hot yellow. Same dragon design in both frames.
+LABEL: top-left corner only, small plain white pixel text "KAZAN - DRAGAO CABECA" on a thin dark strip above the grid.
+""",
+   "DR2": """STRICT RULES: LANDSCAPE image with EXACTLY 1 row and EXACTLY 4 columns, four frames of identical size, each frame fills the full width of its cell with the body piece entering exactly at the LEFT edge and leaving exactly at the RIGHT edge. Solid flat pure green #00FF00 background, no checkerboard, no gradient, no border, no grid lines, no shadow, no text except the label. No green, turquoise or teal on the dragon. Fully opaque, no ghosting.
+ART STYLE: pixel art for a 2D game with a dark 1px outline, up to 32 colors, hard-edged pixel clusters, flat cel shading, no soft gradients.
+SUBJECT: a straight BODY SEGMENT of the same giant LAVA DRAGON (obsidian-black scales, glowing ember-orange magma cracks between the scales, a row of small obsidian spikes along the top), seen in pure side view, a horizontal tube of thickness exactly 40% of the cell height, centered vertically, crossing the whole cell from the left edge to the right edge at the SAME height and thickness on both edges so the frames can be joined end to end and tile seamlessly. Below the belly a paler dark-gray scale band.
+The 4 frames are the SAME segment pulsing: the magma cracks glow dim, brighter, brightest, then dim again (only the glow changes, the shape and the scale pattern stay identical), with a few tiny embers floating off the top.
+Colors only: obsidian black, charcoal, dark steel gray, ember orange, molten gold, a little white-hot yellow.
+LABEL: top-left corner only, small plain white pixel text "KAZAN - DRAGAO CORPO" on a thin dark strip above the grid.
+""",
+   "DR3": """STRICT RULES: LANDSCAPE image with EXACTLY 1 row and EXACTLY 2 columns, two huge frames of identical size, each frame fills at least 85% of its cell, nothing touches the cell edge except the tail stump on the LEFT edge. Solid flat pure green #00FF00 background, no checkerboard, no gradient, no border, no grid lines, no shadow, no text except the label. No green, turquoise or teal on the dragon. Fully opaque, no ghosting.
+ART STYLE: pixel art for a 2D game with a dark 1px outline, up to 32 colors, hard-edged pixel clusters, flat cel shading, no soft gradients.
+SUBJECT: the TAIL of the same giant LAVA DRAGON (obsidian-black scales, glowing ember-orange magma cracks, small obsidian spikes along the top) in pure side view pointing RIGHT. It starts on the LEFT edge as a clean round stump of thickness exactly 40% of the cell height, centered vertically (to attach to a body segment), then tapers to a thin tip ending in a blade of flame made of molten gold and ember orange.
+Frame 1: the tail nearly straight with a slight wave. Frame 2: the tail whipped into a strong S-curve, the flame blade flaring brighter. Same design and scale in both frames.
+Colors only: obsidian black, charcoal, dark steel gray, ember orange, molten gold, a little white-hot yellow.
+LABEL: top-left corner only, small plain white pixel text "KAZAN - DRAGAO CAUDA" on a thin dark strip above the grid.
+""",
+   "DR4": """STRICT RULES: LANDSCAPE image with EXACTLY 1 row and EXACTLY 6 columns, six frames of identical size, each effect fills most of its cell, nothing touches the cell edge. NO dragon, NO character, NO person in any cell. Solid flat pure green #00FF00 background, no checkerboard, no gradient, no border, no grid lines, no shadow, no text except the label. No green, turquoise or teal anywhere. Fully opaque, no ghosting.
+ART STYLE: pixel art for a 2D game with a dark 1px outline, up to 32 colors, hard-edged pixel clusters, flat cel shading, no soft gradients.
+SUBJECT: a LAVA ERUPTION used where the dragon bursts out of the ground and where it lands: a column of molten lava and flame shooting up from a flat base at the bottom of the cell, with flying chunks of black rock, ember sparks and dripping molten gold. Frame 1 a small crack glowing on the ground, frame 2 lava starts to spurt, frame 3 a big eruption column, frame 4 the peak with the widest spray of rock and lava, frame 5 it falls and splashes outward, frame 6 only small drips, embers and a dying glow.
+Colors only: ember orange, molten gold, white-hot yellow, charcoal, obsidian black, dark steel gray.
+LABEL: top-left corner only, small plain white pixel text "KAZAN - ERUPCAO" on a thin dark strip above the grid.
+"""}),
 }
 
 # ---- MODO LINHA (25/11/2026): UMA animação por imagem (1 linha), em vez de sheets de 3-6 linhas ----
 ROWMAP = [('A1', ['idle', 'walk', 'dash']), ('A1B', ['attack1', 'attack2', 'attack3']), ('A2', ['strong', 'guard', 'hurt', 'dodge']),
           ('B1', ['seals', 'jutsu', 'buff']), ('B2', ['stun', 'victory', 'defeat']), ('C', ['knockback', 'launched', 'knockdown']),
-          ('CH', ['chase1', 'chase2', 'chase3']), ('CL', ['clone_idle', 'clone_attack', 'clone_hurt', 'clone_vanish']),
+          ('CH', ['chase1', 'chase2', 'chase3']), ('U', ['ult1', 'ult2', 'fireball']), ('CL', ['clone_idle', 'clone_attack', 'clone_hurt', 'clone_vanish']),
           ('D', ['fx_proj', 'fx_hit', 'fx_jutsu', 'fx_chase', 'fx_impact', 'fx_aura'])]
+def _colors(n, t):
+    """Ninja com chave `colors` (ex.: Kazan) troca o limite padrão de 16 cores pelo dele (decidido 25/11/2026)."""
+    c = n.get("colors")
+    return t.replace("max 16 colors per character", c + " per character").replace("max 16 colors", c) if c else t
 def row_prompts(k):
     """Lista de (anim, texto do prompt de UMA linha). Usa os mesmos textos dos lotes (n[lote]), uma linha por prompt."""
     import re
@@ -224,7 +290,7 @@ def row_prompts(k):
                 t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + LOCKS + "\n" + n["CLINTRO"] + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
             else:
                 t = RULES.format(N=1, PAL=P, NAME=N, L=a.upper()) + "\n" + ROWREF.format(NAME=N.title()) + PIXEL + LOCKS + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + f"Proportions: {PROP}.\n\nROWS:\n" + r1 + "\n"
-            out.append((a, t))
+            out.append((a, _colors(n, t)))
     return out
 
 def build(k):
@@ -240,8 +306,10 @@ def build(k):
     if "A1B" in n: out["A1B"] = lot((3, n["A1B"]), "A1B", False)
     if "CH" in n: out["CH"] = lot((3, n["CH"]), "CH", False)
     if "CL" in n: out["CL"] = RULES.format(N=4, PAL=P, NAME=N, L="CL") + "\n" + n["CLINTRO"] + PIXEL + LOCKS + "\nROWS:\n" + n["CL"] + "\n"
+    if "U" in n: out["U"] = lot((3, n["U"]), "U", False)
     out["D"] = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N) + n["D"] + "\n"
-    return out
+    out.update(n.get("DR", {}))   # peças grandes do dragão (1 imagem por peça, texto pronto)
+    return {a: _colors(n, t) for a, t in out.items()}
 if __name__ == "__main__":
     k = sys.argv[1]; P = build(k)
     head = (f"# {k.title()} — lotes completos (gerado por tools/sprites/gen_prompts_lotes.py)\n\nOrdem e anexos: **A1** ← `docs/refs/elenco_ref.png` → **A2** ← A1 → **B1** ← A2 → **B2** ← B1 → **C** ← B2 → **D** ← qualquer sheet (só paleta). Salvar em `tools/sprites/src/{k}/`.\n\n")
