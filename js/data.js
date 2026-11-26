@@ -2,7 +2,7 @@
 "use strict";
 // hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
 // strong = golpe Forte: cada ação sem jutsu tem STRONG_CHANCE (30%) de virar ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
-// combo = perseguição por combo (Onda 6): dispara 1x/rodada logo após a ação em que o 'N Hit' do time chega a `at` (10/20/30).
+// combo = perseguição por combo (Onda 6): dispara 1x/rodada logo após a ação em que o 'N Hit' do time chega a `at` (hoje 10, 12, 15 ou 18).
 //   target 'random' (n alvos distintos) ou 'all' quando não encadeia; 'mark' (alvo marcado, senão aleatório) quando tem `cause` e abre a cadeia por estado.
 //   star = só libera com essa estrela (sem sistema de estrelas ainda: só no Modo dev); use = executa outra habilidade do ninja (Kazan: volley).
 // L = Lançado baixo (rasteira, anim 'trip' quando o sprite chegar); V = Voo (flutuação alta, o antigo Lançado).
@@ -13,7 +13,7 @@ const N={
   normal:{name:'Corte Ardente',mult:1,target:'front',hits:[.3,.7]},
   jutsu:{name:'Dragão de Brasa',cost:40,cd:3,mult:1.5,target:'row',cause:'R',an:'atk2',dot:{mult:.35,rounds:2},desc:'queima a fileira'},
   chase:{name:'Chute Meteoro',on:'V',cause:'D',mult:.7},
-  combo:{name:'Chuva de Brasas',at:30,star:2,target:'all',ranged:true,an:'atk2',mult:.5,dot:{mult:.25,rounds:2}}},
+  combo:{name:'Chuva de Brasas',at:18,star:2,target:'all',ranged:true,an:'atk2',mult:.5,dot:{mult:.25,rounds:2}}},
  mizuha:{name:'Mizuha',el:'Água',c:'#3d8fe5',role:'Suporte',hp:900,atk:95,def:25,
   normal:{name:"Jato d'Água",mult:.9,target:'front',ranged:true},
   jutsu:{name:'Chuva Serena',cost:40,cd:3,target:'allies',heal:2.5,desc:'cura o time'},
@@ -22,7 +22,7 @@ const N={
   normal:{name:'Faísca',mult:1,target:'front',hits:[.28,.53]},
   jutsu:{name:'Lâmina Trovão',cost:40,cd:3,mult:1.7,target:'front',cause:'V',stun:true,desc:'paralisa o alvo (não persegue)'},
   chase:{name:'Gancho Relâmpago',on:'R',cause:'V',mult:.7},
-  combo:{name:'Corrente Trovão',at:20,target:'random',n:3,ranged:true,an:'atk2',mult:.6}},
+  combo:{name:'Corrente Trovão',at:15,target:'random',n:3,ranged:true,an:'atk2',mult:.6}},
  iwao:{name:'Iwao',el:'Terra',c:'#b08a58',role:'Tanque',hp:1500,atk:85,def:50,
   normal:{name:'Golpe de Pedra',mult:.9,target:'front',cause:'D',hits:[.4,.65]},
   jutsu:{name:'Muralha de Pedra',cost:30,cd:3,target:'allies',shield:2.5,desc:'escudo para o time (2 rodadas, não acumula)'},
@@ -50,7 +50,7 @@ const N={
   jutsu:{name:'Névoa Tóxica',cost:40,cd:3,mult:.6,target:'all',cause:'R',dot:{mult:.4,rounds:3},desc:'envenena todos'},
   strong:{name:'Agulhas',an:'atk3',mult:1.4,target:'front',dot:{mult:.35,rounds:2}},
   chase:{name:'Ferrão',on:'V',cause:'D',mult:.7},
-  combo:{name:'Chuva Ácida',at:20,star:2,target:'random',n:2,ranged:true,an:'atk2',mult:.5,dot:{mult:.3,rounds:2}}},
+  combo:{name:'Chuva Ácida',at:12,star:2,target:'random',n:2,ranged:true,an:'atk2',mult:.5,dot:{mult:.3,rounds:2}}},
  yugami:{name:'Yugami',el:'Espaço',c:'#f2c14e',role:'Distorção',hp:860,atk:112,def:18,dodge:12,
   normal:{name:'Corte Dimensional',mult:1,target:'front'},
   jutsu:{name:'Lacre Rompido',cost:30,cd:6,target:'self',unleash:3,uDmg:.35,uDodge:20,an:'atk2',desc:'tira o capuz: +35% de dano e +20% de esquiva por 3 rodadas'},

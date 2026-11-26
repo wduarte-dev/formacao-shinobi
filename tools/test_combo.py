@@ -55,11 +55,11 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=ROOT)
       check(comboChain(['raiden','kaen'],'R').map(c=>c.id).join()==='raiden,kaen','cadeia R→V→D');
     }""")
 
-    # 2) Raiden (Combo 20, padrão): não dispara abaixo da faixa; acima, 3 alvos distintos, 1x por rodada.
+    # 2) Raiden (Combo 15, padrão): não dispara abaixo da faixa; acima, 3 alvos distintos, 1x por rodada.
     scene([{"id": "raiden", "row": 0, "depth": 0}, {"id": "iwao", "row": 1, "depth": 0}])
     r = page.evaluate("""async () => {
-      hitsR.p=19; await comboReactions(); const before=LOG.length;
-      hitsR.p=20; await comboReactions(); const after=[...LOG];
+      hitsR.p=14; await comboReactions(); const before=LOG.length;
+      hitsR.p=15; await comboReactions(); const after=[...LOG];
       hitsR.p=40; await comboReactions();
       return {before, after, again:LOG.length, hits:HITS, used:U.p[0].comboUsed};
     }""")
@@ -70,22 +70,22 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=ROOT)
     if out:
         page.screenshot(path=out / "combo-raiden.png")
 
-    # 3) Estrela: Kaen (Combo 30, 2★) fica travado fora do Modo dev e libera dentro dele.
+    # 3) Estrela: Kaen (Combo 18, 2★) fica travado fora do Modo dev e libera dentro dele.
     scene([{"id": "kaen", "row": 0, "depth": 0}])
-    assert page.evaluate("async()=>{ hitsR.p=30; await comboReactions(); return LOG.length; }") == 0
+    assert page.evaluate("async()=>{ hitsR.p=18; await comboReactions(); return LOG.length; }") == 0
     scene([{"id": "kaen", "row": 0, "depth": 0}], dev=True)
-    r = page.evaluate("async()=>{ hitsR.p=30; await comboReactions(); return {log:LOG, burn:U.e.filter(u=>u.dot).length}; }")
+    r = page.evaluate("async()=>{ hitsR.p=18; await comboReactions(); return {log:LOG, burn:U.e.filter(u=>u.dot).length}; }")
     assert r["log"] == ["kaen:Chuva de Brasas"] and r["burn"] >= 1, r
 
     # 4) Paralisado não dispara; a trava passa na rodada seguinte (comboUsed zera junto com chaseUsed).
     scene([{"id": "raiden", "row": 0, "depth": 0}])
     assert page.evaluate("async()=>{ U.p[0].stunned=true; hitsR.p=25; await comboReactions(); return LOG.length; }") == 0
 
-    # 5) Cascata e ordem por casa: Keshin (C10) dispara, os hits dele levam o time a 20 e o Raiden (C20) entra em seguida.
+    # 5) Cascata e ordem por casa: Keshin (C10) dispara, os hits dele levam o time a 15 e o Raiden (C15) entra em seguida.
     #    Keshin encadeia: vai no alvo marcado e deixa Lançado (rasteira).
     scene([{"id": "keshin", "row": 0, "depth": 0}, {"id": "raiden", "row": 1, "depth": 0}])
     r = page.evaluate("""async () => {
-      mark=U.e[2]; hitsR.p=19; await comboReactions();
+      mark=U.e[2]; hitsR.p=14; await comboReactions();
       return {log:LOG, smash:SMASH, hits:HITS, n:hitsR.p};
     }""")
     assert r["log"][:2] == ["keshin:Rasteira Dinamite", "raiden:Corrente Trovão"], r
@@ -104,7 +104,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=ROOT)
 
     # 8) Inimigo também usa: Raiden adversário dispara pelo contador do time dele.
     scene([{"id": "iwao", "row": 0, "depth": 0}], foes=[['raiden', 0, 0], ['iwao', 1, 0]])
-    r = page.evaluate("async()=>{ curSide='e'; hitsR.e=20; await comboReactions(); return {log:LOG, hits:HITS}; }")
+    r = page.evaluate("async()=>{ curSide='e'; hitsR.e=15; await comboReactions(); return {log:LOG, hits:HITS}; }")
     assert r["log"] == ["raiden:Corrente Trovão"] and all(h.endswith('>iwao') for h in r["hits"]), r
 
     # 9) Voo e Lançado no knock: Voo sobe alto (como o antigo L), a rasteira fica baixa.

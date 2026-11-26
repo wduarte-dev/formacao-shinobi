@@ -6,8 +6,8 @@ Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes
 ## 1.15 · 26/11/2026 · Perseguição por combo e estado Voo
 - Novo estado **Voo (V)**: é o antigo Lançado, alto no ar. Todos os golpes e perseguições que lançavam agora deixam ou perseguem Voo, com o mesmo visual.
 - O **Lançado (L)** virou a rasteira: o alvo sai do chão baixinho. Por enquanto só a Rasteira Dinamite do Keshin e o Corte Rasante da Fuuka causam esse estado.
-- **Perseguição por combo:** quando o contador de hits do time na rodada chega a 10, 20 ou 30, o ninja com essa perseguição entra logo depois da ação atual. Cada uma vale 1 vez por rodada, segue a ordem das casas, e os hits dela podem abrir a próxima faixa. Paralisado não dispara.
-- De padrão: Keshin (Combo 10, no alvo marcado, deixa Lançado), Kazan (a Bola de Fogo agora é o Combo 10 dele) e Raiden (Combo 20, raio em 3 alvos aleatórios). Por estrela, só no Modo dev até as estrelas chegarem: Kaen (Combo 30, todos, queima), Doku (Combo 20, 2 alvos, veneno) e Fuuka (Combo 10, deixa Lançado).
+- **Perseguição por combo:** quando o contador de hits do time na rodada chega à faixa dele, o ninja com essa perseguição entra logo depois da ação atual. Cada uma vale 1 vez por rodada, segue a ordem das casas, e os hits dela podem abrir a próxima faixa. Paralisado não dispara.
+- De padrão: Keshin (Combo 10, no alvo marcado, deixa Lançado), Kazan (a Bola de Fogo agora é o Combo 10 dele) e Raiden (Combo 15, raio em 3 alvos aleatórios). Por estrela, só no Modo dev até as estrelas chegarem: Kaen (Combo 18, todos, queima), Doku (Combo 12, 2 alvos, veneno) e Fuuka (Combo 10, deixa Lançado).
 - A ficha e a galeria mostram a perseguição por combo de cada ninja.
 
 ## 1.14 · 26/11/2026 · Estabilidade, carregamento e modo offline
