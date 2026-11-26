@@ -46,7 +46,7 @@ def check_frozen(page, phase, out):
     before = page.evaluate('snapshot()')
     page.wait_for_timeout(700)
     assert page.evaluate('snapshot()') == before, f'Cena avançou congelada: {phase}'
-    assert page.get_by_role('button', name='Retomar').get_attribute('aria-pressed') == 'true'
+    assert page.evaluate('devFrozen && timeHeld')
     page.screenshot(path=out / f'congelado-{phase}.png')
     page.keyboard.press('f')
 
@@ -99,7 +99,7 @@ def main():
           begin(()=>doSkill(U.p[0], N.kazan.recast, true));
         }''')
         page.wait_for_function('()=>kazanDragon?.t > 925 && !kazanDragon.impact')
-        page.get_by_role('button', name='Congelar').click()
+        page.keyboard.press('f')
         check_frozen(page, 'dragao', out)
         page.wait_for_function('() => devFrozen && U.e.every(unit=>unit.hp<unit.max)')
         page.screenshot(path=out/'explosao.png')

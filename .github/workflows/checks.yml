@@ -1,0 +1,55 @@
+name: Verificações
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install playwright==1.65.2 Pillow==13.0.0
+          python -m playwright install --with-deps --only-shell chromium
+          sudo apt-get install -y ffmpeg
+      - run: |
+          node tools/validate_content.js
+          python -m unittest discover -s tools -p 'test_release.py'
+          python -m unittest discover -s tools -p 'test_qa*.py'
+      - name: Testes de batalha e navegador
+        run: |
+          mkdir -p /tmp/shinobi-ci
+          for suite in test_abort test_iniciativa test_status test_jutsu test_pausa test_utsushi test_academia test_planos test_robustez; do
+            python "tools/$suite.py" > "/tmp/shinobi-ci/$suite.log" 2>&1 || { tail -80 "/tmp/shinobi-ci/$suite.log"; exit 1; }
+          done
+          python tools/test_battle.py . /tmp/shinobi-ci/shots --strict
+      - name: QA das diferenças
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE: ${{ github.event.before }}
+        run: |
+          base="${PR_BASE:-${PUSH_BASE:-HEAD^}}"
+          if ! git cat-file -e "$base^{commit}"; then base=HEAD^; fi
+          python tools/qa_diff.py --base "$base"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: diagnostico
+          path: |
+            /tmp/shinobi-ci
+            /tmp/shinobi-diff-*

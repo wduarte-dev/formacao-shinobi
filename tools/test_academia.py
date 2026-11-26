@@ -64,9 +64,11 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
     page.evaluate("""()=>{ labTeam=[{id:'iwao',row:1,depth:0},{id:'mizuha',row:0,depth:1},{id:'raiden',row:2,depth:1},{id:'kaen',row:1,depth:2}];
       acad={i:0,done:false}; startBattle(); }""")
     page.wait_for_timeout(2500)
-    page.evaluate("()=>{ autoP=true; speed=2; }")
+    page.evaluate("()=>{ battleRandom=seededRandom(42); autoP=true; speed=2; }")
     page.wait_for_selector("#resWin:not(.hide)", timeout=240000)
     print("resultado:", page.inner_text("#ovT"), "|", page.inner_text("#ovQ"), "| estrela salva:", page.evaluate("acadDone.includes(0)"))
+    assert page.inner_text("#ovT")=="Desafio concluído!" and page.evaluate("acadDone.includes(0)")
     page.screenshot(path="/tmp/academia_fim.png")
+    assert not errors, errors
     browser.close()
     print("erros: " + (", ".join(errors) if errors else "nenhum"))

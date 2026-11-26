@@ -30,5 +30,6 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       // pausa + congelar do dev não se atropelam
       setPaused(true); setDevFreeze(true); setPaused(false); check(timeHeld,'dev ainda segura o relógio'); setDevFreeze(false); check(!timeHeld,'relógio solto');
     }""")
+    assert not errors, errors
     browser.close()
     print("erros: " + (", ".join(errors) if errors else "nenhum"))

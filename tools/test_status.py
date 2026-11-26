@@ -32,5 +32,6 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       // morte limpa
       t.seal=t.blind=t.sleep=2; hurt(t,99999,''); check(!t.seal&&!t.blind&&!t.sleep,'morte limpa status');
     }""")
+    assert not errors, errors
     browser.close()
     print("erros: " + (", ".join(errors) if errors else "nenhum"))
