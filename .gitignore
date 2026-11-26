@@ -2,3 +2,7 @@ tools/sprites/out/
 __pycache__/
 *.pyc
 /shots*/
+.env
+.env.*
+!.env.example
+*.pem

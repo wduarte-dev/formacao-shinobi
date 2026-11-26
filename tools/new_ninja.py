@@ -5,10 +5,11 @@
   python3 tools/new_ninja.py snippets <id>             # lê tools/sprites/out/<id>_atlas.json + _fx.json e imprime as linhas pra colar
   python3 tools/new_ninja.py face <id> [anim]          # mede o FACE (topo da cabeça + ~16px, centro x) do atlas em spr/
   python3 tools/new_ninja.py checklist <id>            # lista o que falta integrar (confere nos arquivos do repo)
+  python3 tools/new_ninja.py verify                    # valida o catálogo e os PNGs sem geração ou rede
 
 --premium: sheets com ação de 18 quadros (A1B = básico em 3 linhas, CH = perseguição em 3 fases), como o Keshin.
 Fluxo completo e decisões: tools/skills/ninja-novo-shinobi/SKILL.md"""
-import sys, os, json, re
+import sys, os, json, re, subprocess
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 CFG = os.path.join(ROOT, 'tools/sprites/config')
@@ -135,6 +136,11 @@ def cmd_checklist(nid):
 
 if __name__ == '__main__':
     a = sys.argv[1:]
+    if a in (['-h'], ['--help']):
+        print(__doc__)
+        sys.exit(0)
+    if a == ['verify']:
+        sys.exit(subprocess.call(['node', os.path.join(ROOT, 'tools', 'validate_content.js')]))
     if len(a) < 2 or a[0] not in ('config', 'snippets', 'face', 'checklist'):
         sys.exit(__doc__)
     nid = a[1]

@@ -19,7 +19,8 @@ for m in re.finditer(r"^## (\d+)\.|^\*\*(\S+)\*\* · ([\d.]+)s\n```\n(.+?)\n```"
     if m.group(1): cur = int(m.group(1)); secs[cur] = []
     else: secs[cur].append((m.group(2), float(m.group(3)), m.group(4)))
 fila = [it for s in ORDEM for it in secs.get(s, [])][:args.limite]
-hdr = ["-H", "xi-api-key: " + os.environ["ELEVEN_KEY"]] if os.environ.get("ELEVEN_KEY") else []
+key = os.environ.get("ELEVEN_KEY")
+hdr = ["-H", "@-"] if key else []
 ok = pulou = 0
 for i, (nome, dur, txt) in enumerate(fila, 1):
     dest = os.path.join(OUT, nome + ".wav")
@@ -28,7 +29,7 @@ for i, (nome, dur, txt) in enumerate(fila, 1):
     for tent in range(3):
         r = subprocess.run(["curl", "-s", "-o", dest + ".tmp", "-w", "%{http_code}", "-X", "POST",
             "https://api.elevenlabs.io/v1/sound-generation?output_format=wav_44100",
-            "-H", "Content-Type: application/json", *hdr, "-d", body], capture_output=True, text=True)
+            "-H", "Content-Type: application/json", *hdr, "-d", body], input=f"xi-api-key: {key}\n" if key else None, capture_output=True, text=True)
         code = r.stdout.strip()
         if code == "200": os.replace(dest + ".tmp", dest); ok += 1; print(f"[{i}/{len(fila)}] ok {nome}", flush=True); break
         err = open(dest + ".tmp", errors="ignore").read()[:200] if os.path.exists(dest + ".tmp") else ""

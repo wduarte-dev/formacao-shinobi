@@ -45,10 +45,11 @@ for n, d, txt in itens:
     dest = os.path.join(OUT, n + ".wav")
     if os.path.exists(dest) and os.path.getsize(dest) > 1000: continue
     body = json.dumps({"text": txt, "duration_seconds": max(.5, d), "prompt_influence": 1.0})
-    hdr = ["-H", "xi-api-key: " + os.environ["ELEVEN_KEY"]] if os.environ.get("ELEVEN_KEY") else []
+    key = os.environ.get("ELEVEN_KEY")
+    hdr = ["-H", "@-"] if key else []
     for tent in range(3):
         r = subprocess.run(["curl", "-s", "-o", dest + ".tmp", "-w", "%{http_code}", "-X", "POST", "https://api.elevenlabs.io/v1/sound-generation?output_format=wav_44100",
-            "-H", "Content-Type: application/json", *hdr, "-d", body], capture_output=True, text=True)
+            "-H", "Content-Type: application/json", *hdr, "-d", body], input=f"xi-api-key: {key}\n" if key else None, capture_output=True, text=True)
         c = r.stdout.strip()
         if c == "200": os.replace(dest + ".tmp", dest); ok += 1; print("ok", n, flush=True); break
         err = open(dest + ".tmp", errors="ignore").read()[:160] if os.path.exists(dest + ".tmp") else ""

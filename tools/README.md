@@ -74,3 +74,8 @@ Atualize `docs/patch-notes.md` antes de executar. O comando verifica as notas co
 `python tools/estado.py`
 
 Gera `docs/ESTADO.md` com as duas fontes de versão, os ninjas do jogo, os arquivos de atlas, FX e som, os dez commits mais recentes e as linhas `Pendente:` dos últimos vinte commits e de `docs/`. O arquivo gerado é local. Se o conteúdo ultrapassar 60 linhas, o resumo indica quantos itens ficaram de fora e mantém a contagem total de pendências.
+# Verificar conteúdo e navegador
+
+Rode `python3 tools/new_ninja.py verify` depois de cadastrar um ninja ou trocar um atlas. A validação lê os dados do jogo e os cabeçalhos dos PNGs com Node.js. Ela retorna erro quando uma referência aponta para um quadro, animação, casa ou efeito inexistente.
+
+O workflow de QA instala Chromium com Playwright, verifica os contratos e roda os testes do motor e o `qa_diff` contra o commit-base. Para repetir localmente, use `python3 tools/qa_diff.py --base <commit>`. O teste `python3 tools/test_robustez.py` cobre save legado, entrada por toque e teclado, banco de sons por elenco e abertura offline.
