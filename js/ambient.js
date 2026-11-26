@@ -12,6 +12,7 @@ const AMB={
     glow:[[.19,.5,.03],[.255,.42,.025],[.805,.41,.03],[.895,.5,.03],[.73,.475,.022],[.51,.19,.2]], gcol:'255,170,90',
     mist:{y:.55,a:.1,col:'200,230,255',n:2} },
   noite_nevoa:{fly:{n:32,col:['#a9b6f4','#e2e2ff']},mist:{y:.65,a:.22,col:'159,172,213',n:4}},
+  dojo:{ glow:[[.256,.25,.03],[.76,.25,.03]], gcol:'255,200,120', fly:{n:12,col:['#ffe9b8','#fff6dd']} },   // Academia: brilho das lanternas e poeira no ar
   floresta:{ fly:{n:26,col:['#d8ff7a','#b8f060']}, mist:{y:.5,a:.2,col:'140,200,190',n:4} },
   cinzas:{ fall:{n:34,kind:'ash',col:['#9a8d88','#7d716d','#b5a8a0'],vx:[.2,.5],vy:[.15,.35]},
     rise:{n:30,col:['#ff9a3c','#ff6a20','#ffd070']},

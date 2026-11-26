@@ -726,6 +726,11 @@ night forest, crickets chirping, soft owl hoots, quiet wind, seamless loop, stea
 dense bamboo forest, wind through bamboo creaking, birds calling, seamless loop, steady, no sudden loud events, no music, no voice, game ambience, 15 seconds long
 ```
 
+**amb-dojo** · 15s
+```
+quiet wooden training dojo interior, soft creak of floorboards, faint paper lantern flicker, distant muffled wind outside shoji screens, occasional soft rustle of a straw training dummy, seamless loop, steady, no sudden loud events, no music, no voice, game ambience, 15 seconds long
+```
+
 **amb-cinzas** · 15s
 ```
 burning ashen wasteland, embers crackling, low wind howl, distant rumble, seamless loop, steady, no sudden loud events, no music, no voice, game ambience, 15 seconds long

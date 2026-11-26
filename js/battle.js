@@ -5,7 +5,7 @@ let loadingB=false, ldIv=0;
 const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre combo pra quem continua daquele estado. Monte a formação pensando na corrente!',
  'Cada passo da perseguição dá +10% de dano. Combo longo é dano de verdade.',
  'Cada ninja só faz uma perseguição por rodada. Escolha bem quem abre o combo.',
- 'A cada 3ª ação sem jutsu, quem tem golpe Forte solta ele no lugar do básico.',
+ 'Quem tem golpe Forte tem 30% de chance de soltar ele no lugar do básico.',
  'O chakra sobe 20 por rodada. Jutsu caro na hora errada é chakra jogado fora.',
  'Sem o Auto, o botão do jutsu pulsa um pouco antes da vez de quem pode usar. É a sua deixa!',
  'Jutsu instantâneo sai entre ações. A Aura Relâmpago ainda deixa Keshin atacar na vez dele.',
@@ -29,19 +29,21 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
 function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t.textContent=TIPS[Math.random()*TIPS.length|0]; t.classList.remove('out'); },250); }
 // tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
 // enquanto isso: cenário da missão no fundo, dica girando e o time do jogador correndo em fila no canto (atores normais, o tick anima)
-function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=FOES[foeIx];
-  bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=f.name;
-  const R=$('ldRun'); R.innerHTML=''; ACT=[]; placed.forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
+// missão normal ou Teste de Perseguição (acad): de onde vem o inimigo e o time
+const curFoe=()=>acad?ACAD_FOE:FOES[foeIx], battleTeam=()=>acad?labTeam:placed;
+function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=curFoe();
+  bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=acad?f.name+' · '+ACAD[acad.i].name:f.name;
+  const R=$('ldRun'); R.innerHTML=''; ACT=[]; battleTeam().forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
-  const ids=[...placed.map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
+  const ids=[...battleTeam().map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
   const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
   Promise.race([preloadFx(ids,(n,t)=>{const k=t?n/t:1; bar.style.transform=`scaleX(${k})`; $('ldPct').textContent=Math.round(k*100)+'%';}),new Promise(r=>setTimeout(r,20000))])
     .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
 function startBattle2(){
   setDevFreeze(false);
   $('bFreeze').classList.toggle('hide',!dev);
-  token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
-  U={clones:[],p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
+  token++; foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
+  U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
   chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; syncTimeHold(); frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';

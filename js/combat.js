@@ -143,7 +143,7 @@ async function strikeSequence(u,sk){
   if(hits)log(`${nm(u)} usa <b>${sk.name}</b> (${hits} golpes): ${damage} de dano`);
   home(u);
   if(launched){
-    comboShow(u,t); await chain(u.side,t,1,u);
+    chainOpenJ=false; comboShow(u,t); await chain(u.side,t,1,u);
     if(t.alive){ await sleep(140); setState(t,null); t.el.style.zIndex=t.z; }
   }
   await sleep(160);
@@ -229,6 +229,7 @@ async function doSkill(u,sk,isJ){
         if(nh>1&&k<nh-1)sfx.hit(); }
       connected.forEach(t=>{ if(!t.alive)return;
         if(sk.dot&&tryStatus(t))t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all')&&tryStatus(t))t.stunned=true;
+        if(sk.instakill&&t.alive){ fl(t,sk.name+'!','state'); hurt(t,t.hp,'big',{pierce:true}); }   // Selo Final: derruba o alvo, ignora escudo
         if(sk.status)for(const [k,n] of Object.entries(sk.status))if(tryStatus(t)){ t[k]=Math.max(t[k]||0,n); fl(t,STATUS[k].name,'state'); }   // seal / blind / sleep (rodadas = ações do alvo)
         upd(t); });
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
@@ -243,7 +244,7 @@ async function doSkill(u,sk,isJ){
     // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
     if(ko)await sleep(60); else{ await sleep(Math.max(isJ?0:200, animMs(u,an)-hit)); if(isJ)await fxWait(420,1400); }   // abriu combo: a perseguição começa já (antes esperava ~650ms o resto da anim do atacante)
     endCine(); home(u);
-    if(ko){ comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
+    if(ko){ chainOpenJ=isJ; comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
     await sleep(160);
   }finally{ endCine(); sceneOff(); }
 }
@@ -264,7 +265,7 @@ function spritePoint(u,point){
 const AIR_TORSO={
   kaen:[115,87],mizuha:[108,91],raiden:[104,84],iwao:[106,85],fuuka:[99,93],
   hiyori:[86,78],mayoi:[110,90],doku:[112,67],poko:[112,97],
-  utsushic:[91,92],utsushi:[90,89],keshin:[85,86],yugami:[96,93],yugamir:[96,93]
+  utsushic:[91,92],utsushi:[90,89],keshin:[85,86],mestre:[85,86],yugami:[96,93],yugamir:[96,93]
 };
 const airTorso=u=>spritePoint(u,AIR_TORSO[sid(u)]||[96,96]);
 // Cada palma sai no quadro da mão estendida e viaja até o corpo visível do alvo.
@@ -367,7 +368,7 @@ async function chain(side,t,count,src){
   const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase?.on===t.state);
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
-  c.chaseUsed=true; count++; sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
+  c.chaseUsed=true; count++; acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
   const CH=c.d.chase, cause=CH.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
   const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
   const air=!!an_of(c).rise&&t.state==='L';
@@ -465,7 +466,13 @@ async function chain(side,t,count,src){
   await sleep(110); home(c);
   if(t.alive)await chain(side,t,count);
 }
-function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive); return !e?'win':!p?'lose':null;}
+function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive);
+  if(acad)return acad.done?'win':!e||!p?'lose':null;   // Teste de Perseguição: só vence pela cadeia; Mestre caído ou time derrotado = falhou
+  return !e?'win':!p?'lose':null;}
+// Teste de Perseguição: a cadeia do jogador chegou na meta (e cumpre o extra do desafio)?
+let chainOpenJ=false;
+function acadCheck(side,count){ if(!acad||acad.done||side!=='p')return; const c=ACAD[acad.i];
+  if(count>=c.goal&&(!c.jutsu||chainOpenJ)&&(!c.fire||U.p.some(u=>u.d.el.includes('Fogo')))){ acad.done=true; ink('DESAFIO CONCLUÍDO!'); } }
 function wants(u,rate){const j=u.d.jutsu;
   if(j.unleash)return !u.solto&&Math.random()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
@@ -564,8 +571,9 @@ async function run(){
         else if(!j.instant&&u.side==='p'){
           if(!u.armed&&autoP&&u.cd===0&&chakra.p>=j.cost&&wants(u,1)){u.armed=true;chakra.p-=j.cost;}
           if(u.armed){u.armed=false;u.armedSkill=null;u.cd=j.cd;sk=j;isJ=true;upd(u);} }
+        else if(j.charge){ u.chg=(u.chg||0)+1; if(u.chg>=j.charge){u.chg=0;sk=j;isJ=true;} else fl(u,`${j.name}: ${j.charge-u.chg}`,'info2'); upd(u); }   // carga do Selo Final (Mestre): solta na 3ª vez dele e recomeça
         else if(!j.instant&&u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
-        if(!isJ&&u.d.strong&&++u.nc%3===0)sk=u.d.strong;   // toda 3ª ação sem jutsu vira o golpe Forte
+        if(!isJ&&u.d.strong&&Math.random()<STRONG_CHANCE)sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte
         if(u.blind>0&&!isJ){ fl(u,'Cego: sem básico','info2'); log(`${nm(u)} está cego e não ataca`); }   // cegueira: só o jutsu sai
         else{ u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn'); }
         if(u.alive){ if(u.seal>0)u.seal--; if(u.blind>0)u.blind--; upd(u); }
@@ -575,7 +583,7 @@ async function run(){
       }
       await castInstants();
       if((res=result()))break;
-      if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=s('p')>s('e')?'win':'lose'; byTime=true; break;}
+      if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=acad?'lose':s('p')>s('e')?'win':'lose'; byTime=!acad; break;}
     }
     if(fieldA)await dismissField();
     musStop(); await sleep(350);
@@ -583,13 +591,14 @@ async function run(){
     $('flash').className='long'; sfx.end(); ink('FIM DO COMBATE',true); await sleep(1500);
   }catch(e){ if(e===ABORT)return; throw e; }
   sfx[res](); battleOn=false; ACT=[];
-  const hasNext=res==='win'&&foeIx<FOES.length-1;
-  if(res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
-  const newN=res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); battleAfter(()=>sfx.ui('desbloqueio'),900);}
+  const hasNext=!acad&&res==='win'&&foeIx<FOES.length-1;
+  if(!acad&&res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
+  const newN=!acad&&res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); battleAfter(()=>sfx.ui('desbloqueio'),900);}
+  if(acad&&res==='win'&&!acadDone.includes(acad.i)){acadDone.push(acad.i); save();}
   $('ink').className=''; $('clist').innerHTML='';
-  $('ovT').textContent=res==='win'?'Vitória':'Derrota';
+  $('ovT').textContent=acad?(res==='win'?'Desafio concluído!':'Desafio falhou'):res==='win'?'Vitória':'Derrota';
   $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`+(byTime?' · decidido por tempo (mais vida restante)':'');
-  $('ovQ').textContent=`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'')+(newN?` · ${N[newN].name} desbloqueado! Ele já está na Formação.`:'');
-  $('ovN').classList.toggle('hide',!hasNext);
+  $('ovQ').textContent=acad?`Meta: ${ACAD[acad.i].name} · seu maior combo: x${maxCombo||1}`+(res!=='win'&&!U.e.some(u=>u.alive)?' · o Mestre caiu: o teste é de perseguição, não de dano':''):`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'')+(newN?` · ${N[newN].name} desbloqueado! Ele já está na Formação.`:'');
+  $('ovN').classList.toggle('hide',!hasNext); $('ovB').textContent=acad?'Academia':'Mapa';
   $('resWin').classList.remove('hide');
 }

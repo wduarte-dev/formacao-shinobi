@@ -48,14 +48,31 @@
   <div class="ribbon" style="left:150px;top:16px">Formação</div>
   <div class="hint" style="left:20px;top:80px;font-size:16px;width:400px;background:#0008;padding:6px 10px;line-height:1.25">Arraste um ninja até uma casa.<br>A ordem de entrada é a ordem de ação.<br>Quem está na frente apanha primeiro.<br>Clique num ninja do campo para tirar.</div>
   <div id="fTiles"></div><div id="fUnits"></div>
-  <div class="hint" style="left:500px;top:590px;font-size:17px">inimigo ▶</div>
+  <div class="hint" style="left:520px;top:300px;font-size:17px">inimigo ▶</div>
+  <div class="win cwin" id="fComboW"><h3>Combos</h3><div id="fCombo" class="clist2"></div><button class="btn sm" id="fAcad">Academia ▶</button></div>
   <div class="win" id="fWin"><h3>Ninjas</h3>
     <div id="fRoster"></div>
     <div class="parch" id="fInfo"></div>
     <div id="fBtns"><button class="btn" id="fClear">Limpar</button><button class="btn" id="fDone">Pronto</button></div>
   </div>
-  <div id="drag" class="hide"></div>
 </section>
+<div id="drag" class="hide"></div>
+
+<section id="sAcad" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/dojo.png)"></div>
+  <button class="btn sm backb" id="aBack">◀ Voltar</button>
+  <div class="ribbon" style="left:150px;top:16px">Academia</div>
+  <div class="win" id="aLab"><h3>Laboratório</h3>
+    <div class="ahint">Monte um time de treino e teste as cadeias. Não mexe no seu time salvo. A ordem de entrada decide quem persegue.</div>
+    <div id="aRoster"></div>
+    <button class="btn sm" id="aUse">Usar este time</button>
+  </div>
+  <div id="aTiles"></div><div id="aUnits"></div>
+  <div class="win cwin" id="aComboW"><h3>Combos</h3><div id="aCombo" class="clist2 big"></div></div>
+  <div class="win" id="aTest"><h3>Teste de Perseguição</h3><div id="aList"></div><div id="aMsg"></div></div>
+  <div id="aMestre"></div><div class="aTag">Mestre da Academia · ???</div>
+</section>
+<div id="cTip" class="hide"></div>
 
 <section id="sMap" class="scr hide">
   <div class="bgi" style="background-image:url(bg/sakura.png)"></div><div class="shade"></div>
@@ -118,7 +135,7 @@
 <div id="rot">Vire o celular de lado para ver maior.</div>
 
 <script>/* JS sempre fresco (o cache do celular misturava versões velhas e novas dos scripts); mesma ordem de antes */
-(function(){var v=Date.now();"data patch badframes sprites audio screens state fx ambient kazan battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
+(function(){var v=Date.now();"data patch badframes sprites audio combos screens academia state fx ambient kazan battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
 <script>/* PWA: service worker "rede primeiro" (sw.js). Só por http(s); por file:// não existe */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
 </body>

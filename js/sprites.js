@@ -20,6 +20,7 @@ const V2={
  utsushic:{hd:[96,55],H:640,a:{idle:[0,6,6,1,1],attack:[1,6,14,0,0],hurt:[2,3,10,0,0],vanish:[3,8,12,0,0]}},
  utsushi:{hd:[96,55],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
  keshin:{hd:[102,72],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
+ mestre:{hd:[102,72],H:3520,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,14,0,0],attackB:[4,6,14,0,0],attackC:[5,6,14,0,0],strong:[6,7,12,0,0],guard:[7,4,8,0,0],hurt:[8,3,10,0,0],dodge:[9,6,12,0,0],seals:[10,6,12,0,0],jutsu:[11,8,12,0,0],buff:[12,6,10,0,0],stun:[13,4,8,1,0],victory:[14,6,8,1,0],defeat:[15,8,8,0,0],knockback:[16,8,10,0,0],launched:[17,8,10,0,0],knockdown:[18,8,8,0,0],chase1:[19,6,12,0,0],chase2:[20,6,14,0,0],chase3:[21,6,12,0,0]}},
  yugami:{hd:[102,44],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],dodge:[7,7,12,0,0],seals:[8,6,12,0,0],jutsu:[9,7,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0]}},
  yugamir:{hd:[105,44],H:3200,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,7,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],dodge:[7,7,12,0,0],seals:[8,6,12,0,0],jutsu:[9,7,12,0,0],buff:[10,6,10,0,0],stun:[11,4,8,1,0],victory:[12,6,8,1,0],defeat:[13,8,8,0,0],knockback:[14,8,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,8,12,0,0],unhood:[18,7,10,0,0],rehood:[19,6,10,0,0]}},
 };
@@ -37,6 +38,7 @@ const ATLAS_SCALE={
  kazan:{walk:1.12,dash:1.07,sit:1.12,attack:1.09,attackB:1.11,attackC:1.09,jutsu:1.09,fireball:1.11,guard:1.09,hurt:1.07,stun:.94,victory:.93,defeat:.95},   // medido pela bigorna (fixa em todos os quadros): idle = 1.0
  utsushi:{dash:1.06},
  keshin:{guard:.96,hurt:.94,dodge:.95,jutsu:.93,stun:.95,defeat:.93},
+ mestre:{guard:.96,hurt:.94,dodge:.95,jutsu:.93,stun:.95,defeat:.93},
  yugami:{walk:1.05,dash:1.08,attack:1.06,jutsu:1.06,chase:1.07},
  yugamir:{dash:1.06,attack:1.04,chase:1.05}
 };
@@ -105,10 +107,10 @@ function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.c
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
 // FACE[id][anim] = centro do rosto (x,y no quadro 0 da linha), medido do topo da cabeça (tools: ver docs/pipeline-sprites.md "Retratos"); refazer se o atlas mudar
-const FACE={kazan:{idle:[82,49],cast:[83,47],idleOffset:9},utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]}};
+const FACE={kazan:{idle:[82,49],cast:[83,47],idleOffset:9},utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]},mestre:{idle:[102,57],cast:[98,54]}};
 // Ponto central da cabeça no quadro de idle dos ícones de 32 px.
 const ICON_FACE={kaen:[104,47],mizuha:[100,55],raiden:[104,55],iwao:[103,53],fuuka:[105,51],mayoi:[102,52],
-  hiyori:[104,49],doku:[101,54],yugami:[104,46],poko:[106,48],utsushi:[108,55],keshin:[105,54],kazan:[85,59]};
+  hiyori:[104,49],doku:[101,54],yugami:[104,46],poko:[106,48],utsushi:[108,55],keshin:[105,54],mestre:[105,54],kazan:[85,59]};
 function portrait(el,id,scale,w,h,an,dy){
   const S=SH[id], e=Math.min(scale*0.62,5)/(N[id]?.size||1), a=an==='icon'?'idle':an||'idle', row=S.anim[a][0];
   const F=(an==='icon'&&ICON_FACE[id])||FACE[id]?.[a]||[S.hd[0],S.hd[1]-14];

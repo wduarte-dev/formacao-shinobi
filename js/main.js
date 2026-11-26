@@ -10,7 +10,7 @@ $('sBattle').addEventListener('click',e=>{
 $('bPause').onclick=()=>setPaused(!paused);
 $('bSpeed').onclick=()=>{speed=speed===1?2:speed===2?.5:1; $('bSpeed').textContent=speed+'x';};
 $('bAuto').onclick=()=>{autoP=!autoP; $('bAuto').classList.toggle('on',autoP);};
-$('bQuit').onclick=()=>leave('sMap'); $('ovB').onclick=()=>leave('sMap');
+$('bQuit').onclick=()=>leave(acad?'sAcad':'sMap'); $('ovB').onclick=()=>leave(acad?'sAcad':'sMap');
 $('ovA').onclick=()=>startBattle(); $('ovN').onclick=()=>{foeIx=Math.min(FOES.length-1,foeIx+1); startBattle();};
 // log minimizável: ▼ desce (só a última linha aparece), ▲ sobe; lembra a escolha
 function logMin(on){$('log').classList.toggle('min',on); $('logT').classList.toggle('min',on); $('logT').textContent=on?'▲':'▼'; try{localStorage.setItem('shinobi-logmin',on?'1':'');}catch(e){}}

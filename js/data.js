@@ -1,7 +1,7 @@
 // data.js — dados: estados, alvos, ninjas (N), missões (FOES), save
 "use strict";
 // hits:[...] = em que fração da animação cai cada soco (o dano do golpe é dividido entre eles). Sem hits = 1 soco no meio da anim.
-// strong = golpe Forte: toda 3ª ação sem jutsu o básico vira ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
+// strong = golpe Forte: cada ação sem jutsu tem STRONG_CHANCE (30%) de virar ele (anim 'strong' do atlas). chase.mv = dinâmica da perseguição: 'slam' (salta alto e despenca no alvo), 'rise' (golpe que sobe junto com o alvo).
 const ST={D:'Derrubado',L:'Lançado',R:'Repelido'};
 const KAZAN_LIMIT=10;
 const TG={random:'inimigo aleatório',front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados',self:'o próprio ninja'};
@@ -74,8 +74,26 @@ const N={
   jutsu:{name:'Aura Relâmpago',target:'self',instant:true,cost:30,cd:2,lifeCost:.18,
    aura:{rounds:3,bonusHits:[1,2,3],dmg:.2},
    desc:'instantâneo, mantém a ação. Dá +1/+2/+3 golpes e +20% de dano por 3 rodadas. Custa 18% da vida máxima, ignora escudo e deixa pelo menos 1 PV'},
-  chase:{name:'Bomba Dinamite',on:'L',cause:'D',mult:.8,phases:['chase1','chase2','chase3'],kick:{frame:1,foot:[122,56],landing:4}}}
+  chase:{name:'Bomba Dinamite',on:'L',cause:'D',mult:.8,phases:['chase1','chase2','chase3'],kick:{frame:1,foot:[122,56],landing:4}}},
+ // Mestre da Academia: chefão dos Testes de Perseguição (npc: fora da Formação e da Galeria). Atlas de reserva = Keshin em cinza (spr/mestre_atlas.png) até ele gerar o sprite.
+ mestre:{name:'Mestre ???',el:'Neutro',c:'#9a9a9a',role:'Mestre da Academia',npc:true,customSfx:false,sfxEl:'Raio',hp:20000,atk:110,def:20,dodge:0,
+  normal:{name:'Palma do Mestre',target:'front',mult:1},
+  strong:{name:'Varredura',an:'atk3',mult:1.3,target:'front',cause:'D'},
+  jutsu:{name:'Selo Final',cost:0,cd:0,target:'random',mult:.2,cast:1,an:'atk2',charge:3,instakill:true,desc:'carrega 3 rodadas e derruba um ninja aleatório; recomeça'},
+  chase:{name:'Lição Final',on:'D',cause:'R',mult:.8}}
 };
+// golpe Forte: chance por ação sem jutsu (antes era toda 3ª ação; decisão dele 26/11/2026, igual pra todos)
+const STRONG_CHANCE=.3;
+// Teste de Perseguição (Academia): meta = UMA cadeia de "goal" perseguições seguidas; extras: fire = time com ninja de Fogo, jutsu = a cadeia abre por jutsu.
+// reward: gancho pra recompensa futura (vazio por enquanto; hoje só a estrela salva em acadDone)
+const ACAD=[
+ {name:'Cadeia de 2',goal:2},
+ {name:'Cadeia de 2 com ninja de Fogo',goal:2,fire:true},
+ {name:'Cadeia de 3',goal:3},
+ {name:'Cadeia de 3 abrindo por jutsu',goal:3,jutsu:true},
+ {name:'Cadeia de 4',goal:4}
+].map(c=>({...c,reward:null}));
+const ACAD_FOE={name:'Teste de Perseguição',lvl:'Academia',bg:'dojo',mult:1,ai:1,team:[['mestre',1,0]]};
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
 const LOCK={poko:2};   // Fuuka/Hiyori/Mayoi/Doku saíram do LOCK em 22/11/2026, depois de regerados no estilo realista. Modo dev libera
 
@@ -87,19 +105,20 @@ const FOES=[
  {name:'Mestres das Cinzas',lvl:'Muito difícil',bg:'cinzas',mult:1.3,ai:1,team:[['iwao',1,0],['kaen',0,0],['mayoi',2,1],['hiyori',1,2]]}
 ];
 const $=id=>document.getElementById(id);
-const IDS=Object.keys(N);
+const IDS=Object.keys(N).filter(id=>!N[id].npc);
 
 /* ================= ESTADO SALVO ================= */
 // chance (%) de resistir a um status (atordoar, veneno, Selamento, Cegueira, Sono): tanque 30, atacante 15, suporte/controle 20, esquiva/velocista 10
-const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
+const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mestre:30,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
 const resOf=u=>RES[u.id]??20;
-const VERSION={v:'1.11.1',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.12',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+let acadDone=[], acad=null;   // estrelas dos Testes de Perseguição (índices) e o teste em andamento (null = missão normal)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
   if(!s&&navigator.deviceMemory&&navigator.deviceMemory<=4)lite=true;   // aparelho com ≤4GB (ex.: Redmi 13C) já começa no modo leve; depois vale a escolha salva
-  if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); lite=!!s.lite; dev=!!s.dev; if(Array.isArray(s.own))own=s.own.filter(id=>LOCK[id]); }}catch(e){}
+  if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]&&!N[p.id].npc))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); lite=!!s.lite; dev=!!s.dev; if(Array.isArray(s.own))own=s.own.filter(id=>LOCK[id]); if(Array.isArray(s.acadDone))acadDone=s.acadDone.filter(i=>ACAD[i]); }}catch(e){}
 placed=placed.filter(p=>have(p.id));
-function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite,own,dev}));}catch(e){}}
+function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite,own,dev,acadDone}));}catch(e){}}
 
 document.body.classList.toggle('lite',lite);

@@ -1,9 +1,9 @@
 // screens.js — telas: título, hub, formação, mapa, galeria
 "use strict";
 /* ================= TELAS ================= */
-const SCR=['sTitle','sHub','sForm','sMap','sGal','sBattle'];
+const SCR=['sTitle','sHub','sForm','sMap','sGal','sBattle','sAcad'];
 function show(id){ SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[]; battleOn=false;
-  if(id==='sHub')drawHub(); if(id==='sForm')drawForm(); if(id==='sMap')drawMap(); if(id==='sGal')drawGal(); }
+  if(id==='sHub')drawHub(); if(id==='sForm')drawForm(); if(id==='sAcad')drawAcad(); if(id==='sMap')drawMap(); if(id==='sGal')drawGal(); }
 // celular mais largo que 16:9: o palco continua 1152x648 (layout intacto), mas o cenário se estende pras laterais com as pontas da
 // própria imagem ESPELHADAS (emenda invisível, chão na mesma altura). Gera uma vez por imagem (canvas → blob) e guarda.
 const BGX={}, BGE=300;
@@ -49,7 +49,7 @@ $('hFull').onclick=toggleFull; $('instOk').onclick=()=>$('instHelp').classList.a
 if(STANDALONE)$('hFull').classList.add('hide');   // instalado como app: já abre em tela cheia
 
 // posição dos pés de cada casa do tabuleiro (lado do jogador; o inimigo é espelhado)
-function cell(row,depth){return{x:[470,370,270][depth]+(1-row)*16,y:[424,478,532][row]};}
+function cell(row,depth){return{x:[470,370,270][depth]+(1-row)*16,y:[350,398,446][row]};}   // grid mais alto: embaixo fica o painel de Combos
 
 /* ---- menu ---- */
 function drawHub(){
@@ -61,7 +61,10 @@ function drawHub(){
 
 /* ---- formação no campo ---- */
 let drag=null;
-function drawForm(){
+// tabuleiro do arrasto: a Formação (time salvo) ou o Laboratório da Academia (time de teste); o arrasto não sabe qual é
+const FORM_BOARD={list:()=>placed, cell:(r,d)=>cell(r,d), redraw:()=>drawForm(), sc:3, tiles:'#fTiles .tile', save:true};
+let BOARD=FORM_BOARD;
+function drawForm(){ BOARD=FORM_BOARD;
   const T=$('fTiles'), Un=$('fUnits'); T.innerHTML=''; Un.innerHTML=''; ACT=[];
   for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=cell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
   placed.forEach((p,i)=>{ const c=cell(p.row,p.depth), a=actor(p.id,3,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
@@ -76,23 +79,24 @@ function drawForm(){
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
   $('fInfo').innerHTML=infoHtml(sel);
   $('fDone').textContent=placed.length<4?`Faltam ${4-placed.length}`:'Pronto';
+  drawCombos($('fCombo'),placed.map(p=>p.id),false);
 }
 function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
   return `<b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span><br>
   Vida ${d.hp} · Ataque ${d.atk} · Defesa ${d.def}<br>
   <u>Normal:</u> ${n.name} (${TG[n.target]})${n.cause?' → '+ST[n.cause]:''}${n.burnChance?' + chance de Chamas':n.dot?' + veneno':''}${n.split?` (${Math.round(n.split*100)}%: acerta todos)`:''}<br>
-  ${d.strong?`<u>Forte</u> (toda 3ª ação): ${d.strong.name}${d.strong.cause?' → '+ST[d.strong.cause]:''}${d.strong.stun?' + paralisa':''}${d.strong.dot?' + veneno':''}<br>`:''}
+  ${d.strong?`<u>Forte</u> (30% de chance): ${d.strong.name}${d.strong.cause?' → '+ST[d.strong.cause]:''}${d.strong.stun?' + paralisa':''}${d.strong.dot?' + veneno':''}<br>`:''}
   <u>Jutsu:</u> ${j.name}, ${j.cost} de chakra: ${j.desc}${j.cause?' → '+ST[j.cause]:''}<br>
   ${d.chase?`<u>Combo:</u> persegue ${ST[d.chase.on]} → deixa ${ST[d.chase.cause]}`:
   `<u>Passivas:</u> imune a D/L/R e dispara Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time.`}`; }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
 function startDrag(e,id,fromField){ e.preventDefault(); try{e.target.releasePointerCapture&&e.target.releasePointerCapture(e.pointerId);}catch(_){} const p=stagePt(e); drag={id,fromField,x0:p.x,y0:p.y,moved:false};
-  const g=$('drag'); g.innerHTML=''; const a=mkSpr(id,3); drawFrame(a); g.appendChild(a.spr); g.style.left=p.x+'px'; g.style.top=(p.y+50)+'px'; }
-function nearTile(p){ let best=null,bd=70; for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){const c=cell(row,depth), d=Math.hypot(p.x-c.x,(p.y+50-c.y)*1.6); if(d<bd){bd=d;best={row,depth};}} return best; }
+  const g=$('drag'); g.innerHTML=''; const a=mkSpr(id,BOARD.sc); drawFrame(a); g.appendChild(a.spr); g.style.left=p.x+'px'; g.style.top=(p.y+50)+'px'; }
+function nearTile(p){ let best=null,bd=70; for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){const c=BOARD.cell(row,depth), d=Math.hypot(p.x-c.x,(p.y+50-c.y)*1.6); if(d<bd){bd=d;best={row,depth};}} return best; }
 addEventListener('pointermove',e=>{ if(!drag)return; const p=stagePt(e); if(Math.hypot(p.x-drag.x0,p.y-drag.y0)>10)drag.moved=true;
   if(drag.moved){ $('drag').classList.remove('hide'); $('drag').style.left=p.x+'px'; $('drag').style.top=(p.y+50)+'px';
-    const t=nearTile(p); document.querySelectorAll('.tile').forEach(el=>el.classList.toggle('hot',!!t&&el.dataset.rd===t.row+','+t.depth)); } });
-addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null; $('drag').classList.add('hide'); const p=stagePt(e), i=placed.findIndex(q=>q.id===d.id);
+    const t=nearTile(p); document.querySelectorAll(BOARD.tiles).forEach(el=>el.classList.toggle('hot',!!t&&el.dataset.rd===t.row+','+t.depth)); } });
+addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null; $('drag').classList.add('hide'); const placed=BOARD.list(), p=stagePt(e), i=placed.findIndex(q=>q.id===d.id);
   if(!d.moved){ if(d.fromField){placed.splice(i,1);sfx.ui('pegar');} else sel=d.id; }
   else{ const t=nearTile(p);
     if(t){ const o=placed.findIndex(q=>q.row===t.row&&q.depth===t.depth);
@@ -101,10 +105,10 @@ addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null; $('d
       else if(placed.length<4)placed.push({id:d.id,row:t.row,depth:t.depth});
       sel=d.id; sfx.ui('soltar'); }
     else if(d.fromField){placed.splice(i,1);} }
-  save(); drawForm(); });
+  if(BOARD.save)save(); BOARD.redraw(); });
 // toque cancelado pelo sistema (gesto, notificação, rolagem): solta o arrasto em vez de deixar o fantasma preso na tela
-addEventListener('pointercancel',()=>{ if(!drag)return; drag=null; $('drag').classList.add('hide'); drawForm(); });
-$('fClear').onclick=()=>{placed=[];save();drawForm();};
+addEventListener('pointercancel',()=>{ if(!drag)return; drag=null; $('drag').classList.add('hide'); BOARD.redraw(); });
+$('fClear').onclick=()=>{placed.length=0;save();drawForm();};
 $('fDone').onclick=()=>{sfx.ui('confirma');show('sHub');};
 
 /* ---- mapa de fases ---- */
@@ -121,7 +125,7 @@ function drawMap(){
   s.innerHTML=`<h4>${foeIx+1}. ${f.name}</h4><div>Dificuldade: <b>${f.lvl}</b></div><div>Inimigos:</div><div id="mFoes"></div><div>${f.team.map(t=>N[t[0]].name+' ('+N[t[0]].el+')').join(', ')}</div>`;
   ACT=[]; f.team.forEach((t,i)=>actor(t[0],1.75,44+i*70,136,$('mFoes'),true));   // cabe no painel (antes o 4º saía pra fora)
   const b=document.createElement('button'); b.className='btn'; b.textContent=placed.length<4?'Montar o time':'Lutar';
-  b.onclick=()=>{ if(placed.length<4)show('sForm'); else startBattle(); }; s.appendChild(b);
+  b.onclick=()=>{ if(placed.length<4)show('sForm'); else{ acad=null; startBattle(); } }; s.appendChild(b);
 }
 
 /* ---- galeria ---- */
@@ -157,7 +161,7 @@ function drawGal(){
   $('gInfo').innerHTML=`<h4 style="color:${shade(d.c)}">${d.name}</h4><span class="chip" style="margin:0">${d.el}</span><span class="chip">${d.role}</span>
    <div style="height:8px"></div>${st('Vida',d.hp,1500,'g')}${st('Ataque',d.atk,140,'r')}${st('Defesa',d.def,50,'b')}
    <p><u>Normal:</u> ${n.name}. Alvo: ${TG[n.target]}${n.cause?'. Deixa '+ST[n.cause]:''}${n.burnChance?'. Terra, 75% de chance de dividir em duas chamas, 50% de queimar':n.dot?'. Envenena':''}${n.split?`. ${Math.round(n.split*100)}% de chance de se multiplicar e acertar todos`:''}.</p>
-   ${d.strong?`<p><u>Forte</u> (toda 3ª ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
+   ${d.strong?`<p><u>Forte</u> (30% de chance por ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
    <p><u>Jutsu:</u> ${j.name} (${j.cost} de chakra, recarga ${d.recast?.cd??j.cd}). Alvo: ${TG[j.target]}; ${j.desc}${j.cause?'. Deixa '+ST[j.cause]:''}.</p>
    ${d.passive?`<p><u>${d.passive}</u> — um clone absorve o primeiro golpe recebido na rodada.</p>`:''}
    ${d.chase?`<p><u>Combo:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>`:

@@ -183,6 +183,7 @@ const FXA={
  poko:{c:8,a:{arc:[0,6],slash:[1,6],buzz:[2,6],reap:[3,6],impact:[4,6],aura:[5,6]}},
  utsushi:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
  keshin:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
+ mestre:{c:8,a:{proj:[0,6],hit:[1,6],jutsu:[2,6],chase:[3,6],impact:[4,6],aura:[5,6]}},
  kazan:{c:8,a:{proj:[0,6],pour:[1,6],wave:[2,6],bigfire:[3,6],impact:[4,6],aura:[5,6]}},
  yugami:{c:8,a:{shard:[0,6],fenda:[1,6],lacre:[2,6],rasgo:[3,6],estouro:[4,6],halo:[5,6]}}
 };
@@ -199,6 +200,7 @@ const FXUSE={kaen:{hit:'slash',jutsu:'dragon',chase:'meteor',imp:'impact',aura:'
   poko:{hit:'slash',jutsu:'buzz',chase:'reap',imp:'impact',aura:'aura',proj:'arc'},
   utsushi:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura',proj:'proj'},
   keshin:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura'},
+  mestre:{hit:'hit',jutsu:'jutsu',chase:'chase',imp:'impact',aura:'aura'},
   kazan:{jutsu:'wave',imp:'impact',aura:'aura',proj:'proj',psc:.55},
   yugami:{hit:'fenda',jutsu:'lacre',chase:'rasgo',imp:'estouro',aura:'halo',proj:'shard'}};
 // como cada efeito se mexe (nada fica parado feito PNG colado):
