@@ -317,8 +317,6 @@ body.lite .swave{box-shadow:none}
 .sk.ic .cost::before{content:'';display:inline-block;width:9px;height:9px;margin-right:3px;border-radius:50%;background:#5ff0ff;box-shadow:0 0 6px #5ff0ff;vertical-align:2px}
 #ctl{position:absolute;right:10px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;z-index:75;width:216px}
 #ctl .btn{height:40px}
-#bFreeze{position:absolute;z-index:100;right:10px;bottom:103px;width:105px;height:36px}
-#bFreeze[aria-pressed=true]{outline:2px solid #ffa540}
 #log{position:absolute;left:10px;bottom:10px;width:300px;height:104px;overflow:hidden;font-size:13px;line-height:1.2;color:#eee;background:#0008;border:2px solid #0009;padding:4px 8px;z-index:60;font-family:ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-end}
 #log .r{color:#ffd24a}#log .x{color:#ff8ad0}
 #log{transition:height .25s ease-out}

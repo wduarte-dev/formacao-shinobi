@@ -69,12 +69,10 @@ def main():
         page.click('#sTitle')
         page.evaluate('()=>{dev=false;}')
         page.evaluate(MOUNT)
-        assert not page.locator('#bFreeze').is_visible()
         page.keyboard.press('f')
         assert not page.evaluate('devFrozen')
         page.evaluate('()=>{dev=true;}')
         page.evaluate(MOUNT)
-        assert page.locator('#bFreeze').is_visible()
         assert page.get_by_text('0/10', exact=False).count() == 0
 
         page.evaluate('()=>begin(()=>doSkill(U.p[0], N.kazan.jutsu, true))')

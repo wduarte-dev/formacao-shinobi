@@ -41,7 +41,6 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
     .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
 function startBattle2(){
   setDevFreeze(false);
-  $('bFreeze').classList.toggle('hide',!dev);
   token++; foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
   U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
   chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; syncTimeHold(); frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};

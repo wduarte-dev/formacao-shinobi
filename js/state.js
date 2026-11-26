@@ -44,8 +44,6 @@ function setDevFreeze(on){
   if(on===devFrozen)return;
   devFrozen=on;
   syncTimeHold();
-  $('bFreeze').textContent=on?'Retomar':'Congelar';
-  $('bFreeze').setAttribute('aria-pressed',String(on));
   bgSound(on||document.hidden);
 }
 function setPaused(on){
