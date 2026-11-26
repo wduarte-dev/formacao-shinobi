@@ -93,7 +93,7 @@ const IDS=Object.keys(N);
 // chance (%) de resistir a um status (atordoar, veneno, Selamento, Cegueira, Sono): tanque 30, atacante 15, suporte/controle 20, esquiva/velocista 10
 const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
 const resOf=u=>RES[u.id]??20;
-const VERSION={v:'1.11',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.11.1',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
 try{const s=JSON.parse(localStorage.getItem('shinobi-save'));

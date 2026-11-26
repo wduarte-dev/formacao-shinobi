@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.11.1 · 26/11/2026 · Pausa de verdade
+- Pausar no meio de um golpe, perseguição ou jutsu agora congela tudo, inclusive o que estava em andamento: antes a lógica seguia por trás até a próxima janela e o dano podia sair com o jogo pausado.
+- A troca de time libera da memória as imagens da luta anterior (antes elas ficavam acumuladas).
+
 ## 1.11 · 26/11/2026 · Status novos e "Resistiu"
 - Chance de resistir a status por ninja: tanques 30%, atacantes 15%, suporte e controle 20%, esquiva e velocistas 10%. Atordoar, veneno e os status novos podem falhar, e o alvo mostra **Resistiu**.
 - Três status de controle no combate: **Selamento** (sem jutsu, o chakra de um jutsu já armado volta), **Cegueira** (sem ataque básico) e **Sono** (perde a ação e acorda com dano que não seja veneno ou queimadura). Aparecem como S, C e Z sobre o ninja.

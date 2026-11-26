@@ -215,6 +215,7 @@ const KEEP={};
 function preloadFx(ids,onp){ const fs=[]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(id==='kazan')fs.push(...Object.keys(KAZAN_ART).map(kazanArtPath));
     const plan=PLAN_SCENES[N[id]?.jutsu.fieldFx?.visual];
     if(plan)fs.push(plan.image); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
+  for(const k of Object.keys(KEEP))if(!fs.includes(k))delete KEEP[k];   // solta o que não é desta luta (cada atlas decodificado pesa ~16MB; sem isso o cache só crescia ao trocar de time)
   let n=0; if(onp)onp(0,fs.length);
   return Promise.all(fs.map(f=>{ if(!KEEP[f]){ const im=KEEP[f]=new Image(); im.src=f; KEEP[f]=im; }
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };

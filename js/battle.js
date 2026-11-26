@@ -42,7 +42,7 @@ function startBattle2(){
   $('bFreeze').classList.toggle('hide',!dev);
   token++; foe=FOES[foeIx]; initAudio(); show('sBattle'); musStart(foeIx);
   U={clones:[],p:placed.map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
+  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; syncTimeHold(); frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').classList.remove('tracking','slow'); $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
