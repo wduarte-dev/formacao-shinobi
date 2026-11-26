@@ -1,0 +1,5 @@
+sheet,frame,detector,defeito,motivo,veredito,data
+R04,2,gemini,verde_no_sprite,vazamento de verde (#00FF00) visível na parte inferior das faixas roxas nas cost,s,2026-11-26
+R10,6,gemini,verde_no_sprite,resquicio de verde no cachecol,s,2026-11-26
+R09,1,controle,controle,,s,2026-11-26
+R05,4,gemini,corpo_translucido,Efeito translúcido na parte inferior da roupa.,n,2026-11-26
