@@ -16,6 +16,21 @@ RULES = """STRICT RULES (highest priority, never break):
 BACKGROUND: solid flat pure green #00FF00 everywhere, no checkerboard, no gradient. The green must be perfectly flat and also fill every gap between the legs, arms and body (no gray or dark patches anywhere around the character).
 LABEL: top-left corner only, small plain white pixel text "{NAME} - LOTE {L}" on a thin dark strip above the grid.
 """
+# RULES v2.1 (A/B, 26/11/2026): ativa com RULES_V2=1 no ambiente. Sem label; chroma #00FF00 mantido; sem banir a família teal inteira.
+RULES_V2 = """STRICT RULES - FIXED PRODUCTION ASSET:
+1. GRID: exactly {N} rows × 8 columns, equal-sized cells, landscape canvas.
+2. Each row is an independent animation. Follow its specified frame sequence from left to right.
+3. Render only assigned cells. EMPTY cells contain background exclusively; never extend or relocate animations into them.
+4. Each occupied cell contains one complete, solid character with opaque pixel clusters. No fading, ghost silhouettes, transparency or blended motion trails.
+5. Animate the canonical character; never redesign it. Preserve base colors, anatomy, proportions, clothing, outline and pixel scale.
+6. Preserve every accessory's identity, intrinsic dimensions and count. Perspective may change its projection; no missing, resized, substituted or duplicated objects.
+7. Draw smears as solid pixel clusters beside the intact character or object, never replacing or obscuring it.
+8. Face RIGHT. Pose, expression and displacement are free within the cell; all parts remain fully inside it.
+9. Minimal VFX using {PAL}. No pure chroma green or saturated green/cyan on the sprite; preserve canonical muted teal. Hard pixel edges without green contamination.
+10. BACKGROUND: uniform flat pure green #00FF00, including all gaps between body parts. No gradients, shadows or reflections.
+11. No labels, text, borders, grid lines, ground or decorations.
+"""
+if os.environ.get("RULES_V2"): RULES = RULES_V2
 REF = ("Attached image shows SEVERAL different characters of the same game (the style roster): it is a STYLE and PROPORTION reference ONLY. Copy ONLY the shared pixel-art style, outline weight, pixel scale and body proportions (realistic athletic young adults, about 6.5 heads tall, SMALL head, long legs, serious grounded look). Do NOT copy any of their faces, hair, clothes or colors. Do NOT redraw any of them: the new character must look clearly different from all of them.\n")
 PROP = "realistic athletic young-adult proportions, about 6.5 heads tall, SMALL head, long legs, serious grounded look like the attached reference, NOT chibi, NOT cute, NOT big-headed"
 TRUTH = "Attached image is the ABSOLUTE source of truth for the character ({NAME}): copy exactly {LOOK}, face, realistic athletic proportions (about 6.5 heads tall, SMALL head, long legs) and pixel scale. Do NOT redesign or recolor. Do NOT make the head bigger.\n"
@@ -320,7 +335,7 @@ def one_row(k, lote, idx):
     head, tail = t.split("\nROWS:\n")
     import re
     n_old = len(rows)
-    head = head.replace(f"EXACTLY {n_old} rows", "EXACTLY 1 row").replace(f"The image has {n_old} rows, not more.", "The image has 1 row, not more.")
+    head = head.replace(f"exactly {n_old} rows", "exactly 1 row").replace(f"EXACTLY {n_old} rows", "EXACTLY 1 row").replace(f"The image has {n_old} rows, not more.", "The image has 1 row, not more.")
     head = head.replace(f'LOTE {lote}"', f'LOTE {lote} L{idx}"')
     return head + "\nROWS:\n" + re.sub(r"^Row \d+:", "Row 1:", r) + "\n"
 if __name__ == "__main__" and len(sys.argv) == 4:
