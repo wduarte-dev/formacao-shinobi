@@ -19,6 +19,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       const owner=U.p[0], sk=owner.d.jutsu, clones=summonClones(owner,sk);
       check(clones.length===3 && new Set(clones.map(c=>c.row+','+c.depth)).size===3,'casas únicas');
       check(clones.every(c=>c.depth===0 && c.hp===266 && c.an==='birth'),'linha de frente, vida e nascimento');
+      check([...turnOrder(2)].filter(u=>u.side==='p').length===1,'clone invocado espera a rodada seguinte');
       check(U.p.length===1 && document.querySelectorAll('#sbar button').length===1,'HUD do invocador');
       const target=pick(U.e[0],'front',false);
       check(target.owner===owner,'clone na frente recebe o golpe');
@@ -28,7 +29,19 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       hurt(target,300,''); check(!target.alive && target.an==='vanish','dissolução');
       check(pick(U.e[0],'front',false)!==target,'clone derrotado deixa de ser alvo');
       const enemy=U.e[0];
-      check([...turnOrder()].slice(0,3).every((u,i)=>u===[owner,...livingClones(owner)][i]),'ordem após o dono');
+      const [c1,c2]=livingClones(owner);
+      const [e1,e2,e3,e4]=U.e;
+      const even=[...turnOrder(2)], odd=[...turnOrder(5)];
+      check(even.length===7&&even.every((u,i)=>u===[c1,e1,c2,e2,owner,e3,e4][i]),'par começa com jogador e alterna pela casa, incluindo clones existentes');
+      check(odd.length===7&&odd.every((u,i)=>u===[e1,c1,e2,c2,e3,owner,e4][i]),'ímpar começa com inimigo');
+      const pending=turnOrder(4);
+      check(pending.next().value===c1,'primeiro turno do jogador');
+      e1.alive=false;
+      check(pending.next().value===e2,'pula o inimigo que caiu antes da vez');
+      e1.alive=true;
+      const random=Math.random;
+      for(let face=1;face<=6;face++){ Math.random=()=>(face-.5)/6; check(rollInitiative()===face,'face '+face+' do d6'); }
+      Math.random=random;
       const clone=livingClones(owner)[0], victim=pick(clone,'front',false), before=victim.hp;
       sleep=async()=>{}; gate=async()=>{}; Math.random=()=>.9; speed=2;
       await doSkill(clone,clone.d.normal,false);
@@ -105,12 +118,20 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       loadSfx=()=>{}; sleep=async()=>{}; intro=async()=>{};
       placed=[{id:'utsushi',row:0,depth:2}]; FOES[0].team=[['iwao',0,0]];
       autoP=true;
+      window.initiativeCheck={rolls:[],first:[],cloneRounds:[]};
+      rollInitiative=()=>{ initiativeCheck.rolls.push(round); return round%2===0?2:1; };
       doSkill=async u=>{
+        initiativeCheck.first[round-1]??=u.side;
+        if(u.owner)initiativeCheck.cloneRounds.push(round);
         if(u.id==='utsushi'){ u.hp=u.max/2; summonClones(u,u.d.jutsu); }
       };
       startBattle2();
     }""")
     page.wait_for_selector("#resWin:not(.hide)")
+    initiative = page.evaluate("initiativeCheck")
+    assert initiative["rolls"] == list(range(1, 21))
+    assert initiative["first"] == ["e", "p"] * 10
+    assert min(initiative["cloneRounds"]) == 2
     assert page.locator("#ovT").inner_text() == "Derrota"
     assert "decidido por tempo" in page.locator("#ovP").inner_text()
     browser.close()

@@ -110,6 +110,37 @@ let shakeA=null;
 function shake(k){ const m=k||1; if(shakeA)shakeA.cancel();
   shakeA=$('cam').animate([{translate:'0 0'},{translate:`${-12*m}px 0`},{translate:`${12*m}px ${7*m}px`},{translate:`${-7*m}px 0`},{translate:`${5*m}px ${-5*m}px`},{translate:'0 0'}],{duration:280/speed}); }
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
+async function showInitiative(face){
+  const overlay=$('initiative'), banner=$('ink'), atlas=KEEP[INITIATIVE_ATLAS];
+  const duration=840, battleToken=token;
+  const hasAtlas=overlay&&atlas?.naturalWidth===960&&atlas.naturalHeight===640;
+  try{
+    if(hasAtlas){
+      const canvas=overlay.firstElementChild, ctx=canvas.getContext('2d'), size=canvas.width;
+      const draw=(col,row)=>{ctx.clearRect(0,0,size,size); ctx.drawImage(atlas,col*size,row*size,size,size,0,0,size,size);};
+      overlay.classList.remove('hide');
+      for(let frame=0;frame<18;frame++){
+        draw(frame%6,Math.floor(frame/6));
+        if(frame%3===0)sfx.diceTick(frame/3);
+        await sleep(38);
+      }
+      draw(face-1,3);
+      overlay.style.setProperty('--initiative-duration',`${duration/speed}ms`);
+      overlay.classList.add('reveal');
+    }
+    banner.style.setProperty('--initiative-duration',`${duration/speed}ms`);
+    ink(initiativeSide(face)==='p'?'INICIATIVA DO SEU TIME':'INICIATIVA DO TIME ADVERSÁRIO');
+    banner.classList.add('initiative');
+    sfx.diceReveal();
+    await sleep(duration);
+  }finally{
+    if(token===battleToken){
+      overlay?.classList.add('hide');
+      overlay?.classList.remove('reveal');
+      banner.className='';
+    }
+  }
+}
 function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
   if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
 function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,.8,30,30); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}

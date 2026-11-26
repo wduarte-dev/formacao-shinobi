@@ -20,12 +20,20 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       const teams=[['iwao','mizuha','raiden','kaen'],['fuuka','hiyori','mizuha','utsushi'],['doku','keshin','yugami','poko'],['kazan','kaen','mayoi','iwao']];
       run=()=>{}; loadSfx=()=>{};
       for(const ids of teams){
-        placed.length=0; ids.forEach((id,i)=>placed.push({id,row:i%3,depth:i>2?1:0})); acad=null; startBattle2();
-        for(const s of ['D','L','R']){ const a=comboChain(ids,s).map(c=>c.id).join(), b=comboPlan('p',s).map(u=>u.id).join(); check(a===b,`cadeia ${s} de ${ids}: ${a} vs ${b}`); }
+        placed=ids.map((id,i)=>({id,row:i%3,depth:i>2?1:0})).reverse(); acad=null; startBattle2();
+        const ordered=comboIds(placed);
+        for(const s of ['D','L','R']){ const a=comboChain(ordered,s).map(c=>c.id).join(), b=comboPlan('p',s).map(u=>u.id).join(); check(a===b,`cadeia ${s} de ${ids}: ${a} vs ${b}`); }
       }
+      check(comboIds(placed).join()===teams.at(-1).join(),'casas vão da frente ao fundo, de cima pra baixo');
+      check(placed[0].id==='iwao'&&U.p[0].id==='iwao','ordenar preserva a lista da formação e os slots');
+      const rivals=[{id:'hiyori',row:0,depth:1},{id:'fuuka',row:2,depth:0}];
+      placed=rivals; startBattle2();
+      check(comboChain(comboIds(rivals),'D')[0].id==='fuuka'&&comboPlan('p','D')[0].id==='fuuka','casa da frente ganha a disputa pela perseguição');
+      U.p[1].stunned=true;
+      check(comboPlan('p','D')[0].id==='hiyori','próxima casa persegue quando a primeira está paralisada');
       const rows=comboRows(['iwao','mizuha','raiden','kaen']);
       check(rows[0].chain.length===4 && rows[0].id==='iwao','Iwao abre a cadeia de 4');
-      const out=comboLeftOut(['fuuka','hiyori']); check(out.some(o=>o.why.includes('Fuuka já persegue')),'aviso de quem fica de fora');
+      const out=comboLeftOut(comboIds(rivals)); check(out.some(o=>o.why.includes('Fuuka já persegue')),'aviso de quem fica de fora');
       check(comboLeftOut(['kazan']).length===1,'Kazan explicado');
       check(!IDS.includes('mestre'),'Mestre fora do elenco');
       check(U.p.every(u=>pos(u).y===[424,478,532][u.row]),'posição da luta não depende do grid da Formação');

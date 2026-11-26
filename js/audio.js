@@ -96,6 +96,8 @@ const sfx={
  absorb:()=>playF('escudo-absorve',.75), sbreak:()=>playF('escudo-quebra',.9),
  death:()=>playF('ninja-derrota',.85), lowhp:()=>playF('vida-baixa',.8), last:()=>playF('sting-ultimo',.8),
  round:()=>playF('rodada-inicio',.6), chakra:()=>playF('chakra-ganho',.45),
+ diceTick:step=>tone(310+step*24,.045,'triangle',.15,170),
+ diceReveal:()=>{tone(880,.09,'sine',.15,1320);tone(1760,.15,'triangle',.065);},
  arm:()=>P('arm',.6,0,SYN.arm), thud:()=>P('thud',1,.03,SYN.thud),
  start:()=>P('start',1,0,SYN.start), end:()=>P('end',1,0,SYN.end),
  win:()=>P('win',.9,0,SYN.win), lose:()=>P('lose',.9,0,SYN.lose),

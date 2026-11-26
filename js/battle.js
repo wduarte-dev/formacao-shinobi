@@ -46,7 +46,9 @@ function startBattle2(){
   chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; syncTimeHold(); frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
+  $('units').classList.remove('waiting-entry');
   $('ink').className=''; $('flash').className=''; $('cam').classList.remove('tracking','slow'); $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
+  if($('initiative'))$('initiative').className='hide';
   bgExt($('bbg'),`bg/${foe.bg}.png`); ambStart(foe.bg); ambSndStart(foe.bg);
   portrait($('hpP'),U.p[0].id,1.9,60,60); portrait($('hpE'),U.e[0].id,1.9,60,60);
   all().forEach(mountUnit);

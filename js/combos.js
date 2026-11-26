@@ -1,5 +1,5 @@
 // combos.js — previsão de perseguições (lógica pura, sem DOM). Mesma regra do chain/comboPlan em combat.js:
-// o estado deixado por um golpe é perseguido pelo 1º ninja na ordem de entrada cuja perseguição pega aquele estado (sem repetir na mesma cadeia).
+// o estado deixado por um golpe é perseguido pelo 1º ninja na ordem das casas cuja perseguição pega aquele estado (sem repetir na mesma cadeia).
 "use strict";
 const OPEN_KIND={normal:'Básico',strong:'Forte',jutsu:'Jutsu',recast:'Jutsu'};
 // golpes do time que deixam estado (abrem combo)
@@ -7,7 +7,8 @@ function comboOpeners(ids){ const out=[];
   ids.forEach(id=>{ const d=N[id]; for(const k of ['normal','strong','jutsu','recast']){ const sk=d[k]; if(!sk?.cause)continue;
     out.push({id,kind:k,label:OPEN_KIND[k],skill:sk,state:sk.cause,area:sk.target==='all'||sk.target==='row'}); } });
   return out; }
-// quem persegue a partir de um estado, em ordem
+const comboIds=placements=>byFormationCell(placements).map(p=>p.id);
+// quem persegue a partir de um estado, com os IDs já em ordem de casa
 function comboChain(ids,state){ const seen=new Set(), out=[]; let s=state;
   for(;;){ const id=ids.find(x=>!seen.has(x)&&N[x].chase?.on===s); if(!id)break; seen.add(id); out.push({id,on:s,cause:N[id].chase.cause}); s=N[id].chase.cause; }
   return out; }

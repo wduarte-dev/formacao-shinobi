@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.13 · 26/11/2026 · Ordem de ação por casa
+- A casa define a ordem de ação do time e a prioridade de perseguição. A previsão de combos segue a mesma regra da luta.
+- Ao abrir a Formação, os números das nove casas piscam duas vezes, por um segundo cada. Cada ninja salvo desliza do próprio retrato até sua casa. Os controles liberam quando os dois pulsos terminam.
+- Um dado de iniciativa define quem começa cada rodada. Par dá a iniciativa ao jogador e ímpar ao adversário. Na abertura, os ninjas entram depois do resultado.
+- Clones do Utsushi agem pela própria casa a partir da rodada seguinte à invocação.
+
 ## 1.12.8 · 26/11/2026 · Sem o botão Congelar
 - Saiu o botão Congelar do modo dev: o Pausar agora congela tudo do mesmo jeito.
 

@@ -249,8 +249,10 @@ async function doSkill(u,sk,isJ){
   }finally{ endCine(); sceneOff(); }
 }
 // quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
+const canChase=(u,state)=>u.alive&&!u.chaseUsed&&!u.stunned&&u.d.chase?.on===state;
 function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
-  for(;;){ const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&!seen.has(x)&&x.d.chase?.on===s); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
+  const units=byFormationCell(team(side));
+  for(;;){ const c=units.find(x=>!seen.has(x)&&canChase(x,s)); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
   return out; }
 // no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
 function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
@@ -365,7 +367,7 @@ async function landKeshinKick(c,t,put,dir,aim,connected){
   setAnim(c,land,0,true); await sleep(animMs(c,land));
 }
 async function chain(side,t,count,src){
-  const c=team(side).find(x=>x.alive&&!x.chaseUsed&&!x.stunned&&x.d.chase?.on===t.state);
+  const c=byFormationCell(team(side)).find(x=>canChase(x,t.state));
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
   c.chaseUsed=true; count++; acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
@@ -510,19 +512,24 @@ async function intro(){
   await sleep(760);
   for(const u of all()){u.mv.style.transition=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));
-  ink('Rodada 1'); await sleep(700); ink('LUTAR!'); sfx.start(); await sleep(1000);
+  $('rd').textContent='Rodada 1'; ink('Rodada 1'); await sleep(700);
 }
-function* turnOrder(){
-  for(let i=0;i<4;i++)for(const owner of [U.p[i],U.e[i]]){
-    if(!owner)continue;
-    yield owner;
-    yield* livingClones(owner);
+function rollInitiative(){ return 1+Math.floor(Math.random()*6); }
+const initiativeSide=face=>face%2===0?'p':'e';
+function* turnOrder(face){
+  const eligible=side=>byFormationCell(team(side).filter(u=>u.alive&&(!u.owner||u.summonedRound<round)));
+  const queues={p:eligible('p'),e:eligible('e')};
+  let side=initiativeSide(face);
+  while(queues.p.length||queues.e.length){
+    const queue=queues[side];
+    while(queue.length&&!queue[0].alive)queue.shift();
+    if(queue.length)yield queue.shift();
+    side=side==='p'?'e':'p';
   }
 }
 async function run(){
   let res=null, byTime=false; finDone=false;
   try{
-    await intro();
     outer: while(true){
       round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; log('Rodada '+round,'r');
       if(round>1){
@@ -539,12 +546,22 @@ async function run(){
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
       all().forEach(u=>u.chaseUsed=false);
-      for(let i=0;i<4;i++)for(const u of [U.p[i],U.e[i]])if(u&&u.alive)fl(u,String(i+1),'ord');
-      drawJ(); await sleep(round===1?900:650);
+      drawJ();
       if((res=result()))break;
+      const initiative=rollInitiative();
+      const opening=round===1, units=$('units');
+      if(opening)units.classList.add('waiting-entry');
+      await showInitiative(initiative);
+      if(opening){
+        const entrance=intro();
+        units.classList.remove('waiting-entry');
+        await entrance;
+        ink('LUTAR!'); sfx.start(); await sleep(1000);
+      }
+      for(const u of [...U.p,...U.e])if(u.alive)fl(u,String(formationCellNumber(u)),'ord');
       await castInstants(true);
       if((res=result()))break;
-      for(const u of turnOrder()){
+      for(const u of turnOrder(initiative)){
         if(!u||!u.alive)continue;
         await gate();
         await castInstants();

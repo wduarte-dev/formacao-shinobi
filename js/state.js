@@ -68,7 +68,7 @@ function summonClones(owner,sk){
       normal:{name:'Palma de Vento',target:'front',mult:1},
       hp:Math.round(owner.max*.35),atk:owner.atk*.35,def:owner.def,dodge:owner.d.dodge};
     const c=mk('utsushic',owner.side,owner.slot,row,depth,1,d,3*d.size);
-    c.owner=owner; c.expires=round+sk.duration; U.clones.push(c); group.push(c); side.push(c);
+    c.owner=owner; c.summonedRound=round; c.expires=round+sk.duration; U.clones.push(c); group.push(c); side.push(c);
     mountUnit(c); ACT.push(c); setAnim(c,'birth'); sceneAdd(c); upd(c);
   }
   return group;

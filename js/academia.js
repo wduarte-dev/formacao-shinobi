@@ -11,7 +11,8 @@ function cPor(id,name,cls){ const w=document.createElement('div'); w.className='
   const n=document.createElement('small'); n.textContent=name; w.appendChild(n); return w; }
 function cBadge(st){ const b=document.createElement('span'); b.className='cbadge'; b.textContent=st; b.style.background=STC[st]; b.title=ST[st]; return b; }
 function cArrow(){ const a=document.createElement('span'); a.className='carr'; a.textContent='→'; return a; }
-function drawCombos(el,ids,big){ if(!el)return; el.innerHTML=''; hideTip(); CSZ=big?38:30;
+function drawCombos(el,placements,big){ if(!el)return; el.innerHTML=''; hideTip(); CSZ=big?38:30;
+  const ids=comboIds(placements);
   if(!ids.length){ el.innerHTML='<div class="cnone">Coloque ninjas no campo para ver os combos.</div>'; return; }
   const rows=comboRows(ids), out=comboLeftOut(ids,rows);
   if(!rows.length){ const n=document.createElement('div'); n.className='cnone'; n.textContent='Nenhum combo: ninguém do time persegue os estados que vocês deixam.'; el.appendChild(n); }
@@ -41,8 +42,8 @@ function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
   if(!labInit){ labInit=true; if(!labTeam.length)placed.forEach(p=>labTeam.push({...p})); }
   const T=$('aTiles'), Un=$('aUnits'); T.innerHTML=''; Un.innerHTML='';
   for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=labCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
-  labTeam.forEach((p,i)=>{ const c=labCell(p.row,p.depth), a=actor(p.id,1.9,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
-    const b=document.createElement('div'); b.className='ordb sm'; b.textContent=i+1; a.el.appendChild(b);
+  labTeam.forEach(p=>{ const c=labCell(p.row,p.depth), a=actor(p.id,1.9,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
+    const b=document.createElement('div'); b.className='ordb sm'; b.textContent=formationCellNumber(p); a.el.appendChild(b);
     const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-28px;top:-92px;width:56px;height:94px'; a.el.appendChild(hit);
     hit.onpointerdown=e=>{ startDrag(e,p.id,true); holdStart(p.id,hit); }; });
   const R=$('aRoster'); R.innerHTML='';
@@ -50,7 +51,7 @@ function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.15,40,40);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='🔒'; b.appendChild(s); R.appendChild(b); return; }
     b.onpointerdown=e=>{ startDrag(e,id,false); holdStart(id,b); }; R.appendChild(b); });
-  drawCombos($('aCombo'),labTeam.map(p=>p.id),true);
+  drawCombos($('aCombo'),labTeam,true);
   const L=$('aList'); L.innerHTML='';
   ACAD.forEach((c,i)=>{ const card=document.createElement('div'); card.className='acard';
     card.innerHTML=`<span class="an">${i+1} · ${c.name}</span><span class="astar${acadDone.includes(i)?' on':''}">★</span>`;
@@ -67,7 +68,7 @@ $('aBack').onclick=()=>{ sfx.ui('cancela'); show('sForm'); };
 $('fAcad').onclick=()=>{ sfx.ui('confirma'); show('sAcad'); };
 // painel de Combos da Formação minimizável (▼/▲, igual ao log); minimizado mostra o maior combo no título; lembra a escolha
 function comboMin(on){ $('fComboW').classList.toggle('min',on); $('fComboT').textContent=on?'▲':'▼'; try{localStorage.setItem('shinobi-combomin',on?'1':'');}catch(e){} comboTitle(); }
-function comboTitle(){ const rows=comboRows(placed.map(p=>p.id)), m=rows.length?rows[0].chain.length:0;
+function comboTitle(){ const rows=comboRows(comboIds(placed)), m=rows.length?rows[0].chain.length:0;
   $('fComboH').textContent=$('fComboW').classList.contains('min')?`Combos · máx. ${m}`:'Combos'; }
 $('fComboT').onclick=()=>comboMin(!$('fComboW').classList.contains('min'));
 try{comboMin(localStorage.getItem('shinobi-combomin')==='1');}catch(e){}

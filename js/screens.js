@@ -2,8 +2,9 @@
 "use strict";
 /* ================= TELAS ================= */
 const SCR=['sTitle','sHub','sForm','sMap','sGal','sBattle','sAcad'];
-function show(id){ SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[]; battleOn=false;
-  if(id==='sHub')drawHub(); if(id==='sForm')drawForm(); if(id==='sAcad')drawAcad(); if(id==='sMap')drawMap(); if(id==='sGal')drawGal(); }
+function show(id){ const enteringFormation=id==='sForm'&&$('sForm').classList.contains('hide');
+  SCR.forEach(s=>$(s).classList.toggle('hide',s!==id)); ACT=[]; battleOn=false;
+  if(id==='sHub')drawHub(); if(id==='sForm')drawForm(enteringFormation); if(id==='sAcad')drawAcad(); if(id==='sMap')drawMap(); if(id==='sGal')drawGal(); }
 // celular mais largo que 16:9: o palco continua 1152x648 (layout intacto), mas o cenário se estende pras laterais com as pontas da
 // própria imagem ESPELHADAS (emenda invisível, chão na mesma altura). Gera uma vez por imagem (canvas → blob) e guarda.
 const BGX={}, BGE=300;
@@ -65,22 +66,37 @@ let drag=null;
 // tabuleiro do arrasto: a Formação (time salvo) ou o Laboratório da Academia (time de teste); o arrasto não sabe qual é
 const FORM_BOARD={list:()=>placed, cell:(r,d)=>formCell(r,d), redraw:()=>drawForm(), sc:3, tiles:'#fTiles .tile', save:true};
 let BOARD=FORM_BOARD;
-function drawForm(){ BOARD=FORM_BOARD;
+function slideIntoFormation(actorEl,slot,cell,index){
+  const box=slot.querySelector('.por').getBoundingClientRect();
+  const from=stagePt({clientX:box.left+box.width/2,clientY:box.top+box.height*.75});
+  const origin=`translate(${from.x-cell.x}px,${from.y-cell.y}px) scale(.4)`;
+  const animation=actorEl.animate([
+    {transform:origin,opacity:0},
+    {transform:origin,opacity:1,offset:.15,easing:'cubic-bezier(.22,.7,.3,1)'},
+    {transform:'translate(0,0) scale(1)',opacity:1}
+  ],{delay:180+index*75,duration:520,fill:'backwards'});
+  animation.id='formation-entry';
+}
+function drawForm(entering=false){ BOARD=FORM_BOARD;
   const T=$('fTiles'), Un=$('fUnits'); T.innerHTML=''; Un.innerHTML=''; ACT=[];
-  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=formCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
-  placed.forEach((p,i)=>{ const c=formCell(p.row,p.depth), a=actor(p.id,3,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
-    const b=document.createElement('div'); b.className='ordb'; b.textContent=i+1; a.el.appendChild(b);
-    const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-40px;top:-130px;width:80px;height:134px'; a.el.appendChild(hit);
-    hit.onpointerdown=e=>startDrag(e,p.id,true); });
-  const R=$('fRoster'); R.innerHTML='';
-  IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'')+(have(id)?'':' lockd');
+  T.classList.toggle('preview',entering);
+  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=formCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth;
+    t.dataset.house=formationCellNumber({row,depth}); T.appendChild(t); }
+  if(entering){ const lock=document.createElement('div'); lock.className='formation-entry-lock'; lock.setAttribute('aria-hidden','true'); T.appendChild(lock); }
+  const R=$('fRoster'), slots=new Map(); R.innerHTML='';
+  IDS.forEach(id=>{ const p=placed.find(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(p?' used':'')+(have(id)?'':' lockd');
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.6,94,66);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
-    const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
-    b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
+    const s=document.createElement('small'); s.textContent=N[id].name; b.appendChild(s);
+    if(p)b.title=`${N[id].name} · Casa ${formationCellNumber(p)}`;
+    b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); if(p)slots.set(id,b); });
+  byFormationCell(placed).forEach((p,i)=>{ const c=formCell(p.row,p.depth), a=actor(p.id,3,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
+    const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-40px;top:-130px;width:80px;height:134px'; a.el.appendChild(hit);
+    hit.onpointerdown=e=>startDrag(e,p.id,true);
+    if(entering&&slots.has(p.id))slideIntoFormation(a.el,slots.get(p.id),c,i); });
   drawFicha($('fInfo'),sel);
   $('fDone').textContent=placed.length<4?`Faltam ${4-placed.length}`:'Pronto';
-  drawCombos($('fCombo'),placed.map(p=>p.id),false); comboTitle();
+  drawCombos($('fCombo'),placed,false); comboTitle();
 }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
 function startDrag(e,id,fromField){ e.preventDefault(); try{e.target.releasePointerCapture&&e.target.releasePointerCapture(e.pointerId);}catch(_){} const p=stagePt(e); drag={id,fromField,x0:p.x,y0:p.y,moved:false};
