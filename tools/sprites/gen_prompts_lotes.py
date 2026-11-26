@@ -376,7 +376,7 @@ def trip_prompt(k):
 if __name__ == "__main__" and len(sys.argv) == 3 and sys.argv[2] == "TRIP":   # linha trip (rasteira) de qualquer ninja: sheet só do personagem
     print(trip_prompt(sys.argv[1])); sys.exit()
 if __name__ == "__main__" and len(sys.argv) == 2 and sys.argv[1] == "POEIRA":   # sheet de poeira, vale pra TODOS os ninjas
-    print(POEIRA); sys.exit()
+    print(PIXEL + "\n" + POEIRA); sys.exit()
 if __name__ == "__main__" and len(sys.argv) in (4, 5):   # <ninja> <lote> <linha> [defeito: ghost|identidade|acessorio|celula|verde|fx]
     t = one_row(sys.argv[1], sys.argv[2], int(sys.argv[3]))
     if len(sys.argv) == 5: t += "\n" + REGEN[sys.argv[4]] + "\n"
