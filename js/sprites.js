@@ -34,9 +34,7 @@ const ATLAS_SCALE={
  hiyori:{walk:1.05,dash:1.07,attack:1.07,strong:1.06,jutsu:1.06,buff:1.06},
  mayoi:{stun:.95,defeat:.93,knockdown:.95},
  poko:{defeat:[.96,.96,.94,.94,.93,.93,.93,.93]},
- kazan:{dash:[1.08,1.09,1.12,1.12,1.10,1.10,1.09],attack:[1.08,1.1,1.14,1.14,1.13,1.12],
-   attackB:[1.06,1.07,1.05,1.04,1.04,1.03],attackC:[1.05,1.08,1.1,1.1,1.09,1.08],
-   fireball:[1.14,1.14,1.16,1.13,1.11,1.09],hurt:1.05,stun:.91,victory:.95,defeat:.93},
+ kazan:{walk:1.12,dash:1.07,sit:1.12,attack:1.09,attackB:1.11,attackC:1.09,jutsu:1.09,fireball:1.11,guard:1.09,hurt:1.07,stun:.94,victory:.93,defeat:.95},   // medido pela bigorna (fixa em todos os quadros): idle = 1.0
  utsushi:{dash:1.06},
  keshin:{guard:.96,hurt:.94,dodge:.95,jutsu:.93,stun:.95,defeat:.93},
  yugami:{walk:1.05,dash:1.08,attack:1.06,jutsu:1.06,chase:1.07},

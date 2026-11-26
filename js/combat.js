@@ -262,16 +262,15 @@ const AIR_TORSO={
 const airTorso=u=>spritePoint(u,AIR_TORSO[sid(u)]||[96,96]);
 // Cada palma sai no quadro da mão estendida e viaja até o corpo visível do alvo.
 async function cloneVolley(owner,target){
-  const clones=livingClones(owner);
-  let damage=0;
   const dir=owner.side==='p'?1:-1;
-  for(const clone of clones){
-    if(!target.alive)break;
-    if(!clone.alive)continue;
+  // cada clone arma a palma em paralelo (escalonados em 90 ms); antes era um por vez e a repulsão do alvo esperava a fila toda (~2 s)
+  const one=async(clone,delay)=>{
+    await sleep(delay);
+    if(!clone.alive||!target.alive)return 0;
     const palm=3, step=1000/an_of(clone).atk1[4];
     sceneAdd(clone); setAnim(clone,'atk1');
     await sleep(palm*step);
-    if(!clone.alive||!target.alive)continue;
+    if(!clone.alive||!target.alive)return 0;
     setAnim(clone,'atk1',palm);
     const from=spritePoint(clone,[160,81]), to=airTorso(target);
     const travel=Math.max(115,Math.min(230,Math.hypot(to.x-from.x,to.y-from.y)*.36));
@@ -279,9 +278,11 @@ async function cloneVolley(owner,target){
     fxSpr(owner.id,proj,{...from,to,dir,flip:dir<0,sc:.51,fps:1000*frames/travel,linear:true});
     await sleep(travel);
     const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
-    if(dealt!==null){ damage+=dealt; chaseContact(to,owner.d.c,6); }
-  }
-  return damage;
+    if(dealt===null)return 0;
+    chaseContact(to,owner.d.c,6); return dealt;
+  };
+  const dealt=await Promise.all(livingClones(owner).map((c,i)=>one(c,i*90)));
+  return dealt.reduce((a,b)=>a+b,0);
 }
 function chaseContact(point,color,count){
   em(count,i=>{
@@ -321,11 +322,15 @@ async function finishWindKick(c,t,put,dir,aim,connected){
   await hitstop(65);
   const ms=animMs(c,strike)-step*kick.frame;
   put(c,ground.x+dx-h.x-dir*65,ground.y-h.y,`transform ${ms/speed}ms cubic-bezier(.35,0,.85,.7)`);
+  const volley=connected?cloneVolley(c,t):Promise.resolve(0);   // as palmas saem já durante a queda do chute
   await sleep(ms);
   c.mv.style.transition='';
   setAnim(c,land);
-  const [extra]=await Promise.all([connected?cloneVolley(c,t):0,sleep(animMs(c,land))]);
+  const landing=sleep(animMs(c,land));
+  const extra=await volley;
+  // a repulsão sai assim que a última palma acerta; o pouso do Utsushi termina em paralelo (antes a repulsão esperava o pouso inteiro, ~0,5 s a mais)
   if(connected&&t.alive)await knock(t,cause);
+  await landing;
   if(result())await finale(t);
   return extra;
 }

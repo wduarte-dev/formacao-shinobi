@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.10.3 · 26/11/2026 · Kazan no mesmo tamanho e Rajada Fantasma sem demora
+- Kazan não encolhe mais ao lançar o Plano, bater o martelo ou se defender: a escala de cada pose foi medida pela bigorna (que não muda de tamanho) e agora todas as poses ficam do mesmo tamanho do idle.
+- Rajada Fantasma: os clones batem juntos, durante a queda do chute, e o alvo é repelido assim que a última palma acerta. Com três clones a repulsão sai cerca de 0,8 s mais cedo, sem mudar o dano.
+
 ## 1.10.2 · 25/11/2026 · Escala e contato
 - Revisadas as proporções dos ninjas entre as poses de combate. Kazan mantém o tamanho ao preparar o martelo, atacar e rebater as bolas de fogo. O contorno do ferreiro e da bigorna acompanha a linha do idle.
 - O chute da Rajada Fantasma acerta o alvo no ar na hora em que a bota encosta. Cada clone solta sua rajada pela mão estendida, e o alvo é repelido depois do último contato.
