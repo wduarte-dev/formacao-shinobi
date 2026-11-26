@@ -74,6 +74,7 @@ REGEN = {
  "acessorio": "REGENERATION PRIORITY: Keep every canonical accessory present exactly once in every occupied cell, preserving its intrinsic dimensions, design and colors throughout the motion.",
  "celula": "REGENERATION PRIORITY: Stop each animation at its last assigned column; every subsequent cell in that row must remain entirely flat chroma green.",
  "verde": "REGENERATION PRIORITY: Keep chroma green strictly outside the character and VFX silhouettes, with hard pixel boundaries and no green-tinted edge pixels.",
+ "mao": "REGENERATION PRIORITY: Draw every hand as a distinct small fist with its own dark outline, either gripping a held item or hanging free; a hand must never merge into a held item, the sleeve or the body, and stays clearly separate from the body in every frame.",
  "fx": "REGENERATION PRIORITY: Draw every swoosh, glow and spark as hard-edged opaque pixel clusters in flat colors; no gradients, soft fades or glows that blend into the green background.",
 }
 NINJAS = {
@@ -348,6 +349,34 @@ def one_row(k, lote, idx):
     head = head.replace(f"exactly {n_old} rows", "exactly 1 row").replace(f"EXACTLY {n_old} rows", "EXACTLY 1 row").replace(f"The image has {n_old} rows, not more.", "The image has 1 row, not more.")
     head = head.replace(f'LOTE {lote}"', f'LOTE {lote} L{idx}"')
     return head + "\nROWS:\n" + re.sub(r"^Row \d+:", "Row 1:", r) + "\n"
+TRIP_ROW = ("Row 1: TRIP (the victim of a low sweep kick), 6 frames, ONLY the character, no effects: "
+ "Frame 1 HIT: the legs are swept out from under the character, the body still almost upright, surprised. "
+ "Frame 2 LIFTED: both feet off the ground, the body tilting toward horizontal, held items swinging out. "
+ "Frame 3 SPIN: the body nearly horizontal, low to the ground, mid-rotation, hair and cloth trailing. "
+ "Frame 4 SPIN END: the body horizontal, back toward the ground, about to land. "
+ "Frame 5 IMPACT: the character lands flat on the back, body horizontal and parallel to the ground (never vertical). "
+ "Frame 6 LIES STILL: flat on the ground, slightly relaxed, every held item complete right beside the body (cells 7 to 8 EMPTY). "
+ "NO dust, NO impact marks, NO ground line, NO shadow: the dust is a separate sheet drawn later.")
+POEIRA = """STRICT RULES - EFFECT SHEET, NO CHARACTER:
+1. GRID: exactly 2 rows × 6 columns, equal-sized cells, landscape canvas.
+2. NO character, NO person, NO body, NO ground line, NO shadow. Only dust.
+3. Each row is one independent effect; every cell is one moment of it, all 6 cells filled.
+4. Dust drawn as hard-edged opaque pixel clusters in flat colors (max 8 colors): sand beige, warm gray, pale tan, dark brown outline 1px. No gradients, no soft fades, no transparency, no glow.
+5. Each effect stays fully inside its cell with a 10% safe margin. Effect travels LEFT to RIGHT. Dust is centered at the bottom of the cell (where it touches the ground).
+6. BACKGROUND: uniform flat pure green #00FF00. No green on the dust. No labels, text, borders or grid lines.
+ROWS:
+Row 1: LANDING DUST, 6 frames: a character falls flat on the ground; a wide low puff of dust bursts sideways, grows, then thins and breaks into a few separate small clumps.
+Row 2: SLIDE DUST, 6 frames: a low trail of dust kicked up behind a body sliding to the right along the ground; small clumps lift, drift back and fall.
+"""
+def trip_prompt(k):
+    n = NINJAS[k]; P = n["pal"]; N = n["name"]
+    t = RULES.format(N=1, PAL=P, NAME=N, L="TRIP").replace("exactly 1 rows", "exactly 1 row") + "\n" + TRUTH.format(NAME=N.title(), LOOK=n["look"]) + PIXEL + LOCKS + "\nROWS:\n" + TRIP_ROW + "\n"
+    return _colors(n, t) + REGEN["mao"] + "\n" + REGEN["fx"] + "\n"
+
+if __name__ == "__main__" and len(sys.argv) == 3 and sys.argv[2] == "TRIP":   # linha trip (rasteira) de qualquer ninja: sheet só do personagem
+    print(trip_prompt(sys.argv[1])); sys.exit()
+if __name__ == "__main__" and len(sys.argv) == 2 and sys.argv[1] == "POEIRA":   # sheet de poeira, vale pra TODOS os ninjas
+    print(POEIRA); sys.exit()
 if __name__ == "__main__" and len(sys.argv) in (4, 5):   # <ninja> <lote> <linha> [defeito: ghost|identidade|acessorio|celula|verde|fx]
     t = one_row(sys.argv[1], sys.argv[2], int(sys.argv[3]))
     if len(sys.argv) == 5: t += "\n" + REGEN[sys.argv[4]] + "\n"
