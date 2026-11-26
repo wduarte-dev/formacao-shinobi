@@ -22,6 +22,7 @@ PERGUNTA = {
  'corpo_translucido': 'O corpo do personagem está translúcido/fantasma neste quadro?',
  'verde_no_sprite': 'Há verde sujando o sprite, ou brilho esverdeado/amarelo-esverdeado em volta de algo?',
  'celula_invadida': 'Este quadro deveria estar vazio, mas tem conteúdo?',
+ 'brilho_halo': 'Há brilho/halo amarelado ou esverdeado (luz da lanterna etc.) misturado com o fundo em volta de algo?',
  'mao_emendada': 'Há mão EMENDADA/fundida com o acessório ou com o corpo (aquela mistura estranha de IA)?',
  'mao_escondida': 'Falta uma mão visível (escondida dentro do corpo/manga)?',
  'vao_fundo': 'Sobrou um vão/fundo que devia ter sido removido (ex.: entre cachecol e roupa)?',
@@ -55,7 +56,7 @@ def metrics(f):
 def local(sheet, a, nfr):
     out, fr = [], frames(a); m = [metrics(f) for f in fr]; med = float(np.median([t for t, _ in m[:nfr]]))
     for i, (t, area) in enumerate(m, 1):
-        if i <= nfr and t >= max(150, 1.8 * med): out.append(dict(frame=i, detector='local:verde_halo', defeito='verde_no_sprite', motivo=f'tom verde {t} px (mediana do sheet {med:.0f})'))
+        if i <= nfr and t >= max(150, 1.8 * med): out.append(dict(frame=i, detector='local:verde_halo', defeito='brilho_halo', motivo=f'tom verde {t} px (mediana do sheet {med:.0f})'))
         if i > nfr and area > 400: out.append(dict(frame=i, detector='local:celula', defeito='celula_invadida', motivo=f'{area} px depois do último quadro'))
     return out
 

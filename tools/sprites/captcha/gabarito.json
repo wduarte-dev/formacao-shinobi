@@ -21,10 +21,12 @@
    ],
    "4": [
     "mao_fundida",
-    "mao_fundida"
+    "mao_fundida",
+    "brilho_lanterna"
    ],
    "5": [
-    "mao_fundida"
+    "mao_fundida",
+    "brilho_lanterna"
    ],
    "6": [
     "mao_fundida",
@@ -35,6 +37,6 @@
     "mao_parcialmente_estranha"
    ]
   },
-  "obs": "Mão fundida (com acessório/corpo) aparece nos 7 frames. Verde invadindo só nos frames 2 e 6; o brilho verde-amarelado da lanterna nos frames 4-5 NÃO foi marcado."
+  "obs": "Mão fundida em todos os 7 frames. Verde invadindo só nos frames 2 e 6. Brilho amarelo da lanterna (frames 4-5): não é verde, é a luz da lanterna; o dono acha coerente e até interessante, mas CONSIDERA DEFEITO LEVE porque no jogo fica estranho (tipo brilho_lanterna)."
  }
 }
