@@ -10,7 +10,7 @@ function drawJ(){
       w.className='skw'; x.className='sk'; x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
       const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
       const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
-      if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.16,32,32,'icon'); } else portrait(kp,u.id,2.7,58,58);
+      if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.0,32,32,'icon'); } else portrait(kp,u.id,2.3,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
       x.onclick=()=>{ if(!battleOn||result()||!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)

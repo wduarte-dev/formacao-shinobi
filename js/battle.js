@@ -49,7 +49,7 @@ function startBattle2(){
   $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('ink').className=''; $('flash').className=''; $('cam').classList.remove('tracking','slow'); $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
   bgExt($('bbg'),`bg/${foe.bg}.png`); ambStart(foe.bg); ambSndStart(foe.bg);
-  portrait($('hpP'),U.p[0].id,3,60,60); portrait($('hpE'),U.e[0].id,3,60,60);
+  portrait($('hpP'),U.p[0].id,1.9,60,60); portrait($('hpE'),U.e[0].id,1.9,60,60);
   all().forEach(mountUnit);
   ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
 }

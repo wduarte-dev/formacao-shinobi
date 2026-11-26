@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.12.6 · 26/11/2026 · Retratos enquadrados em todas as telas
+- Os retratos do elenco da Formação, da Galeria, do Laboratório, do HUD da luta, dos botões de jutsu e da legenda do Forte agora mostram a cabeça inteira e centralizada. Antes o rosto escorregava para a direita e para baixo, e Fuuka e Mayoi ficavam coladas na borda.
+
 ## 1.12.5 · 26/11/2026 · Retratos enquadrados
 - Os retratos redondos da ficha e do painel de Combos mostram a cabeça inteira, centralizada, em vez de um close cortado.
 

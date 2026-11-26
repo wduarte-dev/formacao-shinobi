@@ -111,7 +111,7 @@ const IDS=Object.keys(N).filter(id=>!N[id].npc);
 // chance (%) de resistir a um status (atordoar, veneno, Selamento, Cegueira, Sono): tanque 30, atacante 15, suporte/controle 20, esquiva/velocista 10
 const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mestre:30,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
 const resOf=u=>RES[u.id]??20;
-const VERSION={v:'1.12.5',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.12.6',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let acadDone=[], acad=null;   // estrelas dos Testes de Perseguição (índices) e o teste em andamento (null = missão normal)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);

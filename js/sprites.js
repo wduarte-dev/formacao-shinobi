@@ -107,11 +107,15 @@ function actor(id,scale,x,y,parent,flip){ const a=mkSpr(id,scale), el=document.c
   el.appendChild(a.spr); parent.appendChild(el); a.el=el; setAnim(a,'idle',Math.random()*8|0); ACT.push(a); return a; }
 // retrato: centraliza o rosto (hd) do 1º quadro de uma anim ('idle' ou 'cast') numa caixa w x h
 // FACE[id][anim] = centro do rosto (x,y no quadro 0 da linha), medido do topo da cabeça (tools: ver docs/pipeline-sprites.md "Retratos"); refazer se o atlas mudar
-const FACE={kazan:{idle:[82,49],cast:[83,47],idleOffset:9},utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[90,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[91,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]},mestre:{idle:[102,57],cast:[98,54]}};
+const FACE={kazan:{idle:[82,49],cast:[83,47],idleOffset:9},utsushi:{idle:[111,52],cast:[110,52]},kaen:{idle:[94,45],cast:[95,51]},mizuha:{idle:[90,51],cast:[101,57]},raiden:{idle:[102,53],cast:[101,51]},iwao:{idle:[98,51],cast:[93,64]},fuuka:{idle:[95,50],cast:[98,53]},hiyori:{idle:[96,49],cast:[95,51]},mayoi:{idle:[96,51],cast:[99,52]},doku:{idle:[98,54],cast:[100,52]},poko:{idle:[109,50],cast:[109,49]},yugami:{idle:[102,47],cast:[93,50]},yugamir:{idle:[97,47],cast:[93,50]},keshin:{idle:[102,57],cast:[98,54]},mestre:{idle:[102,57],cast:[98,54]}};
 // Ponto central da cabeça no quadro de idle dos ícones de 32 px.
 const ICON_FACE={kaen:[104,47],mizuha:[100,55],raiden:[104,55],iwao:[103,53],fuuka:[105,51],mayoi:[102,52],
   hiyori:[104,49],doku:[101,54],yugami:[104,46],poko:[106,48],utsushi:[108,55],keshin:[105,54],mestre:[105,54],kazan:[85,59]};
+// w,h = caixa de referência; se o elemento já está na tela, vale o TAMANHO REAL dele (o CSS pode esticar: inset, height do slot).
+// Fora da tela ainda (criado antes do appendChild): enquadra com w,h e refaz no próximo quadro com o tamanho real. Conferência: tools/qa_retratos_mini.py
 function portrait(el,id,scale,w,h,an,dy){
+  if(el.clientWidth&&el.clientHeight){ w=el.clientWidth; h=el.clientHeight; }
+  else if(!el._porLater){ el._porLater=1; requestAnimationFrame(()=>{ el._porLater=0; if(el.isConnected&&el.clientWidth)portrait(el,id,scale,w,h,an,dy); }); }
   const S=SH[id], e=Math.min(scale*0.62,5)/(N[id]?.size||1), a=an==='icon'?'idle':an||'idle', row=S.anim[a][0];
   const F=(an==='icon'&&ICON_FACE[id])||FACE[id]?.[a]||[S.hd[0],S.hd[1]-14];
   const offset=an==='icon'?0:dy??(a==='idle'?FACE[id]?.idleOffset||0:0);

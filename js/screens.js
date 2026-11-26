@@ -74,7 +74,7 @@ function drawForm(){ BOARD=FORM_BOARD;
     hit.onpointerdown=e=>startDrag(e,p.id,true); });
   const R=$('fRoster'); R.innerHTML='';
   IDS.forEach(id=>{ const i=placed.findIndex(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(i>=0?' used':'')+(have(id)?'':' lockd');
-    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,94,66);
+    const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.6,94,66);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
     const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
