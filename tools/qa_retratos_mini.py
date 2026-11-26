@@ -1,5 +1,5 @@
 """Confere TODOS os retratos das telas reais (elenco da Formação e do Laboratório, ficha, Combos, Galeria, HUD da luta,
-botões de jutsu, legenda do Forte) de todo o elenco. Para cada elemento com fundo de atlas (menos os bonecos .spr):
+botões de jutsu, legenda do Forte, linha de combo da perseguição) de todo o elenco. Para cada elemento com fundo de atlas (menos os bonecos .spr):
 descobre a linha do atlas pelo background-position, acha a cabeça no PNG (head_points do qa_retratos; se cair longe do
 FACE, usa o FACE) e mede no TAMANHO REAL do elemento: rosto no centro, topo da cabeça visível e zoom (cabeça cabendo).
 Uso: python3 tools/qa_retratos_mini.py [--out pasta]   -> lista os defeitos, salva um print de cada tela; erro se houver defeito.
@@ -47,7 +47,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=ROOT)
         pg.evaluate(f"()=>{{ show('sForm'); sel='{id}'; drawFicha($('fInfo'),'{id}'); }}"); pg.wait_for_timeout(60)
         items += [x for x in pg.evaluate(COLLECT, 'ficha') if 'fpor' in x['where']]
     for n, team in enumerate(TEAMS + [['mizuha', 'raiden', 'iwao', 'kaen'], ['raiden', 'iwao', 'kaen', 'mizuha'], ['iwao', 'kaen', 'mizuha', 'raiden']]):
-        pg.evaluate(f"""()=>{{ run=()=>{{}}; acad=null; placed.length=0; {team}.forEach((id,i)=>placed.push({{id,row:i%3,depth:i>2?1:0}})); foeIx=0; startBattle2(); skTag(U.p[0],'Teste'); }}""")
+        pg.evaluate(f"""()=>{{ run=()=>{{}}; acad=null; placed.length=0; {team}.forEach((id,i)=>placed.push({{id,row:i%3,depth:i>2?1:0}})); foeIx=0; startBattle2(); skTag(U.p[0],'Teste'); U.p.forEach((u,i)=>comboLine('Teste',i+1,u.id)); }}""")
         pg.wait_for_timeout(500)
         if n == 0: pg.screenshot(path=str(out / 'luta.png'))
         items += [x for x in pg.evaluate(COLLECT, 'luta') if x['where'] != 'cutP']

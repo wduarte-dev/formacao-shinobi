@@ -112,7 +112,7 @@ function shake(k){ const m=k||1; if(shakeA)shakeA.cancel();
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
 function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
   if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
-function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,2.2,34,34); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}
+function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,.8,30,30); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}
 
 // cena isolada (jutsu e perseguição): fundo escuro e só os participantes visíveis, do começo ao fim.
 // sceneAdd revela mais gente (a perseguição acumula); sceneOff só roda quando todos voltaram pra casa.
