@@ -7,7 +7,7 @@ const STC={D:'#e8862a',L:'#3a9be0',R:'#d8392b'};   // cor do selo de cada estado
 // ---- painel de combos ----
 let CSZ=30;   // diâmetro do retrato no painel (30 na Formação, 44 na Academia)
 function cPor(id,name,cls){ const w=document.createElement('div'); w.className='cpor '+(cls||'');
-  const c=document.createElement('i'); c.className='por'; w.appendChild(c); portrait(c,id,CSZ/26,CSZ,CSZ);
+  const c=document.createElement('i'); c.className='por'; w.appendChild(c); portrait(c,id,CSZ/40,CSZ,CSZ);   // zoom: cabeça com ~60% do círculo (conferido por tools/qa_retratos_mini.py)
   const n=document.createElement('small'); n.textContent=name; w.appendChild(n); return w; }
 function cBadge(st){ const b=document.createElement('span'); b.className='cbadge'; b.textContent=st; b.style.background=STC[st]; b.title=ST[st]; return b; }
 function cArrow(){ const a=document.createElement('span'); a.className='carr'; a.textContent='→'; return a; }
@@ -82,7 +82,7 @@ function fichaHtml(id){ const d=N[id], n=d.normal, s=d.strong, j=d.jutsu, c=d.ch
   +row('ff',`Forte (${Math.round(STRONG_CHANCE*100)}%):`,s?`${s.name}${s.cause?' → '+stB(s.cause):''}${ex(s)}`:'—')
   +row('fj','Jutsu:',`${j.name} · ${j.cost} chakra · ${j.desc}${j.cause?' → '+stB(j.cause):''}`)
   +(c?row('fp','Perseguição:',`${c.name} · ${stB(c.on)} → ${stB(c.cause)}`):row('fp','Passiva:',`imune a D/L/R; Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time`)); }
-function drawFicha(el,id){ el.innerHTML=fichaHtml(id); portrait(el.querySelector('.fpor'),id,2.2,52,52); }
+function drawFicha(el,id){ el.innerHTML=fichaHtml(id); portrait(el.querySelector('.fpor'),id,52/40,52,52); }
 // segurar um ninja do Laboratório (~0,45 s sem arrastar) abre a ficha por cima do painel; soltar fecha
 let holdT=null;
 function holdStart(id,slot){ clearTimeout(holdT); holdT=setTimeout(()=>{ const f=$('aFicha'); drawFicha(f,id); f.classList.remove('hide');

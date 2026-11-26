@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.12.5 · 26/11/2026 · Retratos enquadrados
+- Os retratos redondos da ficha e do painel de Combos mostram a cabeça inteira, centralizada, em vez de um close cortado.
+
 ## 1.12.4 · 26/11/2026 · Ficha nova e dojo novo
 - Ficha do ninja redesenhada: retrato, elemento e papel, atributos com ícones e as linhas Básico, Forte, Jutsu e Perseguição com os selos D/L/R. Aparece na Formação e, na Academia, ao segurar um ninja do Laboratório.
 - Dojo novo na Academia e no Teste de Perseguição, com o chão na altura certa.
