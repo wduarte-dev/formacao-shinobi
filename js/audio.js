@@ -58,8 +58,50 @@ const SFILES=('dado-giro dado-resultado amb-cinzas amb-dojo amb-floresta amb-noi
   .concat(RECORDED.map(n=>'jutsux-'+n), ['yugami-rehood'], RECORDED.includes('kazan')?FORGE_SFX.map(n=>'kazan-'+n):[]);   // jutsux-<ninja>: som próprio do jutsu (tools/gen_jutsu_sfx.py)
 const EN={Fogo:'fire','Água':'water',Raio:'lightning',Terra:'earth',Vento:'wind','Névoa':'mist',Gelo:'ice',Veneno:'poison',Som:'sound','Espaço':'space'};
 const PT={Fogo:'fogo','Água':'agua',Raio:'raio',Terra:'terra',Vento:'vento','Névoa':'nevoa',Gelo:'gelo',Veneno:'veneno',Som:'som','Espaço':'espaco'};
-function loadSfx(){ if(FILEMODE||!AC||loadSfx.on)return; loadSfx.on=1;
-  SFILES.forEach(f=>fetch(SFXD+f+'.ogg').then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>AC.decodeAudioData(b)).then(d=>{BUF[f]=d;}).catch(()=>{})); }
+const MENU_SFX=SFILES.filter(name=>name.startsWith('ui-')||name==='arm');
+const PERSONAL_SFX=new Map(RECORDED.map(id=>[id,SFILES.filter(name=>
+  name.startsWith(id+'-')||name===`esq-${id}`||name===`jutsux-${id}`||name.startsWith(`voz-${id}-`))]));
+const BATTLE_SFX=SFILES.filter(name=>![...PERSONAL_SFX.values()].some(list=>list.includes(name))&&
+  !/^(selos|impacto|proj|jutsu)-/.test(name));
+let audioScope=null, audioWorkers=0;
+function loadSfx(ids=[]){
+  if(FILEMODE||!AC)return;
+  const names=new Set(ids.length?BATTLE_SFX:MENU_SFX);
+  for(const id of ids){
+    for(const name of PERSONAL_SFX.get(id)||[])names.add(name);
+    const el=N[id]?.sfxEl||N[id]?.el;
+    for(const name of [`selos-${EN[el]}`,`impacto-${EN[el]}`,`proj-${EN[el]}`,`jutsu-${PT[el]}`]){
+      if(SFILES.includes(name))names.add(name);
+    }
+  }
+  if(audioScope&&names.size===audioScope.names.size&&[...names].every(name=>audioScope.names.has(name)))return;
+  audioScope?.controller.abort();
+  for(const name of Object.keys(BUF))if(!names.has(name))delete BUF[name];
+  const queue=[...names].filter(name=>!BUF[name]);
+  // Prioriza a abertura enquanto o jogo monta o resto do banco em paralelo.
+  const rank=name=>name.startsWith('dado-')?0:MENU_SFX.includes(name)?1:2;
+  queue.sort((a,b)=>rank(a)-rank(b));
+  audioScope={names,queue,controller:new AbortController()};
+  while(audioWorkers<3&&audioScope.queue.length)void decodeSfx();
+}
+async function decodeSfx(){
+  audioWorkers++;
+  try{
+    while(audioScope?.queue.length){
+      const scope=audioScope, name=scope.queue.shift();
+      try{
+        const response=await fetch(SFXD+name+'.ogg',{signal:scope.controller.signal});
+        if(!response.ok)continue;
+        const bytes=await response.arrayBuffer();
+        if(scope!==audioScope)continue;
+        const buffer=await AC.decodeAudioData(bytes);
+        if(scope===audioScope)BUF[name]=buffer;
+      }catch(error){
+        if(error.name!=='AbortError')console.debug('Som gravado indisponível',name,error);
+      }
+    }
+  }finally{audioWorkers--;}
+}
 // toca um dos arquivos da lista (sorteado); true se tocou. O mesmo arquivo não repete em <40ms (golpe em área não empilha)
 function playF(names,vol=1,jit=0){ if(!sndOn)return true; names=[].concat(names);
   const ok=names.filter(n=>FILEMODE?SFILES.includes(n):BUF[n]); if(!ok.length)return false;
@@ -96,7 +138,7 @@ const sfx={
  absorb:()=>playF('escudo-absorve',.75), sbreak:()=>playF('escudo-quebra',.9),
  death:()=>playF('ninja-derrota',.85), lowhp:()=>playF('vida-baixa',.8), last:()=>playF('sting-ultimo',.8),
  round:()=>playF('rodada-inicio',.6), chakra:()=>playF('chakra-ganho',.45),
- diceRoll:()=>P('dado-giro',.9,0,()=>{for(let i=0;i<16;i++)setTimeout(()=>tone(310+i*18,.045,'triangle',.15,170),i*i*11);}),
+ diceRoll:()=>P('dado-giro',.9,0,()=>{for(let i=0;i<16;i++)battleAfter(()=>tone(310+i*18,.045,'triangle',.15,170),i*i*11);}),
  diceLand:()=>P('dado-resultado',.95,0,()=>tone(240,.08,'triangle',.2,120)),
  diceReveal:()=>{tone(880,.09,'sine',.15,1320);tone(1760,.15,'triangle',.065);},
  arm:()=>P('arm',.6,0,SYN.arm), thud:()=>P('thud',1,.03,SYN.thud),
@@ -128,7 +170,7 @@ function xloop(src,vol){ const mk=()=>{const a=new Audio(src); a.volume=0; a.pla
 function musStart(ix){ musStop(); if(!AC)return; const f=MUSF[ix|0]; if(!f)return musSynth();
   const o=MUSA=xloop('audio/music/'+f+'.ogg',.45); o.a.addEventListener('error',()=>{ if(MUSA===o){o.pause(); MUSA=null; musSynth();} }); }
 // música do menu: não reinicia se já estiver tocando (navegar entre telas mantém a faixa)
-function musMenu(){ if(!AC||(MUSA&&MUSA.dataset.f==='menu'))return; musStop(); MUSA=xloop('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
+function musMenu(){ if(!AC)return; loadSfx(); if(MUSA&&MUSA.dataset.f==='menu')return; musStop(); MUSA=xloop('audio/music/menu.ogg',.35); MUSA.dataset.f='menu'; }
 function musStop(){ clearInterval(musT); musT=null; if(MUSA){MUSA.pause(); MUSA=null;} }
 // celular: app minimizado / aba escondida = tudo mudo (senão a música e o ambiente seguem tocando em segundo plano). Ao voltar, retoma.
 function bgSound(hide){ try{

@@ -8,6 +8,8 @@ Jogo de navegador por turnos estilo formação 3x3 (4v4, combos e perseguições
 
 - Código: `index.html` + `css/` + `js/` (módulos por responsabilidade, ver `CLAUDE.md`)
 - Teste automático: `python3 tools/test_battle.py . /tmp/shots`
+- Conteúdo: `python3 tools/new_ninja.py verify` confere os dados e os atlas sem rede.
+- Offline: a instalação guarda a base do jogo. Visite as missões com internet para carregar seus sprites, cenários e sons.
 - Sprites: `tools/sprites/` (pipeline de recorte) · planos e decisões: repo privado de contexto
 
 Sprites e cenários gerados numa IA de imagem a partir de prompts próprios; UI: Pixel UI Fantasy Free (CC BY 4.0, crédito na tela de título).

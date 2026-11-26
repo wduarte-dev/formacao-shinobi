@@ -41,16 +41,17 @@ let labInit=false;   // o Laboratório começa com o time salvo só na 1ª vez; 
 function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
   if(!labInit){ labInit=true; if(!labTeam.length)placed.forEach(p=>labTeam.push({...p})); }
   const T=$('aTiles'), Un=$('aUnits'); T.innerHTML=''; Un.innerHTML='';
-  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=labCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
+  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=labCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; enableKeyboardTile(t,row,depth); T.appendChild(t); }
   labTeam.forEach(p=>{ const c=labCell(p.row,p.depth), a=actor(p.id,1.9,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
     const b=document.createElement('div'); b.className='ordb sm'; b.textContent=formationCellNumber(p); a.el.appendChild(b);
     const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-28px;top:-92px;width:56px;height:94px'; a.el.appendChild(hit);
-    hit.onpointerdown=e=>{ startDrag(e,p.id,true); holdStart(p.id,hit); }; });
+    hit.onpointerdown=e=>{ if(startDrag(e,p.id,true))holdStart(p.id,hit,e.pointerId); }; });
   const R=$('aRoster'); R.innerHTML='';
   IDS.forEach(id=>{ const used=labTeam.some(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(used?' used':'')+(have(id)?'':' lockd');
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.15,40,40);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='🔒'; b.appendChild(s); R.appendChild(b); return; }
-    b.onpointerdown=e=>{ startDrag(e,id,false); holdStart(id,b); }; R.appendChild(b); });
+    b.setAttribute('aria-label',N[id].name);
+    b.onpointerdown=e=>{ if(startDrag(e,id,false))holdStart(id,b,e.pointerId); }; enableKeyboardRoster(b,id); R.appendChild(b); });
   drawCombos($('aCombo'),labTeam,true);
   const L=$('aList'); L.innerHTML='';
   ACAD.forEach((c,i)=>{ const card=document.createElement('div'); card.className='acard';
@@ -85,10 +86,10 @@ function fichaHtml(id){ const d=N[id], n=d.normal, s=d.strong, j=d.jutsu, c=d.ch
   +(c?row('fp','Perseguição:',`${c.name} · ${stB(c.on)} → ${stB(c.cause)}`):row('fp','Passiva:',`imune a D/L/R; Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time`)); }
 function drawFicha(el,id){ el.innerHTML=fichaHtml(id); portrait(el.querySelector('.fpor'),id,52/40,52,52); }
 // segurar um ninja do Laboratório (~0,45 s sem arrastar) abre a ficha por cima do painel; soltar fecha
-let holdT=null;
-function holdStart(id,slot){ clearTimeout(holdT); holdT=setTimeout(()=>{ const f=$('aFicha'); drawFicha(f,id); f.classList.remove('hide');
+let holdT=null, holdPointer=null;
+function holdStart(id,slot,pointerId){ clearTimeout(holdT); holdPointer=pointerId; holdT=setTimeout(()=>{ const f=$('aFicha'); drawFicha(f,id); f.classList.remove('hide');
   const st=$('stage').getBoundingClientRect(), k=st.width/1152, r=slot.getBoundingClientRect();
   f.style.setProperty('--px',Math.max(20,Math.min(300,(r.left+r.width/2-st.left)/k-f.offsetLeft))+'px'); },450); }
-function holdEnd(){ clearTimeout(holdT); holdT=null; $('aFicha')?.classList.add('hide'); }
+function holdEnd(e){ if(e&&e.pointerId!==holdPointer)return; clearTimeout(holdT); holdT=null; holdPointer=null; $('aFicha')?.classList.add('hide'); }
 addEventListener('pointerup',holdEnd); addEventListener('pointercancel',holdEnd);
-addEventListener('pointermove',()=>{ if(drag?.moved)holdEnd(); });
+addEventListener('pointermove',e=>{ if(drag?.moved)holdEnd(e); });

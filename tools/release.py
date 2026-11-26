@@ -12,7 +12,7 @@ from tempfile import mkdtemp
 ROOT = Path(__file__).resolve().parents[1]
 NOTES = 'docs/patch-notes.md'
 VERSION = 'version.json'
-GENERATED = ('js/patch.js', 'js/data.js', VERSION)
+GENERATED = ('js/patch.js', 'js/data.js', VERSION, 'sw.js')
 RELEASE_FILES = (NOTES, *GENERATED)
 
 
@@ -57,7 +57,7 @@ def steps(version, directory, commit, base):
                    'Testado: qa_diff.py e test_battle.py.\n'
                    'Pendente: publicação remota.')
         yield 'git commit', ['git', 'commit', '-m', f'Publica a versão {version}',
-                             '-m', message, '--only', '--', *RELEASE_FILES]
+                             '-m', message, '--only', '--', *(path for path in RELEASE_FILES if (ROOT / path).exists())]
 
 
 def execute(root, version, directory, commit, base):

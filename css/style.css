@@ -1,6 +1,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#07060a;overflow:hidden}
-#wrap{position:fixed;inset:0;background:#07060a;touch-action:none}   /* celular: o jogo cuida dos gestos (sem rolar/zoom no arrastar) */
+#wrap{position:fixed;inset:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:#07060a;touch-action:none}
+.tile:focus-visible{outline:3px solid #fff4ca;outline-offset:2px}
 html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 #gInfo,#newsL{touch-action:pan-y}
 #instHelp{left:276px;top:120px;width:600px;z-index:1000;padding:10px 20px 16px;font-size:18px;line-height:1.35;display:flex;flex-direction:column;gap:8px;color:#3b2414}

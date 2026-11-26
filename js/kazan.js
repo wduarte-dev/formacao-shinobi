@@ -118,12 +118,14 @@ function kazanDrawNinja(c,u){
     kazanCrust(c,p.x/3,p.y/3,7.2,6.1,t);
   }
 }
+function kazanFxActive(){
+  return kazanDragon||kazanEffects.length||U?.p.some(u=>u.d.stationary)||U?.e.some(u=>u.d.stationary);
+}
 function kazanDraw(c,elapsed){
-  const units=U?.p.filter(u=>u.d.stationary)||[];
-  if(!units.length&&!kazanEffects.length&&!kazanDragon)return;
+  if(!kazanFxActive())return;
   const dt=elapsed;
   kazanTime+=dt;
-  units.forEach(u=>kazanDrawNinja(c,u));
+  for(const side of ['p','e'])for(const u of U?.[side]||[])if(u.d.stationary)kazanDrawNinja(c,u);
   if(kazanDragon){ kazanDragon.t+=elapsed; kazanDrawDragon(c,kazanDragon); }
   for(let i=kazanEffects.length-1;i>=0;i--){
     const e=kazanEffects[i]; e.t+=dt;
@@ -362,7 +364,7 @@ function kazanDragonBurst(p,targets){
   });
 }
 
-const kazanPick=ts=>ts[Math.floor(Math.random()*ts.length)];
+const kazanPick=ts=>ts[Math.floor(battleRandom()*ts.length)];
 function kazanCount(side){
   for(const u of U[side]){
     if(!u.alive||!u.d.volley||u.teamHits>=KAZAN_LIMIT)continue;
@@ -370,7 +372,7 @@ function kazanCount(side){
   }
 }
 async function kazanReactions(){
-  for(const u of U.p){
+  for(const u of all()){
     if(result())return;
     if(u.alive&&u.d.volley&&u.teamHits===KAZAN_LIMIT){
       await gate();
@@ -413,7 +415,7 @@ async function kazanBasic(u,sk){
   const enemies=foes(u);
   if(!enemies.length)return;
   const first=kazanPick(enemies), ts=[first];
-  if(enemies.length>1&&Math.random()<sk.twoFlames)ts.push(kazanPick(enemies.filter(t=>t!==first)));
+  if(enemies.length>1&&battleRandom()<sk.twoFlames)ts.push(kazanPick(enemies.filter(t=>t!==first)));
   const a=kazanAnvil(u);
   await kazanRitual(u);
   setAnim(u,'atk1',0,true);
@@ -428,9 +430,9 @@ async function kazanBasic(u,sk){
   kazanCinders(a,16); sfx.shoot(u);
   await Promise.all(ts.map(t=>kazanFlight(u,t,a,540)));
   let damage=0;
-  const burns=Math.random()<sk.burnChance;
+  const burns=battleRandom()<sk.burnChance;
   await Promise.all(ts.map(async t=>{
-    if(!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t)){ await evade(t); return; }
+    if(!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t)){ await evade(t); return; }
     const dealt=kazanHit(u,t,sk,sk.mult/ts.length,'');
     if(dealt!==null){ damage+=dealt; if(burns)kazanBurn(u,t); }
   }));

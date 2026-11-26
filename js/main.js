@@ -8,7 +8,7 @@ $('sBattle').addEventListener('click',e=>{
 },true);
 $('bPause').onclick=()=>setPaused(!paused);
 $('bSpeed').onclick=()=>{speed=speed===1?2:speed===2?.5:1; $('bSpeed').textContent=speed+'x';};
-$('bAuto').onclick=()=>{autoP=!autoP; $('bAuto').classList.toggle('on',autoP);};
+$('bAuto').onclick=()=>{autoP=!autoP; $('bAuto').classList.toggle('on',autoP); $('bAuto').setAttribute('aria-pressed',autoP);};
 $('bQuit').onclick=()=>leave(acad?'sAcad':'sMap'); $('ovB').onclick=()=>leave(acad?'sAcad':'sMap');
 $('ovA').onclick=()=>startBattle(); $('ovN').onclick=()=>{foeIx=Math.min(FOES.length-1,foeIx+1); startBattle();};
 // log minimizável: ▼ desce (só a última linha aparece), ▲ sobe; lembra a escolha

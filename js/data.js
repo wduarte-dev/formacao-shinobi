@@ -114,14 +114,36 @@ const IDS=Object.keys(N).filter(id=>!N[id].npc);
 // chance (%) de resistir a um status (atordoar, veneno, Selamento, Cegueira, Sono): tanque 30, atacante 15, suporte/controle 20, esquiva/velocista 10
 const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mestre:30,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
 const resOf=u=>RES[u.id]??20;
-const VERSION={v:'1.13.3',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.14',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let acadDone=[], acad=null;   // estrelas dos Testes de Perseguição (índices) e o teste em andamento (null = missão normal)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);
-try{const s=JSON.parse(localStorage.getItem('shinobi-save'));
-  if(!s&&navigator.deviceMemory&&navigator.deviceMemory<=4)lite=true;   // aparelho com ≤4GB (ex.: Redmi 13C) já começa no modo leve; depois vale a escolha salva
-  if(s){ if(Array.isArray(s.placed)&&s.placed.every(p=>N[p.id]&&!N[p.id].npc))placed=s.placed.slice(0,4); unlocked=Math.max(0,Math.min(FOES.length-1,s.unlocked|0)); lite=!!s.lite; dev=!!s.dev; if(Array.isArray(s.own))own=s.own.filter(id=>LOCK[id]); if(Array.isArray(s.acadDone))acadDone=s.acadDone.filter(i=>ACAD[i]); }}catch(e){}
-placed=placed.filter(p=>have(p.id));
-function save(){try{localStorage.setItem('shinobi-save',JSON.stringify({placed,unlocked,lite,own,dev,acadDone}));}catch(e){}}
+function normalizeSave(s, lowMemory){
+  const own=Array.isArray(s?.own)?[...new Set(s.own.filter(id=>Object.hasOwn(LOCK,id)))]:[];
+  const dev=s?.dev===true, placed=[], occupied=new Set(), ids=new Set();
+  for(const p of Array.isArray(s?.placed)?s.placed:[]){
+    if(placed.length===4)break;
+    if(!p||!IDS.includes(p.id)||ids.has(p.id)||(!dev&&Object.hasOwn(LOCK,p.id)&&!own.includes(p.id)))continue;
+    const {id,row,depth}=p;
+    if(!Number.isInteger(row)||row<0||row>2||!Number.isInteger(depth)||depth<0||depth>2)continue;
+    const house=formationCellNumber(p);
+    if(occupied.has(house))continue;
+    occupied.add(house); ids.add(id); placed.push({id,row,depth});
+  }
+  const unlocked=Number.isInteger(s?.unlocked)?Math.max(0,Math.min(FOES.length-1,s.unlocked)):0;
+  const acadDone=Array.isArray(s?.acadDone)?[...new Set(s.acadDone.filter(i=>Number.isInteger(i)&&i>=0&&i<ACAD.length))]:[];
+  return {placed,unlocked,lite:typeof s?.lite==='boolean'?s.lite:lowMemory,own,dev,acadDone};
+}
+function readSave(){
+  let saved;
+  try{ saved=JSON.parse(localStorage.getItem('shinobi-save')); }
+  catch(error){ console.warn('Falha ao ler o save local.',error); }
+  return normalizeSave(saved,!!navigator.deviceMemory&&navigator.deviceMemory<=4);
+}
+({placed,unlocked,lite,own,dev,acadDone}=readSave());
+function save(){
+  try{ localStorage.setItem('shinobi-save',JSON.stringify({schema:1,placed,unlocked,lite,own,dev,acadDone})); }
+  catch(error){ console.warn('Falha ao gravar o save local.',error); }
+}
 
 document.body.classList.toggle('lite',lite);

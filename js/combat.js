@@ -55,7 +55,7 @@ function setField(u,rounds){
 }
 // Status: Resistiu (chance por ninja, RES em data.js); seal = sem jutsu, blind = sem básico, sleep = perde a ação e acorda com dano
 const STATUS={seal:{name:'Selado',tag:'S'},blind:{name:'Cego',tag:'C'},sleep:{name:'Sono',tag:'Z'}};
-function tryStatus(t){ if(Math.random()*100<resOf(t)){ fl(t,'Resistiu','info2'); return false; } return true; }
+function tryStatus(t){ if(battleRandom()*100<resOf(t)){ fl(t,'Resistiu','info2'); return false; } return true; }
 const clearStatus=u=>{ u.seal=u.blind=u.sleep=0; };
 function clearField(consumed=false,keepForgeScene=false){
   if(!fieldA)return;
@@ -75,9 +75,10 @@ async function dismissField(){
 }
 // triângulo elemental (docs/referencia-no.md §15): Fogo>Vento>Raio>Terra>Água>Fogo; Névoa e Gelo herdam Água, Som herda Vento; Espaço e Veneno neutros
 const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
-let EVADV=0, EVTXT='';   // dmgOf deixa aqui o resultado do triângulo; hurt consome (cor azul/cinza + texto) e zera
 function elemMul(a,t,el=a.d.el){ const x=ELBASE[el], y=ELBASE[t.d.el]; if(!x||!y)return 1; if(ELBEAT[x]===y)return ELADV; if(ELBEAT[y]===x)return ELDIS; return 1; }
-function dmgOf(a,t,m,basic,el=a.d.el){const em=elemMul(a,t,el); EVADV=em>1?1:em<1?-1:0; EVTXT=em>1?`${el} vence ${t.d.el}`:em<1?`${t.d.el} resiste a ${el}`:''; return Math.max(1,Math.round(em*a.atk*(1+(unl(a)?unl(a).uDmg||0:0))*(1+(a.power?.dmg||0))*m*fieldMul(a,basic)*(.92+Math.random()*.16)*100/(100+t.def)));}
+function damageRoll(atk,def,element,form,aura,mult,field,roll){
+  return Math.max(1,Math.round(element*atk*form*aura*mult*field*(.92+roll*.16)*100/(100+def)));
+}
 // null indica que a Substituição também evitou o estado associado ao contato.
 function landHit(a,t,m,basic,cls,area=false,el){
   if(cls!=='volley')kazanCount(a.side);
@@ -89,14 +90,16 @@ function landHit(a,t,m,basic,cls,area=false,el){
       hitsR[curSide]++; showHits(); return null;
     }
   }
-  const damage=dmgOf(a,t,m,basic,el);
-  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls);
+  const element=el??a.d.el, factor=elemMul(a,t,element);
+  const damage=damageRoll(a.atk,t.def,factor,1+(unl(a)?.uDmg||0),1+(a.power?.dmg||0),m,fieldMul(a,basic),battleRandom());
+  const adv=Math.sign(factor-1);
+  const evt=adv>0?`${element} vence ${t.d.el}`:adv<0?`${t.d.el} resiste a ${element}`:'';
+  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls,{adv,evt});
 }
-function hurt(t,d,cls,{pierce=false}={}){
+function hurt(t,d,cls,{pierce=false,adv=0,evt=''}={}){
   const cost=cls==='cost';
   let r=d; if(!pierce&&t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
   const hp0=t.hp; if(!cost&&cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
-  const adv=EVADV, evt=EVTXT; EVADV=0; EVTXT='';
   if(cost){
     t.hp-=r;
     if(r>0)fl(t,'-'+r+' PV','dot');
@@ -117,6 +120,7 @@ function hurt(t,d,cls,{pierce=false}={}){
 }
 function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
+  if(mode==='random')return fs[Math.floor(battleRandom()*fs.length)];
   // inimigo marcado (clique) só vale pros jutsus do jogador sem restrição de alvo
   if(isJ&&u.side==='p'&&mark&&mark.alive&&(mode==='front'||mode==='row'))return mark;
   if(mode==='weak')return fs.reduce((a,b)=>b.hp<a.hp?b:a);
@@ -133,7 +137,7 @@ async function strikeSequence(u,sk){
     if(!t?.alive){
       t=pick(u,sk.target,false);
       if(!t)break;
-      dodged=!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
+      dodged=!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
       await dashTo(u,t);
     }
     const finisher=i===total-1, part=finisher?last:i%last, an=sk.sequence[part];
@@ -217,10 +221,10 @@ async function doSkill(u,sk,isJ){
     const main=pick(u,sk.target,isJ); if(!main)return;
     const area=sk.target==='row'||sk.target==='all';
     // split (Doku): chance do frasco se multiplicar no ar e cair em TODOS os inimigos, mesmo dano, como o Tsunami (todos aparecem e ficam marcados)
-    const split=!isJ&&sk.split&&foes(u).length>1&&Math.random()<sk.split;
+    const split=!isJ&&sk.split&&foes(u).length>1&&battleRandom()<sk.split;
     const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):[main];
     // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
-    const canDodge=t=>!t.stunned&&!t.state&&Math.random()*100<dodgeOf(t);
+    const canDodge=t=>!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
     const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
     const dodgedSet=new Set(sk.target==='all'&&!isJ?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
@@ -415,7 +419,7 @@ async function chain(side,t,count,src){
     setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
-  const tsu=CH.tsunami&&Math.random()<CH.tsunami&&foes(c).length>1;
+  const tsu=CH.tsunami&&battleRandom()<CH.tsunami&&foes(c).length>1;
   let tsFoes=[];
   if(tsu){ ink('TSUNAMI!'); sfx.heavy(); shake(.6);   // parede de água desenhada em código: brota do chão, sobe, avança e desaba no time inteiro
     tsFoes=foes(c); tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=55; });   // todo mundo que vai levar o golpe aparece e fica marcado; z 55 = ABAIXO do canvas de efeitos (#fxc, 66): a onda passa por cima deles
@@ -484,17 +488,17 @@ async function chain(side,t,count,src){
   if(t.alive)await chain(side,t,count);
 }
 function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive);
-  if(acad)return acad.done?'win':!e||!p?'lose':null;   // Teste de Perseguição: só vence pela cadeia; Mestre caído ou time derrotado = falhou
+  if(acad)return !e||!p?'lose':acad.done?'win':null;   // Mestre caído ou time derrotado = falhou
   return !e?'win':!p?'lose':null;}
 // Teste de Perseguição: a cadeia do jogador chegou na meta (e cumpre o extra do desafio)?
 let chainOpenJ=false;
 function acadCheck(side,count){ if(!acad||acad.done||side!=='p')return; const c=ACAD[acad.i];
   if(count>=c.goal&&(!c.jutsu||chainOpenJ)&&(!c.fire||U.p.some(u=>u.d.el.includes('Fogo')))){ acad.done=true; ink('DESAFIO CONCLUÍDO!'); } }
 function wants(u,j,rate){
-  if(j.unleash)return !u.solto&&Math.random()<rate;
+  if(j.unleash)return !u.solto&&battleRandom()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
-  if(j.aura)return !u.power&&u.hp>u.max*.25&&Math.random()<rate;
-  return Math.random()<rate;}
+  if(j.aura)return !u.power&&u.hp>u.max*.25&&battleRandom()<rate;
+  return battleRandom()<rate;}
 async function castInstants(opening=false){
   await kazanReactions();
   // O laço da luta é o único que executa jutsus: cliques durante uma ação aguardam a próxima janela.
@@ -529,7 +533,7 @@ async function intro(){
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));
   $('rd').textContent='Rodada 1'; ink('Rodada 1'); await sleep(700);
 }
-function rollInitiative(){ return 1+Math.floor(Math.random()*6); }
+function rollInitiative(){ return 1+Math.floor(battleRandom()*6); }
 const initiativeSide=face=>face%2===0?'p':'e';
 function* turnOrder(face){
   const eligible=side=>byFormationCell(team(side).filter(u=>u.alive&&(!u.owner||u.summonedRound<round)));
@@ -610,7 +614,7 @@ async function run(){
             sk=commitJutsu(u); isJ=true;
           }
         }
-        if(!isJ&&u.d.strong&&Math.random()<STRONG_CHANCE)sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte
+        if(!isJ&&u.d.strong&&battleRandom()<STRONG_CHANCE)sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte
         if(u.blind>0&&!isJ){ fl(u,'Cego: sem básico','info2'); log(`${nm(u)} está cego e não ataca`); }   // cegueira: só o jutsu sai
         else{ u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn'); }
         if(u.alive){ if(u.seal>0)u.seal--; if(u.blind>0)u.blind--; upd(u); }

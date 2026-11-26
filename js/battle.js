@@ -44,6 +44,7 @@ function startBattle2(){
   setDevFreeze(false);
   foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
   U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
+  loadSfx([...U.p,...U.e].map(u=>u.id));
   chakra={p:40,e:40}; round=0; paused=false; syncTimeHold(); maxCombo=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';

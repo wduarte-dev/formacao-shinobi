@@ -3,8 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
-## 1.13.3 · 26/11/2026 · Limpeza ao sair da batalha
-- Ao sair, o jogo cancela as esperas e os efeitos da luta. A próxima batalha mantém suas próprias marcações e animações mesmo se a anterior foi encerrada no meio de um golpe.
+## 1.14 · 26/11/2026 · Estabilidade, carregamento e modo offline
+- Ao sair de uma batalha, as esperas e os efeitos pendentes são cancelados. A próxima luta mantém suas marcações.
+- Os sons gravados são preparados para cada elenco depois dos atlas, com limite de decodificações simultâneas.
+- O jogo guarda os scripts essenciais ao instalar e recupera o progresso válido de saves antigos.
+- A Formação e a Academia aceitam seleção e posicionamento pelo teclado. O arrasto acompanha apenas o dedo que iniciou o gesto. O Selo Final sorteia seu alvo e o Dragão do Kazan funciona nos dois lados.
 
 ## 1.13.2 · 26/11/2026 · Jutsu instantâneo
 - Jutsus instantâneos usam uma regra comum: ficam na fila até a primeira janela entre ações e preservam a vez do ninja. O chakra é reservado ao preparar e a recarga começa ao lançar.

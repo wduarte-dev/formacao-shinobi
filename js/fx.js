@@ -7,7 +7,7 @@ function em(n,f){ const cap=lite?90:260; if(lite)n=Math.ceil(n*.4); for(let i=0;
 // valores em "unidades de efeito": o K converte para o tamanho do palco
 function prt(x,y,dx,dy,vx,vy,g,life,w,h,col,round){return{x:x+dx*K,y:y+dy*K,vx:vx*K,vy:vy*K,g:g*K,life,max:life,w:w*K,h:(h||w)*K,col,round};}
 function fxStep(k,elapsed){
-  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length&&!U?.p.some(u=>u.d.stationary)){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
+  const c=fxc; if(!FX.length&&!BOLT.length&&!SLN.length&&!WAVES.length&&!kazanFxActive()){ if(fxDirty){c.clearRect(0,0,384,216);fxDirty=false;} return; } fxDirty=true; c.clearRect(0,0,384,216);
   kazanDraw(c,elapsed);
   for(let i=WAVES.length-1;i>=0;i--){ const w=WAVES[i]; w.t+=k; if(!w.hit&&w.t>=w.crashT){w.hit=true; w.onCrash&&w.onCrash();} if(w.t>=w.end){WAVES.splice(i,1);continue;} drawWave(c,w); }
   for(let i=FX.length-1;i>=0;i--){const p=FX[i]; p.vy+=p.g*k; p.x+=p.vx*k; p.y+=p.vy*k; p.life-=k; if(p.life<=0){FX.splice(i,1);continue;}

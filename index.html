@@ -19,7 +19,7 @@
 <body>
 <div id="wrap"><div id="stage">
 
-<section id="sTitle" class="scr">
+<section id="sTitle" class="scr" tabindex="0" role="button" aria-label="Começar Formação Shinobi">
   <div class="bgi" style="background-image:url(bg/sakura.png)"></div>
   <div class="petals"></div>
   <div class="logo"><div class="blob"><span>FORMAÇÃO</span><b>SHINOBI</b></div></div>
@@ -35,7 +35,7 @@
     <button class="btn big" id="hMap"><i class="ic" style="background-image:url(ui/sword.png)"></i>Missões</button>
     <button class="btn big" id="hForm"><i class="ic" style="background-image:url(ui/shield.png)"></i>Formação</button>
     <button class="btn big" id="hGal"><i class="ic" style="background-image:url(ui/scroll.png)"></i>Ninjas</button>
-    <div class="row"><button class="btn sm on" id="hSnd">Som</button><button class="btn sm" id="hFull">Tela cheia</button><button class="btn sm" id="hLite" title="Menos efeitos visuais: roda melhor em notebook fraco">Leve</button><button class="btn sm" id="hDev" title="Modo dev: libera todos os ninjas sem precisar vencer missões">Modo dev</button><button class="btn sm" id="hNews" title="O que mudou em cada versão">Novidades</button></div>
+    <div class="row"><button class="btn sm on" id="hSnd" aria-pressed="true">Som</button><button class="btn sm" id="hFull">Tela cheia</button><button class="btn sm" id="hLite" title="Menos efeitos visuais: roda melhor em notebook fraco">Leve</button><button class="btn sm" id="hDev" title="Modo dev: libera todos os ninjas sem precisar vencer missões">Modo dev</button><button class="btn sm" id="hNews" title="O que mudou em cada versão">Novidades</button></div>
   </div>
   <div id="hubTeam"></div>
   <div id="ver"></div>
@@ -112,7 +112,7 @@
   <div id="log"></div><button id="logT" title="Minimizar/mostrar o log">▼</button>
   <div id="sbar"></div>
   <div id="ctl">
-    <button class="btn sm" id="bAuto">Auto</button><button class="btn sm" id="bSpeed">1x</button>
+    <button class="btn sm" id="bAuto" aria-pressed="false">Auto</button><button class="btn sm" id="bSpeed">1x</button>
     <button class="btn sm" id="bPause">Pausar</button><button class="btn sm" id="bQuit">Sair</button>
   </div>
   <div class="win hide" id="resWin"><h3 id="ovT"></h3><p id="ovP"></p><p id="ovQ"></p>
@@ -134,9 +134,26 @@
 </div></div>
 <div id="rot">Vire o celular de lado para ver maior.</div>
 
-<script>/* JS sempre fresco (o cache do celular misturava versões velhas e novas dos scripts); mesma ordem de antes */
-(function(){var v=Date.now();"data patch badframes sprites audio combos screens academia state fx ambient kazan battle cine combat main".split(" ").forEach(function(n){document.write('<script src="js/'+n+'.js?v='+v+'"><\/script>');});})();</script>
-<script>/* PWA: service worker "rede primeiro" (sw.js). Só por http(s); por file:// não existe */
-if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
+<script src="js/data.js"></script>
+<script src="js/patch.js"></script>
+<script src="js/badframes.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/combos.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/academia.js"></script>
+<script src="js/state.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/ambient.js"></script>
+<script src="js/kazan.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/cine.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/main.js"></script>
+<script>
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(error=>console.warn('PWA indisponível.',error)));
+}
+</script>
 </body>
 </html>

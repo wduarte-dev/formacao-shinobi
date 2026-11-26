@@ -2,6 +2,16 @@
 "use strict";
 let U=null, chakra, round, autoP=false, token=0, maxCombo, foe, hitsR={p:0,e:0}, curSide='p', mark=null, fieldA=null;   // fieldA: campo ativo {side,rounds} (Noite de Névoa)
 const ABORT={};
+let battleRandom=()=>Math.random();
+function seededRandom(seed){
+  let state=seed>>>0;
+  return ()=>{
+    state=(state+0x6D2B79F5)>>>0;
+    let value=Math.imul(state^(state>>>15),state|1);
+    value^=value+Math.imul(value^(value>>>7),value|61);
+    return ((value^(value>>>14))>>>0)/4294967296;
+  };
+}
 let devFrozen=false;
 const battleTimers=new Set(), freezeAnimations=new Set();
 function armBattleTimer(timer){

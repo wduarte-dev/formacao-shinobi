@@ -138,7 +138,7 @@ function tick(ts){
         drawFrame(u);} }
   }
   if(battleOn&&!paused&&!devFrozen)fxStep(dt/16.7,Math.min(250,elapsed)*speed);
-  autoLite(raw);
+  autoLite(elapsed);
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
