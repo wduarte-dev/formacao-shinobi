@@ -85,7 +85,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
   animation:formation-number var(--formation-pulse) ease-in-out 2}
 @keyframes formation-number{0%,100%{opacity:0}22%,62%{opacity:1}}
 .formation-entry-lock{position:absolute;inset:0;z-index:90;visibility:hidden;
-  animation:formation-lock calc(var(--formation-pulse)*2) step-end}
+  animation:formation-lock 3s step-end}
 @keyframes formation-lock{from{visibility:visible}to{visibility:hidden}}
 .ordb{position:absolute;left:-17px;top:-166px;width:34px;height:34px;border-radius:50%;background:#c22;border:2px solid #fff;color:#fff;font-weight:700;font-size:22px;text-align:center;line-height:28px}
 #fWin{right:20px;top:40px;width:470px;height:590px;padding:6px 8px;z-index:9}

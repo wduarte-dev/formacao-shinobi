@@ -508,8 +508,9 @@ async function castInstants(opening=false){
 async function intro(){
   for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':'move',Math.random()*8|0);}
   $('rd').textContent=foe.name; await sleep(120);
-  for(const u of all()){u.mv.style.transition='transform .7s linear'; u.mv.style.transform='';}
-  await sleep(760);
+  const ENTRY_MS=700;   // deslocamento e corrida acabam juntos em qualquer velocidade (transição escala com speed, como o sleep)
+  for(const u of all()){u.mv.style.transition=`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform='';}
+  await sleep(ENTRY_MS);
   for(const u of all()){u.mv.style.transition=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));
   $('rd').textContent='Rodada 1'; ink('Rodada 1'); await sleep(700);
@@ -528,7 +529,7 @@ function* turnOrder(face){
   }
 }
 async function run(){
-  let res=null, byTime=false; finDone=false;
+  let res=null, byTime=false, firstInitiative=1; finDone=false;
   try{
     outer: while(true){
       round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; log('Rodada '+round,'r');
@@ -548,10 +549,11 @@ async function run(){
       all().forEach(u=>u.chaseUsed=false);
       drawJ();
       if((res=result()))break;
-      const initiative=rollInitiative();
+      if(round===1)firstInitiative=rollInitiative();
+      const initiative=round%2===1?firstInitiative:(firstInitiative%2===0?1:2);   // dado só na rodada 1; depois alterna quem começa
       const opening=round===1, units=$('units');
       if(opening)units.classList.add('waiting-entry');
-      await showInitiative(initiative);
+      if(opening)await showInitiative(initiative);
       if(opening){
         const entrance=intro();
         units.classList.remove('waiting-entry');

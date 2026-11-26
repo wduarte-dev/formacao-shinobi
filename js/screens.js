@@ -66,6 +66,7 @@ let drag=null;
 // tabuleiro do arrasto: a Formação (time salvo) ou o Laboratório da Academia (time de teste); o arrasto não sabe qual é
 const FORM_BOARD={list:()=>placed, cell:(r,d)=>formCell(r,d), redraw:()=>drawForm(), sc:3, tiles:'#fTiles .tile', save:true};
 let BOARD=FORM_BOARD;
+const FORMATION_PULSE_MS=2000;   // 2 pulsos de 1s (css --formation-pulse)
 function slideIntoFormation(actorEl,slot,cell,index){
   const box=slot.querySelector('.por').getBoundingClientRect();
   const from=stagePt({clientX:box.left+box.width/2,clientY:box.top+box.height*.75});
@@ -74,7 +75,7 @@ function slideIntoFormation(actorEl,slot,cell,index){
     {transform:origin,opacity:0},
     {transform:origin,opacity:1,offset:.15,easing:'cubic-bezier(.22,.7,.3,1)'},
     {transform:'translate(0,0) scale(1)',opacity:1}
-  ],{delay:180+index*75,duration:520,fill:'backwards'});
+  ],{delay:FORMATION_PULSE_MS+150+index*75,duration:520,fill:'backwards'});   // só depois dos círculos pulsarem
   animation.id='formation-entry';
 }
 function drawForm(entering=false){ BOARD=FORM_BOARD;
@@ -82,7 +83,7 @@ function drawForm(entering=false){ BOARD=FORM_BOARD;
   T.classList.toggle('preview',entering);
   for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=formCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth;
     t.dataset.house=formationCellNumber({row,depth}); T.appendChild(t); }
-  if(entering){ const lock=document.createElement('div'); lock.className='formation-entry-lock'; lock.setAttribute('aria-hidden','true'); T.appendChild(lock); }
+  if(entering){ const lock=document.createElement('div'); lock.className='formation-entry-lock'; lock.style.animationDuration=(FORMATION_PULSE_MS+150+placed.length*75+520)+'ms'; lock.setAttribute('aria-hidden','true'); T.appendChild(lock); }
   const R=$('fRoster'), slots=new Map(); R.innerHTML='';
   IDS.forEach(id=>{ const p=placed.find(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(id===sel?' sel':'')+(p?' used':'')+(have(id)?'':' lockd');
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.6,94,66);

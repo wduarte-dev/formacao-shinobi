@@ -119,7 +119,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       placed=[{id:'utsushi',row:0,depth:2}]; FOES[0].team=[['iwao',0,0]];
       autoP=true;
       window.initiativeCheck={rolls:[],first:[],cloneRounds:[]};
-      rollInitiative=()=>{ initiativeCheck.rolls.push(round); return round%2===0?2:1; };
+      rollInitiative=()=>{ initiativeCheck.rolls.push(round); return 1; };   // dado só na rodada 1 (ímpar: adversário); depois alterna
       doSkill=async u=>{
         initiativeCheck.first[round-1]??=u.side;
         if(u.owner)initiativeCheck.cloneRounds.push(round);
@@ -129,7 +129,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
     }""")
     page.wait_for_selector("#resWin:not(.hide)")
     initiative = page.evaluate("initiativeCheck")
-    assert initiative["rolls"] == list(range(1, 21))
+    assert initiative["rolls"] == [1]
     assert initiative["first"] == ["e", "p"] * 10
     assert min(initiative["cloneRounds"]) == 2
     assert page.locator("#ovT").inner_text() == "Derrota"

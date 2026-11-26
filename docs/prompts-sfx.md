@@ -853,3 +853,15 @@ A glowing slab of volcanic rock rises and cracks against a sudden blow, short lo
 ```
 A colossal volcanic iron dragon crashes physically into a cavern arena. Start instantly on a single enormous layered impact: deep cinematic sub thud, tearing stone and a sharp molten pressure crack, then wide rushing fire, heavy falling basalt chunks and sizzling lava debris. The loudest point is in the first tenth of a second. Short powerful arcade boss impact, no voice or music, clean decay with no long reverb tail.
 ```
+
+## 16. Dado de iniciativa
+
+**dado-giro** · 3.2s
+```
+A heavy wooden six-sided die tumbling and rolling across a hard wooden table, fast rattling clacks at the start that gradually slow down with spaced out knocks, tactile and satisfying, close dry recording, no music, no voice.
+```
+
+**dado-resultado** · 0.9s
+```
+One final solid wooden die knock on a table as it lands and stops, followed by a short bright rising fantasy game chime confirming the result, clean and punchy, no music, no voice.
+```

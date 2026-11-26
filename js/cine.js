@@ -110,6 +110,9 @@ let shakeA=null;
 function shake(k){ const m=k||1; if(shakeA)shakeA.cancel();
   shakeA=$('cam').animate([{translate:'0 0'},{translate:`${-12*m}px 0`},{translate:`${12*m}px ${7*m}px`},{translate:`${-7*m}px 0`},{translate:`${5*m}px ${-5*m}px`},{translate:'0 0'}],{duration:280/speed}); }
 function ink(txt,hold){$('inkT').textContent=txt; const k=$('ink'); k.className=txt.length>8?'sm':''; void k.offsetWidth; k.classList.add(hold?'hold':'on');}
+// dado da iniciativa (só na rodada 1): giro de 3s REAIS (não escala com a velocidade), batida de 0,3s no resultado, som, mensagem, e só então os ninjas entram
+const DICE_SPIN_MS=3000, DICE_BEAT_MS=300;
+const realSleep=ms=>sleep(ms*speed);   // sleep() divide por speed; isto anula (pausa continua valendo)
 async function showInitiative(face){
   const overlay=$('initiative'), banner=$('ink'), atlas=KEEP[INITIATIVE_ATLAS];
   const duration=840, battleToken=token;
@@ -119,12 +122,16 @@ async function showInitiative(face){
       const canvas=overlay.firstElementChild, ctx=canvas.getContext('2d'), size=canvas.width;
       const draw=(col,row)=>{ctx.clearRect(0,0,size,size); ctx.drawImage(atlas,col*size,row*size,size,size,0,0,size,size);};
       overlay.classList.remove('hide');
-      for(let frame=0;frame<18;frame++){
-        draw(frame%6,Math.floor(frame/6));
-        if(frame%3===0)sfx.diceTick(frame/3);
-        await sleep(38);
+      sfx.diceRoll();
+      let t=0, frame=0;
+      while(t<DICE_SPIN_MS){
+        draw(frame%6,Math.floor(frame/6)%3); frame++;
+        const step=Math.round(40+100*(t/DICE_SPIN_MS)**2);   // gira rápido e vai desacelerando
+        await realSleep(step); t+=step;
       }
       draw(face-1,3);
+      sfx.diceLand();
+      await realSleep(DICE_BEAT_MS);
       overlay.style.setProperty('--initiative-duration',`${duration/speed}ms`);
       overlay.classList.add('reveal');
     }

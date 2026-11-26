@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.13.1 · 26/11/2026 · Dado e entrada mais claros
+- O dado de iniciativa só rola na rodada 1 e gira por 3 segundos reais, em qualquer velocidade da batalha, com som de dado rolando. Depois vem uma batida curta, o som do resultado, a mensagem e só então os ninjas entram.
+- Da rodada 2 em diante não tem dado: quem começa alterna a cada rodada, a partir do resultado da primeira.
+- Na Formação, os ninjas só deslizam até as casas depois dos dois pulsos dos números.
+- A corrida de entrada termina junto com o deslocamento (0,5×, 1× e 2×): os ninjas não chegam e continuam andando.
+
 ## 1.13 · 26/11/2026 · Ordem de ação por casa
 - A casa define a ordem de ação do time e a prioridade de perseguição. A previsão de combos segue a mesma regra da luta.
 - Ao abrir a Formação, os números das nove casas piscam duas vezes, por um segundo cada. Cada ninja salvo desliza do próprio retrato até sua casa. Os controles liberam quando os dois pulsos terminam.
