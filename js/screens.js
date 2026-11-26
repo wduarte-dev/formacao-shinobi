@@ -49,7 +49,8 @@ $('hFull').onclick=toggleFull; $('instOk').onclick=()=>$('instHelp').classList.a
 if(STANDALONE)$('hFull').classList.add('hide');   // instalado como app: já abre em tela cheia
 
 // posição dos pés de cada casa do tabuleiro (lado do jogador; o inimigo é espelhado)
-function cell(row,depth){return{x:[470,370,270][depth]+(1-row)*16,y:[350,398,446][row]};}   // grid mais alto: embaixo fica o painel de Combos
+function cell(row,depth){return{x:[470,370,270][depth]+(1-row)*16,y:[424,478,532][row]};}   // casa no campo de BATALHA (pos em state.js)
+function formCell(row,depth){const c=cell(row,depth); return{x:c.x,y:c.y-92};}   // Formação: mesmo grid, 92px acima (embaixo fica o painel de Combos)
 
 /* ---- menu ---- */
 function drawHub(){
@@ -62,12 +63,12 @@ function drawHub(){
 /* ---- formação no campo ---- */
 let drag=null;
 // tabuleiro do arrasto: a Formação (time salvo) ou o Laboratório da Academia (time de teste); o arrasto não sabe qual é
-const FORM_BOARD={list:()=>placed, cell:(r,d)=>cell(r,d), redraw:()=>drawForm(), sc:3, tiles:'#fTiles .tile', save:true};
+const FORM_BOARD={list:()=>placed, cell:(r,d)=>formCell(r,d), redraw:()=>drawForm(), sc:3, tiles:'#fTiles .tile', save:true};
 let BOARD=FORM_BOARD;
 function drawForm(){ BOARD=FORM_BOARD;
   const T=$('fTiles'), Un=$('fUnits'); T.innerHTML=''; Un.innerHTML=''; ACT=[];
-  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=cell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
-  placed.forEach((p,i)=>{ const c=cell(p.row,p.depth), a=actor(p.id,3,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
+  for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=formCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
+  placed.forEach((p,i)=>{ const c=formCell(p.row,p.depth), a=actor(p.id,3,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
     const b=document.createElement('div'); b.className='ordb'; b.textContent=i+1; a.el.appendChild(b);
     const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-40px;top:-130px;width:80px;height:134px'; a.el.appendChild(hit);
     hit.onpointerdown=e=>startDrag(e,p.id,true); });

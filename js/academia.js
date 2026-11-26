@@ -18,7 +18,7 @@ function drawCombos(el,ids,big){ if(!el)return; el.innerHTML=''; hideTip(); CSZ=
   for(const r of rows){ const row=document.createElement('div'); row.className='crow';
     const op=cPor(r.id,N[r.id].name,'open'); const tag=document.createElement('em'); tag.textContent=r.kinds.join('/'); op.appendChild(tag);
     op.onclick=e=>showTip(e.currentTarget,openerDetail(r)); row.appendChild(op);
-    if(r.area){ const a=document.createElement('span'); a.className='carea'; a.textContent='em área'; row.appendChild(a); }
+    if(r.area){ const a=document.createElement('span'); a.className='carea'; a.textContent='em área'; op.appendChild(a); }   // selo sobre o retrato de quem abre (não ocupa espaço na linha)
     r.chain.forEach((c,k)=>{ if(!big)row.appendChild(cArrow()); row.appendChild(cBadge(c.on)); if(!big)row.appendChild(cArrow());
       const p=cPor(c.id,N[c.id].name,N[c.id].chase.tsunami||N[c.id].chase.cloneHit?'spec':''); p.onclick=e=>showTip(e.currentTarget,chaseDetail(c.id)); row.appendChild(p); });
     const num=document.createElement('div'); num.className='cnum'; num.innerHTML=`<b>${r.chain.length}</b><small>perseguiç${r.chain.length>1?'ões':'ão'}</small>`; row.appendChild(num);
@@ -53,14 +53,13 @@ function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
   const L=$('aList'); L.innerHTML='';
   ACAD.forEach((c,i)=>{ const card=document.createElement('div'); card.className='acard';
     card.innerHTML=`<span class="an">${i+1} · ${c.name}</span><span class="astar${acadDone.includes(i)?' on':''}">★</span>`;
-    const go=document.createElement('button'); go.className='btn sm red'; go.textContent='Lutar'; go.onclick=()=>acadFight(i); card.appendChild(go); L.appendChild(card); });
+    const go=document.createElement('button'); go.className='btn sm red'; go.textContent='Lutar'; go.disabled=!acadReady(c); go.onclick=()=>acadFight(i); card.appendChild(go); L.appendChild(card); });
   $('aMestre').innerHTML=''; actor('mestre',3,60,180,$('aMestre'),true);
 }
-function acadMsg(t){ $('aMsg').textContent=t; }
-function acadFight(i){ const c=ACAD[i];
-  if(labTeam.length<4)return acadMsg('Monte 4 ninjas no Laboratório para lutar.');
-  if(c.fire&&!labTeam.some(p=>N[p.id].el.includes('Fogo')))return acadMsg('Este desafio pede um ninja de Fogo no time.');
+// o time do Laboratório cumpre o desafio? (4 ninjas; no de Fogo, alguém de Fogo). Se não, o Lutar fica cinza: o card já diz o requisito
+const acadReady=c=>labTeam.length===4&&(!c.fire||labTeam.some(p=>N[p.id].el.includes('Fogo')));
+function acadFight(i){ const c=ACAD[i]; if(!acadReady(c))return;
   sfx.ui('confirma'); acad={i,done:false}; startBattle(); }
-$('aUse').onclick=()=>{ if(!labTeam.length)return; placed.length=0; labTeam.forEach(p=>placed.push({...p})); save(); sfx.ui('confirma'); acadMsg('Time copiado para a Formação.'); };
+$('aUse').onclick=()=>{ if(!labTeam.length)return; placed.length=0; labTeam.forEach(p=>placed.push({...p})); save(); sfx.ui('confirma'); const b=$('aUse'); b.textContent='Copiado!'; setTimeout(()=>b.textContent='Usar este time',1400); };
 $('aBack').onclick=()=>{ sfx.ui('cancela'); show('sForm'); };
 $('fAcad').onclick=()=>{ sfx.ui('confirma'); show('sAcad'); };

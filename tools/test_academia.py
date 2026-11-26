@@ -28,6 +28,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       const out=comboLeftOut(['fuuka','hiyori']); check(out.some(o=>o.why.includes('Fuuka já persegue')),'aviso de quem fica de fora');
       check(comboLeftOut(['kazan']).length===1,'Kazan explicado');
       check(!IDS.includes('mestre'),'Mestre fora do elenco');
+      check(U.p.every(u=>pos(u).y===[424,478,532][u.row]),'posição da luta não depende do grid da Formação');
       // 2) metas do teste
       labTeam=[{id:'iwao',row:1,depth:0},{id:'mizuha',row:0,depth:1},{id:'raiden',row:2,depth:1},{id:'kaen',row:1,depth:2}];
       acad={i:0,done:false}; startBattle2(); check(U.e.length===1&&U.e[0].id==='mestre'&&U.e[0].hp===20000,'Mestre sozinho com 20.000');

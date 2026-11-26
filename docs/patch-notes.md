@@ -3,6 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.12.2 · 26/11/2026 · Ninjas de volta ao chão
+- Os ninjas voltaram a pisar no chão em todas as lutas (a 1.12 subiu o campo da luta junto com o grid da Formação).
+- Academia: o botão Lutar fica cinza quando o time do Laboratório não cumpre o desafio, em vez de mostrar um aviso solto. "Usar este time" confirma no próprio botão.
+- Formação: a fileira de baixo do grid não fica mais escondida atrás do painel de Combos.
+
 ## 1.12.1 · 26/11/2026 · Botões da Formação
 - Os botões Limpar e Pronto voltaram a aparecer na Formação (o elenco maior empurrava eles para fora da janela).
 

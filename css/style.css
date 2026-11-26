@@ -391,7 +391,7 @@ body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none
 .cbadge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;color:#fff;font-weight:700;font-size:13px;text-shadow:1px 1px 0 #0006;border:1px solid #0004}
 .big .cbadge{width:24px;height:24px;font-size:15px}
 .carr{color:#5a3a18;font-weight:700;font-size:13px}
-.carea{font-size:10px;color:#c22;border:1.5px solid #c22;border-radius:4px;padding:0 3px;transform:rotate(-6deg);background:#fff8;white-space:nowrap}
+.carea{position:absolute;top:-3px;left:22px;font-size:9px;color:#c22;border:1.5px solid #c22;border-radius:4px;padding:0 2px;transform:rotate(-8deg);background:#fffd;white-space:nowrap;z-index:2}
 .cnum{margin-left:auto;display:flex;flex-direction:column;align-items:center;border-left:2px solid #8a6a40;padding-left:8px;color:#8a1f10;line-height:1}
 .cnum b{font-size:24px}.big .cnum b{font-size:36px}
 .cnum small{font-size:10px;color:#3b2412}
@@ -417,6 +417,6 @@ body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none
 .acard .an{flex:1;font-size:14.5px;font-weight:700;color:#3b2412;line-height:1.1}
 .astar{font-size:24px;color:#8a7a60;text-shadow:1px 1px 0 #fff8}.astar.on{color:#f2c12e;text-shadow:0 0 6px #ffd84a,1px 1px 0 #6b4a10}
 .btn.red{border:2px solid #5a1208;border-image:none;border-radius:5px;background:linear-gradient(#c8392b,#9a2016);color:#fff3d6;text-shadow:1px 1px 0 #4a0c0c;height:32px;font-size:15px;padding:0 14px}
-#aMsg{font-size:13px;color:#ffd27a;text-shadow:1px 1px 0 #000;min-height:16px}
+.btn.red:disabled{background:#8a7a68;border-color:#4a3e30;color:#d8ccb8;text-shadow:none;cursor:default}
 #aMestre{position:absolute;left:960px;top:460px;width:1px;height:1px}
 .aTag{position:absolute;left:800px;top:600px;font-size:14px;color:#3b2412;background:#f3e2bf;border:2px solid #8a6a40;border-radius:6px;padding:3px 10px}
