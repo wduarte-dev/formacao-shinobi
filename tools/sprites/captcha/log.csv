@@ -7,3 +7,7 @@ R03,7,gemini,acessorio_faltando,A lanterna está sem a borboleta ou efeito de lu
 R09,4,local:verde_halo,verde_no_sprite,tom verde 245 px (mediana do sheet 115),s,2026-11-26
 R10,3,gemini,corpo_translucido,O cachecol e parte do corpo estão semitransparentes/fantasmas na esquerda.,n,2026-11-26
 R07,3,gemini,acessorio_faltando,A lanterna/cajado sumiu das mãos do personagem,n,2026-11-26
+R05,7,controle,controle,,s,2026-11-26
+R01,6,controle,controle,,n,2026-11-26
+R07,5,gemini,membro_duplicado,Há uma mão extra flutuando abaixo do braço estendido.,n,2026-11-26
+R01,3,gemini,acessorio_faltando,lanterna sumiu do cabo,n,2026-11-26
