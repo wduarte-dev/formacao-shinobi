@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.12.1 · 26/11/2026 · Botões da Formação
+- Os botões Limpar e Pronto voltaram a aparecer na Formação (o elenco maior empurrava eles para fora da janela).
+
 ## 1.12 · 26/11/2026 · Academia de Combos e Teste de Perseguição
 - **Combos na Formação:** um painel mostra, enquanto você arrasta, todas as cadeias de perseguição que o seu time abre (pelo básico, Forte ou jutsu), o tamanho de cada uma e quem fica de fora e por quê. Toque num ninja da cadeia para ver as chances e o que ele faz.
 - **Academia** (botão no painel): Laboratório para testar qualquer time sem mexer no salvo, com "Usar este time", e o **Teste de Perseguição**: 5 desafios contra o **Mestre da Academia**, que tem vida enorme, persegue os próprios golpes e solta o **Selo Final** a cada 3 rodadas, derrubando um ninja. Para vencer, faça uma cadeia de perseguições do tamanho pedido. Se o Mestre cair por dano, o teste falha. Cada desafio concluído ganha uma estrela.
