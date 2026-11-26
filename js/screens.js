@@ -189,7 +189,7 @@ function drawGal(){
   const previews={atk1:d.stationary?['dash','atk1','attackB','attackC']:n.sequence,chase:d.chase?.phases};
   if(d.stationary){ previews.walk=['walk','sit']; previews.atk2=['cast','atk2']; }
   let preview=0;
-  [['Parado','idle'],d.stationary?['Entrada','walk']:['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Lançado','launched'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Bola de Fogo','fireball'],['Vitória','victory'],['Derrota','die']]
+  [['Parado','idle'],d.stationary?['Entrada','walk']:['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Voo','launched'],['Lançado','trip'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Bola de Fogo','fireball'],['Vitória','victory'],['Derrota','die']]
    .filter(([,an])=>(previews[an]||an_of(a)[an])&&!(an==='atk3'&&n.sequence&&!d.strong)).forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t;
     b.onclick=async()=>{
       const p=++preview, seq=previews[an];
@@ -203,7 +203,7 @@ function drawGal(){
       setAnim(a,'idle');
     };
     A.appendChild(b); });
-  const causes=[n.cause,j.cause,d.recast?.cause,d.chase?.cause,d.strong&&d.strong.cause].filter(Boolean);
+  const causes=[n.cause,j.cause,d.recast?.cause,d.chase?.cause,d.combo?.cause,d.strong&&d.strong.cause].filter(Boolean);
   const after=IDS.filter(o=>o!==sel&&causes.includes(N[o].chase?.on)).map(o=>N[o].name);
   const before=d.chase?IDS.filter(o=>o!==sel&&[N[o].normal.cause,N[o].jutsu.cause,N[o].chase?.cause,N[o].strong&&N[o].strong.cause].includes(d.chase.on)).map(o=>N[o].name):[];
   const st=(t,v,m,c)=>`<div class="stt"><span>${t}</span><div class="bar ${c}"><i style="width:${Math.round(v/m*100)}%"></i></div><b>${v}</b></div>`;
@@ -213,9 +213,10 @@ function drawGal(){
    ${d.strong?`<p><u>Forte</u> (30% de chance por ação sem jutsu): ${d.strong.name}. Alvo: ${TG[d.strong.target]}${d.strong.cause?'. Deixa '+ST[d.strong.cause]:''}${d.strong.stun?'. Paralisa':''}${d.strong.dot?'. Envenena':''}.</p>`:''}
    <p><u>Jutsu:</u> ${j.name} (${j.cost} de chakra, recarga ${d.recast?.cd??j.cd}). Alvo: ${TG[j.target]}; ${j.desc}${j.cause?'. Deixa '+ST[j.cause]:''}.</p>
    ${d.passive?`<p><u>${d.passive}</u> — um clone absorve o primeiro golpe recebido na rodada.</p>`:''}
-   ${d.chase?`<p><u>Combo:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>`:
+   ${d.chase?`<p><u>Perseguição:</u> ${d.chase.name}. Persegue ${ST[d.chase.on]} e deixa ${ST[d.chase.cause]}.</p>`:
    `<p><u>${d.recast.name}</u> (${d.recast.cost} de chakra). ${d.recast.desc}.</p>
-   <p>Imune a D/L/R. <u>Bola de Fogo:</u> dispara 4 projéteis a cada ${KAZAN_LIMIT} contatos do time.</p>`}
+   <p>Imune a D/L/V/R.</p>`}
+   ${d.combo?`<p><u>Combo ${d.combo.at}:</u> ${d.combo.name}. Quando o time soma ${d.combo.at} hits na rodada: ${comboAlvos(d.combo)}${d.combo.cause?'. Deixa '+ST[d.combo.cause]:''}${comboExtra(d.combo,d.el).replace(/ · /g,'. ')}.</p>`:''}
    <p><u>Abre combo para:</u> ${after.join(', ')||'ninguém'}.<br><u>Continua o combo de:</u> ${before.join(', ')||'ninguém'}.</p>`;
 }
 

@@ -3,6 +3,13 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.15 · 26/11/2026 · Perseguição por combo e estado Voo
+- Novo estado **Voo (V)**: é o antigo Lançado, alto no ar. Todos os golpes e perseguições que lançavam agora deixam ou perseguem Voo, com o mesmo visual.
+- O **Lançado (L)** virou a rasteira: o alvo sai do chão baixinho. Por enquanto só a Rasteira Dinamite do Keshin e o Corte Rasante da Fuuka causam esse estado.
+- **Perseguição por combo:** quando o contador de hits do time na rodada chega a 10, 20 ou 30, o ninja com essa perseguição entra logo depois da ação atual. Cada uma vale 1 vez por rodada, segue a ordem das casas, e os hits dela podem abrir a próxima faixa. Paralisado não dispara.
+- De padrão: Keshin (Combo 10, no alvo marcado, deixa Lançado), Kazan (a Bola de Fogo agora é o Combo 10 dele) e Raiden (Combo 20, raio em 3 alvos aleatórios). Por estrela, só no Modo dev até as estrelas chegarem: Kaen (Combo 30, todos, queima), Doku (Combo 20, 2 alvos, veneno) e Fuuka (Combo 10, deixa Lançado).
+- A ficha e a galeria mostram a perseguição por combo de cada ninja.
+
 ## 1.14 · 26/11/2026 · Estabilidade, carregamento e modo offline
 - Ao sair de uma batalha, as esperas e os efeitos pendentes são cancelados. A próxima luta mantém suas marcações.
 - Os sons gravados são preparados para cada elenco depois dos atlas, com limite de decodificações simultâneas.

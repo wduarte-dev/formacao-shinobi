@@ -130,7 +130,7 @@ const sfx={
  heal:()=>P(V('heal'),.8,0,SYN.heal), shield:()=>P(V('shield'),.9,0,SYN.shield),
  shoot:u=>(u&&playF('proj-'+EN[elOf(u)],.8,.04))||P('shoot',.8,.04,SYN.shoot),
  state:()=>P('state',.6,0,SYN.state),
- knock:st=>P('knock-'+st,.9,0,SYN.state),
+ knock:st=>P('knock-'+({V:'L',L:'D'}[st]||st),.9,0,SYN.state),   // Voo herda o som do antigo Lançado; a rasteira (L) usa o de Derrubado até ganhar som próprio
  wall:()=>P('parede-racha',.9,0,SYN.thud),
  apply:k=>playF('aplic-'+k,.75),
  dodge:t=>(t&&playF('esq-'+t.id,.9))||P(SW,.7,.05,SYN.swing),

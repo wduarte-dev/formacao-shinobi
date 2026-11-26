@@ -81,7 +81,6 @@ function damageRoll(atk,def,element,form,aura,mult,field,roll){
 }
 // null indica que a Substituição também evitou o estado associado ao contato.
 function landHit(a,t,m,basic,cls,area=false,el){
-  if(cls!=='volley')kazanCount(a.side);
   if(t.d.passive==='Substituição'&&t.subRound!==round){
     const clone=livingClones(t)[0];
     if(clone){
@@ -121,6 +120,7 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt=''}={}){
 function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
   if(mode==='random')return fs[Math.floor(battleRandom()*fs.length)];
+  if(mode==='mark')return mark?.alive&&mark.side!==u.side?mark:fs[Math.floor(battleRandom()*fs.length)];   // perseguição por combo que encadeia: alvo marcado, senão aleatório
   // inimigo marcado (clique) só vale pros jutsus do jogador sem restrição de alvo
   if(isJ&&u.side==='p'&&mark&&mark.alive&&(mode==='front'||mode==='row'))return mark;
   if(mode==='weak')return fs.reduce((a,b)=>b.hp<a.hp?b:a);
@@ -222,18 +222,20 @@ async function doSkill(u,sk,isJ){
     const area=sk.target==='row'||sk.target==='all';
     // split (Doku): chance do frasco se multiplicar no ar e cair em TODOS os inimigos, mesmo dano, como o Tsunami (todos aparecem e ficam marcados)
     const split=!isJ&&sk.split&&foes(u).length>1&&battleRandom()<sk.split;
-    const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):[main];
+    const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):sk.n>1?randomFoes(u,main,sk.n):[main];
+    const combo=!!sk.at;   // perseguição por combo: não é desviável, marca os alvos e mostra a legenda lateral
     // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
     const canDodge=t=>!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
     const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
-    const dodgedSet=new Set(sk.target==='all'&&!isJ?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
-    if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong)skTag(u,sk.name);
+    const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
+    if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
+    if(combo){ sceneOn([u,...ts]); markTargets(ts); }
     if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
     let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
     const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
     if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
+    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split||combo&&ts.length>1){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
     else if(isJ&&sk.cast){an=sk.an||'atk2'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*40}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}   // invoca de onde está (ex.: Prisão de Gelo): só um passo à frente
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
@@ -243,7 +245,7 @@ async function doSkill(u,sk,isJ){
       for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
         if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(!ts.some(t=>t.alive&&!dodgedSet.has(t)))break; }
         ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; if(!(isJ&&sk.wave))fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
-          const dealt=landHit(u,t,sk.mult/nh,sk===u.d.normal,isJ?'big':'',area||split);
+          const dealt=landHit(u,t,sk.mult/nh,sk===u.d.normal,isJ?'big':combo?'chase':'',area||split);
           if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,isJ?10:6); } });
         if(nh>1&&k<nh-1)sfx.hit(); }
       connected.forEach(t=>{ if(!t.alive)return;
@@ -254,7 +256,8 @@ async function doSkill(u,sk,isJ){
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
       if(sk.dispel)await dismissField();
       if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
-      log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`);
+      log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${combo?` (combo ${sk.at})`:''}${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`,combo?'x':undefined);
+      if(combo&&connected.size)comboLine(sk.name,1,u.id);
       if(result())await finale(main); }
     const stateHit=connected.has(main)&&sk.cause&&main.alive;
     if(stateHit&&main.d.immuneState)kazanGuard(main);
@@ -273,6 +276,23 @@ function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
   const units=byFormationCell(team(side));
   for(;;){ const c=units.find(x=>!seen.has(x)&&canChase(x,s)); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
   return out; }
+// Perseguição por combo (Onda 6): quando o 'N Hit' do time (hitsR, zera por rodada) chega à faixa `combo.at`, o ninja dispara
+// logo após a ação atual. Cada uma vale 1x/rodada (comboUsed, separada da perseguição por estado), na ordem das casas;
+// os hits dela contam no contador e podem abrir a próxima faixa (cascata 10→20→30). Paralisado não dispara.
+const comboOn=u=>!!u.d.combo&&(!u.d.combo.star||dev);   // sem sistema de estrelas ainda: as de estrela só ligam no Modo dev
+const canCombo=u=>u.alive&&!u.comboUsed&&!u.stunned&&comboOn(u)&&hitsR[u.side]>=u.d.combo.at;
+function comboReady(){ for(const side of curSide==='e'?['e','p']:['p','e']){ const c=byFormationCell(team(side)).find(canCombo); if(c)return c; } return null; }
+function randomFoes(u,main,n){ const rest=foes(u).filter(x=>x!==main), out=[main];
+  while(out.length<n&&rest.length)out.push(rest.splice(Math.floor(battleRandom()*rest.length),1)[0]);
+  return out; }
+async function comboReactions(){
+  for(let c=comboReady(); c; c=comboReady()){
+    await gate(); if(result())return;
+    const cc=c.d.combo; c.comboUsed=true;
+    sfx.chaseGo(); fl(c,`Combo ${cc.at}!`,'chasec');
+    await doSkill(c,cc.use?c.d[cc.use]:cc,false);
+  }
+}
 // no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
 function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
   if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
@@ -390,9 +410,9 @@ async function chain(side,t,count,src){
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
   c.chaseUsed=true; count++; acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
-  const CH=c.d.chase, cause=CH.cause, an=an_of(c).chase?'chase':{R:'atk3',L:'atk2',D:'atk1'}[cause];
+  const CH=c.d.chase, cause=CH.cause, an=an_of(c).chase?'chase':{R:'atk3',V:'atk2',L:'atk1',D:'atk1'}[cause];
   const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
-  const air=!!an_of(c).rise&&t.state==='L';
+  const air=!!an_of(c).rise&&t.state==='V';
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
   const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
   let kickAim;
@@ -479,10 +499,10 @@ async function chain(side,t,count,src){
   }
   if(!connected){ setState(t,null); home(c); return; }
   if(t.alive){
-    if(CH.mv==='rise'&&cause==='L'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
+    if(CH.mv==='rise'&&cause==='V'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
       put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
     await smash(c,t,cause);
-    if(CH.mv==='rise'&&cause==='L'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
+    if(CH.mv==='rise'&&cause==='V'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
   }else await hitstop(40);
   await sleep(110); home(c);
   if(t.alive)await chain(side,t,count);
@@ -500,7 +520,7 @@ function wants(u,j,rate){
   if(j.aura)return !u.power&&u.hp>u.max*.25&&battleRandom()<rate;
   return battleRandom()<rate;}
 async function castInstants(opening=false){
-  await kazanReactions();
+  await comboReactions();
   // O laço da luta é o único que executa jutsus: cliques durante uma ação aguardam a próxima janela.
   let cast;
   do{
@@ -517,7 +537,7 @@ async function castInstants(opening=false){
       const skill=commitJutsu(u);
       drawJ();
       await doSkill(u,skill,true);
-      await kazanReactions();
+      await comboReactions();
       cast=true;
     }
     opening=false;
@@ -564,7 +584,7 @@ async function run(){
           if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
       }
-      all().forEach(u=>u.chaseUsed=false);
+      all().forEach(u=>{ u.chaseUsed=false; u.comboUsed=false; });
       drawJ();
       if((res=result()))break;
       if(round===1)firstInitiative=rollInitiative();

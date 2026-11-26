@@ -22,7 +22,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       for(const ids of teams){
         placed=ids.map((id,i)=>({id,row:i%3,depth:i>2?1:0})).reverse(); acad=null; startBattle2();
         const ordered=comboIds(placed);
-        for(const s of ['D','L','R']){ const a=comboChain(ordered,s).map(c=>c.id).join(), b=comboPlan('p',s).map(u=>u.id).join(); check(a===b,`cadeia ${s} de ${ids}: ${a} vs ${b}`); }
+        for(const s of ['D','L','V','R']){ const a=comboChain(ordered,s).map(c=>c.id).join(), b=comboPlan('p',s).map(u=>u.id).join(); check(a===b,`cadeia ${s} de ${ids}: ${a} vs ${b}`); }
       }
       check(comboIds(placed).join()===teams.at(-1).join(),'casas vão da frente ao fundo, de cima pra baixo');
       check(placed[0].id==='iwao'&&U.p[0].id==='iwao','ordenar preserva a lista da formação e os slots');

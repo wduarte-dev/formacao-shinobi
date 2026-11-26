@@ -125,9 +125,8 @@ REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
                 await kazanSkill(actor, actor.d.recast);
             } else if (kind === 'contador') {
                 window.qaReplayCounter = true;
-                actor.teamHits = KAZAN_LIMIT - 1;
-                kazanCount(side);
-                await kazanReactions();
+                hitsR[side] = actor.d.combo.at; actor.comboUsed = false;
+                await comboReactions();
             } else if (kind === 'guarda') {
                 curSide = target.side;
                 landHit(target, actor, 1, true, '');

@@ -1,4 +1,4 @@
-// battle.js — início da batalha, HUD, log, estados D/L/R
+// battle.js — início da batalha, HUD, log, estados D/L/V/R
 "use strict";
 // tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
 let loadingB=false, ldIv=0;
@@ -20,7 +20,7 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'Quem fica na frente apanha primeiro. Tanque na frente, suporte atrás.',
  'A Chuva Serena da Mizuha cura o time inteiro de uma vez.',
  'Com o Lacre Rompido, o Yugami bate 35% mais forte por 3 rodadas... e fica difícil de acertar.',
- 'Repelido (R) voa até a borda e racha a parede. Lançado (L) sobe. Derrubado (D) vai pro chão.',
+ 'Repelido (R) voa até a borda e racha a parede. Voo (V) sobe alto. Lançado (L) é a rasteira. Derrubado (D) vai pro chão.',
  'Vença a Irmandade do Gelo pra ter o Poko no seu time.',
  'O Tsunami da Mizuha (chance na Onda) acerta o time inimigo inteiro.',
  'O Punho de Pedra do Iwao repele (R): abre combo pra Raiden, Poko e o próprio Iwao.',

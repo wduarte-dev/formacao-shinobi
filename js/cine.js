@@ -60,7 +60,7 @@ async function transitionField(theme,enter,change){
 }
 function zoomTo(x,y,s,slow){const c=$('cam'); c.classList.toggle('slow',!!slow); c.style.transformOrigin=`${x}px ${y}px`; c.style.transform=`scale(${s})`;}
 function zoomOut(slow){const c=$('cam'); c.classList.toggle('slow',!!slow); c.style.transform='';}
-function bigSlash(x,y,att,state){ const dir=att.side==='p'?1:-1, ang={R:-6,L:-58,D:52}[state]*dir;
+function bigSlash(x,y,att,state){ const dir=att.side==='p'?1:-1, ang={R:-6,L:-24,V:-58,D:52}[state]*dir;
   for(const k of ['','b']){const e=document.createElement('div'); e.className='bslash '+k; e.style.left=x+'px'; e.style.top=(y+(k?14:0))+'px'; e.style.setProperty('--c',att.d.c); e.style.setProperty('--r',ang+'deg'); $('fx').appendChild(e); battleAfter(()=>e.remove(),420);} }
 function speedLines(state){ slineFx(state); }   // desenhadas no canvas #fxc (antes: camada de 1552x1048 animando background-position = repintura gigante)
 function crack(x,y){ const c=document.createElement('div'); c.className='crack'; c.style.left=x+'px'; c.style.top=y+'px';
@@ -73,13 +73,14 @@ async function smash(att,t,state){
   await hitstop(80);
   zoomOut(true); await knock(t,state);
 }
-// arremessa o alvo conforme o estado: Repelido bate na borda da tela, Lançado sobe, Derrubado desaba no chão
+// arremessa o alvo conforme o estado: Repelido bate na borda da tela, Voo sobe alto, Lançado (rasteira) sai do chão baixo, Derrubado desaba no chão
 async function knock(t,state,quietCamera=false){
   if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);
   if(state==='R'){t.off.x=(d>0?1082:70)-b.x; t.off.y=wasAir?-70:0;}
-  else if(state==='L'){t.off.x=lim(t.off.x+d*60); t.off.y=-230;}
+  else if(state==='V'){t.off.x=lim(t.off.x+d*60); t.off.y=-230;}
+  else if(state==='L'){t.off.x=lim(t.off.x+d*40); t.off.y=-56;}
   else{t.off.x=lim(t.off.x+d*46); t.off.y=0;}
   t.state=state; t.st.className='st '+state; setAnim(t,stAnim(t,state)); t.el.style.zIndex=55;
   { const p1=cur(t); trailFx(p0.x,p0.y-60,p1.x,p1.y-60,state); }   // rastro de vento no canvas (antes: drop-shadow de 60px no sprite)
@@ -87,7 +88,7 @@ async function knock(t,state,quietCamera=false){
   t.mv.style.transform=`translate(${t.off.x}px,${t.off.y}px)`;
   fl(t,ST[state]+'!','state'); sfx.knock(state);
   await sleep(240);
-  t.el.classList.remove('flyR','flyL','flyD');
+  t.el.classList.remove('flyR','flyL','flyV','flyD');
   const p=cur(t);
   if(state==='R'){ sfx.wall(); dust(t,20); crack(p.x+d*26,p.y-60);
     if(!quietCamera){ shake(); zoomTo(p.x,p.y-60,1.16); await sleep(120); zoomOut(true); }

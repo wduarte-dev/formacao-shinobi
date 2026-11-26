@@ -34,7 +34,7 @@ jobs:
       - name: Testes de batalha e navegador
         run: |
           mkdir -p /tmp/shinobi-ci
-          for suite in test_abort test_iniciativa test_status test_jutsu test_pausa test_utsushi test_academia test_planos test_robustez; do
+          for suite in test_abort test_iniciativa test_status test_jutsu test_pausa test_utsushi test_academia test_planos test_robustez test_combo; do
             python "tools/$suite.py" > "/tmp/shinobi-ci/$suite.log" 2>&1 || { tail -80 "/tmp/shinobi-ci/$suite.log"; exit 1; }
           done
           python tools/test_battle.py . /tmp/shinobi-ci/shots --strict

@@ -65,7 +65,8 @@ function glitchSet(u,on){ (u.gl||[]).forEach(c=>c.remove()); u.gl=[]; u.spr.clas
   for(const k of [1,2]){ const c=u.spr.cloneNode(); c.classList.remove('gl0'); c.classList.add('gl'+k); u.spr.after(c); u.gl.push(c); } }
 // quantos passos tem a anim (pingpong vai e volta sem repetir as pontas)
 const seqN=a=>a[7]?a[7].length:a[6]&&a[2]>2?a[2]*2-2:a[2];
-const stAnim=(u,s)=>s?{R:'knockback',L:'launched',D:'knockdown'}[s]:'idle';
+// L (rasteira) usa a anim 'trip' quando o atlas tiver; até o sprite chegar, cai na pose de Derrubado. V (Voo) = pose de Lançado.
+const stAnim=(u,s)=>s?{R:'knockback',L:an_of(u).trip?'trip':'knockdown',V:'launched',D:'knockdown'}[s]:'idle';
 // duração real de uma animação (quadros / fps) e o momento do impacto (metade dela, com limites)
 const animMs=(u,n)=>{const a=an_of(u)[n]; return a?seqN(a)*1000/a[4]:0;};
 const hitAt=(u,n)=>Math.max(150,Math.min(600,animMs(u,n)*.5));

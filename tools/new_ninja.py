@@ -77,7 +77,7 @@ def cmd_snippets(nid):
     print(f""" {nid}:{{name:'{nid.title()}',el:'Neutro',c:'#e8803a',role:'Atacante',hp:900,atk:100,def:15,dodge:10,
   normal:{{name:'Basico',mult:.45,target:'front',hits:[.2,.5,.8]}},
   jutsu:{{name:'Jutsu',cost:40,cd:2,mult:1,target:'front',an:'atk2',desc:'...'}},
-  chase:{{name:'Perseguicao',on:'L',cause:'D',mult:.8,mv:'slam'}}}}""")
+  chase:{{name:'Perseguicao',on:'V',cause:'D',mult:.8,mv:'slam'}}}}""")
     print('\nDepois: copiar out/<id>_atlas.png e _fx.png pra spr/, FACE (comando face), audit_atlas.py --fix,'
           ' gen_ninja_sfx.py, audio.js, test_battle.py. Veja `checklist`.')
 

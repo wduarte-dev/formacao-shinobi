@@ -365,22 +365,7 @@ function kazanDragonBurst(p,targets){
 }
 
 const kazanPick=ts=>ts[Math.floor(battleRandom()*ts.length)];
-function kazanCount(side){
-  for(const u of U[side]){
-    if(!u.alive||!u.d.volley||u.teamHits>=KAZAN_LIMIT)continue;
-    u.teamHits++;
-  }
-}
-async function kazanReactions(){
-  for(const u of all()){
-    if(result())return;
-    if(u.alive&&u.d.volley&&u.teamHits===KAZAN_LIMIT){
-      await gate();
-      u.teamHits=0;
-      await doSkill(u,u.d.volley,false);
-    }
-  }
-}
+// A Bola de Fogo virou perseguição por combo (N.kazan.combo, Combo 10): quem dispara é comboReactions() em combat.js.
 async function kazanRitual(u){
   const p=kazanHead(u);
   sfx.cast(u); sfx.voz(u,'golpe',.4); kazanSmoke(p,5);

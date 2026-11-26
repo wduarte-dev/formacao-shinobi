@@ -2,7 +2,7 @@
 // A lógica das cadeias fica em combos.js; aqui é só a tela.
 "use strict";
 let labTeam=[];   // time de teste do Laboratório (não salva; "Usar este time" copia pra Formação)
-const STC={D:'#e8862a',L:'#3a9be0',R:'#d8392b'};   // cor do selo de cada estado
+const STC={D:'#e8862a',L:'#8a63d2',V:'#3a9be0',R:'#d8392b'};   // cor do selo de cada estado
 
 // ---- painel de combos ----
 let CSZ=30;   // diâmetro do retrato no painel (30 na Formação, 44 na Academia)
@@ -83,7 +83,8 @@ function fichaHtml(id){ const d=N[id], n=d.normal, s=d.strong, j=d.jutsu, c=d.ch
   +row('fb','Básico:',`${n.name} (${TG[n.target]})${n.cause?' → '+stB(n.cause):''}${ex(n)}`)
   +row('ff',`Forte (${Math.round(STRONG_CHANCE*100)}%):`,s?`${s.name}${s.cause?' → '+stB(s.cause):''}${ex(s)}`:'—')
   +row('fj','Jutsu:',`${j.name} · ${j.cost} chakra · ${j.desc}${j.cause?' → '+stB(j.cause):''}`)
-  +(c?row('fp','Perseguição:',`${c.name} · ${stB(c.on)} → ${stB(c.cause)}`):row('fp','Passiva:',`imune a D/L/R; Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time`)); }
+  +(c?row('fp','Perseguição:',`${c.name} · ${stB(c.on)} → ${stB(c.cause)}`):row('fp','Passiva:','imune a D/L/V/R'))
+  +(d.combo?row('fp',`Combo ${d.combo.at}:`,`${d.combo.name} · ${comboAlvos(d.combo)}${d.combo.cause?' → '+stB(d.combo.cause):''}${comboExtra(d.combo,d.el)}`):''); }
 function drawFicha(el,id){ el.innerHTML=fichaHtml(id); portrait(el.querySelector('.fpor'),id,52/40,52,52); }
 // segurar um ninja do Laboratório (~0,45 s sem arrastar) abre a ficha por cima do painel; soltar fecha
 let holdT=null, holdPointer=null;

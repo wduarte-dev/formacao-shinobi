@@ -66,7 +66,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       }
       const remaining=summonClones(owner,sk);
       const chaseTarget=U.e[0]; chaseTarget.hp=chaseTarget.max;
-      setState(chaseTarget,'L'); curSide=owner.side;
+      setState(chaseTarget,'V'); curSide=owner.side;
       const count=hitsR.p; await chain('p',chaseTarget,1,owner);
       check(hitsR.p===count+4 && chaseTarget.state==='R','perseguição e três contatos extras');
       vanishClone(remaining[0]);
@@ -93,7 +93,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       placed=[{id:'utsushi',row:1,depth:1}]; FOES[0].team=[['mizuha',1,1]];
       await preloadFx(['utsushi','mizuha']); startBattle2(); speed=2;
       const owner=U.p[0], target=U.e[0], original=landHit;
-      await knock(target,'L'); curSide=owner.side;
+      await knock(target,'V'); curSide=owner.side;
       let checked=false;
       landHit=(u,t,...args)=>{
         if(u===owner && t===target){

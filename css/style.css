@@ -176,7 +176,8 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .mv{position:absolute;left:0;top:0;transition:transform .19s cubic-bezier(.25,.8,.3,1)}   /* ida e volta do golpe: arranca rápido e assenta suave */
 .sh{position:absolute;left:-34px;top:-9px;width:68px;height:18px;background:#0007;border-radius:50%}
 .st{position:absolute;left:0;top:0;transition:transform .2s ease-out;transform-origin:0 -40px}
-.st.L{transform:translate(calc(var(--d)*14px),-72px)}
+.st.V{transform:translate(calc(var(--d)*14px),-72px)}
+.st.L{transform:translate(calc(var(--d)*10px),-18px)}
 .u.e .spr{transform:scaleX(-1)}
 .spr.gl0,.spr.gl1,.spr.gl2{filter:drop-shadow(0 0 2px #f2c14e) drop-shadow(2px 0 0 #f2c14e88)}
 .spr.gl0{clip-path:inset(0 0 66% 0);animation:gl0 2.3s steps(1) infinite}
@@ -353,7 +354,7 @@ body.lite .swave{box-shadow:none}
 body.lite .spr,body.lite .cut .cp,body.lite .u.hov .st,body.lite .sk.armed{filter:none}
 
 body.lite #fog::before,body.lite .cut .lines,body.lite .petal{animation:none}
-body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyD .spr{filter:none}
+body.lite .u.flyR .spr,body.lite .u.flyL .spr,body.lite .u.flyV .spr,body.lite .u.flyD .spr{filter:none}
 
 /* ninja bloqueado (Formação/Galeria): só a silhueta */
 .slot.lockd .por{filter:brightness(0) opacity(.55)}.slot.lockd{cursor:default}

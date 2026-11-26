@@ -22,11 +22,14 @@ function comboRows(ids){ const rows=[];
 // quem tem perseguição e nunca entra em nenhuma cadeia, e por quê
 function comboLeftOut(ids,rows=comboRows(ids)){ const used=new Set(rows.flatMap(r=>r.chain.map(c=>c.id))), out=[];
   for(const id of ids){ const ch=N[id].chase;
-    if(!ch){ if(N[id].immuneState)out.push({id,why:`${N[id].name} não persegue: imune a estados, solta Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time`}); continue; }
+    if(!ch){ if(N[id].immuneState)out.push({id,why:`${N[id].name} não persegue por estado: imune a estados, solta ${N[id].combo.name} com Combo ${N[id].combo.at}`}); continue; }
     if(used.has(id))continue;
     const before=ids.slice(0,ids.indexOf(id)).find(x=>N[x].chase?.on===ch.on);
     out.push({id,why:before?`${N[id].name} não entra: ${N[before].name} já persegue ${ST[ch.on]} antes`:`${N[id].name} não entra: ninguém do time deixa ${ST[ch.on]}`}); }
   return out; }
+// perseguição por combo em texto (ficha, galeria): faixa, alvos, estado, veneno/queima e trava de estrela
+function comboAlvos(c){ return c.use==='volley'?'4 projéteis em alvos aleatórios':c.n>1?`${c.n} alvos aleatórios`:TG[c.target]; }
+function comboExtra(c,el){ return (c.dot?' · '+(el==='Fogo'?'queima':'envenena'):'')+(c.star?` · libera com ${c.star}★ (por enquanto só no Modo dev)`:''); }
 // texto detalhado ao clicar numa perseguição (chances e o que faz)
 function chaseDetail(id){ const d=N[id], c=d.chase; if(!c)return '';
   const L=[`<b>${c.name}</b> (${d.name})`,`Persegue ${ST[c.on]} → deixa ${ST[c.cause]}`,

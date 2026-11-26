@@ -24,7 +24,7 @@ function fxStep(k,elapsed){
 function slineFx(state){ const n=lite?9:18, v=state==='R';
   for(let i=0;i<n;i++){ const len=R(30,110), life=R(14,24);
     if(v)SLN.push({x:R(-120,384),y:R(0,216),w:len,h:Math.random()<.3?2:1,vx:R(9,15)*(Math.random()<.5?1:-1),vy:0,life,max:life,a:R(.35,.8)});
-    else SLN.push({x:R(0,384),y:R(-120,216),w:Math.random()<.3?2:1,h:len,vx:0,vy:R(9,15)*(state==='L'?-1:1),life,max:life,a:R(.35,.8)}); } }
+    else SLN.push({x:R(0,384),y:R(-120,216),w:Math.random()<.3?2:1,h:len,vx:0,vy:R(9,15)*(state==='L'||state==='V'?-1:1),life,max:life,a:R(.35,.8)}); } }
 // rastro de quem foi arremessado: riscos brancos ao longo do caminho (x/y do palco)
 function trailFx(x0,y0,x1,y1,state){ const hz=state==='R', n=lite?5:10;
   for(let i=0;i<n;i++){ const f=i/n, x=x0+(x1-x0)*f, y=y0+(y1-y0)*f;
