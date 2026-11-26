@@ -325,6 +325,7 @@ NINJAS["kaen"] = dict(name="KAEN", pal="deep red, orange, amber, pale yellow, da
 Row 2: TBD
 Row 3: TBD
 Row 4: TBD""",
+  A1_10="""Row 1: IDLE, 10 SMALL-STEP POSES forming ONE single slow loop (an animation tool will create extra in-between frames, so each pose differs from the previous one by only a SMALL step, a few pixels of movement, never a big jump; the cycle closes back to pose 1). The 10 cells are read in order: row 1 left to right = poses 1 to 5, then row 2 left to right = poses 6 to 10. ALL 10 cells are filled. FRAMING (important): in every cell the character is centered horizontally, his feet rest near the bottom of the cell (about 8% margin) and his whole body, from the top of his hair to his boots, fills about 80% of the cell height; same scale, same foot position, same horizontal center in all 10 cells; no wasted empty space around him. IDENTITY (important): his hair spikes (same shape and count), face and expression are IDENTICAL in every pose, only their position and tilt follow the head; the scarf tail and the sash tails may sway a little. In EVERY pose: the katana stays sheathed on his back, always whole, the hilt over his right shoulder, and his right hand reaches up behind the shoulder and clearly grips the hilt; the left hand hangs loose and relaxed; both feet stay planted in the same spot. Pose 1: neutral confident stance, weight on the right leg, shoulders level. Pose 2: weight moves slightly toward the center, the left shoulder starts to dip. Pose 3: weight on the left leg, left shoulder lower, head tilts slightly. Pose 4: weight fully on the left leg, hips sway left (the left peak of the sway). Pose 5: weight returns toward the center, shoulders level again. Pose 6: both shoulders begin to roll up and back (small). Pose 7: shoulders up and back, chest slightly open, chin slightly raised (a moderate roll, the peak). Pose 8: the shoulders drop and roll forward. Pose 9: weight shifts back to the right leg, head tilts slightly the other way. Pose 10: almost identical to pose 1 (a tiny variation) so the loop closes smoothly. Every step between consecutive poses is small and smooth; together they read as a slow, visible movement. No motion blur, no big effects.""",
   A2="Row 1: TBD", B1="Row 1: TBD", B2="Row 1: TBD", D="Row 1: TBD")
 
 def _colors(n, t):
@@ -371,7 +372,11 @@ def build(k):
     return {a: _dist(n, _colors(n, t)) for a, t in out.items()}
 def one_row(k, lote, idx):
     """Prompt de UMA linha de um lote (regra do dono 25/11/2026: gerar linha a linha, a anterior serve de ref da próxima)."""
-    t = build(k)[lote]
+    swap = None
+    if os.environ.get("GRID") == "2x5" and lote == "A1" and "A1_10" in NINJAS[k]: swap = NINJAS[k]["A1"]; NINJAS[k]["A1"] = NINJAS[k]["A1_10"]   # 10 poses em 2 linhas x 5 colunas
+    try: t = build(k)[lote]
+    finally:
+        if swap is not None: NINJAS[k]["A1"] = swap
     rows = [l for l in t.split("\n") if l.startswith("Row ")]
     r = rows[idx - 1]
     head, tail = t.split("\nROWS:\n")
@@ -380,6 +385,10 @@ def one_row(k, lote, idx):
     if os.environ.get("COLS"): head = head.replace("× 8 columns", f"× {os.environ['COLS']} columns").replace("EXACTLY 8 columns", f"EXACTLY {os.environ['COLS']} columns")   # ex.: COLS=5 pras 5 poses-chave do Bitmapflow
     head = head.replace(f"exactly {n_old} rows", "exactly 1 row").replace(f"EXACTLY {n_old} rows", "EXACTLY 1 row").replace(f"The image has {n_old} rows, not more.", "The image has 1 row, not more.")
     head = head.replace(f'LOTE {lote}"', f'LOTE {lote} L{idx}"')
+    if os.environ.get("GRID") == "2x5":
+        head = "\n".join(("1. GRID: exactly 2 rows × 5 columns, equal-sized cells, landscape canvas." if l.startswith("1. GRID") else
+                          "2. The 10 cells form ONE single animation read in order: row 1 left to right (poses 1 to 5), then row 2 left to right (poses 6 to 10)." if l.startswith("2. Each row") else
+                          "3. Every one of the 10 cells is filled with exactly one pose." if l.startswith("3. Render only") else l) for l in head.split("\n"))
     return head + "\nROWS:\n" + re.sub(r"^Row \d+:", "Row 1:", r) + "\n"
 TRIP_ROW = ("Row 1: TRIP (the victim of a low sweep kick), 6 frames, ONLY the character, no effects: "
  "Frame 1 HIT: the legs are swept out from under the character, the body still almost upright, surprised. "
