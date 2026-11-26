@@ -51,6 +51,7 @@ def _dist(n, t):
     if not n.get("dist"): return t
     t = t.replace(LOCKS, LOCKS_DIST)
     return "\n".join(DIST7 if l.startswith("7. Draw smears") else l for l in t.split("\n"))
+REFK = ("Attached image is the STYLE ROSTER of the game and it CONTAINS the character {NAME} ({LOOK}). Copy EXACTLY {NAME}'s design, face, colors, proportions, outline weight and pixel scale from the roster. Do NOT redesign or recolor him and do NOT draw any of the other characters.\n")
 ROWREF = ("Two images are attached. FIRST image = the PIXEL-ART STYLE ROSTER (several other characters of the same game): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions, NEVER their faces, hair, clothes or colors. "
           "SECOND image = the APPROVED DESIGN of the new character ({NAME}): the ABSOLUTE source of truth for who he is.\n")
 STYLE_RULES = """STRICT RULES (highest priority, never break):
@@ -316,6 +317,16 @@ Row 2: WALK, 8 frames: a loose, springy, bouncing walk cycle to the right, arms 
 Row 3: DASH (RUN), 8 frames: a fast low running cycle to the right, body leaning far forward, frames 2 and 6 are the longest, most extended strides, NO whirlwind, NO dust, NO speed lines (the whirlwind is a separate effect sheet), full 8 columns.""",
   A2="Row 1: TBD", B1="Row 1: TBD", B2="Row 1: TBD", D="Row 1: TBD")
 
+NINJAS["kaen"] = dict(name="KAEN", pal="deep red, orange, amber, pale yellow, dark ember brown", inroster=True,
+  look="messy spiky red-orange hair, a long red scarf around the neck, a black sleeveless tunic, a dark red sash at the waist, gray cloth wraps on both forearms, dark baggy pants, red leg wraps over dark boots, and a katana in a black sheath on his back with the hilt over his right shoulder",
+  char="KAEN, a young fire ninja. Messy spiky red-orange hair. A long red scarf around the neck with a tail that flutters behind him. Black sleeveless tunic, a dark red sash tied at the waist, gray cloth wraps on both forearms, dark baggy pants, red leg wraps over dark boots. A katana in a black sheath on his back, the hilt clearly visible over his right shoulder, identical in every frame. Calm confident face.",
+  STYLEPOSE="a calm confident standing stance, right hand on the katana hilt behind his shoulder",
+  A1="""Row 1: IDLE, 5 KEY POSES for a slow, calm and clearly visible loop (an animation tool will create the in-between frames, so every pose must be a distinct extreme and the cycle must close back to pose 1). In EVERY pose: the katana stays sheathed on his back, always whole, the hilt over his right shoulder, and his right hand reaches up behind the shoulder and clearly grips the hilt; the left hand hangs loose and relaxed; both feet stay planted in the same spot on the ground; same scale in every pose. Pose 1: neutral confident stance, weight on the right leg, shoulders level, a slight smirk. Pose 2: the weight shifts to the left leg, the hips sway left, the left shoulder drops, the head tilts a little. Pose 3: both shoulders roll up and back, chest open, chin slightly raised, the scarf tail swaying. Pose 4: the shoulders drop and roll forward, the weight shifts back toward the right leg, the head tilts the other way. Pose 5: almost identical to pose 1 (a tiny variation) so the loop closes smoothly. The differences between poses must be big enough to read as slow, visible movement. No motion blur, no big effects (cells 6 to 8 EMPTY).
+Row 2: TBD
+Row 3: TBD
+Row 4: TBD""",
+  A2="Row 1: TBD", B1="Row 1: TBD", B2="Row 1: TBD", D="Row 1: TBD")
+
 def _colors(n, t):
     """Ninja com chave `colors` (ex.: Kazan) troca o limite padrão de 16 cores pelo dele (decidido 25/11/2026)."""
     c = n.get("colors")
@@ -345,6 +356,7 @@ def build(k):
     out = {}
     out["A1"] = RULES.format(N=n["A1"].count("\nRow ")+1, PAL=P, NAME=N, L="A1") + "\n" + REF + "\n" + PIXEL + LOCKS + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nROWS:\n{n['A1']}\n"
     out["STYLE"] = STYLE_RULES.format(PAL=P, NAME=N) + "\n" + REF + "\n" + PIXEL + f"\nCHARACTER (original ninja, pixel art, dark 1px outline, max 16 colors, {PROP}): {n['char']}\n\nPOSE: one standing idle pose: {n.get('STYLEPOSE', 'a relaxed idle stance that shows his personality')}.\n"
+    if n.get("inroster"): out["A1"] = out["A1"].replace(REF, REFK.format(NAME=N.title(), LOOK=n["look"]))   # regera de ninja que já está no roster
     if n.get("styleref"): out["A1"] = out["A1"].replace("\nCHARACTER (original", STYLEREF.format(NAME=N.title(), LOOK=n["look"]) + "\nCHARACTER (original", 1)
     cr = lambda t: t.count("\nRow ")+1   # nº de linhas do lote, contado do texto
     out["A2"] = lot((cr(n["A2"]), n["A2"]), "A2", False); out["B1"] = lot((cr(n["B1"]), n["B1"]), "B1", False)
