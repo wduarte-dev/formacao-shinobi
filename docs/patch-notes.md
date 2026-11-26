@@ -5,7 +5,7 @@ Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes
 
 ## 1.15.1 · 26/11/2026 · Galeria com busca e filtros
 - A lista de ninjas da galeria agora é uma faixa horizontal no rodapé: setas andam 4 retratos, arrastar com o dedo ou o mouse rola, e a faixa centraliza no ninja escolhido. Nada mais vaza da moldura nem esconde ninja.
-- Busca por nome (sem acento e sem diferenciar maiúscula) e botão **Filtros**: elemento, estado que causa, estado que persegue e "tem perseguição por combo". Os filtros se combinam (só aparece quem bate em todos). Bloqueados somem quando há busca ou filtro.
+- Busca por nome (sem acento e sem diferenciar maiúscula) e botão **Filtros**: elemento, estado que causa, estado que persegue e "tem perseguição por combo". Os filtros são só ícones (elementos, Derrubado, Lançado, Voo, Repelido e combo): passar o mouse, clicar, tocar ou segurar o dedo mostra o nome num balão. Os filtros se combinam (só aparece quem bate em todos). Bloqueados somem quando há busca ou filtro.
 
 ## 1.15 · 26/11/2026 · Perseguição por combo e estado Voo
 - Novo estado **Voo (V)**: é o antigo Lançado, alto no ar. Todos os golpes e perseguições que lançavam agora deixam ou perseguem Voo, com o mesmo visual.

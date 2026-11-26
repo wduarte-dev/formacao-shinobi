@@ -204,8 +204,20 @@ function galMatch(id){ const d=N[id];
   if(GF.combo&&!d.combo)return false;
   return true; }
 const galFiltering=()=>!!(GF.q||GF.el.size||GF.causa.size||GF.pers.size||GF.combo);
-function galChips(box,items,set,cls){ box.innerHTML=''; items.forEach(([k,label])=>{ const b=document.createElement('button'); b.className='gchip'+(set.has(k)?' on':''); b.dataset.k=k;
-  b.innerHTML=`<i class="ico ${cls}-${k}"></i>${label}`; b.onclick=()=>{ set.has(k)?set.delete(k):set.add(k); sfx.ui('clique'); drawGal(false); }; box.appendChild(b); }); }
+// chips só com ícone (ui/ico/<cls>-<chave>.png, sem acento); o nome aparece num balão: mouse por cima, clique/toque e segurar o dedo (segurar não liga o filtro)
+const icoFile=n=>n.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+let gTipT=null;
+function galTip(b,label,ms=1400){ const t=$('gTip'), r=b.getBoundingClientRect(), w=$('stage').getBoundingClientRect(), k=w.width/1152;
+  t.textContent=label; t.classList.add('on'); t.style.left=((r.left+r.width/2-w.left)/k)+'px'; t.style.top=((r.top-w.top)/k-6)+'px';
+  clearTimeout(gTipT); if(ms)gTipT=setTimeout(()=>t.classList.remove('on'),ms); }
+function galChips(box,items,set,cls){ box.innerHTML=''; items.forEach(([k,label])=>{ const b=document.createElement('button'); b.className='gchip'+(set.has(k)?' on':''); b.dataset.k=k; b.setAttribute('aria-label',label);
+  const ic=document.createElement('i'); ic.className='ico'; ic.style.backgroundImage=`url(ui/ico/${icoFile(cls+'-'+k)}.png)`; b.appendChild(ic);
+  let hold=null, held=false;
+  b.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse')galTip(b,label,0); });
+  b.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse'){ clearTimeout(gTipT); $('gTip').classList.remove('on'); } });
+  b.addEventListener('pointerdown',()=>{ held=false; hold=setTimeout(()=>{ held=true; galTip(b,label,1600); },450); });
+  b.addEventListener('pointerup',()=>clearTimeout(hold)); b.addEventListener('pointercancel',()=>clearTimeout(hold));
+  b.onclick=()=>{ if(held){ held=false; return; } set.has(k)?set.delete(k):set.add(k); sfx.ui('clique'); galTip(b,label,1200); drawGal(false); }; box.appendChild(b); }); }
 function galScrollSel(smooth){ const L=$('gList'), s=L.querySelector('.gslot.sel'); if(!s)return;
   L.scrollTo({left:s.offsetLeft-(L.clientWidth-s.offsetWidth)/2,behavior:smooth?'smooth':'auto'}); }
 function drawGal(center=true){
