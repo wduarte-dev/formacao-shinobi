@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.12.3 · 26/11/2026 · Combos minimizáveis e Limpar no Laboratório
+- O painel de Combos da Formação tem a seta ▼/▲ igual à do log: minimizado, mostra só o maior combo do time. O jogo lembra a escolha.
+- Laboratório: esvaziar o time não traz mais os ninjas de volta, e o botão Limpar tira todos de uma vez.
+
 ## 1.12.2 · 26/11/2026 · Ninjas de volta ao chão
 - Os ninjas voltaram a pisar no chão em todas as lutas (a 1.12 subiu o campo da luta junto com o grid da Formação).
 - Academia: o botão Lutar fica cinza quando o time do Laboratório não cumpre o desafio, em vez de mostrar um aviso solto. "Usar este time" confirma no próprio botão.

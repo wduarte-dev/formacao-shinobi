@@ -80,7 +80,7 @@ function drawForm(){ BOARD=FORM_BOARD;
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
   $('fInfo').innerHTML=infoHtml(sel);
   $('fDone').textContent=placed.length<4?`Faltam ${4-placed.length}`:'Pronto';
-  drawCombos($('fCombo'),placed.map(p=>p.id),false);
+  drawCombos($('fCombo'),placed.map(p=>p.id),false); comboTitle();
 }
 function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
   return `<b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span><br>

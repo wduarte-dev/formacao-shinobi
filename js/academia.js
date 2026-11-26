@@ -36,8 +36,9 @@ addEventListener('pointerdown',e=>{ if(!e.target.closest('.cpor,#cTip'))hideTip(
 // ---- Academia ----
 const labCell=(row,depth)=>({x:[292,206,120][depth]+(1-row)*12,y:[332,380,428][row]});
 const LAB_BOARD={list:()=>labTeam, cell:labCell, redraw:()=>drawAcad(), sc:1.9, tiles:'#aTiles .tile', save:false};
+let labInit=false;   // o Laboratório começa com o time salvo só na 1ª vez; depois respeita o que o jogador fizer (até ficar vazio)
 function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
-  if(!labTeam.length)placed.forEach(p=>labTeam.push({...p}));
+  if(!labInit){ labInit=true; if(!labTeam.length)placed.forEach(p=>labTeam.push({...p})); }
   const T=$('aTiles'), Un=$('aUnits'); T.innerHTML=''; Un.innerHTML='';
   for(let row=0;row<3;row++)for(let depth=0;depth<3;depth++){ const c=labCell(row,depth), t=document.createElement('div'); t.className='tile'; t.style.left=c.x+'px'; t.style.top=c.y+'px'; t.dataset.rd=row+','+depth; T.appendChild(t); }
   labTeam.forEach((p,i)=>{ const c=labCell(p.row,p.depth), a=actor(p.id,1.9,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
@@ -61,5 +62,12 @@ const acadReady=c=>labTeam.length===4&&(!c.fire||labTeam.some(p=>N[p.id].el.incl
 function acadFight(i){ const c=ACAD[i]; if(!acadReady(c))return;
   sfx.ui('confirma'); acad={i,done:false}; startBattle(); }
 $('aUse').onclick=()=>{ if(!labTeam.length)return; placed.length=0; labTeam.forEach(p=>placed.push({...p})); save(); sfx.ui('confirma'); const b=$('aUse'); b.textContent='Copiado!'; setTimeout(()=>b.textContent='Usar este time',1400); };
+$('aClear').onclick=()=>{ labTeam.length=0; sfx.ui('cancela'); drawAcad(); };
 $('aBack').onclick=()=>{ sfx.ui('cancela'); show('sForm'); };
 $('fAcad').onclick=()=>{ sfx.ui('confirma'); show('sAcad'); };
+// painel de Combos da Formação minimizável (▼/▲, igual ao log); minimizado mostra o maior combo no título; lembra a escolha
+function comboMin(on){ $('fComboW').classList.toggle('min',on); $('fComboT').textContent=on?'▲':'▼'; try{localStorage.setItem('shinobi-combomin',on?'1':'');}catch(e){} comboTitle(); }
+function comboTitle(){ const rows=comboRows(placed.map(p=>p.id)), m=rows.length?rows[0].chain.length:0;
+  $('fComboH').textContent=$('fComboW').classList.contains('min')?`Combos · máx. ${m}`:'Combos'; }
+$('fComboT').onclick=()=>comboMin(!$('fComboW').classList.contains('min'));
+try{comboMin(localStorage.getItem('shinobi-combomin')==='1');}catch(e){}

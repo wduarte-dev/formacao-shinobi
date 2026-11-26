@@ -49,7 +49,7 @@
   <div class="hint" style="left:20px;top:80px;font-size:16px;width:400px;background:#0008;padding:6px 10px;line-height:1.25">Arraste um ninja até uma casa.<br>A ordem de entrada é a ordem de ação.<br>Quem está na frente apanha primeiro.<br>Clique num ninja do campo para tirar.</div>
   <div id="fTiles"></div><div id="fUnits"></div>
   <div class="hint" style="left:520px;top:300px;font-size:17px">inimigo ▶</div>
-  <div class="win cwin" id="fComboW"><h3>Combos</h3><div id="fCombo" class="clist2"></div><button class="btn sm" id="fAcad">Academia ▶</button></div>
+  <div class="win cwin" id="fComboW"><h3 id="fComboH">Combos</h3><button id="fComboT" title="Minimizar/mostrar os combos">▼</button><div id="fCombo" class="clist2"></div><button class="btn sm" id="fAcad">Academia ▶</button></div>
   <div class="win" id="fWin"><h3>Ninjas</h3>
     <div id="fRoster"></div>
     <div class="parch" id="fInfo"></div>
@@ -65,7 +65,7 @@
   <div class="win" id="aLab"><h3>Laboratório</h3>
     <div class="ahint">Monte um time de treino e teste as cadeias. Não mexe no seu time salvo. A ordem de entrada decide quem persegue.</div>
     <div id="aRoster"></div>
-    <button class="btn sm" id="aUse">Usar este time</button>
+    <div id="aBtns"><button class="btn sm" id="aClear">Limpar</button><button class="btn sm" id="aUse">Usar este time</button></div>
   </div>
   <div id="aTiles"></div><div id="aUnits"></div>
   <div class="win cwin" id="aComboW"><h3>Combos</h3><div id="aCombo" class="clist2 big"></div></div>
