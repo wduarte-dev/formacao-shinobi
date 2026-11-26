@@ -178,12 +178,50 @@ function drawMap(){
 }
 
 /* ---- galeria ---- */
-let gal=null;
-function drawGal(){
-  const L=$('gList'); L.innerHTML=''; ACT=[];
-  IDS.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
-    const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{sel=id;sfx.ui('clique');drawGal();}; L.appendChild(b); });
-  const V=$('gView'); V.innerHTML=''; gal=actor(sel,6,170,290,V);
+let gal=null, galDragged=false;
+(()=>{ const L=$('gList'), Q=$('gQ'), P=$('gPanel');
+  Q.oninput=()=>{ GF.q=Q.value.trim(); drawGal(false); }; $('gQx').onclick=()=>{ Q.value=''; GF.q=''; drawGal(false); };
+  $('gFBtn').onclick=()=>{ sfx.ui('clique'); P.classList.toggle('hide'); drawGal(false); };
+  $('gfClose').onclick=()=>{ sfx.ui('clique'); P.classList.add('hide'); drawGal(false); };
+  $('gfClear').onclick=()=>{ sfx.ui('clique'); GF.el.clear(); GF.causa.clear(); GF.pers.clear(); GF.combo=false; GF.q=''; Q.value=''; drawGal(false); };
+  const step=()=>(L.querySelector('.gslot')?.offsetWidth||84)*4+14*4;
+  $('gPrev').onclick=()=>L.scrollBy({left:-step(),behavior:'smooth'}); $('gNext').onclick=()=>L.scrollBy({left:step(),behavior:'smooth'});
+  let sx=0, sl=0, down=false;   // arrasto com mouse/caneta (o dedo rola nativo, touch-action:pan-x)
+  L.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch')return; down=true; galDragged=false; sx=e.clientX; sl=L.scrollLeft; });
+  addEventListener('pointermove',e=>{ if(!down)return; const dx=e.clientX-sx; if(Math.abs(dx)>5){ galDragged=true; L.scrollLeft=sl-dx; L.style.cursor='grabbing'; } });
+  addEventListener('pointerup',()=>{ if(!down)return; down=false; L.style.cursor=''; setTimeout(()=>{galDragged=false;},0); });
+})();
+// filtros da galeria (busca só por nome; os demais são filtros próprios, todos combinados com E)
+const GF={q:'',el:new Set(),causa:new Set(),pers:new Set(),combo:false};
+const GEL=['Fogo','Água','Raio','Terra','Vento','Névoa','Gelo','Veneno','Espaço','Som','Neutro'];
+const norm=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const causesOf=d=>[d.normal,d.strong,d.jutsu,d.recast,d.chase,d.combo].map(k=>k?.cause).filter(Boolean);
+function galMatch(id){ const d=N[id];
+  if(GF.q&&!norm(d.name).includes(norm(GF.q)))return false;
+  if(GF.el.size&&![...GF.el].every(e=>d.el.includes(e)))return false;
+  if(GF.causa.size&&![...GF.causa].every(s=>causesOf(d).includes(s)))return false;
+  if(GF.pers.size&&![...GF.pers].every(s=>d.chase?.on===s))return false;
+  if(GF.combo&&!d.combo)return false;
+  return true; }
+const galFiltering=()=>!!(GF.q||GF.el.size||GF.causa.size||GF.pers.size||GF.combo);
+function galChips(box,items,set,cls){ box.innerHTML=''; items.forEach(([k,label])=>{ const b=document.createElement('button'); b.className='gchip'+(set.has(k)?' on':''); b.dataset.k=k;
+  b.innerHTML=`<i class="ico ${cls}-${k}"></i>${label}`; b.onclick=()=>{ set.has(k)?set.delete(k):set.add(k); sfx.ui('clique'); drawGal(false); }; box.appendChild(b); }); }
+function galScrollSel(smooth){ const L=$('gList'), s=L.querySelector('.gslot.sel'); if(!s)return;
+  L.scrollTo({left:s.offsetLeft-(L.clientWidth-s.offsetWidth)/2,behavior:smooth?'smooth':'auto'}); }
+function drawGal(center=true){
+  const L=$('gList'), keep=L.scrollLeft; L.innerHTML=''; ACT=[];
+  const shown=IDS.filter(id=>galMatch(id)&&(have(id)||!galFiltering()));
+  shown.forEach(id=>{ const b=document.createElement('button'); b.className='slot gslot'+(id===sel?' sel':''); const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.8,104,66);
+    const s=document.createElement('small'); s.textContent=have(id)?N[id].name:'???'; b.appendChild(s); if(!have(id))b.classList.add('lockd'); else b.onclick=()=>{ if(galDragged)return; sel=id;sfx.ui('clique');drawGal();}; L.appendChild(b); });
+  if(!shown.length){ const e=document.createElement('div'); e.id='gEmpty'; e.textContent='Nenhum ninja encontrado'; L.appendChild(e); }
+  $('gCnt').textContent=shown.length+(shown.length===1?' ninja':' ninjas');
+  $('gFBtn').classList.toggle('on',!$('gPanel').classList.contains('hide')||!!(GF.el.size||GF.causa.size||GF.pers.size||GF.combo));
+  galChips($('gfEl'),GEL.map(e=>[e,e]),GF.el,'el');
+  galChips($('gfCa'),Object.entries(ST),GF.causa,'st');
+  galChips($('gfPe'),Object.entries(ST),GF.pers,'st');
+  galChips($('gfCo'),[['combo','Tem perseguição por combo']],{has:()=>GF.combo,add:()=>GF.combo=true,delete:()=>GF.combo=false},'co');
+  if(center)galScrollSel(false); else L.scrollLeft=keep;
+  const V=$('gView'); V.innerHTML=''; gal=actor(sel,4.6,200,228,V);
   const A=$('gAn'); A.innerHTML=''; A.className='many';
   const d=N[sel], j=d.jutsu, n=d.normal, a=gal;
   const previews={atk1:d.stationary?['dash','atk1','attackB','attackC']:n.sequence,chase:d.chase?.phases};

@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.15.1 · 26/11/2026 · Galeria com busca e filtros
+- A lista de ninjas da galeria agora é uma faixa horizontal no rodapé: setas andam 4 retratos, arrastar com o dedo ou o mouse rola, e a faixa centraliza no ninja escolhido. Nada mais vaza da moldura nem esconde ninja.
+- Busca por nome (sem acento e sem diferenciar maiúscula) e botão **Filtros**: elemento, estado que causa, estado que persegue e "tem perseguição por combo". Os filtros se combinam (só aparece quem bate em todos). Bloqueados somem quando há busca ou filtro.
+
 ## 1.15 · 26/11/2026 · Perseguição por combo e estado Voo
 - Novo estado **Voo (V)**: é o antigo Lançado, alto no ar. Todos os golpes e perseguições que lançavam agora deixam ou perseguem Voo, com o mesmo visual.
 - O **Lançado (L)** virou a rasteira: o alvo sai do chão baixinho. Por enquanto só a Rasteira Dinamite do Keshin e o Corte Rasante da Fuuka causam esse estado.

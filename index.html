@@ -87,9 +87,22 @@
   <div class="bgi" style="background-image:url(bg/sakura.png)"></div><div class="shade"></div>
   <button class="btn sm backb" data-back>◀ Voltar</button>
   <div class="win" id="gWin"><h3>Ninjas</h3>
-    <div id="gList"></div>
     <div id="gMid"><div class="inset" id="gView"></div><div id="gAn"></div></div>
     <div class="parch" id="gInfo"></div>
+  </div>
+  <div id="gPanel" class="parch hide">
+    <div class="gsec"><h5>Elemento</h5><div class="gchips" id="gfEl"></div></div>
+    <div class="gsec"><h5>Causa</h5><div class="gchips" id="gfCa"></div></div>
+    <div class="gsec"><h5>Persegue</h5><div class="gchips" id="gfPe"></div></div>
+    <div class="gsec"><h5>Combo</h5><div class="gchips" id="gfCo"></div></div>
+    <div class="gbtns"><button class="btn sm" id="gfClear">Limpar tudo</button><button class="btn sm" id="gfClose">Fechar</button></div>
+  </div>
+  <div id="gFoot">
+    <div id="gTools">
+      <div id="gSearch"><input id="gQ" type="text" placeholder="Buscar ninja..." autocomplete="off" maxlength="20"><button id="gQx" title="Limpar busca">✕</button></div>
+      <button class="btn sm" id="gFBtn">Filtros</button><span id="gCnt"></span>
+    </div>
+    <div id="gRow"><button class="btn sm garr" id="gPrev" title="Voltar">◀</button><div id="gList"></div><button class="btn sm garr" id="gNext" title="Avançar">▶</button></div>
   </div>
 </section>
 

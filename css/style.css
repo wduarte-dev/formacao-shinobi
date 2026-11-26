@@ -4,6 +4,7 @@ html,body{margin:0;height:100%;background:#07060a;overflow:hidden}
 .tile:focus-visible{outline:3px solid #fff4ca;outline-offset:2px}
 html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 #gInfo,#newsL{touch-action:pan-y}
+#gList{touch-action:pan-x}
 #instHelp{left:276px;top:120px;width:600px;z-index:1000;padding:10px 20px 16px;font-size:18px;line-height:1.35;display:flex;flex-direction:column;gap:8px;color:#3b2414}
 #newsWin{left:206px;top:84px;width:740px;height:520px;z-index:1000;padding:4px 14px 14px;display:flex;flex-direction:column;gap:10px;align-items:center}
 #newsL{width:100%;flex:1;overflow-y:auto;font-size:17px;line-height:1.3;touch-action:pan-y}
@@ -118,13 +119,35 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #mSide .btn{height:60px;font-size:26px;margin-top:auto}
 
 /* ---- galeria ---- */
-#gWin{left:56px;top:40px;width:1040px;height:584px;padding:8px;display:flex;gap:12px}
-#gList{width:210px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
-#gMid{width:330px;display:flex;flex-direction:column;gap:8px}
-#gView{position:relative;height:380px;overflow:hidden;background:linear-gradient(#f4e2b8 0 70%,#7a5a3a 70%)}
+#gWin{left:56px;top:34px;width:1040px;height:446px;padding:8px;display:flex;gap:12px}
+#gMid{width:400px;display:flex;flex-direction:column;gap:6px}
+#gView{position:relative;height:250px;overflow:hidden;background:linear-gradient(#f4e2b8 0 70%,#7a5a3a 70%)}
 #gAn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-#gAn.many{grid-template-columns:1fr 1fr 1fr;gap:4px}#gAn.many .btn.sm{font-size:13px;border-width:8px;border-image-width:8px;height:30px}
-#gMid:has(#gAn.many) #gView{height:320px}
+#gAn.many{grid-template-columns:repeat(5,1fr);gap:3px}#gAn.many .btn.sm{font-size:12px;border-width:7px;border-image-width:7px;height:28px;padding:0}
+/* rodapé: busca, filtros e faixa horizontal de retratos */
+#gFoot{position:absolute;left:0;right:0;bottom:0;height:168px;background:linear-gradient(#5a3b22,#3a2414);border-top:6px solid #2a180c;padding:6px 12px 8px;display:flex;flex-direction:column;gap:4px;z-index:3}
+#gTools{display:flex;align-items:center;gap:12px;height:34px}
+#gSearch{position:relative;width:300px;height:30px}
+#gQ{width:100%;height:100%;box-sizing:border-box;background:#f1deb0;border:3px solid #2a180c;border-radius:4px;padding:0 30px 0 10px;font:600 16px inherit;font-family:inherit;color:#3b2412}
+#gQx{position:absolute;right:4px;top:3px;width:24px;height:24px;border:0;background:none;color:#7a1f10;font-size:16px;cursor:pointer}
+#gFBtn{height:34px;font-size:16px}#gFBtn.on{border-image-source:url(../ui/button_hover.png);color:#8a1f10}
+#gCnt{margin-left:auto;color:#f8e9c4;font-size:16px;text-shadow:1px 1px 0 #000}
+#gRow{display:flex;align-items:center;gap:8px;flex:1;min-height:0}
+.garr{width:44px;height:60px;font-size:18px;padding:0}
+#gList{flex:1;display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;padding:2px 6px 14px;align-items:flex-start;cursor:grab;user-select:none}
+#gList::-webkit-scrollbar{height:12px}
+#gList::-webkit-scrollbar-track{background:#2a180c;border-radius:6px;border:2px solid #5a3b22}
+#gList::-webkit-scrollbar-thumb{background:#c9a45c;border-radius:6px;border:2px solid #7a5a2a}
+#gList .gslot{flex:0 0 84px;width:84px;height:84px}
+#gEmpty{color:#f8e9c4;font-size:18px;align-self:center;padding-left:20px}
+#gPanel{display:none;position:absolute;left:300px;bottom:172px;width:700px;padding:10px 16px;box-sizing:border-box;flex-direction:column;gap:6px;z-index:5}
+#gPanel:not(.hide){display:flex}
+#gPanel .gsec h5{margin:0 0 3px;font-size:20px;color:#7a1f10}
+.gchips{display:flex;flex-wrap:wrap;gap:5px}
+.gchip{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px 0 6px;border:3px solid #6b4a2a;border-radius:6px;background:#e6cf9c;color:#3b2412;font:600 14px inherit;font-family:inherit;cursor:pointer}
+.gchip.on{border-color:#f2b705;background:#f7e2a0;box-shadow:0 0 0 2px #f2b70588}
+.gchip .ico{width:18px;height:18px;flex:none;background-size:contain;background-repeat:no-repeat;image-rendering:pixelated}   /* espaço do sprite: trocar por background-image quando o ícone chegar */
+.gbtns{display:flex;gap:10px;justify-content:center}.gbtns .btn{font-size:16px;min-width:150px}
 #gInfo{flex:1;font-size:16px;line-height:1.2;padding:0 6px;overflow-y:auto}
 #gInfo h4{margin:0 0 2px;font-size:30px}
 #gInfo .stt{display:grid;grid-template-columns:76px 1fr 44px;gap:6px;align-items:center;margin:3px 0}
