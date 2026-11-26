@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.11 · 26/11/2026 · Status novos e "Resistiu"
+- Chance de resistir a status por ninja: tanques 30%, atacantes 15%, suporte e controle 20%, esquiva e velocistas 10%. Atordoar, veneno e os status novos podem falhar, e o alvo mostra **Resistiu**.
+- Três status de controle no combate: **Selamento** (sem jutsu, o chakra de um jutsu já armado volta), **Cegueira** (sem ataque básico) e **Sono** (perde a ação e acorda com dano que não seja veneno ou queimadura). Aparecem como S, C e Z sobre o ninja.
+- Ainda não há jutsu que aplique esses status: a mecânica está pronta para os próximos ninjas.
+- Rajada Fantasma: se um clone derruba o alvo, os outros não batem mais nele.
+
 ## 1.10.3 · 26/11/2026 · Kazan no mesmo tamanho e Rajada Fantasma sem demora
 - Kazan não encolhe mais ao lançar o Plano, bater o martelo ou se defender: a escala de cada pose foi medida pela bigorna (que não muda de tamanho) e agora todas as poses ficam do mesmo tamanho do idle.
 - Rajada Fantasma: os clones batem juntos, durante a queda do chute, e o alvo é repelido assim que a última palma acerta. Com três clones a repulsão sai cerca de 0,8 s mais cedo, sem mudar o dano.

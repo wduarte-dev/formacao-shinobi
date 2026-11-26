@@ -197,7 +197,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 .u.e .hpb i{background:#f2a23a}
 .tg{position:absolute;left:-36px;width:72px;top:calc(var(--h)*-1 - 42px);font-size:15px;font-weight:700;display:flex;gap:2px;justify-content:center}
 .tg span{padding:0 4px;background:#000c;border-radius:3px}
-.tg .s{color:#f4dc6b}.tg .e{color:#8fd0ff}.tg .d{color:#ef9a5b}
+.tg .x{color:#d9a0ff}.tg .s{color:#f4dc6b}.tg .e{color:#8fd0ff}.tg .d{color:#ef9a5b}
 .u.dead .hpb,.u.dead .tg,.u.dead .sh{display:none}
 /* hover (verde + vida exata), marca (azul), esquiva */
 .u .spr{pointer-events:none}
