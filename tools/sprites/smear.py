@@ -2,14 +2,14 @@
 """Smear por código em quadros de um sheet (grade de colunas iguais, fundo verde). NUNCA altera o sheet de entrada: grava outro arquivo.
 Uso: python3 tools/sprites/smear.py <sheet.png> <saida.png> [--rows 3] [--cols 8] [--frame linha,coluna,tecnica,nivel ...]
   linha/coluna começam em 1. tecnica: skew (inclina o corpo a partir dos pés), bend (curva, mais no topo), multiplos (cópias sólidas atrás).
-  nivel: 1, 2 ou 3. Sem --frame usa o padrão do Zigzaggy A1 (SMEAR do prompt: idle q3, walk q4 e q8, dash q2 e q6).
+  nivel: 1, 2 ou 3. Sem --frame usa o padrão do Zigzaggy A1 (SMEAR do prompt, só o dash: q2 e q6).
 Tudo é pixel duro (sem suavizar). O quadro novo tem que caber na célula: se as cópias passarem da borda, o conjunto é empurrado pra dentro."""
 import sys, argparse
 import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 PAD = 70
-DEFAULT = [(1, 3, 'bend', 2), (2, 4, 'bend', 2), (2, 8, 'bend', 2), (3, 2, 'multiplos', 2), (3, 6, 'multiplos', 2)]
+DEFAULT = [(3, 2, 'multiplos', 2), (3, 6, 'multiplos', 2)]   # só o run: idle e walk foram reprovados pelo dono (26/11)
 
 def fg_mask(rgb):
     x = rgb.astype(int); ge = x[..., 1] - np.maximum(x[..., 0], x[..., 2]); m = ndi.binary_opening(ge < 38, iterations=1)
