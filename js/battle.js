@@ -40,12 +40,13 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
   Promise.race([preloadFx(ids,(n,t)=>{const k=t?n/t:1; bar.style.transform=`scaleX(${k})`; $('ldPct').textContent=Math.round(k*100)+'%';}),new Promise(r=>setTimeout(r,20000))])
     .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
 function startBattle2(){
+  cancelBattleWork();
   setDevFreeze(false);
-  token++; foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
+  foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
   U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
-  chakra={p:40,e:40}; round=0; mark=null; fieldA=null; $('fog').classList.remove('on'); resetFieldScene(); resetKazanFx(); paused=false; syncTimeHold(); frozen=false; maxCombo=0; FX.length=0; BOLT.length=0; WAVES.length=0; hitsR={p:0,e:0};
+  chakra={p:40,e:40}; round=0; paused=false; syncTimeHold(); maxCombo=0; hitsR={p:0,e:0};
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
-  $('log').innerHTML=''; $('units').innerHTML=''; $('fx').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
+  $('log').innerHTML=''; $('units').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('units').classList.remove('waiting-entry');
   $('ink').className=''; $('flash').className=''; $('cam').classList.remove('tracking','slow'); $('cam').style.transform=''; $('cut').className='cut'; $('jtag').classList.remove('on');
   if($('initiative'))$('initiative').className='hide';

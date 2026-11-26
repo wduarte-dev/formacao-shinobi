@@ -163,6 +163,7 @@ async function strikeSequence(u,sk){
   await sleep(160);
 }
 async function doSkill(u,sk,isJ){
+  const battleToken=token;
   curSide=u.side; const dir=u.side==='p'?1:-1;
   try{
     if(u.d.stationary){ await kazanSkill(u,sk); return; }
@@ -232,7 +233,7 @@ async function doSkill(u,sk,isJ){
     else if(isJ&&sk.cast){an=sk.an||'atk2'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*40}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}   // invoca de onde está (ex.: Prisão de Gelo): só um passo à frente
     else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
     if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
-    if(dodgedSet.size)for(const t of dodgedSet)evade(t);
+    for(const t of dodgedSet)evade(t).catch(error=>{if(error!==ABORT)console.error(error);});
     if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
     else{ let tot=0;
       for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
@@ -260,7 +261,7 @@ async function doSkill(u,sk,isJ){
     endCine(); home(u);
     if(ko){ chainOpenJ=isJ; comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
     await sleep(160);
-  }finally{ endCine(); sceneOff(); }
+  }finally{ if(battleToken===token){ endCine(); sceneOff(); } }
 }
 // quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
 const canChase=(u,state)=>u.alive&&!u.chaseUsed&&!u.stunned&&u.d.chase?.on===state;

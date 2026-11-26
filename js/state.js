@@ -12,10 +12,31 @@ function armBattleTimer(timer){
   },timer.left);
 }
 let timeHeld=false;   // o relógio da batalha está parado: pausa do jogador OU congelar do modo dev (uma só autoridade de tempo)
-function battleAfter(fn,ms){
-  const timer={fn,left:Math.max(0,ms),started:0,id:null};
+function battleAfter(fn,ms,onAbort){
+  const timer={fn,onAbort,left:Math.max(0,ms),started:0,id:null};
   battleTimers.add(timer);
   if(!timeHeld)armBattleTimer(timer);
+}
+function cancelBattleWork(){
+  token++;
+  for(const timer of battleTimers){
+    clearTimeout(timer.id);
+    timer.onAbort?.();
+  }
+  battleTimers.clear();
+  for(const animation of $('sBattle').getAnimations({subtree:true})){
+    if(animation.constructor===Animation)animation.cancel();
+  }
+  freezeAnimations.clear();
+  sceneOff();
+  endCine();
+  frozen=false;
+  fieldA=null;
+  mark=null;
+  $('field').classList.remove('hs');
+  resetFieldScene();
+  resetKazanFx();
+  clearBattleFx();
 }
 // para/retoma temporizadores (sleep, battleAfter) e animações Web Animations quando devFrozen ou paused mudam
 function syncTimeHold(){
@@ -50,7 +71,7 @@ function setPaused(on){
   paused=on; $('bPause').textContent=on?'Continuar':'Pausar';
   syncTimeHold();
 }
-function sleep(ms){const t=token;return new Promise((res,rej)=>battleAfter(()=>t===token?res():rej(ABORT),ms/speed));}
+function sleep(ms){const t=token;return new Promise((res,rej)=>battleAfter(()=>t===token?res():rej(ABORT),ms/speed,()=>rej(ABORT)));}
 async function gate(){const t=token;while(paused){await new Promise(r=>setTimeout(r,120));if(t!==token)throw ABORT;}}
 const all=()=>[...U.p,...U.e,...U.clones];
 function mk(id,side,slot,row,depth,m,d=N[id],scale=3){const a=mkSpr(id,scale);

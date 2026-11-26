@@ -7,6 +7,9 @@ const PLAN_SCENES={
 function resetFieldScene(){
   $('planBg').classList.remove('on');
   $('planBg').dataset.theme='';
+  $('planBg').style.backgroundImage='';
+  $('field').classList.remove('plan-active');
+  $('fog').classList.remove('on');
   $('planCurtain').getAnimations({subtree:true}).forEach(animation=>animation.cancel());
 }
 function showFieldScene(theme){
@@ -93,7 +96,13 @@ async function knock(t,state,quietCamera=false){
   await sleep(150); t.el.classList.remove('fly');
 }
 // hit-stop: congela anims (não os efeitos) por um instante no impacto
-async function hitstop(ms){const f=$('field'); f.classList.add('hs'); frozen=true; try{await sleep(ms);}finally{frozen=false; f.classList.remove('hs');}}
+async function hitstop(ms){
+  const f=$('field'), battleToken=token;
+  f.classList.add('hs'); frozen=true;
+  try{await sleep(ms);}finally{
+    if(battleToken===token){ frozen=false; f.classList.remove('hs'); }
+  }
+}
 function strikeRecoil(t,dir,finisher){
   const x=dir*(finisher?19:12), y=finisher?-16:-3;
   t.st.animate([

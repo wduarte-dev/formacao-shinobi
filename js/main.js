@@ -1,6 +1,6 @@
 // main.js — ligação dos botões e inicialização
 "use strict";
-function leave(to){setDevFreeze(false); setPaused(false); token++; battleOn=false; musStop(); ambSndStop(); show(to); musMenu();}
+function leave(to){cancelBattleWork(); setDevFreeze(false); setPaused(false); battleOn=false; musStop(); ambSndStop(); show(to); musMenu();}
 function toggleDevFreeze(){ if(dev&&battleOn)setDevFreeze(!devFrozen); }
 document.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f'&&!e.repeat&&dev&&battleOn){e.preventDefault(); toggleDevFreeze();} });
 $('sBattle').addEventListener('click',e=>{

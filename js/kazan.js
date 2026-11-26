@@ -524,6 +524,7 @@ async function kazanVolleyShots(u,sk,p){
   return {damage,last};
 }
 async function kazanSkill(u,sk){
+  const battleToken=token;
   try{
     if(sk===u.d.normal)await kazanBasic(u,sk);
     else if(sk===u.d.jutsu)await kazanForge(u,sk);
@@ -531,6 +532,6 @@ async function kazanSkill(u,sk){
     else if(sk===u.d.volley)await kazanVolley(u,sk);
   }finally{
     if(sk===u.d.recast){ u.ts=1; u.kazanRecoil=0; }
-    home(u);
+    if(battleToken===token)home(u);
   }
 }

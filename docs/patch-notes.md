@@ -3,6 +3,9 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.13.3 · 26/11/2026 · Limpeza ao sair da batalha
+- Ao sair, o jogo cancela as esperas e os efeitos da luta. A próxima batalha mantém suas próprias marcações e animações mesmo se a anterior foi encerrada no meio de um golpe.
+
 ## 1.13.2 · 26/11/2026 · Jutsu instantâneo
 - Jutsus instantâneos usam uma regra comum: ficam na fila até a primeira janela entre ações e preservam a vez do ninja. O chakra é reservado ao preparar e a recarga começa ao lançar.
 - Jutsus comuns continuam saindo na vez do ninja, no lugar do ataque habitual.

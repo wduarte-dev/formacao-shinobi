@@ -224,6 +224,12 @@ function preloadFx(ids,onp){ const fs=[INITIATIVE_ATLAS]; for(const id of new Se
     const im=KEEP[f], done=()=>{ n++; if(onp)onp(n,fs.length); };
     return (im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(done); })); }
 let fxLive=0;   // quantos efeitos desenhados existem agora; passou do teto, os de baixa prioridade (o.lo) nem nascem
+function clearBattleFx(){
+  FX.length=BOLT.length=SLN.length=WAVES.length=0;
+  fxLive=0;
+  $('fx').replaceChildren();
+  if(fxDirty){ fxc.clearRect(0,0,384,216); fxDirty=false; }
+}
 function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
   const [r,n]=A.a[name], sc=o.sc||1, w=288*sc*(o.sx||1), h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;
   const box=document.createElement('div'), rs=document.createElement('div'), img=document.createElement('div');
