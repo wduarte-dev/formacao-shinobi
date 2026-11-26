@@ -3,3 +3,7 @@ R04,2,gemini,verde_no_sprite,vazamento de verde (#00FF00) visível na parte infe
 R10,6,gemini,verde_no_sprite,resquicio de verde no cachecol,s,2026-11-26
 R09,1,controle,controle,,s,2026-11-26
 R05,4,gemini,corpo_translucido,Efeito translúcido na parte inferior da roupa.,n,2026-11-26
+R03,7,gemini,acessorio_faltando,A lanterna está sem a borboleta ou efeito de luz pendurado na base que aparece n,n,2026-11-26
+R09,4,local:verde_halo,verde_no_sprite,tom verde 245 px (mediana do sheet 115),s,2026-11-26
+R10,3,gemini,corpo_translucido,O cachecol e parte do corpo estão semitransparentes/fantasmas na esquerda.,n,2026-11-26
+R07,3,gemini,acessorio_faltando,A lanterna/cajado sumiu das mãos do personagem,n,2026-11-26
