@@ -1,0 +1,40 @@
+{
+ "R09": {
+  "origem": "duelos/limpo/R09.png (2172x391, 8 colunas iguais)",
+  "anotado_por": "dono",
+  "imagem_recebida": "2000x359 (redimensionada; razão 5.571 vs 5.555)",
+  "frames": {
+   "1": [
+    "mao_fundida",
+    "mao_fundida"
+   ],
+   "2": [
+    "verde_invadindo",
+    "mao_fundida",
+    "borrao",
+    "mao_fundida"
+   ],
+   "3": [
+    "mao_fundida",
+    "borrao",
+    "mao_fundida"
+   ],
+   "4": [
+    "mao_fundida",
+    "mao_fundida"
+   ],
+   "5": [
+    "mao_fundida"
+   ],
+   "6": [
+    "mao_fundida",
+    "verde_invadindo"
+   ],
+   "7": [
+    "mao_fundida",
+    "mao_parcialmente_estranha"
+   ]
+  },
+  "obs": "Mão fundida (com acessório/corpo) aparece nos 7 frames. Verde invadindo só nos frames 2 e 6; o brilho verde-amarelado da lanterna nos frames 4-5 NÃO foi marcado."
+ }
+}
