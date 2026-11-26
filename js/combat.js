@@ -1,6 +1,26 @@
 // combat.js — jutsus, dano, alvos, perseguições, IA, laço da rodada
 "use strict";
 const availableJutsu=u=>u.d.recast&&fieldA?.owner===u?u.d.recast:u.d.jutsu;
+const selectedJutsu=u=>u.armedSkill||availableJutsu(u);
+const canPrepareJutsu=(u,j)=>j&&u.alive&&u.cd===0&&!u.armedSkill&&chakra[u.side]>=j.cost;
+function prepareJutsu(u,j,autoRate=null){
+  if(!canPrepareJutsu(u,j)||(autoRate!==null&&!wants(u,j,autoRate)))return false;
+  chakra[u.side]-=j.cost;
+  u.armedSkill=j;
+  return true;
+}
+function commitJutsu(u){
+  const j=u.armedSkill;
+  u.armedSkill=null;
+  u.cd=j.cd;
+  upd(u);
+  return j;
+}
+function refundJutsu(u){
+  if(!u.armedSkill)return;
+  chakra[u.side]=Math.min(100,chakra[u.side]+u.armedSkill.cost);
+  u.armedSkill=null;
+}
 function drawJ(){
   for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.transform=`scaleX(${Math.min(100,chakra[s])/100})`; $('ckn'+s.toUpperCase()).textContent='Chakra '+chakra[s];}
   const b=$('sbar');
@@ -13,17 +33,15 @@ function drawJ(){
       if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.0,32,32,'icon'); } else portrait(kp,u.id,2.3,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
-      x.onclick=()=>{ if(!battleOn||result()||!u.alive||u.cd>0||u.armed)return;   // armado = comprometido: não dá pra cancelar (só se ele morrer, aí o chakra volta)
-        const skill=availableJutsu(u);
-        if(chakra.p>=skill.cost){u.armed=true;u.armedSkill=skill;chakra.p-=skill.cost;} else return;
+      x.onclick=()=>{ if(!battleOn||result()||!prepareJutsu(u,availableJutsu(u)))return;
         sfx.arm(); upd(u); drawJ(); };
       w.appendChild(x); w.appendChild(lb); b.appendChild(w); u.sk=x; u.skl=lb; u.skc=x.querySelector('.cdv'); }); }
-  U.p.forEach(u=>{const j=u.armedSkill||availableJutsu(u), x=u.sk; if(!x)return;
-    const can=u.alive&&u.cd===0&&(u.armed||chakra.p>=j.cost);
-    x.classList.toggle('armed',!!u.armed); x.classList.toggle('off',!can);
+  U.p.forEach(u=>{const j=selectedJutsu(u), x=u.sk; if(!x)return;
+    const armed=!!u.armedSkill;
+    x.classList.toggle('armed',armed); x.classList.toggle('off',!(armed||canPrepareJutsu(u,j)));
     x.title=j.name+': '+j.desc; x.querySelector('.cost').textContent=j.cost;
     u.skc.textContent=u.alive&&u.cd>0?u.cd:!u.alive?'✕':'';
-    u.skl.textContent=u.armed?(j.instant?'na fila':'preparado'):j.name; });
+    u.skl.textContent=armed?(j.instant?'na fila':'preparado'):j.name; });
 }
 // campo (Noite de Névoa): efeitos vêm de jutsu.fieldFx do dono do campo (data.js)
 function fieldMul(a,basic){ if(!fieldA)return 1; const fx=fieldA.fx, mine=a.side===fieldA.side;
@@ -39,18 +57,14 @@ function setField(u,rounds){
 const STATUS={seal:{name:'Selado',tag:'S'},blind:{name:'Cego',tag:'C'},sleep:{name:'Sono',tag:'Z'}};
 function tryStatus(t){ if(Math.random()*100<resOf(t)){ fl(t,'Resistiu','info2'); return false; } return true; }
 const clearStatus=u=>{ u.seal=u.blind=u.sleep=0; };
-function refundArm(u){
-  chakra[u.side]=Math.min(100,chakra[u.side]+(u.armedSkill||u.d.jutsu).cost);
-  u.armed=false; u.armedSkill=null;
-}
 function clearField(consumed=false,keepForgeScene=false){
   if(!fieldA)return;
   const {owner,fx}=fieldA;
   fieldA=null; $('fog').classList.remove('on');
   if(!keepForgeScene)showFieldScene(null);
   if(owner.d.recast){
-    if(owner.armedSkill===owner.d.recast)refundArm(owner);
-    owner.cd=owner.d.recast.cd;
+    if(owner.armedSkill===owner.d.recast){ refundJutsu(owner); upd(owner); }
+    if(!consumed)owner.cd=owner.d.recast.cd;
   }
   if(!consumed)log(fx.visual==='forge'?'O Plano da Forja se apaga':'O campo de névoa se dissipa');
   drawJ();
@@ -97,7 +111,7 @@ function hurt(t,d,cls,{pierce=false}={}){
   if(t.hp<=0&&t.owner){ vanishClone(t); return r; }
   if(t.hp<=0&&t.alive){t.alive=false; sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); t.dot=null; clearStatus(t); if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
     if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; battleAfter(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
-    if(t.armed)refundArm(t);}
+    refundJutsu(t);}
   else if(t.alive&&!t.state)setAnim(t,'hurt');
   upd(t); return r;
 }
@@ -475,7 +489,7 @@ function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive);
 let chainOpenJ=false;
 function acadCheck(side,count){ if(!acad||acad.done||side!=='p')return; const c=ACAD[acad.i];
   if(count>=c.goal&&(!c.jutsu||chainOpenJ)&&(!c.fire||U.p.some(u=>u.d.el.includes('Fogo')))){ acad.done=true; ink('DESAFIO CONCLUÍDO!'); } }
-function wants(u,rate){const j=u.d.jutsu;
+function wants(u,j,rate){
   if(j.unleash)return !u.solto&&Math.random()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
   if(j.aura)return !u.power&&u.hp>u.max*.25&&Math.random()<rate;
@@ -483,27 +497,26 @@ function wants(u,rate){const j=u.d.jutsu;
 async function castInstants(opening=false){
   await kazanReactions();
   // O laço da luta é o único que executa jutsus: cliques durante uma ação aguardam a próxima janela.
-  let pending;
+  let cast;
   do{
-    pending=false;
+    cast=false;
     for(const u of all()){
-      if(result())return;
-      const j=u.armedSkill||availableJutsu(u);
-      if(!j?.instant||!u.alive||u.cd>0||u.seal>0)continue;
-      const autoRate=u.side==='p'?(autoP?1:0):foe.ai;
-      if(!u.armed&&(!opening||!autoRate||chakra[u.side]<j.cost||!wants(u,autoRate)))continue;
       await gate();
-      if(!u.armed){
-        if(chakra[u.side]<j.cost)continue;
-        chakra[u.side]-=j.cost;
+      if(result())return;
+      const j=selectedJutsu(u);
+      if(!j?.instant||!u.alive||u.cd>0||u.seal>0)continue;
+      if(!u.armedSkill){
+        const autoRate=u.side==='p'?Number(autoP):foe.ai;
+        if(!opening||!autoRate||!prepareJutsu(u,j,autoRate))continue;
       }
-      pending=true;
-      u.armed=false; u.armedSkill=null; u.cd=j.cd; upd(u); drawJ();
-      await doSkill(u,j,true);
+      const skill=commitJutsu(u);
+      drawJ();
+      await doSkill(u,skill,true);
       await kazanReactions();
+      cast=true;
     }
     opening=false;
-  }while(pending&&all().some(u=>u.armed&&u.d.jutsu.instant));
+  }while(cast&&all().some(u=>u.armedSkill?.instant));
 }
 async function intro(){
   for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':'move',Math.random()*8|0);}
@@ -574,24 +587,28 @@ async function run(){
           if((res=result()))break outer;
           continue;
         }
-        if(u.sleep>0){ fl(u,'Dormindo...','info2'); log(`${nm(u)} está dormindo e perde a ação`); u.sleep--; upd(u); continue; }
-        const wasStun=u.stunned;   // paralisia (como no Naruto Online): o ninja age normal (básico, jutsu), só não consegue PERSEGUIR; passa depois da ação dele
-        if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
-        let sk=u.d.normal,isJ=false; const j=u.d.jutsu, sealed=u.seal>0;
-        if(sealed&&u.armed&&!j.instant){ refundArm(u); u.armed=false; u.armedSkill=null; upd(u); }   // selado depois de armar: o chakra volta
-        if(sealed)fl(u,'Selado','info2');
-        if(!sealed&&!j.instant&&u.side==='p'&&!autoP&&!u.armed&&u.cd===0&&chakra.p>=j.cost){   // janela pra armar o jutsu: o botão pulsa um instante antes do golpe
+        let sk=u.d.normal,isJ=false;
+        const available=availableJutsu(u);
+        if(!u.sleep&&!u.seal&&!available.instant&&u.side==='p'&&!autoP&&canPrepareJutsu(u,available)){   // o botão pulsa antes do golpe
           u.el.classList.add('turn'); u.sk.classList.add('ready');
-          for(let w=0;w<1100&&!u.armed&&u.alive;w+=60){ await gate(); await castInstants(); await sleep(60); }
-          u.sk.classList.remove('ready'); }
+          for(let w=0;w<1100&&!u.armedSkill&&u.alive&&!u.seal&&!u.sleep;w+=60){ await sleep(60); await castInstants(); }
+          u.sk.classList.remove('ready'); u.el.classList.remove('turn');
+        }
         if((res=result()))break outer;
         if(!u.alive)continue;
-        if(sealed){}
-        else if(!j.instant&&u.side==='p'){
-          if(!u.armed&&autoP&&u.cd===0&&chakra.p>=j.cost&&wants(u,1)){u.armed=true;chakra.p-=j.cost;}
-          if(u.armed){u.armed=false;u.armedSkill=null;u.cd=j.cd;sk=j;isJ=true;upd(u);} }
-        else if(j.charge){ u.chg=(u.chg||0)+1; if(u.chg>=j.charge){u.chg=0;sk=j;isJ=true;} else fl(u,`${j.name}: ${j.charge-u.chg}`,'info2'); upd(u); }   // carga do Selo Final (Mestre): solta na 3ª vez dele e recomeça
-        else if(!j.instant&&u.cd===0&&chakra.e>=j.cost&&wants(u,foe.ai)){chakra.e-=j.cost;u.cd=j.cd;sk=j;isJ=true;}
+        if(u.sleep>0){ fl(u,'Dormindo...','info2'); log(`${nm(u)} está dormindo e perde a ação`); u.sleep--; upd(u); continue; }
+        const wasStun=u.stunned;   // paralisia bloqueia só a perseguição e passa depois da ação do ninja
+        if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
+        const j=selectedJutsu(u);
+        if(u.seal>0){
+          if(u.armedSkill&&!j.instant){ refundJutsu(u); upd(u); }
+          fl(u,'Selado','info2');
+        }else if(!j.instant){
+          if(j.charge&&u.side==='e'){ u.chg=(u.chg||0)+1; if(u.chg>=j.charge){u.chg=0;sk=j;isJ=true;} else fl(u,`${j.name}: ${j.charge-u.chg}`,'info2'); upd(u); }   // Selo Final do Mestre
+          else if(u.armedSkill||((u.side==='e'||autoP)&&prepareJutsu(u,j,u.side==='p'?1:foe.ai))){
+            sk=commitJutsu(u); isJ=true;
+          }
+        }
         if(!isJ&&u.d.strong&&Math.random()<STRONG_CHANCE)sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte
         if(u.blind>0&&!isJ){ fl(u,'Cego: sem básico','info2'); log(`${nm(u)} está cego e não ataca`); }   // cegueira: só o jutsu sai
         else{ u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn'); }

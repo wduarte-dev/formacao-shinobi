@@ -454,7 +454,6 @@ async function kazanForge(u,sk){
 async function kazanDragonSkill(u,sk){
   if(fieldA?.owner!==u)return;
   clearField(true,true);
-  u.cd=sk.cd;
   const ts=foes(u);
   if(!ts.length){ await transitionField('forge',false,()=>showFieldScene(null)); return; }
   setAnim(u,'idle',0,true); u.ts=0;

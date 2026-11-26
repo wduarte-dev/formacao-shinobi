@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.13.2 · 26/11/2026 · Jutsu instantâneo
+- Jutsus instantâneos usam uma regra comum: ficam na fila até a primeira janela entre ações e preservam a vez do ninja. O chakra é reservado ao preparar e a recarga começa ao lançar.
+- Jutsus comuns continuam saindo na vez do ninja, no lugar do ataque habitual.
+
 ## 1.13.1 · 26/11/2026 · Dado e entrada mais claros
 - O dado de iniciativa só rola na rodada 1 e gira por 3 segundos reais, em qualquer velocidade da batalha, com som de dado rolando. Depois vem uma batida curta, o som do resultado, a mensagem e só então os ninjas entram.
 - Da rodada 2 em diante não tem dado: quem começa alterna a cada rodada, a partir do resultado da primeira.

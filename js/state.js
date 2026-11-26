@@ -54,7 +54,7 @@ function sleep(ms){const t=token;return new Promise((res,rej)=>battleAfter(()=>t
 async function gate(){const t=token;while(paused){await new Promise(r=>setTimeout(r,120));if(t!==token)throw ABORT;}}
 const all=()=>[...U.p,...U.e,...U.clones];
 function mk(id,side,slot,row,depth,m,d=N[id],scale=3){const a=mkSpr(id,scale);
-  return Object.assign(a,{off:{x:0,y:0},d,side,slot,row,depth,max:Math.round(d.hp*m),hp:Math.round(d.hp*m),atk:d.atk*m,def:d.def,cd:0,armed:false,armedSkill:null,teamHits:0,chaseUsed:false,stunned:false,shield:0,shM:0,shR:0,nc:0,dot:null,alive:true,state:null});}
+  return Object.assign(a,{off:{x:0,y:0},d,side,slot,row,depth,max:Math.round(d.hp*m),hp:Math.round(d.hp*m),atk:d.atk*m,def:d.def,cd:0,armedSkill:null,teamHits:0,chaseUsed:false,stunned:false,shield:0,shM:0,shR:0,nc:0,dot:null,alive:true,state:null});}
 const team=s=>U[s].concat(U.clones.filter(u=>u.side===s)), foes=u=>team(u.side==='p'?'e':'p').filter(x=>x.alive);
 const livingClones=u=>U.clones.filter(c=>c.owner===u&&c.alive);
 function summonClones(owner,sk){

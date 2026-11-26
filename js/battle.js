@@ -71,7 +71,7 @@ function upd(u){
     else if(u.an==='stun'&&!u.stunned)setAnim(u,'idle');
   }
   u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/(u.shM||u.shield)):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
-  u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',u.armed&&u.alive);
+  u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',!!u.armedSkill&&u.alive);
   u.el.classList.toggle('powered',!!u.power&&u.alive);
   u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'')+(u.seal>0?'<span class="x">S</span>':'')+(u.blind>0?'<span class="x">C</span>':'')+(u.sleep>0?'<span class="x">Z</span>':'');
   for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0), shm=U[s].reduce((x,v)=>x+(v.alive&&v.shield>0?v.shM||v.shield:0),0); tshEl(s).style.transform=`scaleX(${shm?Math.min(1,sh/shm):0})`;}

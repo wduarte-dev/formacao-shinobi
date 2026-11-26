@@ -40,6 +40,8 @@ Ferramentas que escrevem doc (`gen_prompts_lotes.py`, `new_ninja.py`) usam `../f
 
 Scripts **clássicos** (não ES modules), compartilham o escopo global: a ordem das tags importa e código que roda no carregamento só pode usar o que já foi carregado. Funciona abrindo via servidor local; por `file://` também (sem fetch).
 
+Jutsu instantâneo: colocar `instant:true` no jutsu em `js/data.js` (também vale para `recast`). O combate reserva chakra ao armar, lança entre ações e aplica a recarga no lançamento. O efeito recebe o jutsu selecionado em `doSkill` e a vez normal do ninja continua na fila de turnos. Regressões: `python3 tools/test_jutsu.py`.
+
 ## Arquitetura (resumo)
 - Palco fixo 1152x648 escalado por CSS; `#cam` (zoom) envolve fundo, unidades e efeitos; HUD fora.
 - Sprites: todos os atlas se registram no objeto `V2` (`js/sprites.js`, `nome:[linha, quadros, fps, loop, pingpong]`), que gera `SH[id]` (cw, ch, âncora dos pés, tamanho, fator k, `anim`). Nomes do jogo → pipeline via `V2MAP` (move→dash, atk1→attack, atk2→jutsu, atk3→strong, cast→seals, die→defeat). Kaen: atlas de 12 colunas (`W` próprio), perseguição aérea `rise`→`meteor`→`landing`. 6º campo opcional `seq` = ordem dos quadros com repetição (segura um quadro por mais tempo; Iwao usa pro Gigante de Pedra). Jutsu com `wave` (Poko) desenha ondas em código (`soundWave`) em vez do sprite de efeito. Anims com `pingpong` vão e voltam. Atlas novos (pipeline v2): células 192x160, pé em x=96 y=150, 8 colunas, k=1/3, JSON com fps por anim e flag `pingpong`. Efeitos do lote D: atlas próprio 288x192, alpha suave.
