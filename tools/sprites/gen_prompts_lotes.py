@@ -41,6 +41,16 @@ PIXEL = ("ART STYLE (mandatory, highest priority): this is true PIXEL ART for a 
 LOCKS = ("ANATOMICAL LOCK: every frame keeps exactly two arms, two hands and two legs with coherent joints and limb connections; natural occlusion is allowed but hidden limbs stay anatomically consistent; no missing, fused, disconnected or extra body parts, and the hands always clearly hold the items they hold.\n"
          "TEMPORAL COHERENCE: all frames are the SAME persistent character at different moments of ONE animation, not separate illustrations: coherent anatomy, clothing, accessories, proportions and secondary motion (cape/coat/hair follow the body) between consecutive frames, and every frame has a clear function in the motion (no near-identical or filler frames).\n"
          "CELL ISOLATION: treat each cell as its own canvas with a safe margin of at least 10% empty on every side; character, clothing, items and effects stay inside it, the scale is identical in all cells, and there is visible empty green space between neighbouring frames.\n")
+# Ninja com distorção proposital (estilo smear/off-model, ex.: Zigzaggy): troca o ANATOMICAL/TEMPORAL LOCK e a regra 7 por versões de silhueta elástica.
+_CI = LOCKS[LOCKS.index("CELL ISOLATION"):]
+LOCKS_DIST = ("IDENTITY LOCK: the face mask, hair, colors, outfit pattern and every accessory keep their identity and count in every frame (always exactly one pair of arms and one pair of legs, always the same number of bells and pom-poms). "
+              "The SILHOUETTE IS ELASTIC: in the frames marked SMEAR the body, arms, legs and cloth may stretch, squash, bend or smear like deliberately off-model animation key frames in a fast anime fight; a SMEAR frame is a SOLID, opaque, hard-edged drawing, never translucent or blurred, and it sits between two clear on-model frames.\n"
+              "TEMPORAL COHERENCE: all frames are the SAME character at different moments of ONE animation; on-model frames follow the approved design exactly, SMEAR frames may deform it but stay recognizable (the white mask face, the red hair and the zigzag pattern stay readable), and every frame has a clear function in the motion.\n") + _CI
+DIST7 = "7. Distortion: ONLY in frames marked SMEAR may limbs, body and cloth stretch, squash or bend; draw them as solid hard-edged shapes, never translucent, never soft blur, never as extra duplicated limbs."
+def _dist(n, t):
+    if not n.get("dist"): return t
+    t = t.replace(LOCKS, LOCKS_DIST)
+    return "\n".join(DIST7 if l.startswith("7. Draw smears") else l for l in t.split("\n"))
 ROWREF = ("Two images are attached. FIRST image = the PIXEL-ART STYLE ROSTER (several other characters of the same game): copy ONLY its pixel-art style, outline weight, pixel scale and body proportions, NEVER their faces, hair, clothes or colors. "
           "SECOND image = the APPROVED DESIGN of the new character ({NAME}): the ABSOLUTE source of truth for who he is.\n")
 STYLE_RULES = """STRICT RULES (highest priority, never break):
@@ -297,6 +307,15 @@ ROWMAP = [('A1', ['idle', 'walk', 'dash']), ('A1B', ['attack1', 'attack2', 'atta
           ('B1', ['seals', 'jutsu', 'buff']), ('B2', ['stun', 'victory', 'defeat']), ('C', ['knockback', 'launched', 'knockdown']),
           ('CH', ['chase1', 'chase2', 'chase3']), ('U', ['ult1', 'ult2', 'fireball']), ('CL', ['clone_idle', 'clone_attack', 'clone_hurt', 'clone_vanish']),
           ('D', ['fx_proj', 'fx_hit', 'fx_jutsu', 'fx_chase', 'fx_impact', 'fx_aura'])]
+NINJAS["zigzaggy"] = dict(name="ZIGZAGGY", pal="charcoal gray-brown, cream, mustard yellow, red, gold, white", styleref=True, dist=True,
+  look="the spiky red hair, the white clown-mask face with a wide black grin, one eye closed in a wink, a red nose and a small gold zigzag mark on the forehead, the gray-brown jester collar with mustard zigzag trim and gold and red bells, the cream shirt with one mustard sleeve, charcoal wristbands, white gloves with clearly drawn fingers, a charcoal sash with pointed tails and red pom-poms, baggy split cream-and-mustard pants with charcoal zigzag hems, pointed charcoal boots with red pom-poms, and a small golden air horn with a red bulb (tucked at the sash unless the animation says it is in his hand)",
+  char="ZIGZAGGY, a young clown ninja, restless and unpredictable. Lean, slightly hunched and bouncing on his toes, head tilted, a wide lopsided grin. Spiky red hair. A white clown-mask face with a wide black grin, one eye closed in a wink, a red nose and a small gold zigzag mark on the forehead. A gray-brown jester collar with mustard zigzag trim and gold and red bells, a cream shirt with one mustard sleeve, charcoal wristbands, white gloves with clearly drawn fingers, a charcoal sash with pointed tails and red pom-poms, baggy split cream-and-mustard pants with charcoal zigzag hems, pointed charcoal boots with red pom-poms. A small golden air horn with a red bulb tucked at the sash. NO weapon: he fights with hand tricks and the horn. Colors only charcoal gray-brown, cream, mustard yellow, red, gold and white. Nothing green, turquoise or purple anywhere.",
+  STYLEPOSE="a restless bouncing idle stance on his toes, head tilted, a hand on the hip, a wide lopsided grin",
+  A1="""Row 1: IDLE, 6 frames: bouncing on his toes, head tilted, he juggles exactly three small gold bells taken from his sash: frame 1 bells in his hands, frame 2 he tosses them up, frame 3 SMEAR: arms and torso stretched upward, the three bells high in the air, frame 4 the bells fall, frame 5 he catches them one by one, frame 6 back to the bouncing stance. Exactly three bells in EVERY frame, each fully drawn, never fewer or more, the horn stays tucked at the sash (cells 7 to 8 EMPTY).
+Row 2: WALK, 8 frames: a loose, springy, bouncing walk cycle to the right, arms swinging, guizos and pom-poms bobbing, frame 4 and frame 8 are SMEAR frames (legs and torso slightly stretched), full 8 columns.
+Row 3: DASH (RUN), 8 frames: a fast low running cycle to the right, body leaning far forward, frames 2 and 6 are SMEAR frames (body and legs stretched long, arms trailing behind), NO whirlwind, NO dust, NO speed lines (the whirlwind is a separate effect sheet), full 8 columns.""",
+  A2="Row 1: TBD", B1="Row 1: TBD", B2="Row 1: TBD", D="Row 1: TBD")
+
 def _colors(n, t):
     """Ninja com chave `colors` (ex.: Kazan) troca o limite padrão de 16 cores pelo dele (decidido 25/11/2026)."""
     c = n.get("colors")
@@ -337,7 +356,7 @@ def build(k):
     if "U" in n: out["U"] = lot((3, n["U"]), "U", False)
     out["D"] = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N) + n["D"] + "\n"
     out.update(n.get("DR", {}))   # peças grandes do dragão (1 imagem por peça, texto pronto)
-    return {a: _colors(n, t) for a, t in out.items()}
+    return {a: _dist(n, _colors(n, t)) for a, t in out.items()}
 def one_row(k, lote, idx):
     """Prompt de UMA linha de um lote (regra do dono 25/11/2026: gerar linha a linha, a anterior serve de ref da próxima)."""
     t = build(k)[lote]
