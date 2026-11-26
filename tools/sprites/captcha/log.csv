@@ -15,3 +15,7 @@ R06,3,gemini,acessorio_faltando,A lanterna que o personagem segurava sumiu e apa
 R08,6,gemini,acessorio_duplicado,A lanterna aparece pendurada na mão e também na cintura.,n,2026-11-26
 R07,2,local:verde_halo,verde_no_sprite,tom verde 160 px (mediana do sheet 65),n,2026-11-26
 R10,7,gemini,verde_no_sprite,resquicio de verde no cachecol,s,2026-11-26
+R02,6,gemini,verde_no_sprite,"Pixels verdes isolados no meio das borboletas roxas. | dono: não é verde, mas a mão esquerda está dentro do corpo e não aparece (mao_escondida)",n,2026-11-26
+R02,7,controle,controle,"dono: SIM, a mão: IA 'emenda' a mão com acessório/corpo (mao_emendada)",s,2026-11-26
+R11,5,controle,controle,"dono: parcial: sobra o vão entre o laço/cachecol e o vestido, que deveria ter sido removido (vao_fundo)",s,2026-11-26
+R09,3,gemini,acessorio_faltando,"A lanterna sumiu da mão direita do personagem neste quadro. | dono: nada de acessório faltando, mas mãos emendadas e sujeira fora do sprite (mao_emendada; sujeira_fora)",n,2026-11-26

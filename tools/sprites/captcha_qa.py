@@ -22,13 +22,18 @@ PERGUNTA = {
  'corpo_translucido': 'O corpo do personagem está translúcido/fantasma neste quadro?',
  'verde_no_sprite': 'Há verde sujando o sprite, ou brilho esverdeado/amarelo-esverdeado em volta de algo?',
  'celula_invadida': 'Este quadro deveria estar vazio, mas tem conteúdo?',
+ 'mao_emendada': 'Há mão EMENDADA/fundida com o acessório ou com o corpo (aquela mistura estranha de IA)?',
+ 'mao_escondida': 'Falta uma mão visível (escondida dentro do corpo/manga)?',
+ 'vao_fundo': 'Sobrou um vão/fundo que devia ter sido removido (ex.: entre cachecol e roupa)?',
+ 'sujeira_fora': 'Há sujeira/pedaços soltos FORA do sprite?',
  'controle': 'Este quadro tem ALGUM defeito (membro, acessório, fantasma, verde, corte)?',
 }
 GEM = ("Você é revisor de QA de sprites pixel art (fundo verde #00FF00). A imagem tem 4 quadros lado a lado do MESMO personagem numa animação; "
-       "numere-os de 1 a 4 da esquerda para a direita. Procure SÓ estes defeitos concretos por quadro: membro_duplicado (braço/perna/cabeça sobrando), "
-       "acessorio_faltando, acessorio_duplicado (cajado/lanterna sumindo ou repetido), corpo_translucido (corpo fantasma/meio apagado, NÃO conta arco de efeito), "
-       "verde_no_sprite (verde sujando o personagem ou brilho esverdeado). Responda SÓ um JSON: [{\"frame\":1..4,\"defeito\":\"<um dos nomes>\",\"motivo\":\"<curto>\"}]. "
-       "Sem defeito = []. Não invente: se tiver dúvida, não liste.")
+       "numere-os de 1 a 4 da esquerda para a direita. Procure SÓ estes defeitos concretos por quadro: verde_no_sprite (verde sujando o personagem ou brilho esverdeado), "
+       "mao_emendada (mão fundida/emendada com o acessório ou com o corpo, sem dedos claros), mao_escondida (uma mão que some dentro do corpo/manga), "
+       "vao_fundo (fresta entre peças do sprite onde sobrou fundo que devia ter sido removido), sujeira_fora (pontos/pedaços soltos fora do sprite; NÃO conta mariposa nem efeito). "
+       "Responda SÓ um JSON: [{\"frame\":1..4,\"defeito\":\"<um dos nomes>\",\"motivo\":\"<curto>\"}]. Sem defeito = []. Não invente: se tiver dúvida, não liste. "
+       "(Histórico do captcha: corpo_translucido, acessorio_faltando/duplicado e membro_duplicado deram 0 acertos em 8 e foram removidos; os 4 tipos de mão/vão/sujeira são NOVOS e estão em teste.)")
 
 def prep(path, raw):
     a = np.asarray(Image.open(path).convert('RGB')).copy()
