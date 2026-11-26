@@ -38,5 +38,27 @@
    ]
   },
   "obs": "Mão fundida em todos os 7 frames. Verde invadindo só nos frames 2 e 6. Brilho amarelo da lanterna (frames 4-5): não é verde, é a luz da lanterna; o dono acha coerente e até interessante, mas CONSIDERA DEFEITO LEVE porque no jogo fica estranho (tipo brilho_lanterna)."
+ },
+ "R01": {
+  "origem": "duelos/limpo/R01.png (2172x391, 8 colunas iguais) = campeão do mata-mata (prompt 2)",
+  "anotado_por": "dono",
+  "imagem_recebida": "2000x359",
+  "frames": {
+   "1": [],
+   "2": [
+    "luva_some_parcialmente",
+    "mao_fundida"
+   ],
+   "3": [],
+   "4": [
+    "linha_estranha"
+   ],
+   "5": [
+    "mao_fundida"
+   ],
+   "6": [],
+   "7": []
+  },
+  "obs": "4 quadrados em 3 de 7 frames (frames 1, 3, 6, 7 limpos). Mão fundida também aparece aqui, mas bem menos que no R09."
  }
 }
