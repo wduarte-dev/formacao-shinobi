@@ -44,12 +44,12 @@ function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
   labTeam.forEach((p,i)=>{ const c=labCell(p.row,p.depth), a=actor(p.id,1.9,c.x,c.y,Un); a.el.style.zIndex=10+p.row;
     const b=document.createElement('div'); b.className='ordb sm'; b.textContent=i+1; a.el.appendChild(b);
     const hit=document.createElement('div'); hit.style.cssText='position:absolute;left:-28px;top:-92px;width:56px;height:94px'; a.el.appendChild(hit);
-    hit.onpointerdown=e=>startDrag(e,p.id,true); });
+    hit.onpointerdown=e=>{ startDrag(e,p.id,true); holdStart(p.id,hit); }; });
   const R=$('aRoster'); R.innerHTML='';
   IDS.forEach(id=>{ const used=labTeam.some(p=>p.id===id), b=document.createElement('button'); b.className='slot'+(used?' used':'')+(have(id)?'':' lockd');
     const po=document.createElement('i'); po.className='por'; b.appendChild(po); portrait(po,id,1.15,40,40);
     if(!have(id)){ const s=document.createElement('small'); s.textContent='🔒'; b.appendChild(s); R.appendChild(b); return; }
-    b.title=N[id].name; b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
+    b.onpointerdown=e=>{ startDrag(e,id,false); holdStart(id,b); }; R.appendChild(b); });
   drawCombos($('aCombo'),labTeam.map(p=>p.id),true);
   const L=$('aList'); L.innerHTML='';
   ACAD.forEach((c,i)=>{ const card=document.createElement('div'); card.className='acard';
@@ -71,3 +71,23 @@ function comboTitle(){ const rows=comboRows(placed.map(p=>p.id)), m=rows.length?
   $('fComboH').textContent=$('fComboW').classList.contains('min')?`Combos · máx. ${m}`:'Combos'; }
 $('fComboT').onclick=()=>comboMin(!$('fComboW').classList.contains('min'));
 try{comboMin(localStorage.getItem('shinobi-combomin')==='1');}catch(e){}
+// ---- ficha do ninja (mesmo visual na Formação e no "segurar" da Academia; modelo: docs/refs/mock-ficha.png no repo de contexto) ----
+const stB=s=>s?`<span class="cbadge" style="background:${STC[s]}">${s}</span>`:'';
+function fichaHtml(id){ const d=N[id], n=d.normal, s=d.strong, j=d.jutsu, c=d.chase;
+  const ex=sk=>(sk.burnChance?' + chance de Chamas':sk.dot?' + veneno':'')+(sk.stun?' + paralisa':'')+(sk.split?` · ${Math.round(sk.split*100)}%: acerta todos`:'');
+  const row=(cls,lab,txt)=>`<div class="frow"><span class="flab ${cls}">${lab}</span><span>${txt}</span></div>`;
+  return `<div class="fhead"><i class="fpor por"></i><div><b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span></div></div>
+  <div class="fstat"><span>♥ Vida ${d.hp}</span><span>⚔ Ataque ${d.atk}</span><span>⛨ Defesa ${d.def}</span><span>» Esquiva ${d.dodge||0}</span></div>`
+  +row('fb','Básico:',`${n.name} (${TG[n.target]})${n.cause?' → '+stB(n.cause):''}${ex(n)}`)
+  +row('ff',`Forte (${Math.round(STRONG_CHANCE*100)}%):`,s?`${s.name}${s.cause?' → '+stB(s.cause):''}${ex(s)}`:'—')
+  +row('fj','Jutsu:',`${j.name} · ${j.cost} chakra · ${j.desc}${j.cause?' → '+stB(j.cause):''}`)
+  +(c?row('fp','Perseguição:',`${c.name} · ${stB(c.on)} → ${stB(c.cause)}`):row('fp','Passiva:',`imune a D/L/R; Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time`)); }
+function drawFicha(el,id){ el.innerHTML=fichaHtml(id); portrait(el.querySelector('.fpor'),id,2.2,52,52); }
+// segurar um ninja do Laboratório (~0,45 s sem arrastar) abre a ficha por cima do painel; soltar fecha
+let holdT=null;
+function holdStart(id,slot){ clearTimeout(holdT); holdT=setTimeout(()=>{ const f=$('aFicha'); drawFicha(f,id); f.classList.remove('hide');
+  const st=$('stage').getBoundingClientRect(), k=st.width/1152, r=slot.getBoundingClientRect();
+  f.style.setProperty('--px',Math.max(20,Math.min(300,(r.left+r.width/2-st.left)/k-f.offsetLeft))+'px'); },450); }
+function holdEnd(){ clearTimeout(holdT); holdT=null; $('aFicha')?.classList.add('hide'); }
+addEventListener('pointerup',holdEnd); addEventListener('pointercancel',holdEnd);
+addEventListener('pointermove',()=>{ if(drag?.moved)holdEnd(); });

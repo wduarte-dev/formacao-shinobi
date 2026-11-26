@@ -78,18 +78,10 @@ function drawForm(){ BOARD=FORM_BOARD;
     if(!have(id)){ const s=document.createElement('small'); s.textContent='???'; b.appendChild(s); R.appendChild(b); return; }
     const s=document.createElement('small'); s.textContent=i>=0?N[id].name+' · '+(i+1)+'º':N[id].name; b.appendChild(s);
     b.onpointerdown=e=>startDrag(e,id,false); R.appendChild(b); });
-  $('fInfo').innerHTML=infoHtml(sel);
+  drawFicha($('fInfo'),sel);
   $('fDone').textContent=placed.length<4?`Faltam ${4-placed.length}`:'Pronto';
   drawCombos($('fCombo'),placed.map(p=>p.id),false); comboTitle();
 }
-function infoHtml(id){ const d=N[id], j=d.jutsu, n=d.normal;
-  return `<b style="color:${shade(d.c)}">${d.name}</b><span class="chip">${d.el}</span><span class="chip">${d.role}</span><br>
-  Vida ${d.hp} · Ataque ${d.atk} · Defesa ${d.def}<br>
-  <u>Normal:</u> ${n.name} (${TG[n.target]})${n.cause?' → '+ST[n.cause]:''}${n.burnChance?' + chance de Chamas':n.dot?' + veneno':''}${n.split?` (${Math.round(n.split*100)}%: acerta todos)`:''}<br>
-  ${d.strong?`<u>Forte</u> (30% de chance): ${d.strong.name}${d.strong.cause?' → '+ST[d.strong.cause]:''}${d.strong.stun?' + paralisa':''}${d.strong.dot?' + veneno':''}<br>`:''}
-  <u>Jutsu:</u> ${j.name}, ${j.cost} de chakra: ${j.desc}${j.cause?' → '+ST[j.cause]:''}<br>
-  ${d.chase?`<u>Combo:</u> persegue ${ST[d.chase.on]} → deixa ${ST[d.chase.cause]}`:
-  `<u>Passivas:</u> imune a D/L/R e dispara Bola de Fogo a cada ${KAZAN_LIMIT} contatos do time.`}`; }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
 function startDrag(e,id,fromField){ e.preventDefault(); try{e.target.releasePointerCapture&&e.target.releasePointerCapture(e.pointerId);}catch(_){} const p=stagePt(e); drag={id,fromField,x0:p.x,y0:p.y,moved:false};
   const g=$('drag'); g.innerHTML=''; const a=mkSpr(id,BOARD.sc); drawFrame(a); g.appendChild(a.spr); g.style.left=p.x+'px'; g.style.top=(p.y+50)+'px'; }
