@@ -27,16 +27,19 @@ def shift_rows(rgb, mk, shifts):
         else: o[y] = rgb[y]; om[y] = mk[y]
     return o, om
 
-def layers_for(tec, lv, rgb, mk):
+def layers_for(tec, lv, rgb, mk, cellw):
     ys = np.nonzero(mk.any(1))[0]; feet, h = ys.max(), ys.max() - ys.min() + 1; y = np.arange(mk.shape[0])
     if tec == 'skew':
         k = [0.12, 0.24, 0.38][lv - 1]; return [shift_rows(rgb, mk, np.round(np.clip(k * (feet - y), 0, None)))]
     if tec == 'bend':
         K = [0.10, 0.20, 0.32][lv - 1]; t = np.clip((feet - y) / h, 0, None); return [shift_rows(rgb, mk, np.round(K * h * t ** 2))]
     if tec == 'multiplos':
+        xs = np.nonzero(mk.any(0))[0]; step = min(16, ((cellw - 12) - (xs.max() - xs.min() + 1)) // lv)   # espaço que sobra na célula
+        if step < 4:
+            print('AVISO: o corpo já ocupa a célula toda, múltiplos não cabem; quadro mantido'); return [(rgb, mk)]
         L = []
         for i in range(lv, 0, -1):
-            o, om = shift_rows(rgb, mk, np.full(mk.shape[0], -16 * i)); L.append(((o * (1 - 0.22 * i)).astype(np.uint8), om))
+            o, om = shift_rows(rgb, mk, np.full(mk.shape[0], -step * i)); L.append(((o * (1 - 0.22 * i)).astype(np.uint8), om))
         return L + [(rgb, mk)]
     raise SystemExit('tecnica desconhecida: ' + tec)
 
@@ -48,7 +51,7 @@ def apply(sheet, rows, cols, specs):
         gm = np.median(cell[~ndi.binary_dilation(mk, iterations=3)].reshape(-1, 3), axis=0).astype(np.uint8)
         base = cell.copy(); base[ndi.binary_dilation(mk, iterations=2)] = gm
         rgbp = np.pad(cell, ((0, 0), (PAD, PAD), (0, 0))); mkp = np.pad(mk, ((0, 0), (PAD, PAD)))
-        L = layers_for(tec, lv, rgbp, mkp)
+        L = layers_for(tec, lv, rgbp, mkp, cell.shape[1])
         union = np.zeros_like(mkp)
         for _, m in L: union |= m
         xs = np.nonzero(union.any(0))[0]; lo, hi = PAD + 6, PAD + cell.shape[1] - 6; dx = 0
