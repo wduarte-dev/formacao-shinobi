@@ -198,6 +198,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #ambb,#ambf{position:absolute;left:0;top:0;width:1152px;height:648px;pointer-events:none;image-rendering:pixelated}
 #ambb{z-index:8}#ambf{z-index:64}
 #fxc{position:absolute;left:0;top:0;width:1152px;height:648px;z-index:66;pointer-events:none}
+#kdc{position:absolute;left:0;top:0;width:1152px;height:648px;z-index:67;pointer-events:none}
 .u{position:absolute;width:0;height:0;--h:124px;transition:opacity .18s}
 .u.p{--d:-1}.u.e{--d:1}
 .u.ghost{opacity:.08}
