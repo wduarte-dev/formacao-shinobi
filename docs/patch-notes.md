@@ -8,6 +8,7 @@ Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes
 - **Dragão de Brasa do Kaen** completo: selos, mãos abrindo, cut-in em faixa com o dragão rugindo, o dragão em peças sai das mãos (Kaen é empurrado pra trás com poeira), cruza a fileira queimando, sai da tela, volta por cima e cai na vertical se desintegrando, com destroços no chão. O dano acontece nos contatos reais (40% na travessia, 60% na queda).
 - Formação livre: dá pra lutar com 1, 2, 3 ou 4 ninjas. O botão **Pronto** não pede mais time cheio.
 - A galeria de ninjas não tem mais os botões de ver animações.
+- Corrigido: o idle do Kaen não "explode" mais num quadro gigante (eram dois quadros de pulo que vieram no fim da animação).
 
 ## 1.17 · 27/11/2026 · Kaen todo no estilo novo
 

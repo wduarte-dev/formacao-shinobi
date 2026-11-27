@@ -18,7 +18,7 @@ STANCE = 117       # altura da pose de luta/em pé em px (idle: 220 nativo x S)
 FOOT = 'g'         # chão fixo (b do primeiro quadro); 'f' = chão por quadro
 # nome do atlas: (lote, poses, linha, fps, loop, pingpong, escala|None, chão, centrar_largas)
 SPEC = {
-    'idle':      ('idle', range(50), 0, 20, 1, 0, S, 'g'),
+    'idle':      ('idle', range(48), 0, 20, 1, 0, S, 'g'),
     'hop':       ('pulo', range(3), 4, 16, 0, 0, 'ref0', 'g'),
     'rise':      ('meteoro', range(0, 6), 6, 12, 0, 0, S, 'f'),
     'meteor':    ('meteoro', range(6, 10), 9, 12, 0, 0, S, 'f'),
