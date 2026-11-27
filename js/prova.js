@@ -45,6 +45,9 @@ BUS.on('estado',e=>provaEv('estado',{t:provaKey(e.t),s:e.s}));
 BUS.on('acao',e=>provaEv('acao',{u:provaKey(e.u),sk:e.sk?.name||'',j:e.isJ?1:0,forte:e.sk===e.u.d.strong?1:0}));
 BUS.on('persegue',e=>provaEv('persegue',{side:e.side,t:provaKey(e.t),n:e.n}));
 BUS.on('rodada',()=>provaEv('rodada',{ch:[chakra.p,chakra.e],u:provaSnap()}));
+// cópia da tela (fatia 3a): no fim da luta a HUD (u.v, vChakra) tem que mostrar exatamente o estado da regra; devolve as divergências
+function provaCopia(){ const out=all().filter(u=>JSON.stringify(u.v)!==JSON.stringify(vista(u))).map(provaKey);
+  if(vChakra.p!==chakra.p||vChakra.e!==chakra.e)out.push('chakra'); return out; }
 // resumo + hash (FNV-1a 32 bits, duas passadas) do log de eventos
 function provaDigital(){
   const s=JSON.stringify(provaEvs); let h1=0x811c9dc5, h2=0x01000193;
@@ -56,5 +59,5 @@ function provaDigital(){
     acoes:n('acao').length, jutsus:n('acao').filter(e=>e.j).length, fortes:n('acao').filter(e=>e.forte).length,
     perseguicoes:n('persegue').length, maiorCombo:maxCombo, estados, danoP:dmg('p'), danoE:dmg('e'),
     absorvido:n('dano').reduce((a,e)=>a+(e.esc>0?e.esc:0),0), dot:n('dano').filter(e=>e.cls==='dot').length,
-    clones:new Set(provaEvs.flatMap(e=>e.u&&e.k==='acao'&&e.u.includes(':utsushic')?[e.u]:[])).size};
+    clones:new Set(provaEvs.flatMap(e=>e.u&&e.k==='acao'&&e.u.includes(':utsushic')?[e.u]:[])).size, copia:provaCopia()};
 }

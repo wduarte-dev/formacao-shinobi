@@ -58,7 +58,7 @@ function startBattle2(){
   bgExt($('bbg'),`bg/${foe.bg}.png`); ambStart(foe.bg); ambSndStart(foe.bg);
   portrait($('hpP'),U.p[0].id,1.9,60,60); portrait($('hpE'),U.e[0].id,1.9,60,60);
   all().forEach(mountUnit);
-  ACT=all(); all().forEach(upd); battleOn=true; drawJ(); run();
+  ACT=all(); mostraChakra(); all().forEach(mostra); battleOn=true; drawJ(); run();
 }
 function mountUnit(u){
     const p=pos(u), e=document.createElement('div'); e.className='u '+u.side; e.style.setProperty('--c',u.d.c); e.style.left=p.x+'px'; e.style.top=p.y+'px'; e.style.zIndex=u.z=10+u.row*10+(2-u.depth);
@@ -71,18 +71,23 @@ function mountUnit(u){
 }
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
+// HUD da unidade: desenha SÓ pela cópia da tela (u.v, última foto anunciada pela regra em 'unidade'/'dano'), nunca pelos campos da regra
+BUS.on('unidade',({u,v})=>{ u.v=v; if(u.el)upd(u); });
 function upd(u){
-  if(u.alive&&u.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);
-  if(u.id==='kaen'&&typeof kitAura==='function'){ u._aura=!!(u.armedSkill&&u.alive)||!!u._casting; if(u._aura)kitAura(u); }   // aura em loop do jutsu armado ou em execução   // estrelas tontas do kit sobre quem está paralisado
-  if(u.alive&&u.d.stationary){
-    if(u.an==='idle'&&u.stunned)setAnim(u,'stun');
-    else if(u.an==='stun'&&!u.stunned)setAnim(u,'idle');
+  const v=u.v; if(!v)return;
+  if(v.alive&&v.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);
+  if(u.id==='kaen'&&typeof kitAura==='function'){ u._aura=!!(v.armed&&v.alive)||!!u._casting; if(u._aura)kitAura(u); }   // aura em loop do jutsu armado ou em execução   // estrelas tontas do kit sobre quem está paralisado
+  if(v.alive&&u.d.stationary){
+    if(u.an==='idle'&&v.stunned)setAnim(u,'stun');
+    else if(u.an==='stun'&&!v.stunned)setAnim(u,'idle');
   }
-  u.el.querySelector('.hpb i').style.transform=`scaleX(${u.hp/u.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${u.alive&&u.shield>0?Math.min(1,u.shield/(u.shM||u.shield)):0})`; u.el.querySelector('.hpn').textContent=u.hp+'/'+u.max;
-  u.el.classList.toggle('dead',!u.alive); u.el.classList.toggle('armed',!!u.armedSkill&&u.alive);
-  u.el.classList.toggle('powered',!!u.power&&u.alive);
-  u.el.querySelector('.tg').innerHTML=!u.alive?'':(u.stunned?'<span class="s">P</span>':'')+(u.shield>0?'<span class="e">E</span>':'')+(u.dot?'<span class="d">D</span>':'')+(u.seal>0?'<span class="x">S</span>':'')+(u.blind>0?'<span class="x">C</span>':'')+(u.sleep>0?'<span class="x">Z</span>':'');
-  for(const s of ['p','e']){const a=U[s].reduce((x,v)=>x+v.hp,0), b=U[s].reduce((x,v)=>x+v.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${a/b})`; const sh=U[s].reduce((x,v)=>x+(v.alive?v.shield:0),0), shm=U[s].reduce((x,v)=>x+(v.alive&&v.shield>0?v.shM||v.shield:0),0); tshEl(s).style.transform=`scaleX(${shm?Math.min(1,sh/shm):0})`;}
+  u.el.querySelector('.hpb i').style.transform=`scaleX(${v.hp/v.max})`; u.el.querySelector('.shb').style.transform=`scaleX(${v.alive&&v.shield>0?Math.min(1,v.shield/(v.shM||v.shield)):0})`; u.el.querySelector('.hpn').textContent=v.hp+'/'+v.max;
+  u.el.classList.toggle('dead',!v.alive); u.el.classList.toggle('armed',!!v.armed&&v.alive);
+  u.el.classList.toggle('powered',v.power&&v.alive);
+  u.el.querySelector('.tg').innerHTML=!v.alive?'':(v.stunned?'<span class="s">P</span>':'')+(v.shield>0?'<span class="e">E</span>':'')+(v.dot?'<span class="d">D</span>':'')+(v.seal>0?'<span class="x">S</span>':'')+(v.blind>0?'<span class="x">C</span>':'')+(v.sleep>0?'<span class="x">Z</span>':'');
+  for(const s of ['p','e']){ const vs=U[s].map(x=>x.v).filter(Boolean);
+    const a=vs.reduce((x,w)=>x+w.hp,0), b=vs.reduce((x,w)=>x+w.max,0); $('thp'+s.toUpperCase()).style.transform=`scaleX(${b?a/b:0})`;
+    const sh=vs.reduce((x,w)=>x+(w.alive?w.shield:0),0), shm=vs.reduce((x,w)=>x+(w.alive&&w.shield>0?w.shM||w.shield:0),0); tshEl(s).style.transform=`scaleX(${shm?Math.min(1,sh/shm):0})`; }
 }
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
 function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;

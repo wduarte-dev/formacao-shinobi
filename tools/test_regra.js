@@ -21,7 +21,7 @@ function mundo(){
     clearStatus(u){ u.seal=u.blind=u.sleep=0; },
     refundJutsu(u){ ctx.refunded.push(u); }};
   vm.createContext(ctx);
-  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome});',ctx);
+  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome,vista,mostra,mostraChakra});',ctx);
   ctx.evs=[]; for(const k of ['dano','substitui'])ctx.BUS.on(k,e=>ctx.evs.push([k,e]));
   return ctx;
 }
@@ -108,5 +108,23 @@ const ninja=(o={})=>({side:'e',alive:true,hp:1000,max:1000,shield:0,def:0,atk:10
   p2.alive=false; w.rolls=[.1,.9]; assert.equal(w.chaseTsunami(P),false); assert.deepEqual([...w.rolls],[.9]);   // sorteou mas só 1 vivo
   w.rolls=[.1]; const K={c:k,t:p1}; assert.equal(w.chaseTsunami(K),false); assert.deepEqual([...w.rolls],[.1]);   // sem chance: não rola
   assert.equal(tsu,1); }
+
+// cópia da tela (fatia 3a): o dano leva a foto da HUD por VALOR; 'unidade' e 'chakra' anunciam fotos
+{ const w=mundo(), t=ninja({shield:30,shM:30,cd:2,stunned:true,dot:{dmg:5,rounds:1},armedSkill:{name:'J'}});
+  w.hurt(t,100,''); const v=w.evs[0][1].v;
+  assert.deepEqual([v.hp,v.shield,v.shM,v.alive,v.stunned,v.dot,v.cd,v.armed.name,v.field],[930,0,30,true,true,true,2,'J',false]);
+  t.hp=1; assert.equal(v.hp,930);                                        // foto não muda quando a regra segue em frente
+  const seen=[]; w.BUS.on('unidade',e=>seen.push(e)); w.fieldA={owner:t}; w.mostra(t);
+  assert.equal(seen[0].u,t); assert.equal(seen[0].v.hp,1); assert.equal(seen[0].v.field,true);
+  const ck=[]; w.BUS.on('chakra',e=>ck.push(e)); w.chakra={p:60,e:20}; w.mostraChakra(); w.chakra.p=0;
+  assert.deepEqual([ck[0].p,ck[0].e],[60,20]); }
+
+// a HUD (upd) e a barra de jutsus (drawJ) desenham SÓ pela cópia (u.v / vChakra): nada de ler a unidade da regra
+{ const body=(file,name)=>{ const t=fs.readFileSync(path.join(ROOT,file),'utf8'), i=t.indexOf(`function ${name}(`);
+    assert.ok(i>=0,`${name} sumiu de ${file}`); return t.slice(i,t.indexOf('\n}',i)); };
+  for(const [file,name] of [['js/battle.js','upd'],['js/combat.js','drawJ']]){ const b=body(file,name);
+    for(const bad of ['u.hp','u.max','u.shield','u.shM','u.alive','u.stunned','u.armedSkill','u.cd','u.dot','u.seal','u.blind','u.sleep','u.power',
+                      'chakra[','canPrepareJutsu','selectedJutsu','availableJutsu','fieldA'])
+      assert.ok(!b.replace(/u\.v\b/g,'').includes(bad),`${name} (${file}) lê ${bad} da regra; use a cópia da tela`); } }
 
 console.log('ok');

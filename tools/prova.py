@@ -128,6 +128,9 @@ def main():
 
     if errors:
         falhas.append('erros no console: ' + ' | '.join(errors[:5]))
+    for d in results:
+        if d.get('copia'):
+            falhas.append('cópia da tela diverge da regra no fim: ' + ', '.join(d['copia']))
     hashes = {d['hash'] for d in results}
     if len(hashes) > 1:
         falhas.append(f'NÃO determinístico: {len(hashes)} hashes diferentes com a mesma config')

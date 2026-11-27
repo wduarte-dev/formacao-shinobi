@@ -127,14 +127,14 @@ function kdCutin(c,tc,name){
 async function kaenDragonJutsu(u,main,sk,ts){
   const dir=u.side==='p'?1:-1, connected=new Set(); let tot=0;
   const done=kdLoad(); const ctx=kdCanvas(); ctx.clearRect(0,0,KD.W,KD.H);
-  sceneOn([u]); skTag(u,sk.name); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); u._casting=true; upd(u);   // aura do kit em loop até soltar
+  sceneOn([u]); skTag(u,sk.name); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); u._casting=true; mostra(u);   // aura do kit em loop até soltar
   await sleep(520); await done;
   if(ts.some(t=>t.side!==u.side))markTargets(ts); else ts.forEach(sceneAdd);
   u.el.style.zIndex=60; setAnim(u,'atk2',0,true);
   const rel=Math.max(300,animMs(u,'atk2')*.7), M=kdModel(u,ts,foes(u).filter(t=>t.alive));
   await sleep(rel);
   // ---- liberação: congela com as mãos abertas, cut-in, depois o dragão ----
-  setAnim(u,'atk2',28,'frame'); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; upd(u);
+  setAnim(u,'atk2',28,'frame'); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; mostra(u);
   const hitStep=(t,share,big)=>{ if(!t.alive)return; fxAt(u,'imp',t,.55,-8); const dealt=landHit(u,t,sk.mult*share,false,'big',true); if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,big?12:8); } };
   const fired=new Set(), T0=performance.now(); let T=0, last=T0, released=false;
   const wallHit=M.hitG.map(t=>M.Wof(t)-.08), wallSlam=M.Wof(M.tSlam)-.16;
@@ -159,7 +159,7 @@ async function kaenDragonJutsu(u,main,sk,ts){
     requestAnimationFrame(now=>{ last=now; tick(now); }); });
   u.mv.style.transition=''; u.mv.style.transform='';
   connected.forEach(t=>{ if(!t.alive)return;
-    if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; upd(t); });
+    if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; mostra(t); });
   if(sk.dot)sfx.apply('burn');
   log(`${nm(u)} solta <b>${sk.name}</b>: ${tot} de dano`);
   if(result())await finale(main);
@@ -177,10 +177,10 @@ async function kaenRainCombo(u,sk,ts){
   const dir=u.side==='p'?1:-1, connected=new Set(); let tot=0;
   const done=kdLoad(), ctx=kdCanvas(); ctx.clearRect(0,0,KD.W,KD.H);
   const vs=ts.filter(t=>t.alive); if(!vs.length)return;
-  sceneOn([u,...vs]); markTargets(vs); setAnim(u,'cast'); sfx.cast(u); u._casting=true; upd(u);
+  sceneOn([u,...vs]); markTargets(vs); setAnim(u,'cast'); sfx.cast(u); u._casting=true; mostra(u);
   await sleep(380); await done;
   u.el.style.zIndex=60; setAnim(u,'atk2',0,true); await sleep(Math.max(300,animMs(u,'atk2')*.7));
-  setAnim(u,'atk2',28,true); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; upd(u);
+  setAnim(u,'atk2',28,true); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; mostra(u);
   const p=pos(u), hand={x:p.x+dir*KDG.ponta[0],y:p.y+KDG.ponta[1]}, pts=vs.map(t=>({t,...cur(t)}));
   const C={x:pts.reduce((a,o)=>a+o.x,0)/pts.length,y:pts.reduce((a,o)=>a+o.y,0)/pts.length}, apex={x:C.x,y:Math.max(60,C.y-250)};
   const fires=[], tA=.6, tB=.42, LEN=tA+tB+.07*pts.length+1.6, fired=new Set(); let T=0, last=performance.now();
@@ -206,7 +206,7 @@ async function kaenRainCombo(u,sk,ts){
       if(T>=LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }
       requestAnimationFrame(tick); };
     requestAnimationFrame(now=>{ last=now; tick(now); }); });
-  connected.forEach(t=>{ if(!t.alive)return; if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds,el:u.d.el}; upd(t); });
+  connected.forEach(t=>{ if(!t.alive)return; if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds,el:u.d.el}; mostra(t); });
   if(sk.dot)sfx.apply('burn');
   log(`${nm(u)} solta <b>${sk.name}</b>: ${tot} de dano`);
   if(result())await finale(vs[0]);

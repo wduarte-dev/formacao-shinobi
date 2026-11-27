@@ -7,40 +7,48 @@ function prepareJutsu(u,j,autoRate=null){
   if(!canPrepareJutsu(u,j)||(autoRate!==null&&!wants(u,j,autoRate)))return false;
   chakra[u.side]-=j.cost;
   u.armedSkill=j;
+  mostraChakra(); mostra(u);
   return true;
 }
 function commitJutsu(u){
   const j=u.armedSkill;
   u.armedSkill=null;
   u.cd=j.cd;
-  upd(u);
+  mostra(u);
   return j;
 }
 function refundJutsu(u){
   if(!u.armedSkill)return;
   chakra[u.side]=Math.min(100,chakra[u.side]+u.armedSkill.cost);
   u.armedSkill=null;
+  mostraChakra(); mostra(u);
 }
+// clique no botão de jutsu = INPUT do jogador pra regra (na 3c vira buffer aplicado na próxima parada)
+function armClick(u){ if(!battleOn||result()||!prepareJutsu(u,availableJutsu(u)))return; sfx.arm(); drawJ(); }
+// barra de jutsus: desenha SÓ pela cópia da tela (vChakra + u.v), como a HUD
+let vChakra={p:0,e:0};
+BUS.on('chakra',c=>{ vChakra={p:c.p,e:c.e}; });
+const shownJutsu=u=>u.v?.armed||(u.d.recast&&u.v?.field?u.d.recast:u.d.jutsu);
+const shownReady=(u,j)=>{ const v=u.v; return !!(j&&v&&v.alive&&v.cd===0&&!v.armed&&vChakra[u.side]>=j.cost); };
 function drawJ(){
-  for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.transform=`scaleX(${Math.min(100,chakra[s])/100})`; $('ckn'+s.toUpperCase()).textContent='Chakra '+chakra[s];}
+  for(const s of ['p','e']){$('tck'+s.toUpperCase()).style.transform=`scaleX(${Math.min(100,vChakra[s])/100})`; $('ckn'+s.toUpperCase()).textContent='Chakra '+vChakra[s];}
   const b=$('sbar');
   // os botões nascem uma vez por batalha e só mudam de estado depois: assim nenhum clique se perde quando a barra atualiza no meio da ação
   if(b.dataset.t!==String(token)){ b.dataset.t=token; b.innerHTML='';
-    U.p.forEach(u=>{const j=availableJutsu(u), w=document.createElement('div'), x=document.createElement('button');
+    U.p.forEach(u=>{const j=shownJutsu(u), w=document.createElement('div'), x=document.createElement('button');
       w.className='skw'; x.className='sk'; x.style.setProperty('--c',u.d.c); x.title=j.name+': '+j.desc;
       const ki=document.createElement('i'); ki.className='ki'; x.appendChild(ki);
       const kp=document.createElement('i'); kp.className='kp'; x.appendChild(kp);
       if(fxIcon(ki,u.id,58)){ x.classList.add('ic'); portrait(kp,u.id,1.0,32,32,'icon'); } else portrait(kp,u.id,2.3,58,58);
       x.insertAdjacentHTML('beforeend',`<span class="cost">${j.cost}</span><span class="cdv"></span>`);
       const lb=document.createElement('span'); lb.className='lb';
-      x.onclick=()=>{ if(!battleOn||result()||!prepareJutsu(u,availableJutsu(u)))return;
-        sfx.arm(); upd(u); drawJ(); };
+      x.onclick=()=>armClick(u);
       w.appendChild(x); w.appendChild(lb); b.appendChild(w); u.sk=x; u.skl=lb; u.skc=x.querySelector('.cdv'); }); }
-  U.p.forEach(u=>{const j=selectedJutsu(u), x=u.sk; if(!x)return;
-    const armed=!!u.armedSkill;
-    x.classList.toggle('armed',armed); x.classList.toggle('off',!(armed||canPrepareJutsu(u,j)));
+  U.p.forEach(u=>{const j=shownJutsu(u), x=u.sk, v=u.v; if(!x||!v)return;
+    const armed=!!v.armed;
+    x.classList.toggle('armed',armed); x.classList.toggle('off',!(armed||shownReady(u,j)));
     x.title=j.name+': '+j.desc; x.querySelector('.cost').textContent=j.cost;
-    u.skc.textContent=u.alive&&u.cd>0?u.cd:!u.alive?'✕':'';
+    u.skc.textContent=v.alive&&v.cd>0?v.cd:!v.alive?'✕':'';
     u.skl.textContent=armed?(j.instant?'na fila':'preparado'):j.name; });
 }
 // campo (Noite de Névoa): efeitos vêm de jutsu.fieldFx do dono do campo (data.js)
@@ -51,6 +59,7 @@ function dodgeOf(t){return (t.d.dodge||0)+(unl(t)?unl(t).uDodge||0:0)+(fieldA&&f
 function setField(u,rounds){
   clearField();
   fieldA={side:u.side,rounds,owner:u,fx:u.d.jutsu.fieldFx||{}};
+  mostra(u);   // botão do dono troca pro relançamento (vista.field)
   showFieldScene(fieldA.fx.visual||null); drawJ();
 }
 // Status: Resistiu (chance por ninja, RES em data.js); seal = sem jutsu, blind = sem básico, sleep = perde a ação e acorda com dano
@@ -63,9 +72,10 @@ function clearField(consumed=false,keepForgeScene=false){
   fieldA=null; $('fog').classList.remove('on');
   if(!keepForgeScene)showFieldScene(null);
   if(owner.d.recast){
-    if(owner.armedSkill===owner.d.recast){ refundJutsu(owner); upd(owner); }
+    if(owner.armedSkill===owner.d.recast){ refundJutsu(owner); mostra(owner); }
     if(!consumed)owner.cd=owner.d.recast.cd;
   }
+  mostra(owner);
   if(!consumed)log(fx.visual==='forge'?'O Plano da Forja se apaga':'O campo de névoa se dissipa');
   drawJ();
 }
@@ -74,12 +84,13 @@ async function dismissField(){
   else clearField();
 }
 // apresentação do dano (escuta o evento 'dano' da regra em regra.js): som, texto flutuante, tranco, contador, morte
-BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e;
-  if(e.shHit){ if(t.shield<=0)sfx.sbreak(); else sfx.absorb(); }
+// lê só o evento e a foto que veio com ele (e.v), nunca a unidade da regra
+BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
+  if(e.shHit){ if(v.shield<=0)sfx.sbreak(); else sfx.absorb(); }
   if(cls!=='cost'&&cls!=='dot'&&r>0&&e.hp0-r>0)sfx.voz(t,'dor',.3);
   if(cls==='cost'){
     if(r>0)fl(t,'-'+r+' PV','dot');
-    if(t.side==='p'&&e.hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+    if(t.side==='p'&&e.hp0>=v.max*.25&&v.hp<v.max*.25)sfx.lowhp();
     upd(t); return;
   }
   if(e.woke)fl(t,'Acordou','info2');
@@ -91,12 +102,12 @@ BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e;
     const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   }
   if(cls!=='dot')showHits();
-  if(t.side==='p'&&t.hp>0&&e.hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+  if(t.side==='p'&&v.hp>0&&e.hp0>=v.max*.25&&v.hp<v.max*.25)sfx.lowhp();
   if(e.clone)return;
-  if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.st.className='st'; setAnim(t,'die');
+  if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.v?.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.st.className='st'; setAnim(t,'die');
     if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; battleAfter(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
   }
-  else if(t.alive&&!t.state)setAnim(t,'hurt');
+  else if(v.alive&&!t.state)setAnim(t,'hurt');   // t.state ainda é da apresentação (knock/setState); sai na 3b
   upd(t); });
 BUS.on('substitui',({t,clone})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(); });
 function pick(u,mode,isJ){
@@ -213,7 +224,7 @@ async function doSkill(u,sk,isJ){
       await sleep(hitAt(u,'atk2'));
       const paid=hurt(u,Math.min(u.hp-1,Math.round(u.max*sk.lifeCost)),'cost',{pierce:true});
       u.power={...sk.aura,start:u.power?.start??round,end:round+sk.aura.rounds};
-      upd(u); sfx.jutsu(u); sfx.voz(u,'jutsu');
+      mostra(u); sfx.jutsu(u); sfx.voz(u,'jutsu');
       fxAt(u,'jutsu',u,1.16,12); auraBurst(u); flashSoft();
       fl(u,sk.name,'shieldf');
       log(`${nm(u)} ativa <b>${sk.name}</b> e gasta ${paid} PV`);
@@ -243,7 +254,7 @@ async function doSkill(u,sk,isJ){
       al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1);
         if(sk.heal){sfx.heal(); healRain(a); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
         if(sk.shield){sfx.shield(); stoneWall(a); kitBuff(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shM=a.shield; a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
-        upd(a);});
+        mostra(a);});
       log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
     }
     const main=pick(u,sk.target,isJ); if(!main)return;
@@ -287,7 +298,7 @@ async function doSkill(u,sk,isJ){
         if(sk.dot&&tryStatus(t))t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all')&&tryStatus(t))t.stunned=true;
         if(sk.instakill&&t.alive){ fl(t,sk.name+'!','state'); hurt(t,t.hp,'big',{pierce:true}); }   // Selo Final: derruba o alvo, ignora escudo
         if(sk.status)for(const [k,n] of Object.entries(sk.status))if(tryStatus(t)){ t[k]=Math.max(t[k]||0,n); fl(t,STATUS[k].name,'state'); }   // seal / blind / sleep (rodadas = ações do alvo)
-        upd(t); });
+        mostra(t); });
       if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
       if(sk.dispel)await dismissField();
       if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
@@ -620,13 +631,14 @@ async function run(){
           const bonus=fieldA?.side===side?fieldA.fx.chakra||0:0;
           chakra[side]=Math.min(100,chakra[side]+20+bonus);
         }
+        mostraChakra();
         sfx.round(); sfx.chakra();
-        for(const u of all())if(u.alive&&u.cd>0)u.cd--;
+        for(const u of all())if(u.alive&&u.cd>0){ u.cd--; mostra(u); }
         if(fieldA&&--fieldA.rounds<=0)await dismissField();
-        for(const u of all()){ if(!u.alive)continue; if(u.owner&&round>=u.expires){vanishClone(u);continue;} if(u.shR>0&&--u.shR===0){u.shield=0; upd(u);}
-          if(u.power&&round>=u.power.end){u.power=null; upd(u);}
+        for(const u of all()){ if(!u.alive)continue; if(u.owner&&round>=u.expires){vanishClone(u);continue;} if(u.shR>0&&--u.shR===0){u.shield=0; mostra(u);}
+          if(u.power&&round>=u.power.end){u.power=null; mostra(u);}
           if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
-          if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; upd(u);} }
+          if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; mostra(u);} }
       }
       all().forEach(u=>{ u.chaseUsed=false; u.comboUsed=false; });
       drawJ();
@@ -652,7 +664,7 @@ async function run(){
         if((res=result()))break outer;
         if(!u.alive)continue;
         if(u.owner){
-          await doSkill(u,u.d.normal,false); u.stunned=false; upd(u);
+          await doSkill(u,u.d.normal,false); u.stunned=false; mostra(u);
           if((res=result()))break outer;
           continue;
         }
@@ -665,15 +677,15 @@ async function run(){
         }
         if((res=result()))break outer;
         if(!u.alive)continue;
-        if(u.sleep>0){ fl(u,'Dormindo...','info2'); log(`${nm(u)} está dormindo e perde a ação`); u.sleep--; upd(u); continue; }
+        if(u.sleep>0){ fl(u,'Dormindo...','info2'); log(`${nm(u)} está dormindo e perde a ação`); u.sleep--; mostra(u); continue; }
         const wasStun=u.stunned;   // paralisia bloqueia só a perseguição e passa depois da ação do ninja
         if(wasStun){ fl(u,'sem perseguir','info2'); log(`${nm(u)} está paralisado: age, mas não persegue`); }
         const j=selectedJutsu(u);
         if(u.seal>0){
-          if(u.armedSkill&&!j.instant){ refundJutsu(u); upd(u); }
+          if(u.armedSkill&&!j.instant){ refundJutsu(u); mostra(u); }
           fl(u,'Selado','info2');
         }else if(!j.instant){
-          if(j.charge&&u.side==='e'){ u.chg=(u.chg||0)+1; if(u.chg>=j.charge){u.chg=0;sk=j;isJ=true;} else fl(u,`${j.name}: ${j.charge-u.chg}`,'info2'); upd(u); }   // Selo Final do Mestre
+          if(j.charge&&u.side==='e'){ u.chg=(u.chg||0)+1; if(u.chg>=j.charge){u.chg=0;sk=j;isJ=true;} else fl(u,`${j.name}: ${j.charge-u.chg}`,'info2'); mostra(u); }   // Selo Final do Mestre
           else if(u.armedSkill||((u.side==='e'||autoP)&&prepareJutsu(u,j,u.side==='p'?1:foe.ai))){
             sk=commitJutsu(u); isJ=true;
           }
@@ -681,8 +693,8 @@ async function run(){
         if(!isJ&&u.d.strong&&battleRandom()<strongChance())sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte (o Campo de Provas pode mudar)
         if(u.blind>0&&!isJ){ fl(u,'Cego: sem básico','info2'); log(`${nm(u)} está cego e não ataca`); }   // cegueira: só o jutsu sai
         else{ u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn'); }
-        if(u.alive){ if(u.seal>0)u.seal--; if(u.blind>0)u.blind--; upd(u); }
-        if(wasStun&&u.alive){u.stunned=false; upd(u);}
+        if(u.alive){ if(u.seal>0)u.seal--; if(u.blind>0)u.blind--; mostra(u); }
+        if(wasStun&&u.alive){u.stunned=false; mostra(u);}
         drawJ();
         if((res=result()))break outer;
       }

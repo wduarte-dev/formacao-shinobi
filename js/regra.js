@@ -11,6 +11,10 @@
 //   'tsunami'   {c,t,alvos,mult}                 a Onda virou Tsunami (alvos = time inteiro, mult = dano em cada um que não é o alvo)
 //   'perseguiu' {c,t,n,connected,s,next}         fim do passo: s = estado a aplicar (cause / null = solta / undefined = nada), next = segue o combo
 //   'rodada'    {}                               rodada nova (antes do log)
+//   'unidade'   {u,v}                            foto do que a HUD mostra de u (v = vista(u)); a tela guarda em u.v e desenha SÓ dela
+//   'chakra'    {p,e}                            chakra dos dois times mudou (a tela guarda em vChakra)
+// Cópia da tela (fatia 3a): a apresentação nunca lê vida/escudo/chakra da unidade da regra, só a última foto anunciada.
+// Assim, quando o motor passar a simular adiantado (3b), a HUD mostra o momento que está sendo TOCADO, não o futuro.
 // Perseguição (fatia 2): a regra só DECIDE (chaseStart/chaseTsunami/chaseOutcome); chain() em combat.js anima e executa o decidido.
 // Dívida das próximas fatias: vanishClone (state.js) e refundJutsu (combat.js) ainda são chamados daqui.
 "use strict";
@@ -18,6 +22,14 @@ const BUS={ L:{},
   on(k,fn){ (this.L[k]||(this.L[k]=[])).push(fn); return fn; },
   off(k,fn){ if(this.L[k])this.L[k]=this.L[k].filter(f=>f!==fn); },
   emit(k,o={}){ const L=this.L[k]; if(L)for(const f of L.slice())f(o); return o; } };
+
+// foto da HUD: valores (cópia), nunca a referência do objeto da regra (o jutsu armado é dado fixo de N, pode ir por referência)
+function vista(u){
+  return {hp:u.hp,max:u.max,shield:u.shield,shM:u.shM,alive:u.alive,stunned:!!u.stunned,dot:!!u.dot,
+    seal:u.seal|0,blind:u.blind|0,sleep:u.sleep|0,cd:u.cd|0,armed:u.armedSkill||null,power:!!u.power,field:fieldA?.owner===u};
+}
+function mostra(u){ BUS.emit('unidade',{u,v:vista(u)}); }
+function mostraChakra(){ BUS.emit('chakra',{p:chakra.p,e:chakra.e}); }
 
 // triângulo elemental (docs/referencia-no.md §15): Fogo>Vento>Raio>Terra>Água>Fogo; Névoa e Gelo herdam Água, Som herda Vento; Espaço e Veneno neutros
 const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
@@ -54,7 +66,7 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
     else if(t.hp<=0&&t.alive){ e.died=true; e.wasMark=t===mark;
       t.alive=false; t.dot=null; clearStatus(t); if(t===mark)mark=null; t.stunned=false; t.state=null; refundJutsu(t); }
   }
-  e.hp=t.hp; BUS.emit('dano',e); return r;
+  e.hp=t.hp; e.v=vista(t); BUS.emit('dano',e); return r;
 }
 
 // ── perseguição: decisão pura ──

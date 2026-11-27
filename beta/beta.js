@@ -15,7 +15,7 @@ function reset(){   // devolve a luta ao estado limpo entre passos (todos vivos,
   frozen=false; $('field').classList.remove('hs'); mark=null; dodgeOf=dodgeOrig; chakra={p:100,e:100}; curSide='p'; round=1;
   for(const u of all()){ u.alive=true; u.hp=u.max; u.state=null; u.stunned=false; u.shield=0; u.dot=null; u.cd=0; u.armedSkill=null; u.chaseUsed=false; u.comboUsed=false; u.off={x:0,y:0};
     u.mv.style.transition='none'; u.mv.style.transform=''; u.st.className='st'; u.el.style.zIndex=u.z; u.el.classList.remove('dead','ghost','tgt','cmb','armed');
-    setAnim(u,'idle',0); upd(u); }
+    setAnim(u,'idle',0); mostra(u); }
   drawJ&&drawJ();
 }
 const STEPS=[
@@ -30,7 +30,7 @@ const STEPS=[
  {t:'Corte Flamejante (golpe forte)',x:'Esse é o GOLPE FORTE, o Corte Flamejante: um corte descendente mais pesado (1,4× de dano). No jogo ele sai em 30% das ações sem jutsu.',
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.strong,false); await wait(500); }},
  {t:'Jutsu armado (selo)',x:'Esse é o KAEN ARMADO: parado no selo montado, estático, com a AURA em loop no chão: ela ACENDE, fica em loop e APAGA quando solta o jutsu (sheet gfx do dono, branco recolorido na cor do Kaen, já no plano).',
-  run:async()=>{ const k=K(); k.armedSkill=k.d.jutsu; setAnim(k,'cast',0,true); upd(k); await wait(3200); }},
+  run:async()=>{ const k=K(); k.armedSkill=k.d.jutsu; setAnim(k,'cast',0,true); mostra(k); await wait(3200); }},
  {t:'Dragão de Brasa (jutsu)',x:'Esse é o JUTSU: aura em loop, selos, mãos abrindo, CUT-IN com o dragão, o dragão sai das mãos e cruza a fileira queimando, volta por cima e CAI GIGANTE em cima da malha inimiga inteira, se desintegrando. Na queda ficam só FOGO e DESTROÇOS no plano do chão (sheet gfx do dono): o menos é mais.',
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.jutsu,true); await wait(1200); }},
  {t:'Chute Meteoro (perseguição)',x:'Essa é a PERSEGUIÇÃO: o inimigo está no ar (Voo), o Kaen arranca do chão com poeira, SOBE até ele em disparada, mergulha com o chute (contato com impacto: câmera, anéis e hit-stop) e pousa com mais impacto. Bem mais rápido que antes.',
@@ -42,7 +42,7 @@ const STEPS=[
  {t:'Esquiva',x:'Essa é a ESQUIVA: o Kaen pula pra trás e o golpe passa direto.',
   run:async()=>{ const k=K(); dodgeOf=t=>t===k?100:0; const a=front(); await doSkill(a,a.d.normal,false); await wait(600); }},
  {t:'Atordoado (estrelas)',x:'Esse é o ATORDOADO (paralisia): ele age normal, só não persegue. As ESTRELAS tontas giram em anel DEITADO no plano do jogo, sobre a cabeça (efeito do kit, recolorível).',
-  run:async()=>{ const k=K(); k.stunned=true; upd(k); await wait(3600); k.stunned=false; upd(k); await wait(300); }},
+  run:async()=>{ const k=K(); k.stunned=true; mostra(k); await wait(3600); k.stunned=false; mostra(k); await wait(300); }},
  {t:'Buff',x:'Esse é o BUFF: setas subindo pelo corpo na cor do elemento (efeito do kit, serve pra qualquer ninja).',
   run:async()=>{ const k=K(); setAnim(k,'buff',0,true); kitBuff(k); await wait(2200); home(k); }},
  {t:'Repelido, Voo e Caído',x:'Esses são os estados: REPELIDO (voa até a borda e racha), VOO (sobe alto) e DERRUBADO (desaba com poeira). Três pancadas seguidas.',

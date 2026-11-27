@@ -90,7 +90,7 @@ const team=s=>U[s].concat(U.clones.filter(u=>u.side===s)), foes=u=>team(u.side==
 const livingClones=u=>U.clones.filter(c=>c.owner===u&&c.alive);
 function summonClones(owner,sk){
   const group=livingClones(owner), side=team(owner.side);
-  for(const c of group){ c.expires=round+sk.duration; c.hp=c.max; upd(c); }
+  for(const c of group){ c.expires=round+sk.duration; c.hp=c.max; mostra(c); }
   const rows=[owner.row,...[0,1,2].filter(r=>r!==owner.row)];
   for(const depth of [0,1,2])for(const row of rows){
     if(group.length===sk.clones)return group;
@@ -100,14 +100,14 @@ function summonClones(owner,sk){
       hp:Math.round(owner.max*.35),atk:owner.atk*.35,def:owner.def,dodge:owner.d.dodge};
     const c=mk('utsushic',owner.side,owner.slot,row,depth,1,d,3*d.size);
     c.owner=owner; c.summonedRound=round; c.expires=round+sk.duration; U.clones.push(c); group.push(c); side.push(c);
-    mountUnit(c); ACT.push(c); setAnim(c,'birth'); sceneAdd(c); upd(c);
+    mountUnit(c); ACT.push(c); setAnim(c,'birth'); sceneAdd(c); mostra(c);
   }
   return group;
 }
 function vanishClone(c){
   c.alive=false; c.hp=0; c.dot=null; c.state=null; c.st.className='st';
   if(mark===c){mark=null; c.el.classList.remove('mk');}
-  setAnim(c,'vanish',0,true); dust(c,8); upd(c);
+  setAnim(c,'vanish',0,true); dust(c,8); mostra(c);
   const battle=U;
   battleAfter(()=>{
     c.el.remove(); battle.clones=battle.clones.filter(u=>u!==c);

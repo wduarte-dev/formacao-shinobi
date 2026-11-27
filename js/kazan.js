@@ -389,7 +389,7 @@ function kazanBurn(u,t){
   if(!t.alive)return;
   const dot=N.kaen.jutsu.dot;
   t.dot={dmg:Math.round(u.atk*dot.mult),rounds:dot.rounds,el:'Fogo'};
-  sfx.apply('burn'); upd(t);
+  sfx.apply('burn'); mostra(t);
 }
 function kazanHit(u,t,sk,mult,cls){
   fxAt(u,'imp',t,.69,-12);
