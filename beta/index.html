@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<base href="../">
+<script>/* BETA: save separado do jogo */(function(){window.BETA=true;var P=Storage.prototype,g=P.getItem,s=P.setItem,r=P.removeItem,m=function(k){return /^shinobi/.test(k)?'beta-'+k:k};
+    P.getItem=function(k){return g.call(this,m(k))};P.setItem=function(k,v){return s.call(this,m(k),v)};P.removeItem=function(k){return r.call(this,m(k))};})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07060a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shinobi">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Kaen — Preview BETA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+<section id="sTitle" class="scr" tabindex="0" role="button" aria-label="Começar Formação Shinobi">
+  <div class="bgi" style="background-image:url(bg/sakura.png)"></div>
+  <div class="petals"></div>
+  <div class="logo"><div class="blob"><span>FORMAÇÃO</span><b>SHINOBI</b></div></div>
+  <div class="press">Clique para começar</div>
+  <div class="credits">Interface: Pixel UI Fantasy Free by heyheythere - https://heyheythere.itch.io/pixel-ui-fantasy-free - CC BY 4.0</div>
+</section>
+
+<section id="sHub" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/sakura.png)"></div>
+  <div class="petals"></div>
+  <div class="ribbon" style="left:60px;top:40px">FORMAÇÃO SHINOBI</div>
+  <div class="win"><h3>Vila Oculta</h3>
+    <button class="btn big" id="hMap"><i class="ic" style="background-image:url(ui/sword.png)"></i>Missões</button>
+    <button class="btn big" id="hForm"><i class="ic" style="background-image:url(ui/shield.png)"></i>Formação</button>
+    <button class="btn big" id="hGal"><i class="ic" style="background-image:url(ui/scroll.png)"></i>Ninjas</button>
+    <div class="row"><button class="btn sm on" id="hSnd" aria-pressed="true">Som</button><button class="btn sm" id="hFull">Tela cheia</button><button class="btn sm" id="hLite" title="Menos efeitos visuais: roda melhor em notebook fraco">Leve</button><button class="btn sm" id="hDev" title="Modo dev: libera todos os ninjas sem precisar vencer missões">Modo dev</button><button class="btn sm" id="hNews" title="O que mudou em cada versão">Novidades</button></div>
+  </div>
+  <div id="hubTeam"></div>
+  <div id="ver"></div>
+  <div class="hint" id="hubHint" style="left:560px;top:300px"></div>
+</section>
+
+<section id="sForm" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/sakura.png)"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="ribbon" style="left:150px;top:16px">Formação</div>
+  <div class="hint" style="left:20px;top:80px;font-size:16px;width:400px;background:#0008;padding:6px 10px;line-height:1.25">Arraste um ninja até uma casa.<br>Seu time age da casa menor pra maior.<br>Quem está na frente apanha primeiro.<br>Clique num ninja do campo para tirar.</div>
+  <div id="fTiles"></div><div id="fUnits"></div>
+  <div class="hint" style="left:520px;top:300px;font-size:17px">inimigo ▶</div>
+  <div class="win cwin" id="fComboW"><h3 id="fComboH">Combos</h3><button id="fComboT" title="Minimizar/mostrar os combos">▼</button><div id="fCombo" class="clist2"></div><button class="btn sm" id="fAcad">Academia ▶</button></div>
+  <div class="win" id="fWin"><h3>Ninjas</h3>
+    <div id="fRoster"></div>
+    <div class="parch" id="fInfo"></div>
+    <div id="fBtns"><button class="btn" id="fClear">Limpar</button><button class="btn" id="fDone">Pronto</button></div>
+  </div>
+</section>
+<div id="drag" class="hide"></div>
+
+<section id="sAcad" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/dojo.png)"></div>
+  <button class="btn sm backb" id="aBack">◀ Voltar</button>
+  <div class="ribbon" style="left:150px;top:16px">Academia</div>
+  <div class="win" id="aLab"><h3>Laboratório</h3>
+    <div class="ahint">Monte um time de treino e teste as cadeias. Seu time salvo fica como está. A casa menor tem prioridade na perseguição.</div>
+    <div id="aRoster"></div>
+    <div id="aBtns"><button class="btn sm" id="aClear">Limpar</button><button class="btn sm" id="aUse">Usar este time</button></div>
+  </div>
+  <div id="aTiles"></div><div id="aUnits"></div>
+  <div class="win cwin" id="aComboW"><h3>Combos</h3><div id="aCombo" class="clist2 big"></div></div>
+  <div class="win" id="aTest"><h3>Teste de Perseguição</h3><div id="aList"></div></div>
+  <div id="aFicha" class="parch hide"></div><div id="aMestre"></div><div class="aTag">Mestre da Academia · ???</div>
+</section>
+<div id="cTip" class="hide"></div>
+
+<section id="sMap" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/sakura.png)"></div><div class="shade"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="win" id="mWin"><h3>Mapa de Missões</h3>
+    <div class="parch" id="mMap"></div>
+    <div class="pnl" id="mSide"></div>
+  </div>
+</section>
+
+<section id="sGal" class="scr hide">
+  <div class="bgi" style="background-image:url(bg/sakura.png)"></div><div class="shade"></div>
+  <button class="btn sm backb" data-back>◀ Voltar</button>
+  <div class="win" id="gWin"><h3>Ninjas</h3>
+    <div id="gMid"><div class="inset" id="gView"></div></div>
+    <div class="parch" id="gInfo"></div>
+  </div>
+  <div id="gTip"></div>
+  <div id="gPanel" class="parch hide">
+    <div class="gsec"><h5>Elemento</h5><div class="gchips" id="gfEl"></div></div>
+    <div class="gsec"><h5>Causa</h5><div class="gchips" id="gfCa"></div></div>
+    <div class="gsec"><h5>Persegue</h5><div class="gchips" id="gfPe"></div></div>
+    <div class="gsec"><h5>Combo</h5><div class="gchips" id="gfCo"></div></div>
+    <div class="gbtns"><button class="btn sm" id="gfClear">Limpar tudo</button><button class="btn sm" id="gfClose">Fechar</button></div>
+  </div>
+  <div id="gFoot">
+    <div id="gTools">
+      <div id="gSearch"><input id="gQ" type="text" placeholder="Buscar ninja..." autocomplete="off" maxlength="20"><button id="gQx" title="Limpar busca">✕</button></div>
+      <button class="btn sm" id="gFBtn">Filtros</button><span id="gCnt"></span>
+    </div>
+    <div id="gRow"><button class="btn sm garr" id="gPrev" title="Voltar">◀</button><div id="gList"></div><button class="btn sm garr" id="gNext" title="Avançar">▶</button></div>
+  </div>
+</section>
+
+<section id="sBattle" class="scr hide">
+  <div class="field" id="field">
+    <div id="cam"><div class="bgi" id="bbg"></div><div class="bgi" id="planBg"></div><div id="fog"></div><div id="dimv"></div><canvas id="ambb" width="384" height="216"></canvas><div id="units"></div><canvas id="ambf" width="384" height="216"></canvas><div id="fx"></div><canvas id="fxc" width="384" height="216"></canvas></div>
+    <div id="planCurtain" aria-hidden="true"><div class="veil"></div><div class="magma"><i></i><i></i><i></i></div><div class="mist"></div></div>
+    <div class="hud l"><div class="pf"><i id="hpP" class="por"></i></div><div class="bars"><div class="bar g"><i id="thpP"></i><i id="tshP" class="shw"></i></div><div class="bar b"><i id="tckP"></i></div><div class="ckn" id="cknP"></div></div></div>
+    <div class="hud r"><div class="pf"><i id="hpE" class="por"></i></div><div class="bars"><div class="bar o"><i id="thpE"></i><i id="tshE" class="shw"></i></div><div class="bar b"><i id="tckE"></i></div><div class="ckn" id="cknE"></div></div></div>
+    <div class="ribbon" id="rd">Rodada 1</div>
+    <div id="clist" class="l"></div>
+    <div class="hits" id="hits"></div>
+    <div class="hband" id="hband"></div>
+    <div class="cut" id="cut"><div class="lines"></div><div class="cp" id="cutP"></div><b class="cn" id="cutN"></b></div>
+    <div class="jtag l" id="jtag"><div class="jp" id="jtP"></div><b id="jtN"></b></div>
+    <div id="flash"></div>
+    <div id="initiative" class="hide" aria-hidden="true"><canvas width="160" height="160"></canvas></div>
+    <div id="ink"><div class="blob"><span id="inkT"></span></div></div>
+  </div>
+  <div id="log"></div><button id="logT" title="Minimizar/mostrar o log">▼</button>
+  <div id="sbar"></div>
+  <div id="ctl">
+    <button class="btn sm" id="bAuto" aria-pressed="false">Auto</button><button class="btn sm" id="bSpeed">1x</button>
+    <button class="btn sm" id="bPause">Pausar</button><button class="btn sm" id="bQuit">Sair</button>
+  </div>
+  <div class="win hide" id="resWin"><h3 id="ovT"></h3><p id="ovP"></p><p id="ovQ"></p>
+    <button class="btn" id="ovN">Próxima missão</button><button class="btn" id="ovA">Lutar de novo</button><button class="btn" id="ovB">Mapa</button></div>
+</section>
+
+<div id="updBar" class="hide"><span>Nova versão <b id="updV"></b> disponível!</span><button class="btn sm" id="updGo">Atualizar</button><button class="btn sm" id="updX">Depois</button></div>
+<div id="newsWin" class="win hide"><h3>Novidades</h3><div class="parch" id="newsL"></div><button class="btn" id="newsOk">Fechar</button></div>
+<div id="instHelp" class="win hide"><h3>Tela cheia</h3>
+  <p>Este navegador não deixa a página ir pra tela cheia. Instale o jogo, que ele abre em tela cheia como um app (e se atualiza sozinho):</p>
+  <p><b>iPhone/iPad (Safari):</b> botão Compartilhar → <b>Adicionar à Tela de Início</b>.</p>
+  <p><b>Android (Chrome):</b> menu ⋮ → <b>Instalar app</b> (ou Adicionar à tela inicial).</p>
+  <button class="btn" id="instOk">Entendi</button></div>
+<div id="loading" class="hide"><div class="bgi" id="ldBg"></div><div class="ldDim"></div><div class="ldLines"></div>
+  <div class="ribbon ldT" id="ldT">Carregando…</div>
+  <div class="ldTip"><b>Dica</b><span id="ldTip"></span></div>
+  <div class="ldBar"><div class="lbar"><i></i></div><span id="ldPct">0%</span></div>
+  <div class="ldGround"></div><div id="ldRun"></div></div>
+</div></div>
+<div id="rot">Vire o celular de lado para ver maior.</div>
+
+<script src="js/data.js"></script>
+<script src="js/patch.js"></script>
+<script src="js/badframes.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/combos.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/academia.js"></script>
+<script src="js/state.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/ambient.js"></script>
+<script src="js/kazan.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/cine.js"></script>
+<script src="js/kaen-golpes.js"></script>
+<script src="js/kaen-dragao-data.js"></script>
+<script src="js/kaen-dragao.js"></script>
+<script src="js/kit.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/main.js"></script>
+
+<link rel="stylesheet" href="beta/beta.css">
+<script src="beta/beta.js"></script>
+</body>
+</html>

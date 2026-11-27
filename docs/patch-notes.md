@@ -3,6 +3,14 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.19 · 28/11/2026 · Canal beta do Kaen, impacto e estrelas
+
+- **Canal beta** (`beta/index.html`, jogo separado, save separado, faixa BETA): uma luta real contra 4 ninjas de verdade em que o Kaen mostra cada animação e golpe como tutorial (entrada, idle, corrida, pulo, ataque, forte, jutsu armado, Dragão de Brasa, Chute Meteoro, dano, esquiva, atordoado, buff, estados, derrota, vitória). Cada passo tem **APROVADO / NÃO APROVADO** (com comentário) e no fim sai um resumo em formato de prompt.
+- **Dragão de Brasa:** na queda ele cresce e desaba em cima da malha inimiga inteira (não mais num alvo só); a queda atinge todos os inimigos.
+- **Camada de impacto** reutilizável (flash, tremor, squash, anéis em eco, faíscas, linhas, rachadura e hit-stop) nos golpes pesados: queda do dragão e pouso do Chute Meteoro.
+- **Menos engasgo no jutsu:** as peças do dragão e do kit agora são WebP sem perda (13 MB → 4,5 MB), são decodificadas e tingidas na tela de carregamento (não no instante do golpe) e os efeitos nascem em pontos de ancoragem por ninja (cabeça, peito).
+- **Estrelas do atordoado** sobre quem está paralisado e **setas de buff** quando alguém ganha escudo (efeitos do kit, recoloridos pelo elemento).
+
 ## 1.18 · 27/11/2026 · Dragão de Brasa e formação livre
 
 - **Dragão de Brasa do Kaen** completo: selos, mãos abrindo, cut-in em faixa com o dragão rugindo, o dragão em peças sai das mãos (Kaen é empurrado pra trás com poeira), cruza a fileira queimando, sai da tela, volta por cima e cai na vertical se desintegrando, com destroços no chão. O dano acontece nos contatos reais (40% na travessia, 60% na queda).

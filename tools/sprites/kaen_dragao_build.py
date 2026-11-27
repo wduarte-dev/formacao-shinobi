@@ -25,11 +25,11 @@ def media(info, nome, lado, campo):
 def main():
     d = json.load(open(os.path.join(DRG, 'dragao.json')))
     os.makedirs(DST, exist_ok=True)
-    for p in d: shutil.copy(os.path.join(DRG, p + '.png'), os.path.join(DST, p + '.png'))
+    for p in d: Image.open(os.path.join(DRG, p + '.png')).save(os.path.join(DST, p + '.webp'), lossless=True, quality=100, method=6)
     srcs = os.path.join(R, 'sprites_usados')
-    for src, dst in ((f'{srcs}/dragao_kaen/dragao_frente.png', 'frente.png'), (f'{srcs}/dragao_kaen/fogo_invocacao.png', 'invoc.png'),
-                     (f'{srcs}/kit_efeitos/kitA_poeira.png', 'kitA.png')):
-        Image.fromarray(key(src), 'RGBA').save(os.path.join(DST, dst))
+    for src, dst in ((f'{srcs}/dragao_kaen/dragao_frente.png', 'frente.webp'), (f'{srcs}/dragao_kaen/fogo_invocacao.png', 'invoc.webp'),
+                     (f'{srcs}/kit_efeitos/kitA_poeira.png', 'kitA.webp')):
+        Image.fromarray(key(src), 'RGBA').save(os.path.join(DST, dst), lossless=True, quality=100, method=6)
     pecas = {}
     for n in ('cabeca', 'corpo', 'cauda'):
         qs = d[n]['quadros']

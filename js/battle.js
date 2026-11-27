@@ -37,6 +37,7 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
   const ids=[...battleTeam().map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
   const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
+  if(typeof kitLoad==='function')kitLoad();
   if(ids.includes('kaen')&&typeof kdLoad==='function')kdLoad();
   Promise.race([preloadFx(ids,(n,t)=>{const k=t?n/t:1; bar.style.transform=`scaleX(${k})`; $('ldPct').textContent=Math.round(k*100)+'%';}),new Promise(r=>setTimeout(r,20000))])
     .then(()=>setTimeout(fin,Math.max(0,1400-(Date.now()-t0)))).catch(fin); }   // mínimo ~1,4s: dá tempo de ler a dica
@@ -69,6 +70,7 @@ function mountUnit(u){
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
 function upd(u){
+  if(u.alive&&u.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);   // estrelas tontas do kit sobre quem está paralisado
   if(u.alive&&u.d.stationary){
     if(u.an==='idle'&&u.stunned)setAnim(u,'stun');
     else if(u.an==='stun'&&!u.stunned)setAnim(u,'idle');
