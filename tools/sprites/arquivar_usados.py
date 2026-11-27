@@ -32,7 +32,8 @@ RENAME = {'Folha de sprites do ninja Kaen': 'KAEN_outros_16', 'Folha de sprites_
           'Folha de Sprites de Efeitos Pixelados': 'kitA_poeira', 'Sprites de Energia e Cura em Pixel Art': 'kitB_status',
           'Folha de Sprites de Impactos Pixelados': 'kitC_golpes',
           'Folha de Sprites do Dragão Serpentino': 'dragao_molde', 'Spritesheet de Desintegração de Escamas de Dragão': 'dragao_desintegra',
-          'Sprite de Chamas em Pixel Art': 'dragao_fogo', 'Folha de sprites de chamas em pixel art': 'dragao_impacto'}
+          'Sprite de Chamas em Pixel Art': 'dragao_fogo', 'Dragão Oriental em Seis Quadros': 'dragao_frente',
+          'Folha de sprites de efeitos de fogo em pixel art': 'fogo_invocacao', 'Folha de sprites de chamas em pixel art': 'dragao_impacto'}
 
 
 def novo_nome(f):
@@ -46,7 +47,7 @@ def grupo(nome):
     n = norm(nome)
     base = os.path.splitext(n)[0]
     if any(n.startswith(k) for k in KIT): return 'kit_efeitos'
-    if re.search(r'drag[ãa]o|chamas', n, re.I): return 'dragao_kaen'
+    if re.search(r'drag[ãa]o|chamas|efeitos de fogo', n, re.I): return 'dragao_kaen'
     if any(base.startswith(norm(k)) for k in KAEN_ANTIGOS): return 'kaen_antigos'
     if re.search(r'kaen', n, re.I): return 'kaen_regen'
     if any(base.upper().startswith(k) or ('_' + k) in base.upper() for k in NINJAS): return 'ninjas_integrados'

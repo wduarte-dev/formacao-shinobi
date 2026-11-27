@@ -37,6 +37,11 @@ def main():
     for p in d: shutil.copy(os.path.join(DRG, p + '.png'), os.path.join(out, f'p_{p}.png'))
     for fl, f in (('kitA', 'kitA_poeira.png'), ('kitC', 'kitC_golpes.png')):
         Image.fromarray(key(os.path.join(KIT, f)), 'RGBA').save(os.path.join(out, f'fx_{fl}.png'))
+    arq = [os.path.join(R, 'sprites_novos'), os.path.join(R, 'sprites_usados', 'dragao_kaen')]
+    for nome_arq, dst in (('dragao_frente.png', 'frente.png'), ('fogo_invocacao.png', 'invoc.png')):   # cut-in de frente + sheet de invocação
+        f = next((os.path.join(d2, nome_arq) for d2 in arq if os.path.exists(os.path.join(d2, nome_arq))), None)
+        if f: Image.fromarray(key(f), 'RGBA').save(os.path.join(out, dst))
+        else: print('AVISO: falta', nome_arq)
     shutil.copy(os.path.join(R, 'spr', 'iwao_atlas.png'), os.path.join(out, 'alvo.png'))
     q = k['quadros']; b0 = q[0]; s = 108 / (b0['b'] - b0['t']); mult = k['mult']
     fa, fr = int(round(rec['pose_armado'] * mult)), int(round(rec['pose_liberacao'] * mult))
@@ -48,7 +53,7 @@ def main():
         pecas[n] = dict(l=sum(q2['l'] for q2 in d[n]['quadros']) / 6, r=sum(q2['r'] for q2 in d[n]['quadros']) / 6,
                         cyL=media(d, n, 'L', 'centro') if n != 'cauda' else None, cyR=media(d, n, 'R', 'centro') if n != 'cabeca' else None,
                         espL=media(d, n, 'L', 'esp') if n != 'cauda' else None, espR=media(d, n, 'R', 'esp') if n != 'cabeca' else None)
-    dados = dict(titulo=rec['titulo'], fps=rec['fps'], n=k['n'], cell=k['cell'], cols=k['cols'], s=s, foot=b0['b'], armado=fa, liberacao=fr, ponta=ponta,
+    dados = dict(titulo=rec['titulo'], nome_jutsu=rec.get('nome_jutsu', rec['titulo']), top=b0['t'], fps=rec['fps'], n=k['n'], cell=k['cell'], cols=k['cols'], s=s, foot=b0['b'], armado=fa, liberacao=fr, ponta=ponta,
                  alvos=rec.get('alvos', 3), dragao=rec['dragao'], pecas=pecas, kx=KX, gy=GY)
     tpl = open(os.path.join(os.path.dirname(__file__), 'jutsu_teste_modelo.html'), encoding='utf8').read()
     open(os.path.join(out, 'index.html'), 'w', encoding='utf8').write(tpl.replace('__DATA__', json.dumps(dados)))

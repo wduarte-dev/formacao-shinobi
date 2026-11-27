@@ -6,8 +6,10 @@ Gerado por `python3 tools/sprites/arquivar_usados.py`. **`sprites_novos/` só te
 
 - dragao_desintegra.png
 - dragao_fogo.png
+- dragao_frente.png
 - dragao_impacto.png
 - dragao_molde.png
+- fogo_invocacao.png
 
 ## kaen_antigos
 
