@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.19.3 · 28/11/2026 · Regra de combate separada (fatia 2: perseguição)
+
+- **Por dentro, nada muda na luta:** quem entra na perseguição, o bônus do combo (+10% por passo), o sorteio do Tsunami e o estado que o golpe aplica agora são decididos em `js/regra.js` e anunciados (`perseguidor`, `tsunami`, `perseguiu`). A animação da perseguição só executa o que a regra decidiu.
+- A regra continua sem nenhuma espera: o teste em Node agora também barra `await`, timers e velocidade dentro dela (tempo de "fluidez" é coisa da apresentação).
+- Impressão digital da prova idêntica em 8 sementes.
+
 ## 1.19.2 · 28/11/2026 · Regra de combate separada (fatia 1)
 
 - **Por dentro, nada muda na luta:** o cálculo de dano agora mora em `js/regra.js`, sem tela, sem som e sem espera. A regra anuncia o que aconteceu (dano, vez do ninja, estado, perseguição, rodada) e a tela, o som e o Campo de Provas só escutam.

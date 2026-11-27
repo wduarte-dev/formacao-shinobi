@@ -6,8 +6,12 @@
 //   'dano'      {t,d,esc,cls,hp,hp0,adv,evt,impact,woke,died,clone}  dano aplicado (d = depois do escudo)
 //   'substitui' {t,clone}                        Substituição do Utsushi engoliu o golpe
 //   'estado'    {t,s}                            estado D/L/V/R aplicado ('imune' no Kazan)
-//   'persegue'  {side,t,n}                       um passo de perseguição começou
+//   'persegue'  {side,t,n}                       um passo de perseguição começou (antes de saber se alguém entra)
+//   'perseguidor' {side,c,t,n,cause,mult,hits}   a regra escolheu quem persegue (n = passo do combo, mult = dano total do passo)
+//   'tsunami'   {c,t,alvos,mult}                 a Onda virou Tsunami (alvos = time inteiro, mult = dano em cada um que não é o alvo)
+//   'perseguiu' {c,t,n,connected,s,next}         fim do passo: s = estado a aplicar (cause / null = solta / undefined = nada), next = segue o combo
 //   'rodada'    {}                               rodada nova (antes do log)
+// Perseguição (fatia 2): a regra só DECIDE (chaseStart/chaseTsunami/chaseOutcome); chain() em combat.js anima e executa o decidido.
 // Dívida das próximas fatias: vanishClone (state.js) e refundJutsu (combat.js) ainda são chamados daqui.
 "use strict";
 const BUS={ L:{},
@@ -51,4 +55,34 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
       t.alive=false; t.dot=null; clearStatus(t); if(t===mark)mark=null; t.stunned=false; t.state=null; refundJutsu(t); }
   }
   e.hp=t.hp; BUS.emit('dano',e); return r;
+}
+
+// ── perseguição: decisão pura ──
+// pode perseguir: vivo, não perseguiu na rodada, não paralisado, e o 'on' bate com o estado do alvo
+const canChase=(u,state)=>u.alive&&!u.chaseUsed&&!u.stunned&&u.d.chase?.on===state;
+// passo novo: anuncia, escolhe o primeiro apto na ordem das casas, gasta a perseguição dele e fixa o multiplicador (+10% por passo)
+function chaseStart(side,t,count){
+  BUS.emit('persegue',{side,t,n:count});
+  const c=byFormationCell(team(side)).find(x=>canChase(x,t.state));
+  if(!c)return null;
+  c.chaseUsed=true;
+  const CH=c.d.chase, n=count+1;
+  return BUS.emit('perseguidor',{side,c,t,n,cause:CH.cause,mult:CH.mult*(1+.1*(n-1)),hits:CH.hits||[0]});
+}
+// sorteio do Tsunami (Mizuha). Chamado no MESMO ponto da animação de antes (depois da aproximação), pra não mudar a ordem do battleRandom.
+function chaseTsunami(ch){
+  const c=ch.c, CH=c.d.chase;
+  ch.tsu=!!(CH.tsunami&&battleRandom()<CH.tsunami&&foes(c).length>1);
+  ch.alvos=ch.tsu?foes(c):[]; ch.tsMult=CH.mult*.6;
+  if(ch.tsu)BUS.emit('tsunami',{c,t:ch.t,alvos:ch.alvos,mult:ch.tsMult});
+  return ch.tsu;
+}
+// fim do passo: acertou → aplica o 'cause' (se o alvo vive) e o combo segue; errou (substituição/esquiva) → alvo solta o estado
+function chaseOutcome(ch,connected){
+  const t=ch.t;
+  ch.connected=connected;
+  ch.s=connected?(t.alive?ch.cause:undefined):null;
+  ch.next=connected&&t.alive;
+  BUS.emit('perseguiu',ch);
+  return ch;
 }

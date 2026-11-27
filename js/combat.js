@@ -306,7 +306,6 @@ async function doSkill(u,sk,isJ){
   }finally{ if(battleToken===token){ endCine(); sceneOff(); } }
 }
 // quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
-const canChase=(u,state)=>u.alive&&!u.chaseUsed&&!u.stunned&&u.d.chase?.on===state;
 function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
   const units=byFormationCell(team(side));
   for(;;){ const c=units.find(x=>!seen.has(x)&&canChase(x,s)); if(!c)break; seen.add(c); out.push(c); s=c.d.chase.cause; }
@@ -401,8 +400,8 @@ async function aimChaseKick(c,t,put,dir){
   sfx.hit(c,'atk');
   return {ground,dx,step};
 }
-async function finishWindKick(c,t,put,dir,aim,connected){
-  const {phases:[,strike,land],kick,cause}=c.d.chase;
+async function finishWindKick(c,t,put,dir,aim,connected,P){
+  const {phases:[,strike,land],kick}=c.d.chase;
   const {ground,dx,step}=aim, h=pos(c);
   await hitstop(65);
   const ms=animMs(c,strike)-step*kick.frame;
@@ -414,13 +413,14 @@ async function finishWindKick(c,t,put,dir,aim,connected){
   const landing=sleep(animMs(c,land));
   const extra=await volley;
   // a repulsão sai assim que a última palma acerta; o pouso do Utsushi termina em paralelo (antes a repulsão esperava o pouso inteiro, ~0,5 s a mais)
-  if(connected&&t.alive)await knock(t,cause);
+  chaseOutcome(P,connected);   // regra decide depois das palmas
+  if(P.s)await knock(t,P.s);
   await landing;
   if(result())await finale(t);
   return extra;
 }
-async function landKeshinKick(c,t,put,dir,aim,connected){
-  const {phases:[,slam,land],kick,cause}=c.d.chase;
+async function landKeshinKick(c,t,put,dir,aim,connected,P){
+  const {phases:[,slam,land],kick}=c.d.chase;
   const {ground,dx,step}=aim, home=pos(c), x=ground.x+dx;
   await hitstop(80);
   const ms=step*(kick.landing-kick.frame);
@@ -433,20 +433,21 @@ async function landKeshinKick(c,t,put,dir,aim,connected){
   c.mv.style.transition='';
   if(connected&&(t.alive||!t.owner)){
     t.off={x:dx,y:0}; t.mv.style.transition='';
-    if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+    if(P.s){ setState(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
     slamFx(t,c.d.c); crack(x,ground.y); shake(1.15); sfx.thud();
   }
   if(result())await finale(t);
   await sleep(animMs(c,slam)-step*kick.landing);
   setAnim(c,land,0,true); await sleep(animMs(c,land));
 }
+// perseguição = APRESENTAÇÃO: quem entra, multiplicador, Tsunami e estado são decididos em regra.js (chaseStart/chaseTsunami/chaseOutcome)
 async function chain(side,t,count,src){
-  BUS.emit('persegue',{side,t,n:count});
-  const c=byFormationCell(team(side)).find(x=>canChase(x,t.state));
-  if(!c)return;
+  const P=chaseStart(side,t,count);
+  if(!P)return;
+  const c=P.c; count=P.n;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
-  c.chaseUsed=true; count++; acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
-  const CH=c.d.chase, cause=CH.cause, an=an_of(c).chase?'chase':{R:'atk3',V:'atk2',L:'atk1',D:'atk1'}[cause];
+  acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
+  const CH=c.d.chase, cause=P.cause, an=an_of(c).chase?'chase':{R:'atk3',V:'atk2',L:'atk1',D:'atk1'}[cause];
   const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
   const air=!!an_of(c).rise&&t.state==='V';
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
@@ -476,10 +477,9 @@ async function chain(side,t,count,src){
     setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
-  const tsu=CH.tsunami&&battleRandom()<CH.tsunami&&foes(c).length>1;
-  let tsFoes=[];
+  const tsu=chaseTsunami(P), tsFoes=P.alvos;
   if(tsu){ ink('TSUNAMI!'); sfx.heavy(); shake(.6);   // parede de água desenhada em código: brota do chão, sobe, avança e desaba no time inteiro
-    tsFoes=foes(c); tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=55; });   // todo mundo que vai levar o golpe aparece e fica marcado; z 55 = ABAIXO do canvas de efeitos (#fxc, 66): a onda passa por cima deles
+    tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=55; });   // todo mundo que vai levar o golpe aparece e fica marcado; z 55 = ABAIXO do canvas de efeitos (#fxc, 66): a onda passa por cima deles
     const W=tsunamiFx(dir); for(let n=0;!W.hit&&n<90;n++){ await gate(); await sleep(30); }   // espera a crista bater (respeita pausa/velocidade; teto de segurança)
     sfx.heavy(); shake(1.3); flashSoft(); }
   else if(CH.surge){   // Onda normal: onda de água em código que brota embaixo do alvo, cresce, curva e quebra em cima dele (sprite de respingo só como complemento no impacto)
@@ -487,16 +487,17 @@ async function chain(side,t,count,src){
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
   sfx.chase(c);
   if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8); }
-  const ch=CH.hits||[0], cm=CH.mult*(1+.1*(count-1)); let d=0, connected=false;
+  const ch=P.hits, cm=P.mult; let d=0, connected=false;
   if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     const dealt=landHit(c,t,cm/ch.length,false,'chase',tsu);
     if(dealt!==null){connected=true; d+=dealt;} }
-  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); landHit(c,o,CH.mult*.6,false,'chase',true);
+  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); landHit(c,o,P.tsMult,false,'chase',true);
       if(o.alive&&!o.d.stationary){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
         battleAfter(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; battleAfter(()=>{o.mv.style.transition='';},340); },240/speed); } }
     battleAfter(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
-  if(kickAim&&CH.cloneHit)d+=await finishWindKick(c,t,put,dir,kickAim,connected);
+  if(kickAim&&CH.cloneHit)d+=await finishWindKick(c,t,put,dir,kickAim,connected,P);   // decide dentro, depois das palmas
+  else chaseOutcome(P,connected);   // regra decide o estado e se o combo segue; daqui pra baixo só executa
   if(!air&&!kickAim&&result())await finale(t);
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
@@ -517,33 +518,33 @@ async function chain(side,t,count,src){
     setAnim(c,'landing',0,true);
     if(connected&&(t.alive||!t.owner)){
       t.off={x:landX-ground.x,y:0}; t.mv.style.transition='';
-      if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
+      if(P.s){ setState(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
       slamFx(t,c.d.c); sfx.thud();
       if(c.id==='kaen')impactFx(t,{pow:2,color:'#ff9a4a',crack:true,stop:70,dir:dir,cam:true});   // pouso do Chute Meteoro: camada de impacto
     }
     if(result())await finale(t);
     await sleep(animMs(c,'landing'));
-    if(!connected)setState(t,null);
+    if(P.s===null)setState(t,null);
     home(c);
-    if(connected&&t.alive)await chain(side,t,count);
+    if(P.next)await chain(side,t,count);
     return;
   }
   if(kickAim){
-    if(!CH.cloneHit)await landKeshinKick(c,t,put,dir,kickAim,connected);
-    if(!connected&&t.alive)setState(t,null);
+    if(!CH.cloneHit)await landKeshinKick(c,t,put,dir,kickAim,connected,P);
+    if(P.s===null&&t.alive)setState(t,null);
     home(c);
-    if(connected&&t.alive)await chain(side,t,count);
+    if(P.next)await chain(side,t,count);
     return;
   }
-  if(!connected){ setState(t,null); home(c); return; }
-  if(t.alive){
+  if(P.s===null){ setState(t,null); home(c); return; }
+  if(P.s){
     if(CH.mv==='rise'&&cause==='V'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
       put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
-    await smash(c,t,cause);
+    await smash(c,t,P.s);
     if(CH.mv==='rise'&&cause==='V'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
   }else await hitstop(40);
   await sleep(110); home(c);
-  if(t.alive)await chain(side,t,count);
+  if(P.next)await chain(side,t,count);
 }
 function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive);
   if(acad)return !e||!p?'lose':acad.done?'win':null;   // Mestre caído ou time derrotado = falhou
