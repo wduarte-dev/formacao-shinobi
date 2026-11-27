@@ -122,8 +122,6 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #gWin{left:56px;top:34px;width:1040px;height:446px;padding:8px;display:flex;gap:12px}
 #gMid{width:400px;display:flex;flex-direction:column;gap:6px}
 #gView{position:relative;height:250px;overflow:hidden;background:linear-gradient(#f4e2b8 0 70%,#7a5a3a 70%)}
-#gAn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-#gAn.many{grid-template-columns:repeat(5,1fr);gap:3px}#gAn.many .btn.sm{font-size:12px;border-width:7px;border-image-width:7px;height:28px;padding:0}
 /* rodapé: busca, filtros e faixa horizontal de retratos */
 #gFoot{position:absolute;left:0;right:0;bottom:0;height:168px;background:linear-gradient(#5a3b22,#3a2414);border-top:6px solid #2a180c;padding:6px 12px 8px;display:flex;flex-direction:column;gap:4px;z-index:3}
 #gTools{display:flex;align-items:center;gap:12px;height:34px}
@@ -198,6 +196,7 @@ button{font:inherit;color:inherit;cursor:inherit;padding:0}
 #ambb,#ambf{position:absolute;left:0;top:0;width:1152px;height:648px;pointer-events:none;image-rendering:pixelated}
 #ambb{z-index:8}#ambf{z-index:64}
 #fxc{position:absolute;left:0;top:0;width:1152px;height:648px;z-index:66;pointer-events:none}
+#kdc{position:absolute;left:0;top:0;width:1152px;height:648px;z-index:67;pointer-events:none}
 .u{position:absolute;width:0;height:0;--h:124px;transition:opacity .18s}
 .u.p{--d:-1}.u.e{--d:1}
 .u.ghost{opacity:.08}

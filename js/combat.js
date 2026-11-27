@@ -279,6 +279,7 @@ async function doSkill(u,sk,isJ){
     const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
     const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
+    if(isJ&&u.id==='kaen'&&sk===u.d.jutsu){ await kaenDragonJutsu(u,main,sk,ts); return; }
     if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
     if(u.id==='kaen'&&(sk===u.d.normal||sk===u.d.strong)){
       const an=sk.an||'atk1';

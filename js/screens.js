@@ -62,7 +62,7 @@ function drawHub(){
   const h=$('hubTeam'); h.innerHTML='';
   placed.forEach((p,i)=>{ const x=640+i*120, y=556-(i%2)*26; actor(p.id,3,x,y,h);
     const n=document.createElement('div'); n.className='nameplate'; n.style.left=x+'px'; n.style.top=(y+12)+'px'; n.textContent=N[p.id].name; h.appendChild(n); });
-  $('hubHint').textContent=placed.length<4?'Monte seu time de 4 ninjas na Formação.':'';
+  $('hubHint').textContent=placed.length?'':'Monte seu time na Formação (de 1 a 4 ninjas).';
 }
 
 /* ---- formação no campo ---- */
@@ -100,7 +100,7 @@ function drawForm(entering=false){ BOARD=FORM_BOARD;
     hit.onpointerdown=e=>startDrag(e,p.id,true);
     if(entering&&slots.has(p.id))slideIntoFormation(a.el,slots.get(p.id),c,i); });
   drawFicha($('fInfo'),sel);
-  $('fDone').textContent=placed.length<4?`Faltam ${4-placed.length}`:'Pronto';
+  $('fDone').textContent='Pronto';
   drawCombos($('fCombo'),placed,false); comboTitle();
 }
 function shade(hex){const n=parseInt(hex.slice(1),16); return `rgb(${(n>>16)*.55|0},${((n>>8)&255)*.55|0},${(n&255)*.55|0})`;}
@@ -173,8 +173,8 @@ function drawMap(){
   const f=FOES[foeIx], s=$('mSide');
   s.innerHTML=`<h4>${foeIx+1}. ${f.name}</h4><div>Dificuldade: <b>${f.lvl}</b></div><div>Inimigos:</div><div id="mFoes"></div><div>${f.team.map(t=>N[t[0]].name+' ('+N[t[0]].el+')').join(', ')}</div>`;
   ACT=[]; f.team.forEach((t,i)=>actor(t[0],1.75,44+i*70,136,$('mFoes'),true));   // cabe no painel (antes o 4º saía pra fora)
-  const b=document.createElement('button'); b.className='btn'; b.textContent=placed.length<4?'Montar o time':'Lutar';
-  b.onclick=()=>{ if(placed.length<4)show('sForm'); else{ acad=null; startBattle(); } }; s.appendChild(b);
+  const b=document.createElement('button'); b.className='btn'; b.textContent=placed.length?'Lutar':'Montar o time';
+  b.onclick=()=>{ if(!placed.length)show('sForm'); else{ acad=null; startBattle(); } }; s.appendChild(b);
 }
 
 /* ---- galeria ---- */
@@ -234,25 +234,7 @@ function drawGal(center=true){
   galChips($('gfCo'),[['combo','Tem perseguição por combo']],{has:()=>GF.combo,add:()=>GF.combo=true,delete:()=>GF.combo=false},'co');
   if(center)galScrollSel(false); else L.scrollLeft=keep;
   const V=$('gView'); V.innerHTML=''; gal=actor(sel,4.6,200,228,V);
-  const A=$('gAn'); A.innerHTML=''; A.className='many';
-  const d=N[sel], j=d.jutsu, n=d.normal, a=gal;
-  const previews={atk1:d.stationary?['dash','atk1','attackB','attackC']:n.sequence,chase:d.chase?.phases};
-  if(d.stationary){ previews.walk=['walk','sit']; previews.atk2=['cast','atk2']; }
-  let preview=0;
-  [['Parado','idle'],d.stationary?['Entrada','walk']:['Correr','move'],['Ataque','atk1'],['Forte','atk3'],['Selos','cast'],['Jutsu','atk2'],['Dano','hurt'],['Esquiva','dodge'],['Defesa','guard'],['Repelido','knockback'],['Voo','launched'],['Lançado','trip'],['Derrubado','knockdown'],['Perseguição','chase'],['Buff','buff'],['Atordoado','stun'],['Bola de Fogo','fireball'],['Vitória','victory'],['Derrota','die']]
-   .filter(([,an])=>(previews[an]||an_of(a)[an])&&!(an==='atk3'&&n.sequence&&!d.strong)).forEach(([t,an])=>{ const b=document.createElement('button'); b.className='btn sm'; b.textContent=t;
-    b.onclick=async()=>{
-      const p=++preview, seq=previews[an];
-      if(['atk1','atk2','atk3','chase','dodge'].includes(an))sfx.swing();
-      if(!seq){setAnim(a,an); return;}
-      for(const phase of seq){
-        setAnim(a,phase,0,true);
-        await new Promise(resolve=>setTimeout(resolve,animMs(a,phase)));
-        if(p!==preview||!ACT.includes(a))return;
-      }
-      setAnim(a,'idle');
-    };
-    A.appendChild(b); });
+  const d=N[sel], j=d.jutsu, n=d.normal;
   const causes=[n.cause,j.cause,d.recast?.cause,d.chase?.cause,d.combo?.cause,d.strong&&d.strong.cause].filter(Boolean);
   const after=IDS.filter(o=>o!==sel&&causes.includes(N[o].chase?.on)).map(o=>N[o].name);
   const before=d.chase?IDS.filter(o=>o!==sel&&[N[o].normal.cause,N[o].jutsu.cause,N[o].chase?.cause,N[o].strong&&N[o].strong.cause].includes(d.chase.on)).map(o=>N[o].name):[];

@@ -50,7 +50,7 @@ const SFXD='audio/sfx/', BUF={}, SLAST={}, FILEMODE=location.protocol==='file:';
 const VAR={swing:11,hit:7,heavy:6,chase:3,cast:8,heal:5,shield:5}, V=k=>Array.from({length:VAR[k]},(_,i)=>k+'_'+(i+1));
 const RECORDED=IDS.filter(id=>N[id].customSfx!==false);
 const FORGE_SFX=['pour','dragon','fireball','guard','blast'];
-const SFILES=('dado-giro dado-resultado amb-cinzas amb-dojo amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
+const SFILES=('dado-giro dado-resultado dragao-rugido amb-cinzas amb-dojo amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
   +RECORDED.map(n=>`${n}-atk${N[n].chase?` ${n}-chase esq-${n}`:''}`+(N[n].strong&&N[n].strong.customSfx!==false?` ${n}-forte`:'')).join(' ')+' '
   +'fire water lightning earth wind mist ice poison sound space'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
   +'fogo agua raio terra vento nevoa gelo veneno som espaco'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-')).concat(Object.keys(VAR).flatMap(V))
@@ -139,6 +139,7 @@ const sfx={
  death:()=>playF('ninja-derrota',.85), lowhp:()=>playF('vida-baixa',.8), last:()=>playF('sting-ultimo',.8),
  round:()=>playF('rodada-inicio',.6), chakra:()=>playF('chakra-ganho',.45),
  diceRoll:()=>P('dado-giro',.9,0,()=>{for(let i=0;i<16;i++)battleAfter(()=>tone(310+i*18,.045,'triangle',.15,170),i*i*11);}),
+ dragonRoar:()=>P('dragao-rugido',1,0,()=>tone(90,.5,'sawtooth',.2,50)),
  diceLand:()=>P('dado-resultado',.95,0,()=>tone(240,.08,'triangle',.2,120)),
  diceReveal:()=>{tone(880,.09,'sine',.15,1320);tone(1760,.15,'triangle',.065);},
  arm:()=>P('arm',.6,0,SYN.arm), thud:()=>P('thud',1,.03,SYN.thud),

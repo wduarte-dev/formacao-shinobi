@@ -865,3 +865,8 @@ A heavy wooden six-sided die tumbling and rolling across a hard wooden table, fa
 ```
 One final solid wooden die knock on a table as it lands and stops, followed by a short bright rising fantasy game chime confirming the result, clean and punchy, no music, no voice.
 ```
+
+**dragao-rugido** · 2.5s
+```
+Huge fire dragon roar, deep guttural beast roar with crackling flames and a rising hiss, cinematic game sound effect, no music
+```
