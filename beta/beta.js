@@ -64,7 +64,7 @@ function ui(){
   <div id="betaIntro"><div class="card"><h2>Kaen — Preview BETA</h2>
    <p>Um jogo à parte só pra revisar o Kaen: <b>uma luta real</b> (motor do jogo, 4 ninjas inimigos de verdade) em que cada golpe, reação e animação dele é mostrada uma por vez, como um tutorial.</p>
    <p>Em cada passo você vê a animação e aperta <b>APROVADO</b> ou <b>NÃO APROVADO</b> (com um comentário, se quiser). No fim sai um <b>resumo em formato de prompt</b> pra colar no chat.</p>
-   <p style="font-size:13px">Versão ${VERSION.v} · save separado do jogo principal · <a href="beta/kaen.html" style="color:#ffb060">panorama de todas as animações</a></p>
+   <p style="font-size:13px">Versão ${VERSION.v} · save separado do jogo principal${window.BETA_ART?'':' · <a href="beta/kaen.html" style="color:#ffb060">panorama de todas as animações</a>'}</p>
    <button class="btn" id="betaGo">Começar a revisão</button></div></div>
   <div id="betaPanel" hidden><div class="top"><b class="t" id="bpT"></b><span class="n" id="bpN"></span></div><div class="txt" id="bpX"></div>
    <div class="row" id="bpRow"><button class="btn sm" id="bpOk" disabled>APROVADO</button><button class="btn sm" id="bpNo" disabled>NÃO APROVADO</button><button class="btn sm" id="bpRe" disabled>Rever</button></div>
