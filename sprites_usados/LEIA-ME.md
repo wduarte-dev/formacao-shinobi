@@ -17,12 +17,14 @@ Gerado por `python3 tools/sprites/arquivar_usados.py`. **`sprites_novos/` só te
 - KAEN_entrada_6_aligned.gif
 - KAEN_forte_20.png
 - KAEN_forte_20_aligned.gif
+- KAEN_idle_25_aligned.gif
 - KAEN_jutsu_20.png
 - KAEN_jutsu_20_aligned.gif
 - KAEN_outros_16.png
 - KAEN_outros_16_aligned.gif
 - KAEN_pulo_3.png
 - KAEN_pulo_3_aligned.gif
+- KAEN_walk_25.png
 
 ## kit_efeitos
 
@@ -95,11 +97,9 @@ Gerado por `python3 tools/sprites/arquivar_usados.py`. **`sprites_novos/` só te
 
 - 0ac116.png
 - 518d71.png
-- 831f7e.gif
 - b645d5.png
 - c72bde.png
 - da5064.png
-- ea94e9.png
 - ecb147.png
 - file_0000000015a0820e8f44ba53a5a9fb3d.png
 - file_0000000095f0820eab7860f2d8c09a9d.png
