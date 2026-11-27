@@ -21,6 +21,9 @@ Regras que funcionaram no texto da linha:
 - **Pés plantados**, mesma escala, personagem centrado, ~80% da altura da célula, pé a ~8% da base.
 - **Grade com células quase quadradas** (canvas ~colunas:linhas): 20 poses numa imagem baixa e larga ficam minúsculas.
 
+**Regra de NATURALIDADE (do dono, 27/11/2026): movimento não surge do nada, ele ACONTECE.** A animação começa da pose em que o personagem já estava (ex.: idle com a mão na cintura → o walk começa levando a mão até o cabo, só depois anda). Escrever essa transição nas primeiras poses do prompt. Walk em ciclo: 5 poses de entrada + 20 de ciclo (`ANIM=walk GRID=5x5 python3 tools/sprites/gen_prompts_lotes.py kaen A1 1`, chave `walk_25`); a entrada toca uma vez e o ciclo repete (exige `loopFrom` no motor, decidir por triagem).
+**Ref:** usar como anexo o sprite de MELHOR qualidade do elenco (hoje o Keshin), não só o do próprio ninja (`refchar="KESHIN"` no `NINJAS`; o texto manda copiar só a qualidade/estilo, não o rosto nem as roupas).
+
 ## 3. Salvar o sheet original INTACTO
 `tools/sprites/src/<ninja>/<NOME>.png` (o dono sobe pro GitHub `sprites_novos/` com nome aleatório: identificar pelo conteúdo). Nunca editar o original.
 
