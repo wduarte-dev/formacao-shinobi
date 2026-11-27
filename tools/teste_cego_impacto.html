@@ -1,0 +1,189 @@
+<title>Teste Cego de Impacto</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: uma coluna, um cartão por cena de combate, A e B lado a lado no mesmo palco. */
+:root{--bg:#14110f;--panel:#1e1916;--line:#3a312b;--fg:#f1e7da;--mut:#a39382;--accent:#ff8a2a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Inter",system-ui,sans-serif;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:1020px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font:700 26px/1.2 "Space Grotesk",system-ui,sans-serif;margin:0;text-wrap:balance}
+p{margin:0;color:var(--mut)}
+.speed{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:13px;margin-top:8px}
+.speed button,.votes button{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;font:inherit}
+.speed button[aria-pressed=true],.votes button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.votes button[aria-pressed=true]{background:var(--accent);color:#1b0d05;font-weight:600}
+.votes button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font:600 15px/1.3 "Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.pair{display:flex;gap:12px;flex-wrap:wrap}
+.box{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:center}
+.box canvas{width:100%;max-width:480px;aspect-ratio:480/300;border-radius:8px;image-rendering:pixelated;background:#222}
+.tag{font:600 13px "Space Grotesk",sans-serif;color:var(--mut)}.tag b{color:var(--fg);font-size:18px}
+.reveal{color:var(--accent);font-weight:600;min-height:1.4em;text-align:center}
+.votes{display:flex;gap:8px;flex-wrap:wrap}
+.result{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.result pre{margin:0;white-space:pre-wrap;font:14px/1.5 ui-monospace,monospace}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<main>
+ <div>
+  <h1>Teste cego de impacto</h1>
+  <p>Três cenas de combate, cada uma com duas versões (A e B) do mesmo golpe. Escolha a que dá mais vontade de rever. Qual é qual só aparece depois do último voto.</p>
+  <div class="speed"><span>Velocidade</span><button id="s1" aria-pressed="true">1x</button><button id="s2" aria-pressed="false">0,5x</button></div>
+ </div>
+ <div id="cards" style="display:flex;flex-direction:column;gap:20px"></div>
+ <div class="result" id="result" hidden><h2 style="margin:0;font:600 15px 'Space Grotesk',sans-serif">Resultado</h2><pre id="resTxt"></pre><p>Copie esse texto e cole no chat.</p></div>
+</main>
+<script>
+(function(){
+var W=480,H=300,GY=250,LEN=2.6;
+var NAMES=['Golpe básico (Kaen acerta o Iwao)','Pouso do Chute Meteoro','Escudo de pedra contra bola de fogo'];
+var PALS={
+ fire:[[0,[42,13,8]],[.35,[122,42,18]],[.65,[232,116,42]],[.9,[255,199,102]],[1,[255,244,207]]],
+ earth:[[0,[36,26,16]],[.35,[90,70,48]],[.65,[160,134,96]],[.9,[216,196,154]],[1,[255,243,214]]],
+ blue:[[0,[13,22,48]],[.35,[31,61,122]],[.65,[63,134,216]],[.9,[159,214,255]],[1,[242,251,255]]]};
+function gm(st,l){for(var i=1;i<st.length;i++){if(l<=st[i][0]){var a=st[i-1],b=st[i],k=(l-a[0])/(b[0]-a[0]);return [0,1,2].map(function(c){return a[1][c]+(b[1][c]-a[1][c])*k})}}return st[st.length-1][1]}
+function cl(x,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?1:b,x))}
+function eo(x){x=cl(x);return 1-(1-x)*(1-x)}
+function ei(x){x=cl(x);return x*x}
+function rnd(s){s=(s^0x9e3779b9)>>>0;s=Math.imul(s^s>>>15,1|s);s^=s+Math.imul(s^s>>>7,61|s);return((s^s>>>14)>>>0)/4294967296}
+/* ---------- imagens ---------- */
+var FILES={kaen:'kaen.png',iwao:'iwao.png',fx1:'fx1.png',fxt:'fxt.png',fxa:'fxa.png',fxb:'fxb.png'},IM={},loaded=0,total=6,ready=false;
+Object.keys(FILES).forEach(function(k){var i=new Image();i.onload=function(){if(++loaded==total)ready=true};i.src=FILES[k];IM[k]=i});
+var TC={};
+function fxFrame(sheet,row,col,pal){var key=sheet+row+'_'+col+pal;if(TC[key])return TC[key];
+ var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+ g.drawImage(IM[sheet],col*256,row*256,256,256,0,0,256,256);var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal];
+ for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}
+ g.putImageData(d,0,0);TC[key]=cv;return cv}
+/* fx(ctx, folha, linha, tempo desde o início, fps, paleta, x, y, escala, opções{rot,a,sx,sy,bottom,hold}) */
+function fx(c,sheet,row,tau,fps,pal,x,y,sc,o){o=o||{};if(tau<0)return;var f=Math.floor(tau*fps);if(f>5){if(!o.hold)return;f=5}
+ var fr=fxFrame(sheet,row,f,pal);c.save();c.translate(x,y);c.rotate(o.rot||0);c.scale(sc*(o.sx||1),sc*(o.sy||1));c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;
+ c.drawImage(fr,-128,o.bottom?-246:-128);c.restore()}
+/* personagens: células 192x160, pé em (96,150) */
+var ANIM={kaen:{idle:[0,6,6,1],dash:[2,10,14,0],attack:[3,8,12,0],meteor:[19,5,16,0],landing:[20,6,12,0]},iwao:{idle:[0,8,8,1],guard:[4,4,8,0],hurt:[5,3,10,0]}};
+function chr(c,id,an,tau,x,y,o){o=o||{};var a=ANIM[id][an],f=Math.floor(Math.max(0,tau)*a[2]);f=a[3]?f%a[1]:Math.min(a[1]-1,f);var S=1.25;
+ c.save();c.translate(x,y);c.scale((o.flip?-1:1)*S*(o.sx||1),S*(o.sy||1));c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;
+ c.drawImage(IM[id],f*192,a[0]*160,192,160,-96,-150,192,160);c.restore()}
+/* ---------- partes comuns do palco ---------- */
+function stage(c){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d4636');g.addColorStop(.7,'#2c3326');g.addColorStop(.7,'#4d4a38');g.addColorStop(1,'#3a3829');c.fillStyle=g;c.fillRect(-40,-40,W+80,H+80);
+ c.fillStyle='rgba(0,0,0,.18)';for(var i=0;i<9;i++)c.fillRect(i*60+((i*37)%20),GY+10+((i*53)%40),26,2)}
+function dil(T,c){if(T<c)return T;if(T<c+.07)return c;if(T<c+.22)return c+(T-c-.07)*.35;return c+.0525+(T-c-.22)}
+function camera(c,ts,cc,ix,iy,amp){var tau=ts-cc;if(tau<0)return;var z=1+.1*amp*Math.exp(-tau*9),a=7*amp*Math.exp(-tau*10);
+ c.translate(ix,iy);c.scale(z,z);c.rotate(Math.sin(tau*45)*.008*amp*Math.exp(-tau*8));c.translate(-ix,-iy);c.translate(Math.sin(tau*80)*a,Math.cos(tau*67)*a*.7)}
+function flash(c,ts,cc,k){var tau=ts-cc;if(tau<0||tau>.14)return;c.fillStyle='rgba(255,246,220,'+(k*Math.exp(-tau*26)).toFixed(3)+')';c.fillRect(-40,-40,W+80,H+80)}
+function parts(c,tau,n,seed,ox,oy,spd,a0,a1,grav,life,cols,sz){if(tau<0||tau>life)return;
+ for(var i=0;i<n;i++){var a=a0+(a1-a0)*rnd(seed+i*7),v=spd*(.45+.75*rnd(seed+i*13)),px=ox+Math.cos(a)*v*tau,py=oy+Math.sin(a)*v*tau+.5*grav*tau*tau,k=1-tau/life,s=Math.max(1,Math.round(sz*(.5+rnd(seed+i*3))*(.4+.6*k)));
+  c.fillStyle='#2a0d08';c.fillRect(Math.round(px)-1,Math.round(py)-1,s+2,s+2);c.fillStyle=cols[i%cols.length];c.fillRect(Math.round(px),Math.round(py),s,s)}}
+function lines(c,tau,ox,oy,n,seed){if(tau<0||tau>.16)return;var k=tau/.16;c.strokeStyle='rgba(255,244,207,'+(1-k).toFixed(2)+')';c.lineWidth=2;c.beginPath();
+ for(var i=0;i<n;i++){var a=i/n*6.2832+rnd(seed+i)*.3,r0=18+60*k,r1=r0+22*(1-k)+8;c.moveTo(ox+Math.cos(a)*r0,oy+Math.sin(a)*r0);c.lineTo(ox+Math.cos(a)*r1,oy+Math.sin(a)*r1)}c.stroke()}
+function dmg(c,tau,x,y,J,txt){if(tau<0||tau>.9)return;var k=tau/.9;c.save();c.textAlign='center';c.font='bold '+(J?28:22)+'px "Space Grotesk",sans-serif';
+ var s=J?1+.7*Math.exp(-tau*14)*Math.cos(tau*18):1,yy=y-(J?36*eo(k*1.4):26*k),al=k>.7?1-(k-.7)/.3:1;c.translate(x,yy);c.scale(s,s);c.globalAlpha=al;
+ c.lineWidth=5;c.strokeStyle='#2a0d08';c.strokeText(txt,0,0);c.fillStyle=J?'#ffd34d':'#fff4cf';c.fillText(txt,0,0);c.restore()}
+/* ---------- cenas ---------- */
+var SC=[
+{/* 1: golpe básico */ c:.75,draw:function(c,T,J){
+ var cc=this.c,ts=J?dil(T,cc):T,tau=ts-cc,ix=318,iy=GY-70;
+ c.save();if(J)camera(c,ts,cc,ix,iy,1);stage(c);
+ var kx=ts<.5?100+150*(1-Math.pow(1-ts/.5,2.2)):250;
+ // inimigo
+ var hit=tau>=0,ex=350+(J&&hit?26*Math.exp(-tau*3.5)*(1-Math.exp(-tau*30)):0),sq=J&&hit?Math.exp(-tau*9)*Math.cos(tau*30):0;
+ chr(c,'iwao',hit&&tau<.3?'hurt':'idle',hit?tau:ts,ex,GY,{flip:1,sx:1+.2*sq,sy:1-.18*sq});
+ // eco do atacante
+ if(J&&ts<.5&&ts>.05)for(var e=3;e>=1;e--){var tx=ts-e*.035,ex2=tx<.5?100+150*(1-Math.pow(1-Math.max(0,tx)/.5,2.2)):250;chr(c,'kaen','dash',tx,ex2,GY,{a:.22/e*1.4})}
+ if(ts<.5)chr(c,'kaen','dash',ts,kx,GY,{sx:J?1.1:1,sy:J?.94:1});else chr(c,'kaen','attack',ts-.5,kx,GY,{});
+ // efeitos
+ if(!J){fx(c,'fx1',0,tau,12,'fire',ix,iy,.6)}
+ else{
+  fx(c,'fxt',3,tau-.02,16,'earth',ex-6,GY+8,.5,{bottom:1});
+  fx(c,'fxa',2,tau,14,'earth',ix,iy+10,.6);
+  fx(c,'fx1',1,tau,16,'fire',ix,iy,.8,{sx:1,sy:.8,rot:-.3});
+  fx(c,'fx1',0,tau,14,'fire',ix,iy,.78,{rot:.4});
+  fx(c,'fx1',0,tau-.04,14,'fire',ix,iy,.52,{rot:.4+.39});
+  fx(c,'fx1',3,tau,18,'fire',ix,iy,.6);
+  lines(c,tau,ix,iy,10,11);
+  parts(c,tau,16,5,ix,iy,230,-3.6,.4,520,.55,['#ffc766','#fff4cf','#e8742a'],4)}
+ dmg(c,tau,ex-4,GY-110,J,'128');
+ c.restore();if(J)flash(c,ts,cc,.3)}},
+{/* 2: pouso do meteoro */ c:.34,draw:function(c,T,J){
+ var cc=this.c,ts=J?dil(T,cc):T,tau=ts-cc,ix=250,iy=GY;
+ c.save();if(J)camera(c,ts,cc,ix,iy-40,1.15);stage(c);
+ var hit=tau>=0,sq=J&&hit?Math.exp(-tau*8)*Math.cos(tau*26):0,ex=392+(J&&hit?18*Math.exp(-tau*3.5)*(1-Math.exp(-tau*30)):0);
+ chr(c,'iwao',hit&&tau<.3?'hurt':'idle',hit?tau:ts,ex,GY,{flip:1,sx:1+(J?.15*sq:0),sy:1-(J?.14*sq:0)});
+ var gfx=function(){if(!J){fx(c,'fxt',3,tau,12,'earth',ix,GY+6,.9,{bottom:1});return}
+ {
+  // rachaduras no chão
+  if(tau>=0){c.strokeStyle='rgba(30,22,12,'+(1-cl(tau/.9)).toFixed(2)+')';c.lineWidth=3;c.beginPath();for(var s=0;s<6;s++){var a=Math.PI+(s/5)*Math.PI,L=70*eo(tau*5)*(.6+.4*rnd(s+3));var sx=ix+Math.cos(a)*L*1.5,sy=GY+4+Math.abs(Math.sin(a))*L*.12;c.moveTo(ix,GY+4);c.lineTo((ix+sx)/2+rnd(s)*10,GY+4+rnd(s+9)*6);c.lineTo(sx,sy)}c.stroke()}
+  fx(c,'fxt',3,tau,14,'earth',ix,GY+8,1.25,{bottom:1});
+  fx(c,'fxa',0,tau-.04,12,'earth',ix+70,GY+6,.9,{bottom:1});
+  fx(c,'fxa',0,tau-.04,12,'earth',ix-70,GY+6,.9,{bottom:1,sx:-1});
+  fx(c,'fxa',1,tau-.06,12,'earth',ix,GY-20,.8,{bottom:1,a:.85});
+  fx(c,'fx1',1,tau,16,'earth',ix,GY-6,1.6,{sy:.28});
+}};
+ gfx();
+ if(ts<cc){var y=GY-250*(1-ei(ts/cc));chr(c,'kaen','meteor',ts,ix,y,{sx:J?.92:1,sy:J?1.12:1});
+  if(J)for(var e=1;e<=3;e++){var t2=Math.max(0,ts-e*.03);chr(c,'kaen','meteor',t2,ix,GY-250*(1-ei(t2/cc)),{a:.2/e*1.3,sx:.92,sy:1.12})}}
+ else chr(c,'kaen','landing',tau,ix,GY,{sx:J?1+.22*Math.exp(-tau*10)*Math.cos(tau*14):1,sy:J?1-.2*Math.exp(-tau*10)*Math.cos(tau*14):1});
+ if(J){  fx(c,'fxa',2,tau,12,'earth',ix,GY-40,1.1);
+  fx(c,'fx1',0,tau,14,'fire',ix,GY-30,.9);
+  lines(c,tau,ix,GY-30,12,21);
+  parts(c,tau,18,9,ix,GY-10,260,-3.4,-2.9,640,.7,['#d8c49a','#a08660','#fff3d6'],5)}
+ dmg(c,tau,ex-4,GY-120,J,'96');
+ c.restore();if(J)flash(c,ts,cc,.22)}},
+{/* 3: escudo de pedra */ c:1.12,draw:function(c,T,J){
+ var cc=this.c,ts=J?dil(T,cc):T,tau=ts-cc,ix=250,ax=250;
+ c.save();if(J)camera(c,ts,cc,330,GY-70,.55);stage(c);
+ var hit=tau>=0,sh=J&&hit?Math.exp(-tau*10)*Math.cos(tau*34):0;
+ chr(c,'iwao','idle',ts,ax-(J&&hit?10*Math.exp(-tau*4)*(1-Math.exp(-tau*30)):0),GY,{sx:1+.1*sh,sy:1-.08*sh});
+ // cúpula
+ var ta=ts-.2;
+ if(ta>=0&&!hit){var f=Math.min(3,Math.floor(ta*14)),k=J?(ta<.28?.6+.62*eo(ta/.28):1.12-.12*eo((ta-.28)/.2)):1,pulse=J?1+.025*Math.sin(ts*9):1;
+  fxFrameDraw(c,'fxa',3,f,'blue',ax,GY+10,1.1*k*pulse,.5,J?.55+.4*eo(ta/.3):1);
+  if(J&&ta<.4){fx(c,'fx1',1,ta,14,'blue',ax,GY+4,1.4,{sy:.3});parts(c,ta,10,31,ax,GY-70,60,-3.9,-2.3,-60,.6,['#9fd6ff','#f2fbff','#3f86d8'],3)}}
+ if(hit){var tb=tau,f2=tb<.04?3:4+Math.min(1,Math.floor((tb-.04)*10));fxFrameDraw(c,'fxa',3,f2,'blue',ax,GY+10,1.1*(J&&tb<.08?1.08:1),.5,1)}
+ // projétil
+ var px=ts<cc?480-(480-336)*cl((ts-.7)/(cc-.7)):-99;
+ if(ts>.7&&ts<cc){for(var i=0;i<5;i++){c.fillStyle=['#fff4cf','#ffc766','#e8742a','#7a2a12','#2a0d08'][i];c.beginPath();c.arc(px+i*10,GY-72+Math.sin(ts*40+i)*2,13-i*2,0,6.28);c.fill()}}
+ if(!J){fx(c,'fx1',0,tau,12,'blue',336,GY-72,.55)}
+ else{
+  fx(c,'fx1',0,tau,14,'fire',336,GY-72,.95,{rot:.3});
+  fx(c,'fx1',0,tau-.04,14,'fire',336,GY-72,.6,{rot:.7});
+  fx(c,'fx1',1,tau,16,'blue',336,GY-72,1.1,{sx:.55,rot:.1});
+  fx(c,'fx1',3,tau,14,'blue',336,GY-72,1.1);
+  fx(c,'fxa',2,tau,12,'blue',336,GY-60,1.2);fx(c,'fxa',2,tau-.05,12,'blue',300,GY-100,.8,{rot:.8});
+  lines(c,tau,336,GY-72,10,41);
+  parts(c,tau,16,17,336,GY-72,220,2.3,4.4,520,.6,['#9fd6ff','#f2fbff','#e8742a','#ffc766'],4)}
+ dmg(c,tau,ax,GY-120,J,'BLOQUEADO');
+ c.restore();if(J)flash(c,ts,cc,.25)}}];
+function fxFrameDraw(c,sheet,row,f,pal,x,y,sc,anch,a){var fr=fxFrame(sheet,row,f,pal);c.save();c.translate(x,y);c.scale(sc,sc);c.globalAlpha=a;c.imageSmoothingEnabled=false;c.drawImage(fr,-128,-246);c.restore()}
+/* ---------- página ---------- */
+var cards=document.getElementById('cards'),boxes=[],votes=[null,null,null];
+SC.forEach(function(sc,e){
+ var order=Math.random()<.5?['pure','juice']:['juice','pure'];
+ var card=document.createElement('section');card.className='card';
+ card.innerHTML='<h2>Cena '+(e+1)+' de 3: '+NAMES[e]+'</h2><div class="pair"></div><div class="votes"></div>';
+ var pair=card.querySelector('.pair'),vb=card.querySelector('.votes');
+ order.forEach(function(kind,i){
+  var box=document.createElement('div');box.className='box';var cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  var tag=document.createElement('div');tag.className='tag';tag.innerHTML='<b>'+'AB'[i]+'</b>';var rv=document.createElement('div');rv.className='reveal';
+  box.appendChild(cv);box.appendChild(tag);box.appendChild(rv);pair.appendChild(box);boxes.push({e:e,kind:kind,ctx:cv.getContext('2d'),rv:rv})});
+ [['Prefiro A',order[0]],['Prefiro B',order[1]],['Tanto faz','tie']].forEach(function(o){
+  var b=document.createElement('button');b.textContent=o[0];b.setAttribute('aria-pressed','false');
+  b.onclick=function(){votes[e]=o[1];[].forEach.call(vb.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');check()};vb.appendChild(b)});
+ cards.appendChild(card)});
+function label(k){return k=='pure'?'efeito puro':k=='juice'?'efeito + código + impacto':'empate'}
+function check(){if(votes.some(function(v){return v===null}))return;
+ boxes.forEach(function(b){b.rv.textContent=label(b.kind)});var p=0,j=0,t=0;
+ var lines=votes.map(function(v,i){if(v=='pure')p++;else if(v=='juice')j++;else t++;return NAMES[i]+': '+label(v)});
+ document.getElementById('resTxt').textContent=lines.join('\n')+'\n\nPlacar: puro '+p+' x impacto '+j+' (empates '+t+')';
+ var r=document.getElementById('result');r.hidden=false;r.scrollIntoView({behavior:'smooth',block:'nearest'})}
+var speed=1;function setSpeed(v){speed=v;document.getElementById('s1').setAttribute('aria-pressed',v==1);document.getElementById('s2').setAttribute('aria-pressed',v!=1)}
+document.getElementById('s1').onclick=function(){setSpeed(1)};document.getElementById('s2').onclick=function(){setSpeed(.5)};
+var clock=0,last=0;
+function loop(now){clock+=(now-last)/1000*speed;last=now;var T=(window.__T!==undefined)?window.__T:clock%LEN;
+ if(ready)boxes.forEach(function(b){var c=b.ctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);SC[b.e].draw(c,T,b.kind=='juice')});
+ requestAnimationFrame(loop)}
+requestAnimationFrame(function(n){last=n;requestAnimationFrame(loop)});
+})();
+</script>
