@@ -46,12 +46,12 @@ function kitBuff(u,color){ const s=sockOf(u,'chest'), sz=u.d?.size||1; kitAdd({r
 function kitAura(u){ if(u._ka||!kitIM.au)return; u._ka=1; const sz=u.d?.size||1, col=u.d?.c||'#ffffff';
   const play=(row,loop,stop)=>new Promise(res=>{ if(!kitAdd({sheet:'au',row,fps:loop?10:12,loop,sc:.62*sz,ay:GFXA.aura[row],follow:u,sock:'feet',oy:2,color:col,a:.95,stop,end:res}))res(); });
   (async()=>{ try{ await play(2,false); while(u.alive&&u._aura){ const hot=!!u._casting; await play(hot?1:0,true,()=>!(u.alive&&u._aura)||(!!u._casting!==hot)); } await play(3,false); }catch(e){} u._ka=0; })(); }
-// CAMADA DE IMPACTO: golpes pesados e jutsus (golpes sutis NÃO usam). o={at:{x,y},pow,color,dir,stop,cam,crack}
+// CAMADA DE IMPACTO: golpes pesados e jutsus (golpes sutis NÃO usam). o={at:{x,y},pow,color,dir,stop,cam,crack,air}  air:true = contato com o alvo NO AR: só flash, faíscas e tranco, sem poeira/anéis/rachaduras de chão
 async function impactFx(t,o={}){ const p=o.at||(t?cur(t):{x:576,y:400}), pow=o.pow||1, col=o.color||'#ffb060', y=p.y-48*Math.min(1.4,pow);
   flash(); shake(.8+.5*pow);
-  kitAdd({sheet:'br',row:0,fps:18,sc:.8*pow,x:p.x,y,color:'#ffffff'}); { const R=pow>=1.5?0:pow>=.9?1:3, S=Math.min(1.3,.5+.4*pow); kitAdd({sheet:'im',row:R,fps:12,sc:S,x:p.x,y:p.y+2,ay:GFXA.impacto[R]}); }   // anel + poeira no plano (folha gfx do dono)
+  kitAdd({sheet:'br',row:0,fps:18,sc:.8*pow,x:p.x,y,color:'#ffffff'}); if(!o.air){ const R=pow>=1.5?0:pow>=.9?1:3, S=Math.min(1.3,.5+.4*pow); kitAdd({sheet:'im',row:R,fps:12,sc:S,x:p.x,y:p.y+2,ay:GFXA.impacto[R]}); }   // anel + poeira no plano (folha gfx do dono)
   kitAdd({sheet:'br',row:2,fps:12,sc:1.0*pow,x:p.x,y,color:col}); kitAdd({sheet:'br',row:3,fps:14,sc:.38*pow,x:p.x,y:y-10,color:'#ffffff',delay:.04});
-  if(o.dir)speedLines(o.dir<0?'R':'D'); else speedLines('D'); if(o.crack)kitAdd({sheet:'im',row:2,fps:10,sc:Math.min(1.2,.5+.35*pow),x:p.x,y:p.y+2,ay:GFXA.impacto[2],delay:.05});   // rachaduras no plano (gfx)
+  if(o.dir)speedLines(o.dir<0?'R':'D'); else speedLines('D'); if(o.crack&&!o.air)kitAdd({sheet:'im',row:2,fps:10,sc:Math.min(1.2,.5+.35*pow),x:p.x,y:p.y+2,ay:GFXA.impacto[2],delay:.05});   // rachaduras no plano (gfx)
   if(t&&t.alive&&t.st)t.st.animate([{scale:'1.22 .8'},{scale:'.94 1.06',offset:.45},{scale:'1'}],{duration:260/speed,easing:'ease-out'});
   if(o.cam){ zoomTo(p.x,p.y-60,1.08); battleAfter(()=>zoomOut(),280/speed); }
   if(o.stop!==0)await hitstop(o.stop||90); }

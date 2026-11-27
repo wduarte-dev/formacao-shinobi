@@ -89,7 +89,7 @@ def main():
     a['seals'] = f'[{rows["seals"]},1,12,0,0,[0,0,0,0,0,0,0,0]]'; a['buff'] = f'[{rows["seals"]},1,10,0,0,[0,0,0,0,0]]'
     a['dodge'] = f'[{rows["hop"]},3,16,0,0]'; a['stun'] = f'[{rows["idle"]},{n("idle")},8,1,0]'; a['chase'] = f'[{rows["rise"]},6,12,0,0]'
     order = ['idle', 'hop', 'entrada', 'attack', 'strong', 'guard', 'hurt', 'dodge', 'seals', 'jutsu', 'buff', 'stun', 'victory', 'defeat', 'knockback', 'launched', 'knockdown', 'chase', 'rise', 'meteor', 'landing']
-    line = f" kaen:{{hd:[95,48],W:{COLS * CW},H:{nrows * CH},a:{{" + ','.join(f'{k}:{a[k]}' for k in order) + '}},\n'
+    line = f" kaen:{{hd:[96,54],W:{COLS * CW},H:{nrows * CH},a:{{" + ','.join(f'{k}:{a[k]}' for k in order) + '}},\n'
     p = ROOT / 'js/sprites.js'; s = p.read_text(); new = re.sub(r" kaen:\{hd.*?\n", lambda m: line, s, count=1); assert new != s or line in s
     p.write_text(new); print(f'atlas {atlas.size} ({nrows} linhas); V2 do Kaen atualizado')
 

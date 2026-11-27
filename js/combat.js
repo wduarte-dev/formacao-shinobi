@@ -525,7 +525,7 @@ async function chain(side,t,count,src){
     const ground=pos(t), landX=Math.max(70,Math.min(1082,tb.x+dir*36)), fallMs=140;
     const fall=`transform ${fallMs/speed}ms cubic-bezier(.65,0,1,.5)`;
     if(connected){
-      impactFx(t,{pow:1.9,color:'#ff9a4a',cam:true,stop:0,dir});   // CONTATO: camada de impacto no ar
+      impactFx(t,{pow:1.9,color:'#ff9a4a',cam:true,stop:0,dir,air:true});   // CONTATO no ar: sem poeira de chão (ela só vem no pouso)
       await hitstop(80);
       if(t.alive||!t.owner){
         put(t,landX-ground.x,0,fall);

@@ -59,7 +59,7 @@ function kdModel(u,ts,all){
   M.pathAt=L=>L<=D1?[x0+L,y0-8*Math.sin(L*.01)]:[XS,YS0+(L-D1)];
   M.angAt=L=>L<=D1?Math.atan(-.08*Math.cos(L*.01)):Math.PI/2;
   M.gOf=t=>t<tTP?1:1+(KD.BIG-1)*kdes((t-tTP)/((tSlam-tTP)*.9));   // na descida tudo cresce, pra cobrir a malha toda
-  M.dieOf=sv=>tSlam+sv/(KD.VB*.8);
+  M.dieOf=sv=>tSlam;   // o dragão INTEIRO é esmagado no chão de uma vez (nunca peça por peça)
   M.tauT=N*Lb/KD.VA; M.h1=tR+M.tauT+.2;
   M.kxo=tt=>tt<=tR?0:tt<=M.h1?-KD.RECOIL*kdeo((tt-tR)/(M.h1-tR)):-KD.RECOIL*(1-kdes((tt-M.h1)/.5));
   M.LEN=tSlam+(N*Lb+Lt)/(KD.VB*.8)+.5+2.4+.4;
@@ -86,18 +86,19 @@ function kdDraw(c,M,T){
   // fogo no chão do centro da malha (plano) por trás do dragão
   if(tauS>=0)kdFire(c,tauS,XS,GYs,1.6,false,1.7,.85);   // fogo grande no centro da malha (acende, loop, apaga)
   // dragão: peças por comprimento de arco; só se desfazem na batida vertical (na descida tudo cresce em volta do centro da malha)
-  const gg=M.gOf(t); c.save(); if(gg!==1){ c.translate(XS,GYs); c.scale(gg,gg); c.translate(-XS,-GYs); }
+  const gg=M.gOf(t), dead=t>=M.tSlam+.15; c.save(); if(gg!==1){ c.translate(XS,GYs); c.scale(gg,gg); c.translate(-XS,-GYs); }
+  if(t>=M.tSlam){ c.translate(XS,GYs); c.scale(1,kdcl(1-(t-M.tSlam)/.14,.03,1)); c.translate(-XS,-GYs); }   // o corpo INTEIRO é esmagado contra o chão de uma vez (achata em ~0,14 s e some), nunca peça por peça
   const sTail=N*M.Lb, LpT=Lw-sTail;
-  if(LpT>0){ const lc=Math.min(LpT,M.Lend), p=M.pathAt(lc), r=M.angAt(lc), dT=M.dieOf(sTail);
+  if(LpT>0&&!dead){ const lc=Math.min(LpT,M.Lend), p=M.pathAt(lc), r=M.angAt(lc), dT=M.dieOf(sTail);
     if(t<dT){ kdPiece(c,kdFrame('fogo_cauda',(ph+1)%6,'none'),p[0],p[1],M.sT,r,M.aT[0],M.aT[1],{a:.9}); kdPiece(c,kdFrame('cauda',(ph+3)%6,'brasa'),p[0],p[1],M.sT,r,M.aT[0],M.aT[1]); }
-    else if((t-dT)*12<=5.99)kdPiece(c,kdFrame('cauda_desintegra',Math.floor((t-dT)*12),'brasa'),p[0],p[1],M.sT,r,M.aT[0],M.aT[1]); }
-  for(let k=N-1;k>=0;k--){ const sk=(k+.5)*M.Lb, Lk=Lw-sk; if(Lk<=0)continue; const lk=Math.min(Lk,M.Lend), p2=M.pathAt(lk), r2=M.angAt(lk), die=M.dieOf(sk);
+    else if((t-dT)*18<=5.99)kdPiece(c,kdFrame('cauda_desintegra',Math.floor((t-dT)*18),'brasa'),p[0],p[1],M.sT,r,M.aT[0],M.aT[1]); }
+  for(let k=N-1;k>=0&&!dead;k--){ const sk=(k+.5)*M.Lb, Lk=Lw-sk; if(Lk<=0)continue; const lk=Math.min(Lk,M.Lend), p2=M.pathAt(lk), r2=M.angAt(lk), die=M.dieOf(sk);
     if(t<die){ kdPiece(c,kdFrame('fogo_corpo',(ph+k+2)%6,'none'),p2[0],p2[1]-3,sc,r2,M.aB[0],M.aB[1],{a:.9}); kdPiece(c,kdFrame('corpo',(ph+k)%6,'brasa'),p2[0],p2[1],sc,r2,M.aB[0],M.aB[1]); }
-    else{ const fd=Math.floor((t-die)*12); if(fd<=5)kdPiece(c,kdFrame('corpo_desintegra',fd,'brasa'),p2[0],p2[1],sc,r2,M.aB[0],M.aB[1]); } }
-  if(Lw>0){ const lh=Math.min(Lw,M.Lend), hp=M.pathAt(lh), hr=M.angAt(lh);
+    else{ const fd=Math.floor((t-die)*18); if(fd<=5)kdPiece(c,kdFrame('corpo_desintegra',fd,'brasa'),p2[0],p2[1],sc,r2,M.aB[0],M.aB[1]); } }
+  if(Lw>0&&!dead){ const lh=Math.min(Lw,M.Lend), hp=M.pathAt(lh), hr=M.angAt(lh);
     if(t<M.tSlam){ kdPiece(c,kdFrame('fogo_crista',(ph+2)%6,'none'),hp[0]-4,hp[1]-2,M.sH,hr,M.aH[0],M.aH[1],{a:.9}); kdPiece(c,kdFrame('cabeca',ph%6,'brasa'),hp[0],hp[1],M.sH,hr,M.aH[0],M.aH[1]); }
-    else{ const fh=Math.floor((t-M.tSlam)*12); if(fh<=5)kdPiece(c,kdFrame('cabeca_desintegra',fh,'brasa'),hp[0],hp[1],M.sH,hr,M.aH[0],M.aH[1],{a:kdcl(1-(t-M.tSlam-.04)/.26)}); } }
-  for(let j=0;j<=N;j++){ const sj=j*M.Lb, Lj=Lw-sj; if(Lj<=0)continue; if(t>=M.dieOf(sj)+.02)continue; const lj=Math.min(Lj,M.Lend), pj=M.pathAt(lj), rj=M.angAt(lj); kdPiece(c,kdFrame('fogo_corpo',(ph+j*2)%6,'none'),pj[0],pj[1]+4,sc*.42,rj,128,170,{a:.9}); }
+    else{ const fh=Math.floor((t-M.tSlam)*18); if(fh<=5)kdPiece(c,kdFrame('cabeca_desintegra',fh,'brasa'),hp[0],hp[1],M.sH,hr,M.aH[0],M.aH[1],{a:kdcl(1-(t-M.tSlam-.04)/.26)}); } }
+  for(let j=0;j<=N&&!dead;j++){ const sj=j*M.Lb, Lj=Lw-sj; if(Lj<=0)continue; if(t>=M.dieOf(sj)+.02)continue; const lj=Math.min(Lj,M.Lend), pj=M.pathAt(lj), rj=M.angAt(lj); kdPiece(c,kdFrame('fogo_corpo',(ph+j*2)%6,'none'),pj[0],pj[1]+4,sc*.42,rj,128,170,{a:.9}); }
   c.restore();
   // DESTROÇOS no plano (folha gfx): explodem, caem e ficam amontoados, depois somem; ampliados pra cobrir a malha
   if(tauS>=0){ const S=2.1, fade=tauS>2.1?Math.max(0,1-(tauS-2.1)/.5):1;
