@@ -6,7 +6,7 @@ Faz: acha a grade e cada pose sozinho -> escolhe a âncora pelo NOME do arquivo 
 tamanho da célula -> grava, em <pasta do arquivo>/sprites_prontos/:  <nome>_aligned.png, <nome>_aligned.gif e <nome>_bitmapflow.txt.
 Presets pelo nome (minúsculas, qualquer parte do nome):
   walk, andar, run, corr, dash         -> âncora torso, chão por pose   (o corpo fica parado, os pés andam)
-  hop, pulo, jump, salto, entry, entrada, land, queda, trip, rasteira, knock -> âncora torso, chão GLOBAL (a pose no ar fica acima do chão)
+  hop, pulo, jump, salto, entry, entrada, land, queda, trip, rasteira, knock, ataque, attack, golpe, forte, strong, corte -> âncora torso, chão GLOBAL (pose no ar fica no ar; lâmina abaixo dos pés não puxa o corpo)
   qualquer outro (idle...)             -> âncora pés, chão por pose
 Dá pra forçar com --anchor feet|torso, --ground each|global, --cell N, --ms N (duração de cada quadro no GIF, padrão 100).
 Nunca altera o original. Precisa de Pillow, numpy e scipy. Depende de align_sheet.py (mesma pasta)."""
@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import align_sheet as al
 
 PRESETS = [(('walk', 'andar', 'run', 'corr', 'dash'), ('torso', 'each')),
-           (('hop', 'pulo', 'jump', 'salto', 'entry', 'entrada', 'land', 'queda', 'trip', 'rasteira', 'knock'), ('torso', 'global'))]
+           (('hop', 'pulo', 'jump', 'salto', 'entry', 'entrada', 'land', 'queda', 'trip', 'rasteira', 'knock', 'ataque', 'attack', 'golpe', 'forte', 'strong', 'corte'), ('torso', 'global'))]
 
 def preset_for(name):
     n = name.lower()
