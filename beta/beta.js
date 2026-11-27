@@ -19,7 +19,7 @@ function reset(){   // devolve a luta ao estado limpo entre passos (todos vivos,
   drawJ&&drawJ();
 }
 const STEPS=[
- {t:'Entrada pelo ar',x:'Essa é a ENTRADA: todos CAEM pela diagonal do plano do jogo (de trás e do lado) e o Kaen pousa com a mão no chão e se recompõe. Não existe mais corrida nem caminhada: quem não tem sprite de entrada cai no idle.',
+ {t:'Entrada pelo ar',x:'Essa é a ENTRADA: cada ninja entra pela LATERAL da própria área (seu time pela esquerda, o inimigo pela direita), em curva, até a sua casa, e o Kaen pousa com a mão no chão e se recompõe. Não existe mais corrida nem caminhada: quem não tem sprite de entrada cai no idle.',
   run:async()=>{ await intro(); }},
  {t:'Idle de luta',x:'Esse é o IDLE do Kaen: a postura de luta parada, em loop (48 quadros suaves). Fique de olho no balanço e no cachecol.',
   run:async()=>{ await wait(4200); }},
@@ -29,9 +29,9 @@ const STEPS=[
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.normal,false); await wait(500); }},
  {t:'Corte Flamejante (golpe forte)',x:'Esse é o GOLPE FORTE, o Corte Flamejante: um corte descendente mais pesado (1,4× de dano). No jogo ele sai em 30% das ações sem jutsu.',
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.strong,false); await wait(500); }},
- {t:'Jutsu armado (selo)',x:'Esse é o KAEN ARMADO: parado no selo montado, estático, com a AURA em loop no chão (efeito provisório do kit deitado no plano; o definitivo vem de um sheet gerado) até chegar a vez dele.',
+ {t:'Jutsu armado (selo)',x:'Esse é o KAEN ARMADO: parado no selo montado, estático, com a AURA em loop no chão: ela ACENDE, fica em loop e APAGA quando solta o jutsu (sheet gfx do dono, branco recolorido na cor do Kaen, já no plano).',
   run:async()=>{ const k=K(); k.armedSkill=k.d.jutsu; setAnim(k,'cast',0,true); upd(k); await wait(3200); }},
- {t:'Dragão de Brasa (jutsu)',x:'Esse é o JUTSU: aura em loop, selos, mãos abrindo, CUT-IN com o dragão, o dragão sai das mãos e cruza a fileira queimando, volta por cima e CAI GIGANTE em cima da malha inimiga inteira, se desintegrando. Poeira, fogo, anéis e rachadura DEITADOS no plano do chão.',
+ {t:'Dragão de Brasa (jutsu)',x:'Esse é o JUTSU: aura em loop, selos, mãos abrindo, CUT-IN com o dragão, o dragão sai das mãos e cruza a fileira queimando, volta por cima e CAI GIGANTE em cima da malha inimiga inteira, se desintegrando. Na queda ficam só FOGO e DESTROÇOS no plano do chão (sheet gfx do dono): o menos é mais.',
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.jutsu,true); await wait(1200); }},
  {t:'Chute Meteoro (perseguição)',x:'Essa é a PERSEGUIÇÃO: o inimigo está no ar (Voo), o Kaen arranca do chão com poeira, SOBE até ele em disparada, mergulha com o chute (contato com impacto: câmera, anéis e hit-stop) e pousa com mais impacto. Bem mais rápido que antes.',
   run:async()=>{ const k=K(), t=F(1); await smash(k,t,'V'); await wait(250); await chain('p',t,1,k); sceneOff(); await wait(600); }},

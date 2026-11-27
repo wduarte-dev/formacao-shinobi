@@ -603,15 +603,17 @@ async function castInstants(opening=false){
   }while(cast&&all().some(u=>u.armedSkill?.instant));
 }
 async function intro(){
-  const DROP=u=>`translate(${(u.side==='p'?1:-1)*274}px,-480px)`;   // cai pela diagonal do plano do jogo: de trás (longe) e do lado, até a casa
-  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=u.d.stationary?`translate(${(u.side==='p'?-1:1)*640}px,0)`:DROP(u); setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'idle',0);}   // sem walk/run: Kazan (estacionário) mantém o dele
+  // cada ninja entra pela LATERAL da própria área (time da esquerda pelo alto à esquerda, o inimigo pelo alto à direita) e faz uma curva até a sua casa (desenho do dono):
+  // x desacelera (translate) e y cai em aceleração (transform), formando o arco da seta
+  const DROP=u=>{ const c=pos(u), sx=u.side==='p'?110:1152-110, sy=120+u.row*26; return {dx:sx-c.x, dy:sy-c.y}; };
+  for(const u of all()){u.mv.style.transition='none'; if(u.d.stationary)u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; else{ const d=DROP(u); u.mv.style.translate=`${d.dx}px 0px`; u.mv.style.transform=`translate(0px,${d.dy}px)`; } setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'idle',0);}   // sem walk/run: Kazan (estacionário) mantém o dele
   $('rd').textContent=foe.name; await sleep(120);
   const ENTRY_MS=700;   // deslocamento e corrida acabam juntos em qualquer velocidade (transição escala com speed, como o sleep)
-  for(const u of all()){ const air=!u.d.stationary; u.mv.style.transition=air?`transform ${300/speed}ms cubic-bezier(.55,0,.9,.55)`:`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform=''; }
+  for(const u of all()){ const air=!u.d.stationary; u.mv.style.transition=air?`transform ${320/speed}ms cubic-bezier(.5,0,.9,.55), translate ${320/speed}ms cubic-bezier(.15,.55,.4,1)`:`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform=''; u.mv.style.translate=''; }
   const air=all().filter(u=>!u.d.stationary);
-  if(air.length)battleAfter(()=>{ sfx.thud(); air.forEach(u=>{ const s=sockOf(u,'feet'); kitAdd({row:3,fps:14,sc:.5,x:s.x,y:s.y-14,color:'#e8dcc4',plane:true}); }); },300/speed);   // pouso da entrada: som + poeira do kit
+  if(air.length)battleAfter(()=>{ sfx.thud(); air.forEach(u=>{ const s=sockOf(u,'feet'); kitAdd({sheet:'im',row:3,fps:12,sc:.55,x:s.x,y:s.y+2,ay:GFXA.impacto[3]}); }); },320/speed);   // pouso da entrada: som + poeira leve do gfx (já no plano)
   await sleep(ENTRY_MS);
-  for(const u of all()){u.mv.style.transition=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
+  for(const u of all()){u.mv.style.transition=''; u.mv.style.translate=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));
   $('rd').textContent='Rodada 1'; ink('Rodada 1'); await sleep(700);
 }

@@ -1,12 +1,13 @@
 // Kit de efeitos reutilizáveis (sprites brancos/cinza tingidos por cor em código, cache por cor) num canvas #kfx próprio, só com o que está ativo.
 // Linhas de spr/kit_fx.png: 0 anel de choque, 1 setas de buff, 2 estrelas tontas (loop), 3 poeira. spr/kit_brilho.png: 0 faísca, 1 anel, 2 partículas, 3 brilho de 4 pontas.
 // Também a CAMADA DE IMPACTO (impactFx): flash + tremor + squash + anéis em eco + faíscas + linhas + rachadura + hit-stop, só pra golpes pesados e jutsus.
-const KIT_FILES={fx:'spr/kit_fx.webp',br:'spr/kit_brilho.webp',st:'spr/kit_status.webp'}, STUN_KIT={kaen:1};
+const KIT_FILES={fx:'spr/kit_fx.webp',br:'spr/kit_brilho.webp',st:'spr/kit_status.webp',au:'spr/gfx_aura.webp',im:'spr/gfx_impacto.webp',de:'spr/gfx_destrocos.webp'}, STUN_KIT={kaen:1};
 const kitIM={}, kitTC={}; let kitP=null, kitCv=null, kitCtx=null, kitList=[], kitOn=false, kitLast=0;
 function kitLoad(){ return kitP||(kitP=Promise.all(Object.entries(KIT_FILES).map(([k,src])=>new Promise(res=>{ const i=new Image(); i.onload=()=>(i.decode?i.decode().catch(()=>{}):Promise.resolve()).then(res); i.onerror=()=>res(); i.src=src; kitIM[k]=i; }))).then(kitWarm)); }
 // tinge de antemão as cores que a luta usa (impacto, estrelas, buff dos ninjas) pra não recolorir no instante do golpe
-async function kitWarm(){ const cols=new Set(['#ffffff','#ff8a3a','#ff9a4a','#ffb060']); if(typeof N!=='undefined')Object.values(N).forEach(d=>d&&d.c&&cols.add(d.c));
-  let t0=performance.now(); for(const c of cols){ for(const [sh,rows] of [['fx',[0,1,2]],['br',[0,2,3]]])for(const r of rows)for(let f=0;f<6;f++){ try{ kitCell(sh,r,f,c); }catch(e){} if(performance.now()-t0>6){ await new Promise(r=>setTimeout(r,0)); t0=performance.now(); } } } }
+async function kitWarm(){ const cols=new Set(['#ffffff','#ff8a3a','#ff9a4a','#ffb060']); if(typeof N!=='undefined'&&N.kaen)cols.add(N.kaen.c); if(typeof N!=='undefined')Object.values(N).forEach(d=>d&&d.c&&cols.add(d.c));
+  let t0=performance.now(); for(const c of cols){ for(const [sh,rows] of [['fx',[0,1,2]],['br',[0,2,3]],...((c==='#ffffff'||(N.kaen&&c===N.kaen.c))?[['au',[0,1,2,3]]]:[])])for(const r of rows)for(let f=0;f<6;f++){ try{ kitCell(sh,r,f,c); }catch(e){} if(performance.now()-t0>6){ await new Promise(r=>setTimeout(r,0)); t0=performance.now(); } } }
+  for(const r of [0,1,2])for(let f=0;f<6;f++){ try{ kitCell('de',r,f,'#ffffff'); }catch(e){} } }
 // SOCKETS (pontos de ancoragem): onde um efeito nasce em cada ninja. Fonte: FACE (centro da cabeça medido por ninja e por animação, em px do atlas, pés em [96,150]);
 // sem medida usa a proporção do corpo (cabeça a ~82% da altura). Espelha pro lado inimigo e escala por `size`. Nomes: head, chest, hand, feet.
 function sockOf(u,name){ const p=cur(u), sz=u.d?.size||1, F=(typeof FACE!=='undefined'&&FACE[u.id])||{}, f=Array.isArray(F[u.an])?F[u.an]:F.idle;
@@ -35,14 +36,16 @@ function kitTick(now){ const c=kitCtx, dt=Math.min(.05,(now-kitLast)/1000)*(type
     let f=Math.floor(t*e.fps); if(e.loop)f%=6; else f=Math.min(5,f);
     let x=e.x, y=e.y; if(e.follow){ const s=sockOf(e.follow,e.sock||'head'); x=s.x+(e.ox||0); y=s.y+(e.oy||0); }
     y+=e.dy-e.rise*(t/e.dur); const fade=e.loop?1:t>e.dur*.75?1-(t-e.dur*.75)/(e.dur*.25):1;
-    c.save(); c.translate(x,y); if(e.rot)c.rotate(e.rot); if(e.plane)planeXf(c,e.pf); c.scale(e.sc,e.sc); c.globalAlpha=e.a*fade; c.imageSmoothingEnabled=false; c.drawImage(kitCell(e.sheet,e.row,f,e.color),-128,-128); c.restore(); return true; });
+    c.save(); c.translate(x,y); if(e.rot)c.rotate(e.rot); if(e.plane)planeXf(c,e.pf); c.scale(e.sc,e.sc); c.globalAlpha=e.a*fade; c.imageSmoothingEnabled=false; c.drawImage(kitCell(e.sheet,e.row,f,e.color),-128,-(e.ay||128)); c.restore(); return true; });
   if(kitList.length)requestAnimationFrame(kitTick); else{ kitOn=false; c.clearRect(0,0,1152,648); } }
 // estrelas tontas em órbita acima da cabeça enquanto o ninja estiver atordoado (só quem usa o kit no lugar do sprite: STUN_KIT)
 function kitStars(u){ if(u._ks||!kitIM.fx)return; u._ks=1; kitAdd({row:2,fps:9,loop:true,sc:.5,follow:u,sock:'head',oy:-8,plane:true,pf:.8,stop:()=>!(u.alive&&u.stunned),end:()=>{u._ks=0;}}); }
 // setas de buff subindo pelo corpo, na cor do ninja
 function kitBuff(u,color){ const s=sockOf(u,'chest'), sz=u.d?.size||1; kitAdd({row:1,fps:10,sc:.55*sz,x:s.x,y:s.y+8*sz,rise:34,color:color||u.d?.c||'#ffffff'}); kitAdd({row:1,fps:10,sc:.4*sz,x:s.x,y:s.y+18*sz,rise:26,color:'#ffffff',delay:.12,a:.8}); }
-// AURA do jutsu em loop enquanto ele arma/executa (placeholder da folha de status do kit, deitada no plano; o definitivo vem de um sheet gerado pelo dono). Liga com u._aura=true
-function kitAura(u){ if(u._ka||!kitIM.st)return; u._ka=1; const sz=u.d?.size||1; kitAdd({sheet:'st',row:0,fps:10,loop:true,sc:.62*sz,follow:u,sock:'feet',oy:-30*sz,plane:true,pf:.62,color:u.d?.c||'#ffffff',a:.95,stop:()=>!(u.alive&&u._aura),end:()=>{u._ka=0;}}); }
+// AURA do jutsu (folha gfx do dono, branca e recolorível, já desenhada no plano): ACENDE -> loop (mais forte enquanto executa o jutsu) -> APAGA. Liga com u._aura=true; u._casting=true = intensa
+function kitAura(u){ if(u._ka||!kitIM.au)return; u._ka=1; const sz=u.d?.size||1, col=u.d?.c||'#ffffff';
+  const play=(row,loop,stop)=>new Promise(res=>{ if(!kitAdd({sheet:'au',row,fps:loop?10:12,loop,sc:.62*sz,ay:GFXA.aura[row],follow:u,sock:'feet',oy:2,color:col,a:.95,stop,end:res}))res(); });
+  (async()=>{ try{ await play(2,false); while(u.alive&&u._aura){ const hot=!!u._casting; await play(hot?1:0,true,()=>!(u.alive&&u._aura)||(!!u._casting!==hot)); } await play(3,false); }catch(e){} u._ka=0; })(); }
 // CAMADA DE IMPACTO: golpes pesados e jutsus (golpes sutis NÃO usam). o={at:{x,y},pow,color,dir,stop,cam,crack}
 async function impactFx(t,o={}){ const p=o.at||(t?cur(t):{x:576,y:400}), pow=o.pow||1, col=o.color||'#ffb060', y=p.y-48*Math.min(1.4,pow);
   flash(); shake(.8+.5*pow);
