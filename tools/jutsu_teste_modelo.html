@@ -39,7 +39,7 @@ function frame(name,col,pal){var key=name+col+pal;if(TC[key])return TC[key];var 
  g.drawImage(IM[name],col*256,0,256,256,0,0,256,256);if(pal&&pal!=='none'){var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal];for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0)}
  TC[key]=cv;return cv}
 var IFC={};function ifr(row,f){var k=row+'_'+f;if(IFC[k])return IFC[k];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(IM.invoc,f*256,row*256,256,256,0,0,256,256);IFC[k]=cv;return cv}
-function sI(c,row,tau,fps,x,y,sc,o){o=o||{};if(tau<0)return;var f=Math.floor(tau*fps);if(f>5){if(!o.loop)return;f%=6}c.save();c.translate(x,y);c.scale(sc,sc);c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;c.drawImage(ifr(row,f),-128,o.bottom?-246:-128);c.restore()}
+function sI(c,row,tau,fps,x,y,sc,o){o=o||{};if(tau<0)return;var f=o.f!==undefined?o.f:Math.floor(tau*fps);if(f>5){if(!o.loop)return;f%=6}c.save();c.translate(x,y);c.scale(sc,sc);c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;c.drawImage(ifr(row,f),-128,o.bottom?-246:-128);c.restore()}
 var FFC={};function ffr(f){var k='f'+f;if(FFC[k])return FFC[k];var cw=IM.frente.width/2,ch=IM.frente.height/3,cv=document.createElement('canvas');cv.width=cw;cv.height=ch;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(IM.frente,(f%2)*cw,Math.floor(f/2)*ch,cw,ch,0,0,cw,ch);
  var d=g.getImageData(0,0,cw,ch),p=d.data,st=PALS.brasa;for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0);FFC[k]=cv;return cv}
 function kitFrame(row,col,pal){pal=pal||'earth';var key='kA'+row+col+pal;if(TC[key])return TC[key];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
@@ -56,7 +56,7 @@ var tArm=.7,tR=tArm+(D.liberacao-D.armado)/D.fps,tSlam=tR+TF;
 var tauB=[];for(var k=0;k<N;k++)tauB.push((k+.5)*Lb/speed);var tauT=N*Lb/speed;
 var RECOIL=30;
 var hitG=TARG.slice(0,D.alvos).map(function(x){return tR+cl((x-tipOff-x0)/(x1-x0))*TF});
-var CUT=1.0;var STOPS=[{t:tArm,d:CUT}].concat(hitG.map(function(t,j){return {t:t,d:(j==D.alvos-1?.11:.08)}}));
+var CUT=1.0;var STOPS=[{t:tR,d:CUT}].concat(hitG.map(function(t,j){return {t:t,d:(j==D.alvos-1?.11:.08)}}));
 function tgOf(T){var p=T,acc=0;STOPS.forEach(function(s){var w=s.t+acc;p-=Math.min(Math.max(T-w,0),s.d);acc+=s.d});return p}
 function Wof(te){var acc=0;STOPS.forEach(function(s){if(s.t<=te)acc+=s.d});return te+acc}
 var LEN=tSlam+tauT+.5+1.8+.4+CUT;
@@ -81,19 +81,22 @@ function draw(c,T){stage(c);var t=tgOf(T),h1=tR+tauT+.2;
  var f;if(t<tArm)f=D.armado;else if(t<tR)f=D.armado+Math.floor((t-tArm)*D.fps);else if(t<h1)f=D.liberacao;else f=Math.min(D.n-1,D.liberacao+Math.floor((t-h1)*D.fps));
  kaen(c,f,kxo(t));
  // surgimento: explosão de brasas nas mãos (quebra-galho com o sheet de impacto; sheet próprio de invocação a gerar)
- var t0=T-Wof(tR),tg0=T-Wof(tR-.35);if(tg0>=0&&tg0<.35)sI(c,2,tg0,12,x0-4,y0,.55,{loop:1});
- sI(c,1,t0,12,x0+10,y0,.62);sI(c,0,t0,12,x0+36,y0,.78);if(t0>=0&&t0<(h1-tR))strip(c,'brasas',t0,10,x0-4,y0,.4,{loop:1,a:.8});
- for(var i2=0;i2*.2<h1-tR;i2++){var te2=tR+i2*.2;sI(c,3,T-Wof(te2),14,KX+kxo(te2)-38,GY+8,.4,{bottom:1,a:.75})}
+ var t0=T-Wof(tR),tg0=T-Wof(tR-.35),emDur=Wof(h1)-Wof(tR);
+ if(tg0>=0&&tg0<.35)sI(c,2,tg0,12,x0-6,y0,.36,{loop:1,a:.95});   // concentração enquanto as mãos abrem (antes do cut-in)
+ if(t0>=0&&t0<emDur+.3){var fo=t0>emDur?1-(t0-emDur)/.3:1;
+  var fr1=t0<.25?Math.floor(t0*12):(t0<emDur?3+Math.floor((t0-.25)*10)%2:5);   // portal: abre, SEGURA aberto enquanto o dragão sai, fecha
+  var fr0=t0<.25?Math.floor(t0*12):(t0<emDur?2+Math.floor((t0-.25)*10)%2:Math.min(5,4+Math.floor((t0-emDur)*10)));   // cone de fogo: dispara e se mantém
+  sI(c,1,t0,12,x0+8,y0-4,.52,{f:fr1,a:fo});sI(c,0,t0,12,x0+30,y0-6,.5,{f:fr0,a:.9*fo});strip(c,'brasas',t0,10,x0-4,y0,.4,{loop:1,a:.8*fo})}
  // dragão (de trás pra frente); fogo atrás do molde
  var ph=Math.floor(T*12),tailU=uOf(t,tauT),tailDie=tSlam+tauT;
- if(tailU>=0){var u=cl(tailU),p=Hpos(u),r=ang(u);
+ if(tailU>0){var u=cl(tailU),p=Hpos(u),r=ang(u);
   if(t<tailDie){piece(c,frame('fogo_cauda',(ph+1)%6,'none'),p[0],p[1],sT,r,aT[0],aT[1],{a:.9});piece(c,frame('cauda',(ph+3)%6,'brasa'),p[0],p[1],sT,r,aT[0],aT[1])}
   else if((t-tailDie)*12<=5.99)piece(c,frame('cauda_desintegra',Math.floor((t-tailDie)*12),'brasa'),p[0],p[1],sT,r,aT[0],aT[1])}
- for(var k=N-1;k>=0;k--){var uk=uOf(t,tauB[k]);if(uk<0)continue;var u2=cl(uk),p2=Hpos(u2),r2=ang(u2),die=tSlam+tauB[k];
+ for(var k=N-1;k>=0;k--){var uk=uOf(t,tauB[k]);if(uk<=0)continue;var u2=cl(uk),p2=Hpos(u2),r2=ang(u2),die=tSlam+tauB[k];
   if(t<die){piece(c,frame('fogo_corpo',(ph+k+2)%6,'none'),p2[0],p2[1]-3,sc,r2,aB[0],aB[1],{a:.9});piece(c,frame('corpo',(ph+k)%6,'brasa'),p2[0],p2[1],sc,r2,aB[0],aB[1])}
   else{var fd=Math.floor((t-die)*12);if(fd<=5){piece(c,frame('corpo_desintegra',fd,'brasa'),p2[0],p2[1],sc,r2,aB[0],aB[1]);strip(c,'impacto_brasa',(t-die),12,p2[0],p2[1],.28)}strip(c,'brasas',T-Wof(die),10,p2[0],p2[1]-6,.4)}}
  var hu=uOf(t,0);
- if(hu>=0){var hp=Hpos(cl(hu)),hr=ang(cl(hu));
+ if(hu>0){var hp=Hpos(cl(hu)),hr=ang(cl(hu));
   if(t<tSlam){piece(c,frame('fogo_crista',(ph+2)%6,'none'),hp[0]-4,hp[1]-2,sH,hr,aH[0],aH[1],{a:.9});piece(c,frame('cabeca',ph%6,'brasa'),hp[0],hp[1],sH,hr,aH[0],aH[1])}
   else{var fh=Math.floor((t-tSlam)*12);if(fh<=5){piece(c,frame('cabeca_desintegra',fh,'brasa'),hp[0],hp[1],sH,hr,aH[0],aH[1]);strip(c,'impacto_brasa',(t-tSlam),12,hp[0]+20,hp[1],.45)}}}
  // fogo sutil nas emendas (cabeça-corpo, corpo-corpo, corpo-cauda)
@@ -112,7 +115,7 @@ function draw(c,T){stage(c);var t=tgOf(T),h1=tR+tauT+.2;
 
 /* CUT-IN em faixa horizontal (layout do Naruto Online): cena escurece, faixa 25%-74% da altura, linhas de velocidade, arte à direita,
    nome em pincelada à esquerda com !!, etiqueta com retrato mini embaixo à esquerda. Arte provisória = cabeça de lado (trocar pelo sheet de frente). */
-function cutin(c,T){var tc=T-tArm;if(tc<0||tc>CUT)return;
+function cutin(c,T){var tc=T-tR;if(tc<0||tc>CUT)return;
  var k=Math.min(es(tc/.09),es((CUT-tc)/.09)),y0=H*.25,y1=H*.74,cy=(y0+y1)/2,hh=(y1-y0)/2*k;
  c.fillStyle='rgba(0,0,0,'+(.62*k).toFixed(2)+')';c.fillRect(0,0,W,H);
  c.save();c.beginPath();c.rect(0,cy-hh,W,hh*2);c.clip();

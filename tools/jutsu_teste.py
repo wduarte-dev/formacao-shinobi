@@ -46,7 +46,7 @@ def main():
     q = k['quadros']; b0 = q[0]; s = 108 / (b0['b'] - b0['t']); mult = k['mult']
     fa, fr = int(round(rec['pose_armado'] * mult)), int(round(rec['pose_liberacao'] * mult))
     pr = q[min(fr + 2, len(q) - 1)]
-    ponta = [KX + (pr['r'] - k['cell'] / 2) * s, GY - (b0['b'] - pr['ty']) * s]
+    ponta = [KX + (pr['r'] - k['cell'] / 2) * s, GY - 0.6 * 108]   # mãos na altura do peito (60% do corpo); o 'ty' medido pegava o quadril
     pecas = {}
     for n in ('cabeca', 'corpo', 'cauda'):
         L, Rr = media(d, n, 'L', 'x') if n != 'cauda' else None, media(d, n, 'R', 'x') if n != 'cabeca' else None
