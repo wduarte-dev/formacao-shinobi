@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import align_sheet as al
 
 PRESETS = [(('walk', 'andar', 'run', 'corr', 'dash'), ('torso', 'each')),
-           (('hop', 'pulo', 'jump', 'salto', 'entry', 'entrada', 'land', 'queda', 'trip', 'rasteira', 'knock', 'ataque', 'attack', 'golpe', 'forte', 'strong', 'corte', 'jutsu', 'outros'), ('torso', 'global'))]
+           (('hop', 'pulo', 'jump', 'salto', 'entry', 'entrada', 'land', 'queda', 'trip', 'rasteira', 'knock', 'ataque', 'attack', 'golpe', 'forte', 'strong', 'corte', 'jutsu', 'outros', 'meteoro', 'chute'), ('torso', 'global'))]
 
 def preset_for(name):
     n = name.lower()
