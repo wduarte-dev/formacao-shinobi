@@ -3,9 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
-## 1.16.1 · 27/11/2026 · Defesa do Kaen
+## 1.16.2 · 27/11/2026 · Kaen: defesa e reações novas
 
-- O Kaen ganhou a pose de defesa nova (braços cruzados à frente, no mesmo estilo dos golpes). Ela também aparece quando ele leva dano: a pose segura com o tranco de sempre.
+- O Kaen ganhou no estilo novo: defesa (que também vale pro dano), selo montado parado, voo, caído, derrota e vitória.
+- Idle, corrida, jutsu, perseguição e buffs ainda são os antigos e entram nas próximas versões.
 
 ## 1.16 · 27/11/2026 · Golpes do Kaen
 
