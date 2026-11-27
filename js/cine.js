@@ -208,7 +208,7 @@ function hopEcho(u,dx,dy,ms){ const n=lite?1:2;
     mv.style.transition='none'; mv.style.transform=`translate(${dx*f}px,${dy*f}px)`; st.className='st'; st.appendChild(u.spr.cloneNode(true)); mv.appendChild(st); w.appendChild(mv); w.style.opacity='0';
     battleAfter(()=>{ if(!u.el.isConnected)return; $('units').appendChild(w); w.animate([{opacity:.42},{opacity:0}],{duration:Math.max(120,ms*.9)/speed,easing:'ease-out',fill:'forwards'}); battleAfter(()=>w.remove(),ms/speed+60); },ms*f/speed); } }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
-  if(!keep)setAnim(u,an_of(u).hop?'hop':'move');
+  if(!keep&&an_of(u).hop)setAnim(u,'hop');   // sem pulo próprio (ainda), desliza no idle: walk/run foram removidos
   if(!keep&&an_of(u).hop)hopEcho(u,b.x-dir*82*((u.d.size||1)+(t.d.size||1))/2-a.x,b.y-a.y+2,190); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 // volta do golpe: quem tem pulo volta PULANDO pra trás (mesma pose do pulo, inclinado, ~1,3x o tempo da ida, sem echo); os demais deslizam em idle
 function home(u){ const moved=u.alive&&!u.state&&!u.d.stationary&&an_of(u).hop&&u.mv.style.transform&&!/^translate\(0(px)?,\s*0(px)?\)$/.test(u.mv.style.transform), dir=u.side==='p'?1:-1;

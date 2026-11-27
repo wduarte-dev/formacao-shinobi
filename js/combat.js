@@ -280,6 +280,7 @@ async function doSkill(u,sk,isJ){
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
     const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
     if(isJ&&u.id==='kaen'&&sk===u.d.jutsu){ await kaenDragonJutsu(u,main,sk,ts); return; }
+    if(u.id==='kaen'&&sk===u.d.combo){ await kaenRainCombo(u,sk,ts); return; }
     if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
     if(u.id==='kaen'&&(sk===u.d.normal||sk===u.d.strong)){
       const an=sk.an||'atk1';
@@ -476,11 +477,12 @@ async function chain(side,t,count,src){
   else if(air){
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     const riseMs=animMs(c,'rise');
-    put(c,tb.x-dir*105-h0.x,Math.max(180,tb.y-76)-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.2,.75,.5,1)`);
+    { const f=sockOf(c,'feet'); kitAdd({row:3,fps:16,sc:.55,x:f.x,y:f.y-6,color:'#e8dcc4',plane:true}); sfx.thud(); }   // arranca do chão: poeira deitada no plano
+    put(c,tb.x-dir*105-h0.x,Math.max(180,tb.y-76)-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.08,.9,.3,1)`);   // explosivo: sobe até o inimigo no ar
     await sleep(riseMs);
     setAnim(c,'meteor',0,true); speedLines('D');
     const contactMs=animMs(c,'meteor')*.9;   // último quadro: pé estendido, antes das chamas cortadas
-    put(c,tb.x-dir*54-h0.x,tb.y-52-h0.y,`transform ${contactMs/speed}ms ease-in`);
+    put(c,tb.x-dir*54-h0.x,tb.y-52-h0.y,`transform ${contactMs/speed}ms cubic-bezier(.65,0,1,.45)`);   // mergulho com vontade
     await sleep(contactMs);
     setAnim(c,'meteor',seqN(an_of(c).meteor)-1,true);   // garante a pose do contato mesmo com queda de FPS
   }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
@@ -491,7 +493,7 @@ async function chain(side,t,count,src){
     dust(c,14); shake(); sfx.thud();   // pouso = soco: poeira, tremor, som e (logo abaixo) o dano no mesmo instante
   }else if(c.d.chase.cast){   // invocador (Onda da Mizuha): chega só até uma distância segura, faz o selo/jutsu e a magia surge no alvo (nada de ir socar)
     const ja=an_of(c).atk2?'atk2':an, gx=tb.x-dir*250*(c.d.size||1);
-    if((gx-(h0.x+c.off.x))*dir>30){ setAnim(c,'move',0,true); sfx.swing(); put(c,gx-h0.x,tb.y-h0.y,'transform .26s cubic-bezier(.2,.8,.3,1)'); await sleep(260); }
+    if((gx-(h0.x+c.off.x))*dir>30){ sfx.swing(); put(c,gx-h0.x,tb.y-h0.y,'transform .26s cubic-bezier(.2,.8,.3,1)'); await sleep(260); }
     setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
   }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
@@ -520,11 +522,11 @@ async function chain(side,t,count,src){
   comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
   log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
   if(air){
-    const ground=pos(t), landX=Math.max(70,Math.min(1082,tb.x+dir*36)), fallMs=220;
-    const fall=`transform ${fallMs/speed}ms cubic-bezier(.55,0,.9,.55)`;
+    const ground=pos(t), landX=Math.max(70,Math.min(1082,tb.x+dir*36)), fallMs=140;
+    const fall=`transform ${fallMs/speed}ms cubic-bezier(.65,0,1,.5)`;
     if(connected){
-      shake(.65); flashSoft();
-      await hitstop(35);
+      impactFx(t,{pow:1.9,color:'#ff9a4a',cam:true,stop:0,dir});   // CONTATO: camada de impacto no ar
+      await hitstop(80);
       if(t.alive||!t.owner){
         put(t,landX-ground.x,0,fall);
         trailFx(tb.x,tb.y-50,landX,ground.y-50,'D');
@@ -538,7 +540,7 @@ async function chain(side,t,count,src){
       t.off={x:landX-ground.x,y:0}; t.mv.style.transition='';
       if(t.alive){ setState(t,cause); fl(t,ST[cause]+'!','state'); sfx.knock(cause); }
       slamFx(t,c.d.c); sfx.thud();
-      if(c.id==='kaen')impactFx(t,{pow:1.3,color:'#ff9a4a',crack:true,stop:80,dir:dir});   // pouso do Chute Meteoro: camada de impacto
+      if(c.id==='kaen')impactFx(t,{pow:2,color:'#ff9a4a',crack:true,stop:70,dir:dir,cam:true});   // pouso do Chute Meteoro: camada de impacto
     }
     if(result())await finale(t);
     await sleep(animMs(c,'landing'));
@@ -601,12 +603,13 @@ async function castInstants(opening=false){
   }while(cast&&all().some(u=>u.armedSkill?.instant));
 }
 async function intro(){
-  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=an_of(u).entrada&&!u.d.stationary?'translate(0,-480px)':`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'move',an_of(u).entrada?0:Math.random()*8|0);}   // quem tem 'entrada' cai do ar e pousa com a mão no chão; os demais correm de fora da tela
+  const DROP=u=>`translate(${(u.side==='p'?1:-1)*274}px,-480px)`;   // cai pela diagonal do plano do jogo: de trás (longe) e do lado, até a casa
+  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=u.d.stationary?`translate(${(u.side==='p'?-1:1)*640}px,0)`:DROP(u); setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'idle',0);}   // sem walk/run: Kazan (estacionário) mantém o dele
   $('rd').textContent=foe.name; await sleep(120);
   const ENTRY_MS=700;   // deslocamento e corrida acabam juntos em qualquer velocidade (transição escala com speed, como o sleep)
-  for(const u of all()){ const air=an_of(u).entrada&&!u.d.stationary; u.mv.style.transition=air?`transform ${250/speed}ms cubic-bezier(.55,0,.9,.55)`:`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform=''; }
-  const air=all().filter(u=>an_of(u).entrada&&!u.d.stationary);
-  if(air.length)battleAfter(()=>{ sfx.thud(); air.forEach(u=>{ const s=sockOf(u,'feet'); kitAdd({row:3,fps:14,sc:.5,x:s.x,y:s.y-14,color:'#e8dcc4'}); }); },250/speed);   // pouso da entrada: som + poeira do kit
+  for(const u of all()){ const air=!u.d.stationary; u.mv.style.transition=air?`transform ${300/speed}ms cubic-bezier(.55,0,.9,.55)`:`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform=''; }
+  const air=all().filter(u=>!u.d.stationary);
+  if(air.length)battleAfter(()=>{ sfx.thud(); air.forEach(u=>{ const s=sockOf(u,'feet'); kitAdd({row:3,fps:14,sc:.5,x:s.x,y:s.y-14,color:'#e8dcc4',plane:true}); }); },300/speed);   // pouso da entrada: som + poeira do kit
   await sleep(ENTRY_MS);
   for(const u of all()){u.mv.style.transition=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));

@@ -10,9 +10,8 @@ R = Path(__file__).resolve().parent.parent
 spec = registry((R / 'js/sprites.js').read_text())['kaen']
 NOVO = {'attack': 'Corte Ardente (1.16)', 'strong': 'Corte Flamejante (1.16)', 'guard': 'Defesa', 'hurt': 'Dano = quadro da defesa + tranco',
         'seals': 'Selo montado, estático', 'victory': 'Vitória', 'defeat': 'Derrota', 'knockback': 'Voo (repelido)',
-        'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 48 quadros)', 'walk': 'Caminhada nova',
-        'dash': 'Corrida (caminhada nova, usada na entrada/carregamento)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
-        'entrada': 'Entrada pelo ar na abertura da luta', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
+        'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 50 quadros, regerado com a cabeça dos golpes)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
+        'entrada': 'Entrada: cai pela diagonal do plano (a regerar)', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
         'rise': 'Chute Meteoro: agacha e sobe', 'meteor': 'Chute Meteoro: mergulho (contato no último quadro)', 'landing': 'Chute Meteoro: pouso',
         'chase': 'prévia do Chute Meteoro', 'dodge': 'Esquiva = pulo (passo pra trás em código)', 'stun': 'Atordoado = idle lento (estrelas do kit: pendente)',
         'buff': 'Buff = selo (efeito recolorível do kit: pendente)'}

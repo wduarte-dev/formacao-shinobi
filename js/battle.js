@@ -33,7 +33,7 @@ function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t
 const curFoe=()=>acad?ACAD_FOE:FOES[foeIx], battleTeam=()=>acad?labTeam:placed;
 function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=curFoe();
   bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=acad?f.name+' · '+ACAD[acad.i].name:f.name;
-  const R=$('ldRun'); R.innerHTML=''; ACT=[]; battleTeam().forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).hop?'idle':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
+  const R=$('ldRun'); R.innerHTML=''; ACT=[];   // sem walk/run: a tela de carregamento não mostra mais o time correndo
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
   const ids=[...battleTeam().map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
   const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
@@ -70,7 +70,8 @@ function mountUnit(u){
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
 function upd(u){
-  if(u.alive&&u.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);   // estrelas tontas do kit sobre quem está paralisado
+  if(u.alive&&u.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);
+  if(u.id==='kaen'&&typeof kitAura==='function'){ u._aura=!!(u.armedSkill&&u.alive)||!!u._casting; if(u._aura)kitAura(u); }   // aura em loop do jutsu armado ou em execução   // estrelas tontas do kit sobre quem está paralisado
   if(u.alive&&u.d.stationary){
     if(u.an==='idle'&&u.stunned)setAnim(u,'stun');
     else if(u.an==='stun'&&!u.stunned)setAnim(u,'idle');
