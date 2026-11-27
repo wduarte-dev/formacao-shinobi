@@ -67,12 +67,15 @@ function kdModel(u,ts,all){
 }
 // o desenho todo, em coordenadas de referência (a transformação do chamador leva pro palco)
 // desenha uma célula das folhas gfx (já desenhadas NO PLANO do jogo, não achatar de novo) com o ponto de chão da linha em (x,y)
-function kdGfx(c,sheet,name,row,col,x,y,sc,a){ const cv=kitCell(sheet,row,col,'#ffffff'); c.save(); c.translate(x,y); c.scale(sc,sc); c.globalAlpha=a===undefined?1:a; c.imageSmoothingEnabled=false; c.drawImage(cv,-128,-GFXA[name][row]); c.restore(); }
+function kdGfx(c,sheet,name,row,col,x,y,sc,a,rot,flip){ const cv=kitCell(sheet,row,col,'#ffffff'); c.save(); c.translate(x,y); if(rot)c.rotate(rot); c.scale(sc*(flip||1),sc); c.globalAlpha=a===undefined?1:a; c.imageSmoothingEnabled=false; c.drawImage(cv,-GFXX[name][row],-GFXA[name][row]); c.restore(); }
+// fogo no chão (folha gfx, no plano): ACENDE (linha 2) -> loop (linha 0 grande / 1 pequena) -> APAGA (linha 3, só a grande). tau = segundos desde que acendeu; dur = quanto dura antes de apagar
+function kdFire(c,tau,x,y,sc,small,dur,a){ if(tau<0)return; const A=a===undefined?1:a; if(small){ const fa=tau>dur-.3?Math.max(0,(dur-tau)/.3):1; if(tau<dur)kdGfx(c,'fo','fogo',1,Math.floor(tau*10)%6,x,y,sc,A*fa); return; }
+  if(tau<.5)kdGfx(c,'fo','fogo',2,Math.min(5,Math.floor(tau*12)),x,y,sc,A); else if(tau<dur)kdGfx(c,'fo','fogo',0,Math.floor((tau-.5)*10)%6,x,y,sc,A); else if(tau<dur+.5)kdGfx(c,'fo','fogo',3,Math.min(5,Math.floor((tau-dur)*12)),x,y,sc,A); }
 // MENOS É MAIS (revisão do beta): o dragão cruza queimando e, na queda, só ficam FOGO no chão e DESTROÇOS no plano (folha gfx do dono); sem explosões, poeira extra, brasas e fragmentos
 function kdDraw(c,M,T){
   const {N}=KD, sc=M.sc, t=M.tgOf(T), Lw=M.Lof(t), ph=Math.floor(T*12), tauS=T-M.Wof(M.tSlam), GYs=M.slam.y, XS=M.XS;
   (tauS>=0?M.av:M.tg).forEach((o,j)=>{ const tau=T-M.Wof(M.hitG[j]), tb=tauS>=0?tauS:tau;   // queima nos alvos
-    if(tb>=0&&tb<1.9){ const fa=tb>1.55?1-(tb-1.55)/.35:1; kdStrip(c,'queima_loop',tb,10,o.x,o.y+4,tauS>=0?.55:.5,{loop:1,bottom:1,a:.85*fa}); } });
+    kdFire(c,tb,o.x,o.y+2,.8,true,1.9); });   // fogo pequeno no chão de cada alvo queimando
   // invocação nas mãos: concentra, portal e cone ficam abertos enquanto o dragão sai, depois fecham
   const t0=T-M.Wof(M.tR), tg0=T-M.Wof(M.tR-.35), emDur=M.Wof(M.h1)-M.Wof(M.tR), x0=M.x0, y0=M.y0;
   if(tg0>=0&&tg0<.35)kdInv(c,2,tg0,12,x0-6,y0,.36,{loop:1,a:.95});
@@ -81,7 +84,7 @@ function kdDraw(c,M,T){
     const fr0=t0<.25?Math.floor(t0*12):(t0<emDur?2+Math.floor((t0-.25)*10)%2:Math.min(5,4+Math.floor((t0-emDur)*10)));
     kdInv(c,1,t0,12,x0+8,y0-4,.52,{f:fr1,a:fo}); kdInv(c,0,t0,12,x0+30,y0-6,.5,{f:fr0,a:.9*fo}); }
   // fogo no chão do centro da malha (plano) por trás do dragão
-  if(tauS>=0)kdStrip(c,'fogo_chao',tauS,10,XS,GYs+8,1.5,{plane:true,pf:.75,bottom:1,loop:1,a:.85*(tauS>1.7?Math.max(0,1-(tauS-1.7)/.5):1)});
+  if(tauS>=0)kdFire(c,tauS,XS,GYs,1.6,false,1.7,.85);   // fogo grande no centro da malha (acende, loop, apaga)
   // dragão: peças por comprimento de arco; só se desfazem na batida vertical (na descida tudo cresce em volta do centro da malha)
   const gg=M.gOf(t); c.save(); if(gg!==1){ c.translate(XS,GYs); c.scale(gg,gg); c.translate(-XS,-GYs); }
   const sTail=N*M.Lb, LpT=Lw-sTail;
@@ -179,25 +182,26 @@ async function kaenRainCombo(u,sk,ts){
   setAnim(u,'atk2',28,true); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; upd(u);
   const p=pos(u), hand={x:p.x+dir*KDG.ponta[0],y:p.y+KDG.ponta[1]}, pts=vs.map(t=>({t,...cur(t)}));
   const C={x:pts.reduce((a,o)=>a+o.x,0)/pts.length,y:pts.reduce((a,o)=>a+o.y,0)/pts.length}, apex={x:C.x,y:Math.max(60,C.y-250)};
-  const tA=.6, tB=.42, LEN=tA+tB+.07*pts.length+1.6, fired=new Set(); let T=0, last=performance.now();
-  const ball=(c,x,y,vx,vy,sc,ph)=>{ const sg=vx<0?-1:1, rot=Math.atan2(vy,vx*sg); kdPiece(c,kdFrame('fogo_crista',ph%6,'none'),x,y,sc*.95,rot,190,128,{fx:sg,a:.95}); kdPiece(c,kdFrame('impacto_brasa',2+ph%2,'none'),x,y,sc*.55,0,128,128,{a:.95}); };   // cometa de fogo apontado na direção do movimento + núcleo redondo
+  const fires=[], tA=.6, tB=.42, LEN=tA+tB+.07*pts.length+1.6, fired=new Set(); let T=0, last=performance.now();
   const hit=(o,j)=>{ const t=o.t; if(!t.alive)return; const dealt=landHit(u,t,sk.mult,false,'chase',true); if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,10); }
-    kitAdd({row:0,fps:14,sc:.8,x:o.x,y:o.y-4,color:'#ff9a4a',plane:true}); kitAdd({row:3,fps:12,sc:.7,x:o.x,y:o.y-2,color:'#e8dcc4',plane:true,a:.9}); sfx.heavy(); if(!j){ shake(.7); flashSoft(); } };
+    kitAdd({sheet:'im',row:1,fps:12,sc:.6,x:o.x,y:o.y+2,ay:GFXA.impacto[1]}); fires.push([o,performance.now()]); sfx.heavy(); if(!j){ shake(.7); flashSoft(); } };
   await new Promise((resolve,reject)=>{
     const tok=token, tick=now=>{
       if(tok!==token){ ctx.clearRect(0,0,KD.W,KD.H); return reject(ABORT); }
       if(paused){ last=now; requestAnimationFrame(tick); return; }
       T+=Math.min(.05,(now-last)/1000)*speed; last=now; const c=ctx; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,KD.W,KD.H); const ph=Math.floor(T*12);
+      const dflip=dir<0?-1:1;   // as folhas apontam pra direita/baixo: espelha pro lado inimigo
       if(T<tA){ const P=k=>{ const e=kdeo(k); return [hand.x+(apex.x-hand.x)*e, hand.y+(apex.y-hand.y)*e-90*Math.sin(Math.PI*k)]; }, k=T/tA, [x,y]=P(k), [x2,y2]=P(Math.min(1,k+.03));   // bola grande em arco até o alto do meio da malha
-        c.save(); c.translate(C.x,C.y); planeXf(c,.5); c.fillStyle='rgba(20,8,4,.32)'; c.beginPath(); c.ellipse(0,0,26*k,26*k,0,0,7); c.fill(); c.restore();   // sombra no chão do centro
-        ball(c,x,y,x2-x||dir,y2-y,.7+.25*k,ph); kdStrip(c,'brasas',T,10,x-dir*18,y+6,.4,{loop:1,a:.7}); }
-      else pts.forEach((o,j)=>{ const tj=T-tA-.07*j; if(tj<0&&T>=tA){ ball(c,apex.x,apex.y,dir,.2,.95,ph); return; }
-        if(tj<tB){ const k=Math.max(0,tj/tB), x=apex.x+(o.x-apex.x)*k, y=apex.y+(o.y-18-apex.y)*k*k;   // divide em quatro e cai (gravidade)
-          c.save(); c.translate(o.x,o.y); planeXf(c,.5); c.fillStyle=`rgba(20,8,4,${(.15+.3*k).toFixed(2)})`; c.beginPath(); c.ellipse(0,0,10+26*k,10+26*k,0,0,7); c.fill(); c.restore();   // sombra cresce no chão
-          ball(c,x,y,o.x-apex.x,(o.y-18-apex.y)*2*k+.01,.62-.12*k,ph+j); kdStrip(c,'brasas',tj,10,x,y-8,.32,{loop:1,a:.7}); }
+        const ang=Math.atan2(y2-y,(x2-x)*dflip||dflip*.001);
+        c.save(); c.translate(C.x,C.y); c.restore(); kdGfx(c,'bo','bola',3,Math.min(5,Math.floor(k*3)),C.x,C.y,.7);   // sombra no chão do centro
+        kdGfx(c,'bo','bola',0,ph%6,x,y,.62+.2*k,.98,ang,dflip); }
+      else pts.forEach((o,j)=>{ const tj=T-tA-.07*j, k=Math.max(0,tj/tB);
+        if(tj<0&&T<tA+.12){ kdGfx(c,'bo','bola',1,Math.min(5,Math.floor((T-tA)/.12*2)),apex.x,apex.y,.75); return; }   // divide em quatro (linha 2 do gfx, 1 vez)
+        if(tj<0){ kdGfx(c,'bo','bola',2,ph%6,apex.x,apex.y,.5); return; }
+        if(tj<tB){ const x=apex.x+(o.x-apex.x)*k, y=apex.y+(o.y-18-apex.y)*k*k;   // cai (gravidade) com a sombra crescendo no chão
+          kdGfx(c,'bo','bola',3,Math.min(5,Math.floor(k*6)),o.x,o.y,.55); kdGfx(c,'bo','bola',2,(ph+j)%6,x,y,.55-.12*k); }
         else{ if(!fired.has(j)){ fired.add(j); hit(o,j); }
-          const tau=tj-tB, fa=tau>1.1?Math.max(0,1-(tau-1.1)/.45):1;
-          kdStrip(c,'fogo_chao',tau,10,o.x,o.y+4,.62,{plane:true,bottom:1,loop:1,a:.85*fa}); kdStrip(c,'impacto_brasa',tau,14,o.x,o.y-42,.55); kdStrip(c,'queima_loop',tau,10,o.x,o.y+4,.42,{loop:1,bottom:1,a:.75*fa}); } });
+          const tau=tj-tB; kdFire(c,tau,o.x,o.y+2,1.0,true,1.2,.95); } });
       if(T>=LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }
       requestAnimationFrame(tick); };
     requestAnimationFrame(now=>{ last=now; tick(now); }); });

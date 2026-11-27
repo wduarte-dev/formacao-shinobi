@@ -477,7 +477,7 @@ async function chain(side,t,count,src){
   else if(air){
     setAnim(c,'rise',0,true); sfx.swing(); c.el.style.zIndex=60;
     const riseMs=animMs(c,'rise');
-    { const f=sockOf(c,'feet'); kitAdd({row:3,fps:16,sc:.55,x:f.x,y:f.y-6,color:'#e8dcc4',plane:true}); sfx.thud(); }   // arranca do chão: poeira deitada no plano
+    { const f=sockOf(c,'feet'); kitAdd({sheet:'im',row:3,fps:12,sc:.6,x:f.x,y:f.y+2,ay:GFXA.impacto[3]}); sfx.thud(); }   // arranca do chão: poeira deitada no plano
     put(c,tb.x-dir*105-h0.x,Math.max(180,tb.y-76)-h0.y,`transform ${riseMs/speed}ms cubic-bezier(.08,.9,.3,1)`);   // explosivo: sobe até o inimigo no ar
     await sleep(riseMs);
     setAnim(c,'meteor',0,true); speedLines('D');
