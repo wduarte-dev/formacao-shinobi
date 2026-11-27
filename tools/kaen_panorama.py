@@ -10,9 +10,8 @@ R = Path(__file__).resolve().parent.parent
 spec = registry((R / 'js/sprites.js').read_text())['kaen']
 NOVO = {'attack': 'Corte Ardente (1.16)', 'strong': 'Corte Flamejante (1.16)', 'guard': 'Defesa', 'hurt': 'Dano = quadro da defesa + tranco',
         'seals': 'Selo montado, estático', 'victory': 'Vitória', 'defeat': 'Derrota', 'knockback': 'Voo (repelido)',
-        'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 48 quadros)', 'walk': 'Caminhada nova',
-        'dash': 'Corrida (caminhada nova, usada na entrada/carregamento)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
-        'entrada': 'Entrada pelo ar na abertura da luta', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
+        'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 50 quadros, regerado com a cabeça dos golpes)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
+        'entrada': 'Entrada: cai pela diagonal do plano e pousa com a mão no chão (regerada)', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
         'rise': 'Chute Meteoro: agacha e sobe', 'meteor': 'Chute Meteoro: mergulho (contato no último quadro)', 'landing': 'Chute Meteoro: pouso',
         'chase': 'prévia do Chute Meteoro', 'dodge': 'Esquiva = pulo (passo pra trás em código)', 'stun': 'Atordoado = idle lento (estrelas do kit: pendente)',
         'buff': 'Buff = selo (efeito recolorível do kit: pendente)'}
@@ -45,11 +44,11 @@ g.appendChild(d);cv.push([a,d.querySelector('canvas').getContext('2d')]);}
 function frameOf(a,t){const n=a.seq.length;let i=Math.floor(t*a.fps/1000);
 if(a.pp&&n>1){const p=2*n-2;i%=p;if(i>=n)i=p-i}else i=a.loop?i%n:Math.min(i,n-1);
 if(!a.loop&&!a.pp&&Math.floor(t*a.fps/1000)>=n+Math.ceil(a.fps*.6))return -1;return a.seq[i]}
-const COLS=12;
+const COLS=__COLS__;
 function tick(t){for(const [a,c] of cv){const f=frameOf(a,t%(((a.frames/a.fps)*1000)+1200));if(f<0)continue;
 c.clearRect(0,0,CW,CH);const col=f%COLS,row=a.row+Math.floor(f/COLS);c.drawImage(img,col*CW,row*CH,CW,CH,0,0,CW,CH)}requestAnimationFrame(tick)}
 img.onload=()=>requestAnimationFrame(tick);
 </script></html>"""
-html = html.replace('__DATA__', json.dumps(anims, ensure_ascii=False)).replace('__RESUMO__', f'{novos} de {len(anims)} animações já no estilo novo.')
+html = html.replace('__COLS__', str(spec.columns)).replace('__DATA__', json.dumps(anims, ensure_ascii=False)).replace('__RESUMO__', f'{novos} de {len(anims)} animações já no estilo novo.')
 (R / 'beta/kaen.html').write_text(html)
 print('beta/kaen.html', novos, '/', len(anims))

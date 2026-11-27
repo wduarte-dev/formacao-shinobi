@@ -3,6 +3,20 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.19 · 28/11/2026 · Canal beta do Kaen, impacto e estrelas
+
+- **Canal beta** (`beta/index.html`, jogo separado, save separado, faixa BETA): uma luta real contra 4 ninjas de verdade em que o Kaen mostra cada animação e golpe como tutorial (entrada, idle, corrida, pulo, ataque, forte, jutsu armado, Dragão de Brasa, Chute Meteoro, dano, esquiva, atordoado, buff, estados, derrota, vitória). Cada passo tem **APROVADO / NÃO APROVADO** (com comentário) e no fim sai um resumo em formato de prompt.
+- **Dragão de Brasa:** na queda ele cresce e desaba em cima da malha inimiga inteira (não mais num alvo só); a queda atinge todos os inimigos.
+- **Camada de impacto** reutilizável (flash, tremor, squash, anéis em eco, faíscas, linhas, rachadura e hit-stop) nos golpes pesados: queda do dragão e pouso do Chute Meteoro.
+- **Menos engasgo no jutsu:** as peças do dragão e do kit agora são WebP sem perda (13 MB → 4,5 MB), são decodificadas e tingidas na tela de carregamento (não no instante do golpe) e os efeitos nascem em pontos de ancoragem por ninja (cabeça, peito).
+- **Ajustes finais do Kaen:** o contato do Chute Meteoro com o inimigo no ar não solta mais poeira de chão (só no pouso); o Dragão de Brasa é esmagado inteiro contra o chão de uma vez, e logo ficam só o fogo e os destroços; retrato do Kaen reenquadrado pro idle novo (cabeça maior).
+- **Efeitos no plano do jogo (gfx do dono):** impacto, rachaduras e poeira de chão (meteoro, entrada), fogo no chão (dragão e Chuva de Brasas) e a bola de fogo da Chuva de Brasas (voo, divisão em quatro, queda com sombra no chão) agora vêm dos sheets novos, já desenhados na perspectiva do chão.
+- **Revisão 2 do beta:** a entrada agora é pela lateral de cada área (time pela esquerda, inimigos pela direita) em curva até a casa; a **aura** do jutsu armado usa o sheet novo (acende, loop, apaga); o **Dragão de Brasa** ficou enxuto: na queda só fogo e destroços no plano (sheets novos de impacto e destroços), sem as explosões e poeiras acumuladas.
+- **Revisão do beta (28/11):** caminhada e corrida removidas de todos os ninjas (sem time correndo no carregamento; quem não tem pulo desliza e cai no idle); entrada cai pela diagonal do plano; **todos os tamanhos do Kaen igualados** (cada folha escalada pela pose de luta e removido o ajuste de escala antigo que inflava jutsu e meteoro); **efeitos de chão no plano do jogo** (poeira, anéis, fogo, rachaduras, estrelas e aura deitados e inclinados como o plano do cenário); **Chute Meteoro** bem mais rápido e com impacto no contato e no pouso; **Chuva de Brasas** redesenhada (uma bola de fogo no meio da malha que se divide em quatro e cai em cada casa); **aura em loop** no jutsu armado (provisória).
+- **Pulo do Kaen completo:** a ida deixa um **echo** sutil (cópias atrasadas do quadro), a volta é um **pulo pra trás** (~1,3× o tempo da ida, inclinado, sem echo), a **entrada** cai do ar e pousa com a mão no chão (som e poeira do kit), o carregamento mostra o time em idle e os dois times ficaram um pouco mais afastados na luta.
+- **Atlas do Kaen** reorganizado em 3072×3840 (antes 2304×5280, acima do limite de 4096 de GPUs fracas).
+- **Estrelas do atordoado** sobre quem está paralisado e **setas de buff** quando alguém ganha escudo (efeitos do kit, recoloridos pelo elemento).
+
 ## 1.18 · 27/11/2026 · Dragão de Brasa e formação livre
 
 - **Dragão de Brasa do Kaen** completo: selos, mãos abrindo, cut-in em faixa com o dragão rugindo, o dragão em peças sai das mãos (Kaen é empurrado pra trás com poeira), cruza a fileira queimando, sai da tela, volta por cima e cai na vertical se desintegrando, com destroços no chão. O dano acontece nos contatos reais (40% na travessia, 60% na queda).

@@ -37,15 +37,15 @@ SETUP = """async ({side, kind, rate, ko, dodge, capture, row}) => {
     if(capture)setDevFreeze(true);
     return done;
   };
-  window.action=doSkill(actor,actor.d[kind],false).then(()=>{
+  window.action=doSkill(actor,actor.d[kind],false).then(()=>new Promise(r=>setTimeout(r,500/rate))).then(()=>{   // a volta é um pulo pra trás (~250 ms): espera antes de exigir o idle
     const expected=kind==='normal'?[10,20]:[22];
     const frames=dodge?[]:ko?expected.slice(0,1):expected;
-    const base=kind==='normal'?21:24;
+    const base=SH.kaen.anim[kind==='normal'?'atk1':'atk3'][0], COLS=SH.kaen.W/192;   // linha e colunas vêm do V2 (layout do atlas pode mudar)
     const loss=target.max-target.hp;
     if (JSON.stringify(trace.contacts.map(c=>c[0]))!==JSON.stringify(frames)) throw Error(JSON.stringify(trace));
     for (const [frame,ms,[x,y],hp,stopped] of trace.contacts){
       if(ms!==(kind==='normal'?70:100)||!stopped)throw Error('Hit-stop no quadro incorreto');
-      if(x!==-(frame%12)*192||y!==-(base+Math.floor(frame/12))*160)throw Error('Quadro no atlas incorreto');
+      if(x!==-(frame%COLS)*192||y!==-(base+Math.floor(frame/COLS))*160)throw Error('Quadro no atlas incorreto');
       if(ko&&hp!==0)throw Error('Nocaute não ocorreu no primeiro contato');
     }
     if(hitsR[side]!==frames.length||trace.effects.some(([now,want,arc])=>now!==want||dodge&&!arc)){

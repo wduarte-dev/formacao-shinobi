@@ -114,7 +114,8 @@ function vanishClone(c){
     if(U===battle)ACT=ACT.filter(u=>u!==c);
   },animMs(c,'vanish')/speed);
 }
-function pos(u){const c=cell(u.row,u.depth); return{x:u.side==='p'?c.x:1152-c.x,y:c.y};}
+const BATTLE_GAP=14;   // cada time recua um pouco da linha do meio: mais espaço entre os ninjas na luta (a Formação não muda)
+function pos(u){const c=cell(u.row,u.depth); return{x:u.side==='p'?c.x-BATTLE_GAP:1152-c.x+BATTLE_GAP,y:c.y};}
 // posição atual: a casa mais o deslocamento de quando foi lançado, derrubado ou repelido
 function cur(u){const p=pos(u); return{x:p.x+(u.off?u.off.x:0),y:p.y+(u.off?u.off.y:0)};}
 

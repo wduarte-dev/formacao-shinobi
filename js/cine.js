@@ -202,9 +202,20 @@ async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
   if(u.solto)setForm(u,false); setAnim(u,'idle'); flashSoft(); fl(u,'capuz lacrado','shieldf'); await sleep(400);
   zoomOut(true); sceneOff(); await sleep(250); }
 function endCine(){ $('jtag').classList.remove('on'); }
+// echo do pulo (ida): cópias atrasadas do próprio quadro, sutis, só transform/opacity (modo leve: 1 cópia). Posições ao longo do caminho nos instantes em que o ninja passa por elas
+function hopEcho(u,dx,dy,ms){ const n=lite?1:2;
+  for(let k=1;k<=n;k++){ const f=k/(n+1), w=u.el.cloneNode(false), mv=u.mv.cloneNode(false), st=u.st.cloneNode(false); w.className=u.el.className.replace(/\b(hov|armed|tgt|cmb|ghost)\b/g,'')+' echo'; w.style.zIndex=u.z-1; w.style.pointerEvents='none';
+    mv.style.transition='none'; mv.style.transform=`translate(${dx*f}px,${dy*f}px)`; st.className='st'; st.appendChild(u.spr.cloneNode(true)); mv.appendChild(st); w.appendChild(mv); w.style.opacity='0';
+    battleAfter(()=>{ if(!u.el.isConnected)return; $('units').appendChild(w); w.animate([{opacity:.42},{opacity:0}],{duration:Math.max(120,ms*.9)/speed,easing:'ease-out',fill:'forwards'}); battleAfter(()=>w.remove(),ms/speed+60); },ms*f/speed); } }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
-  if(!keep)setAnim(u,an_of(u).hop?'hop':'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
-function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,u.d.stationary&&u.stunned?'stun':'idle');}
+  if(!keep&&an_of(u).hop)setAnim(u,'hop');   // sem pulo próprio (ainda), desliza no idle: walk/run foram removidos
+  if(!keep&&an_of(u).hop)hopEcho(u,b.x-dir*82*((u.d.size||1)+(t.d.size||1))/2-a.x,b.y-a.y+2,190); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
+// volta do golpe: quem tem pulo volta PULANDO pra trás (mesma pose do pulo, inclinado, ~1,3x o tempo da ida, sem echo); os demais deslizam em idle
+function home(u){ const moved=u.alive&&!u.state&&!u.d.stationary&&an_of(u).hop&&u.mv.style.transform&&!/^translate\(0(px)?,\s*0(px)?\)$/.test(u.mv.style.transform), dir=u.side==='p'?1:-1;
+  if(moved){ const ms=250; u.mv.style.transition=`transform ${ms/speed}ms cubic-bezier(.3,.7,.4,1)`; u.mv.style.transform=''; u.el.style.zIndex=u.z; setAnim(u,'hop',0,true);
+    u.st.animate([{rotate:'0deg'},{rotate:`${-dir*7}deg`,offset:.5},{rotate:'0deg'}],{duration:ms/speed,easing:'ease-in-out'});
+    battleAfter(()=>{ u.mv.style.transition=''; if(u.alive&&!u.state&&u.an==='hop')setAnim(u,'idle'); },ms/speed+20); return; }
+  u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,u.d.stationary&&u.stunned?'stun':'idle'); }
 // frasco que se multiplica no ar (split): sobe até um ponto no meio do campo, estoura em vários e cada um cai num alvo
 async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.reduce((m,t)=>m+cur(t).x,0)/ts.length, m={x:(a.x+ax)/2, y:a.y-190};
   if(!fxShot(u,{x:m.x,y:m.y+66},220))flyDot(u,m,190); await sleep(220);
