@@ -15,7 +15,7 @@ OUT = os.path.join(R, 'tools', 'sprites', 'out', 'kaen_lote')
 COLS = 8
 PRECISA = {'idle': 'ciclo (25 poses)', 'walk': 'OPCIONAL: pulo/entrada substituem (25 poses)', 'pulo': '3 poses', 'entrada': '6 poses', 'ataque': '16 poses',
            'forte': '20 poses', 'jutsu': '20 poses (selos 1-14, liberação 15-20)', 'outros': '16 poses (guard, selos, voo, caído, defeat, victory)'}
-EFEITOS_FALTANDO = ['dragão do jutsu (sheet de efeito assinatura)']
+EFEITOS_FALTANDO = []   # dragão chegou em 27/11 (ver dragao_lote.py)
 
 
 def key(rgb):

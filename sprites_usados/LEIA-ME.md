@@ -2,6 +2,13 @@
 
 Gerado por `python3 tools/sprites/arquivar_usados.py`. **`sprites_novos/` só tem o que ainda não foi processado.**
 
+## dragao_kaen
+
+- dragao_desintegra.png
+- dragao_fogo.png
+- dragao_impacto.png
+- dragao_molde.png
+
 ## kaen_antigos
 
 - E_KAEN.png
