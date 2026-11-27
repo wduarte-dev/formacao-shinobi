@@ -601,10 +601,12 @@ async function castInstants(opening=false){
   }while(cast&&all().some(u=>u.armedSkill?.instant));
 }
 async function intro(){
-  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'move',an_of(u).entrada?0:Math.random()*8|0);}
+  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=an_of(u).entrada&&!u.d.stationary?'translate(0,-480px)':`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'move',an_of(u).entrada?0:Math.random()*8|0);}   // quem tem 'entrada' cai do ar e pousa com a mão no chão; os demais correm de fora da tela
   $('rd').textContent=foe.name; await sleep(120);
   const ENTRY_MS=700;   // deslocamento e corrida acabam juntos em qualquer velocidade (transição escala com speed, como o sleep)
-  for(const u of all()){u.mv.style.transition=`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform='';}
+  for(const u of all()){ const air=an_of(u).entrada&&!u.d.stationary; u.mv.style.transition=air?`transform ${250/speed}ms cubic-bezier(.55,0,.9,.55)`:`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform=''; }
+  const air=all().filter(u=>an_of(u).entrada&&!u.d.stationary);
+  if(air.length)battleAfter(()=>{ sfx.thud(); air.forEach(u=>{ const s=sockOf(u,'feet'); kitAdd({row:3,fps:14,sc:.5,x:s.x,y:s.y-14,color:'#e8dcc4'}); }); },250/speed);   // pouso da entrada: som + poeira do kit
   await sleep(ENTRY_MS);
   for(const u of all()){u.mv.style.transition=''; if(!u.d.stationary)setAnim(u,'idle',Math.random()*8|0);}
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));

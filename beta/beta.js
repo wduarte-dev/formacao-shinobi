@@ -37,6 +37,8 @@ const STEPS=[
   run:async()=>{ mark=F(0); await doSkill(K(),K().d.jutsu,true); await wait(1200); }},
  {t:'Chute Meteoro (perseguição)',x:'Essa é a PERSEGUIÇÃO: o inimigo está no ar (Voo), o Kaen agacha, sobe, mergulha com o chute (contato no último quadro) e pousa com a camada de impacto.',
   run:async()=>{ const k=K(), t=F(1); await smash(k,t,'V'); await wait(250); await chain('p',t,1,k); sceneOff(); await wait(600); }},
+ {t:'Chuva de Brasas (combo 18)',x:'Esse é o COMBO 18: quando o time soma 18 hits na rodada, o Kaen faz chover brasas em TODOS os inimigos, queimando. Por enquanto só aparece no Modo dev (precisa da estrela).',
+  run:async()=>{ await doSkill(K(),K().d.combo,false); await wait(1200); }},
  {t:'Dano (defesa + tranco)',x:'Esse é o DANO: quando leva golpe o Kaen cruza os braços (a pose da defesa nova) e treme com o tranco.',
   run:async()=>{ dodgeOf=()=>0; const a=front(); mark=null; await doSkill(a,a.d.normal,false); await wait(600); }},
  {t:'Esquiva',x:'Essa é a ESQUIVA: o Kaen pula pra trás e o golpe passa direto.',

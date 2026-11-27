@@ -2,7 +2,7 @@
 """Prepara os assets do Dragão de Brasa do Kaen pro motor: peças em spr/kaen_dragao/*.png (fundo verde removido) e js/kaen-dragao-data.js
 (geometria das peças e ponta das mãos). Ordem: python3 tools/sprites/dragao_lote.py && python3 tools/sprites/kaen_dragao_build.py
 Mesma geometria do tools/jutsu_teste.py (referência aprovada pelo dono)."""
-import json, os, shutil
+import json, os, sys, shutil
 import numpy as np
 from PIL import Image
 
@@ -37,8 +37,10 @@ def main():
                         cyL=media(d, n, 'L', 'centro') if n != 'cauda' else None, cyR=media(d, n, 'R', 'centro') if n != 'cabeca' else None,
                         espL=media(d, n, 'L', 'esp') if n != 'cauda' else None, espR=media(d, n, 'R', 'esp') if n != 'cabeca' else None)
     # ponta das mãos: borda direita do quadro de liberação (jutsu, quadro 28 do atlas) em relação aos pés (x=96), na altura de 60% do corpo
+    sys.path.insert(0, os.path.dirname(__file__)); from atlas_registry import registry   # linha/colunas do jutsu vêm do V2 (não fixas)
+    spec = registry(open(os.path.join(R, 'js/sprites.js')).read())['kaen']; jut = spec.animations['jutsu']
     atlas = Image.open(os.path.join(R, 'spr/kaen_atlas.png')).convert('RGBA')
-    f = 28; box = atlas.crop(((f % 12) * 192, (28 + f // 12) * 160, (f % 12) * 192 + 192, (28 + f // 12) * 160 + 160)).getbbox()
+    f = 28; box = atlas.crop(((f % spec.columns) * 192, (jut.row + f // spec.columns) * 160, (f % spec.columns) * 192 + 192, (jut.row + f // spec.columns) * 160 + 160)).getbbox()
     ponta = [box[2] - 96, -0.6 * 108]
     open(os.path.join(R, 'js/kaen-dragao-data.js'), 'w').write(
         '// Gerado por tools/sprites/kaen_dragao_build.py (geometria das peças do Dragão de Brasa e ponta das mãos do Kaen)\n'

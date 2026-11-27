@@ -9,6 +9,8 @@ Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes
 - **Dragão de Brasa:** na queda ele cresce e desaba em cima da malha inimiga inteira (não mais num alvo só); a queda atinge todos os inimigos.
 - **Camada de impacto** reutilizável (flash, tremor, squash, anéis em eco, faíscas, linhas, rachadura e hit-stop) nos golpes pesados: queda do dragão e pouso do Chute Meteoro.
 - **Menos engasgo no jutsu:** as peças do dragão e do kit agora são WebP sem perda (13 MB → 4,5 MB), são decodificadas e tingidas na tela de carregamento (não no instante do golpe) e os efeitos nascem em pontos de ancoragem por ninja (cabeça, peito).
+- **Pulo do Kaen completo:** a ida deixa um **echo** sutil (cópias atrasadas do quadro), a volta é um **pulo pra trás** (~1,3× o tempo da ida, inclinado, sem echo), a **entrada** cai do ar e pousa com a mão no chão (som e poeira do kit), o carregamento mostra o time em idle e os dois times ficaram um pouco mais afastados na luta.
+- **Atlas do Kaen** reorganizado em 3072×3840 (antes 2304×5280, acima do limite de 4096 de GPUs fracas).
 - **Estrelas do atordoado** sobre quem está paralisado e **setas de buff** quando alguém ganha escudo (efeitos do kit, recoloridos pelo elemento).
 
 ## 1.18 · 27/11/2026 · Dragão de Brasa e formação livre

@@ -45,11 +45,11 @@ g.appendChild(d);cv.push([a,d.querySelector('canvas').getContext('2d')]);}
 function frameOf(a,t){const n=a.seq.length;let i=Math.floor(t*a.fps/1000);
 if(a.pp&&n>1){const p=2*n-2;i%=p;if(i>=n)i=p-i}else i=a.loop?i%n:Math.min(i,n-1);
 if(!a.loop&&!a.pp&&Math.floor(t*a.fps/1000)>=n+Math.ceil(a.fps*.6))return -1;return a.seq[i]}
-const COLS=12;
+const COLS=__COLS__;
 function tick(t){for(const [a,c] of cv){const f=frameOf(a,t%(((a.frames/a.fps)*1000)+1200));if(f<0)continue;
 c.clearRect(0,0,CW,CH);const col=f%COLS,row=a.row+Math.floor(f/COLS);c.drawImage(img,col*CW,row*CH,CW,CH,0,0,CW,CH)}requestAnimationFrame(tick)}
 img.onload=()=>requestAnimationFrame(tick);
 </script></html>"""
-html = html.replace('__DATA__', json.dumps(anims, ensure_ascii=False)).replace('__RESUMO__', f'{novos} de {len(anims)} animações já no estilo novo.')
+html = html.replace('__COLS__', str(spec.columns)).replace('__DATA__', json.dumps(anims, ensure_ascii=False)).replace('__RESUMO__', f'{novos} de {len(anims)} animações já no estilo novo.')
 (R / 'beta/kaen.html').write_text(html)
 print('beta/kaen.html', novos, '/', len(anims))

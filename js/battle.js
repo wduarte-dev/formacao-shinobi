@@ -33,7 +33,7 @@ function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t
 const curFoe=()=>acad?ACAD_FOE:FOES[foeIx], battleTeam=()=>acad?labTeam:placed;
 function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=curFoe();
   bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=acad?f.name+' · '+ACAD[acad.i].name:f.name;
-  const R=$('ldRun'); R.innerHTML=''; ACT=[]; battleTeam().forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
+  const R=$('ldRun'); R.innerHTML=''; ACT=[]; battleTeam().forEach((p,i)=>{ const a=actor(p.id,2.6,1060-i*112,604,R); setAnim(a,N[p.id].stationary?'walk':an_of(a).hop?'idle':an_of(a).move?'move':'walk',i*2); a.el.style.zIndex=10-i; });
   $('ldTip').textContent=TIPS[Math.random()*TIPS.length|0]; clearInterval(ldIv); ldIv=setInterval(ldTip,3200); L.classList.remove('hide');
   const ids=[...battleTeam().map(p=>p.id),...f.team.map(t=>t[0])], t0=Date.now();
   const fin=()=>{ loadingB=false; clearInterval(ldIv); L.classList.add('hide'); R.innerHTML=''; startBattle2(); };
