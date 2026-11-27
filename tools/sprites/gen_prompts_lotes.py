@@ -332,6 +332,12 @@ Row 4: TBD""",
   walk_25="""Row 1: WALK, 25 TINY-STEP POSES, calm and confident, with the right hand on the katana hilt. NATURALNESS (mandatory rule): movement never appears out of nowhere, it HAPPENS. Poses 1 to 5 are the START of the walk: pose 1 is EXACTLY the idle fighting stance (wide legs, knees bent, both fists in guard at waist height, the right hand at the waist); pose by pose the RIGHT hand rises from the waist, travels up behind the right shoulder and grips the katana hilt (pose 5: the hand firmly on the hilt), while the legs slowly come closer together and straighten into a relaxed upright stance and the weight settles onto the left foot, ready to step. Poses 6 to 25 are ONE complete looping walk cycle of TWO steps (20 poses; pose 25 flows seamlessly into pose 6): a calm, confident, natural walk to the right, IN PLACE (treadmill style: his body stays at the same horizontal position in every cell and the feet cycle underneath him). Natural walking mechanics: the heel touches the ground first and the foot rolls forward; the hips shift the weight smoothly; the torso stays upright with a tiny counter-rotation; the head bobs very slightly; the right hand STAYS on the hilt in all poses from 5 to 25 (the right shoulder and elbow follow the body, the hand never lets go); the LEFT arm swings naturally forward and backward opposite to the leading leg, its hand relaxed; the scarf tail and the sash tail trail behind and sway with a slight delay (secondary motion). Each pose differs from the previous one by only a TINY, smooth step, never a jump; contact poses and passing poses are all clearly readable. The 25 cells are read in order: each row left to right, from the top row to the bottom row. ALL 25 cells are filled. FRAMING (important): in every cell the character is centered horizontally, his feet touch the ground line near the bottom of the cell (about 8% margin) and his whole body, from the top of his hair to his boots, fills about 80% of the cell height; same scale and same ground line in all 25 cells; no wasted empty space. IDENTITY (important): his hair spikes (same shape and count), face and expression are IDENTICAL in every pose; the katana stays sheathed on his back, always whole, the hilt over his right shoulder. No motion blur, no big effects.""",
   A2="Row 1: TBD", B1="Row 1: TBD", B2="Row 1: TBD", D="Row 1: TBD")
 
+# Parágrafo final que o dono validou (27/11/2026): a IA "realmente refinou" (levou ~3 min contra ~1 min). Desligar com CRAFT=0.
+CRAFT = ("\nWORK METHOD (important): take your time. Build the sheet calmly, one pose at a time, frame by frame, without rushing. When every pose is drawn, "
+         "do a final REVIEW pass and fine-tune: compare each pose with the previous and the next one, fix any pose that breaks the identity, the hair, the hands, "
+         "the katana or other held items, the scale, the ground line or the smoothness of the motion, and only then deliver the final image.\n")
+def _craft(t): return t if os.environ.get("CRAFT") == "0" else t.rstrip("\n") + "\n" + CRAFT
+
 def _colors(n, t):
     """Ninja com chave `colors` (ex.: Kazan) troca o limite padrão de 16 cores pelo dele (decidido 25/11/2026)."""
     c = n.get("colors")
@@ -374,7 +380,7 @@ def build(k):
     if "U" in n: out["U"] = lot((3, n["U"]), "U", False)
     out["D"] = PIXEL + "\n" + DBLOCK.format(PAL=P, NAME=N) + n["D"] + "\n"
     out.update(n.get("DR", {}))   # peças grandes do dragão (1 imagem por peça, texto pronto)
-    return {a: _dist(n, _colors(n, t)) for a, t in out.items()}
+    return {a: _craft(_dist(n, _colors(n, t))) for a, t in out.items()}
 def one_row(k, lote, idx):
     """Prompt de UMA linha de um lote (regra do dono 25/11/2026: gerar linha a linha, a anterior serve de ref da próxima)."""
     swap = None
@@ -398,7 +404,7 @@ def one_row(k, lote, idx):
         head = "\n".join((f"1. GRID: exactly {gr} rows × {gc} columns, equal-sized cells {shape}." if l.startswith("1. GRID") else
                           f"2. The {N_} cells form ONE single animation read in order: each row left to right, from the top row to the bottom row." if l.startswith("2. Each row") else
                           f"3. Every one of the {N_} cells is filled with exactly one pose." if l.startswith("3. Render only") else l) for l in head.split("\n"))
-    return head + "\nROWS:\n" + re.sub(r"^Row \d+:", "Row 1:", r) + "\n"
+    return _craft(head + "\nROWS:\n" + re.sub(r"^Row \d+:", "Row 1:", r) + "\n")
 TRIP_ROW = ("Row 1: TRIP (the victim of a low sweep kick), 6 frames, ONLY the character, no effects: "
  "Frame 1 HIT: the legs are swept out from under the character, the body still almost upright, surprised. "
  "Frame 2 LIFTED: both feet off the ground, the body tilting toward horizontal, held items swinging out. "

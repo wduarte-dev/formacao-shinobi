@@ -27,17 +27,21 @@ Regras que funcionaram no texto da linha:
 ## 3. Salvar o sheet original INTACTO
 `tools/sprites/src/<ninja>/<NOME>.png` (o dono sobe pro GitHub `sprites_novos/` com nome aleatório: identificar pelo conteúdo). Nunca editar o original.
 
-## 4. Alinhar pelos pés (corrige o "deslize" no chão)
+## 4. Alinhar (corrige o "deslize" no chão)
 ```
 python3 tools/sprites/align_sheet.py <sheet.png> <colunas> <linhas> --cell 320      # saída: <nome>_aligned.png
 ```
-Acha cada pose, alinha o centro dos pés e a sola, remonta em células inteiras (medidas divisíveis; célula fracionária também faz deslizar). Imprime os números da importação. Conferir: spread dos pés ≤1 px, nenhum pixel na borda da célula (`--cell` maior se avisar). Idle do Kaen em 10 poses: `--cell 400`; em 20 poses (1402×1122): `--cell 320`.
+**Âncora certa por tipo de animação (erro meu em 27/11):** idle, pés plantados → `--anchor feet` (padrão). **Walk/corrida no lugar → `--anchor torso`**: o corpo fica parado e os pés é que andam; alinhar pelos pés num walk cancela a passada e faz o torso balançar. Acha cada pose, alinha a âncora e a sola, remonta em células inteiras (medidas divisíveis; célula fracionária também faz deslizar). Imprime os números da importação. Conferir: spread dos pés ≤1 px, nenhum pixel na borda da célula (`--cell` maior se avisar). Idle do Kaen em 10 poses: `--cell 400`; em 20 poses (1402×1122): `--cell 320`.
 
 ## 5. Bitmapflow (configuração que ficou boa)
 Importação: Frame count = colunas×linhas, Frames per row = colunas, Width/Height = a célula, offsets e margens 0.
 Painel: Inbetweens 1, Loop seamlessly ligado, Motion multiplier 0,5x (testar 1x), **DenseRLOF**, Grid step X/Y 6, Forward backward threshold 1, Post processing ligado, Variational refinement desligado, **Pixel art mode ligado**.
 **fps:** o campo da prévia é a ENTRADA; a saída é o dobro com 1 inbetween. Duração = (poses×2) ÷ (entrada×2). Ex.: 20 poses, entrada 5 → saída 10 → 40 quadros, ~4 s.
 Se distorcer: passos menores no prompt (mais poses), grid step maior, "Show motion vectors" pra ver onde o fluxo erra (cabelo, cachecol). Julgar no TAMANHO DO JOGO (célula 192×160): artefato do zoom some.
+
+**Walk com entrada + ciclo (25 poses = 5 de entrada + 20 de loop):** o "Loop seamlessly" do Bitmapflow fecha a ÚLTIMA pose na PRIMEIRA, o que está errado aqui (o ciclo fecha 25→6). Importar em DUAS levas: (a) entrada: Frame count 6, Frames per row 5, Offset 0 (poses 1–6), loop DESLIGADO; (b) ciclo: Frame count 20, Frames per row 5, **Offset Y = altura da célula** (pula a 1ª linha), loop LIGADO.
+
+**Parágrafo final que funciona (validado pelo dono, 27/11):** o gerador agora termina todo prompt com "WORK METHOD: take your time... pose by pose... final REVIEW pass and fine-tune..." (a IA refinou de verdade e levou ~3 min em vez de ~1). `CRAFT=0` desliga.
 
 ## 6. Quantas poses? O ciclo repete e enjoa
 10 poses a 10 fps = ~1 s por volta: enjoativo. Alvo: ciclo de 3–4 s com ações DIFERENTES em sequência (20 poses). Mais ações, não mais amplitude por passo.
