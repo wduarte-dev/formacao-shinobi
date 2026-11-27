@@ -56,3 +56,12 @@ Smear por prompt (só dá pose esticada); smear por cópia deslocada/rastro/esca
 
 ## 9. Pendente (ideias, não feito)
 Script de limpeza de paleta nos quadros interpolados (cores intermediárias, pixel solto, fundo → transparência), conversor GIF→quadros→atlas, suporte a animação multi-linha no motor.
+
+## Fluxo completo atual (27/11/2026): do sheet à aprovação
+1. Prompt do sheet: `python3 tools/sprites/gen_prompts_lotes.py <ninja> A1 1` com `GRID=4x5 ANIM=<chave>` (ou `kit N` para efeitos). Um sheet por vez. Não deixar regras do prompt se contradizerem (ex.: "não toque a borda" x "emenda reta na borda").
+2. Sheets novos entram em `sprites_novos/`; depois de processados: `python3 tools/sprites/arquivar_usados.py` (vai para `sprites_usados/<grupo>/` com nome claro).
+3. Preparo por script, sem abrir imagem por imagem: `python3 tools/sprites/kaen_lote.py` (quadros do Bitmapflow: tira o verde, mede geometria, acusa corte na borda e o que falta) e `python3 tools/sprites/dragao_lote.py` (peças que se encaixam: mede espessura e centro das emendas).
+4. Bitmapflow só em ciclos contínuos (idle, ataque, forte, jutsu). Pulo, entrada, poses soltas e efeitos entram crus. Contato no quadro = pose x multiplicador.
+5. Página de teste por receita JSON e verificação automática de truncamento: `python3 tools/golpe_teste.py <receita>` (golpes) e `python3 tools/jutsu_teste.py <receita>` (jutsu com criatura em peças e cut-in). Olhar o próprio print antes de mostrar.
+6. Efeito: sprite como base, código só para efeito espacial; efeito sempre com origem; fogo atrás da criatura; número de dano em escada; nada fora do palco. Golpes de espada: sutil (arco, contato, impacto, hit-stop, flinch). Jutsu pesado: camada de impacto em cima.
+7. Só depois do "aprovado" do dono a animação segue para o motor.
