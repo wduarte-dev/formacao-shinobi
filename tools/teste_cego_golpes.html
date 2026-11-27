@@ -1,0 +1,115 @@
+<title>Golpes do Kaen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: uma coluna, um cartão por golpe, palco 480x300 com revisão por golpe. */
+:root{--bg:#14110f;--panel:#1e1916;--line:#3a312b;--fg:#f1e7da;--mut:#a39382;--accent:#ff8a2a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Inter",system-ui,sans-serif;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font:700 26px/1.2 "Space Grotesk",system-ui,sans-serif;margin:0;text-wrap:balance}
+p{margin:0;color:var(--mut)}
+.ctl{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:13px;margin-top:8px;flex-wrap:wrap}
+button{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;font:inherit}
+button[aria-pressed=true]{background:var(--accent);color:#1b0d05;border-color:var(--accent);font-weight:600}
+button:hover{border-color:var(--accent)}button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font:600 15px/1.3 "Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+canvas{width:100%;max-width:720px;aspect-ratio:480/300;border-radius:8px;image-rendering:pixelated;background:#222;align-self:center}
+.votes{display:flex;gap:8px;flex-wrap:wrap}
+textarea{width:100%;min-height:60px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+.result{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.result pre{margin:0;white-space:pre-wrap;font:14px/1.5 ui-monospace,monospace}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<main>
+ <div>
+  <h1>Golpes do Kaen</h1>
+  <p>Ataque básico e golpe forte só com os efeitos sutis (corte, contato, impacto), hit-stop e reação do alvo. Sem câmera, flash ou partículas pesadas. Os quadros são os poses crus (ainda sem Bitmapflow), então o movimento é mais "picado" do que ficará.</p>
+  <div class="ctl"><span>Velocidade</span><button id="s1" aria-pressed="true">1x</button><button id="s2" aria-pressed="false">0,5x</button><button id="s3" aria-pressed="false">0,25x</button></div>
+ </div>
+ <div id="cards" style="display:flex;flex-direction:column;gap:20px"></div>
+ <div class="result" id="result" hidden><h2 style="margin:0;font:600 15px 'Space Grotesk',sans-serif">Resultado</h2><pre id="resTxt"></pre><p>Copie esse texto e cole no chat.</p></div>
+</main>
+<script>
+(function(){
+var W=480,H=300,GY=250;
+var PALS={
+ fire:[[0,[42,13,8]],[.35,[122,42,18]],[.65,[232,116,42]],[.9,[255,199,102]],[1,[255,244,207]]],
+ steel:[[0,[22,30,44]],[.35,[70,92,120]],[.65,[150,176,204]],[.9,[222,234,246]],[1,[255,255,255]]]};
+function gm(st,l){for(var i=1;i<st.length;i++){if(l<=st[i][0]){var a=st[i-1],b=st[i],k=(l-a[0])/(b[0]-a[0]);return [0,1,2].map(function(c){return a[1][c]+(b[1][c]-a[1][c])*k})}}return st[st.length-1][1]}
+function cl(x){return Math.max(0,Math.min(1,x))}
+function eo(x){x=cl(x);return 1-(1-x)*(1-x)}
+var GEO={"ataque": {"cell": 352, "cols": 4, "n": 16, "poses": [{"l": 86, "r": 278, "t": 121, "b": 324, "ty": 274}, {"l": 80, "r": 274, "t": 114, "b": 324, "ty": 242}, {"l": 79, "r": 270, "t": 83, "b": 324, "ty": 236}, {"l": 46, "r": 275, "t": 116, "b": 324, "ty": 304}, {"l": 43, "r": 267, "t": 113, "b": 324, "ty": 275}, {"l": 60, "r": 328, "t": 115, "b": 324, "ty": 194}, {"l": 67, "r": 325, "t": 114, "b": 324, "ty": 192}, {"l": 68, "r": 284, "t": 88, "b": 324, "ty": 106}, {"l": 80, "r": 272, "t": 56, "b": 324, "ty": 318}, {"l": 88, "r": 280, "t": 109, "b": 324, "ty": 318}, {"l": 91, "r": 319, "t": 121, "b": 324, "ty": 307}, {"l": 86, "r": 302, "t": 121, "b": 324, "ty": 308}, {"l": 81, "r": 271, "t": 87, "b": 324, "ty": 318}, {"l": 83, "r": 275, "t": 115, "b": 324, "ty": 318}, {"l": 88, "r": 275, "t": 113, "b": 324, "ty": 318}, {"l": 84, "r": 283, "t": 113, "b": 324, "ty": 318}]}, "forte": {"cell": 320, "cols": 5, "n": 20, "poses": [{"l": 80, "r": 253, "t": 112, "b": 292, "ty": 226}, {"l": 78, "r": 252, "t": 112, "b": 292, "ty": 225}, {"l": 75, "r": 247, "t": 82, "b": 292, "ty": 241}, {"l": 82, "r": 283, "t": 112, "b": 292, "ty": 277}, {"l": 81, "r": 284, "t": 113, "b": 292, "ty": 277}, {"l": 81, "r": 294, "t": 113, "b": 292, "ty": 260}, {"l": 59, "r": 268, "t": 111, "b": 292, "ty": 154}, {"l": 73, "r": 255, "t": 55, "b": 292, "ty": 159}, {"l": 79, "r": 271, "t": 50, "b": 292, "ty": 169}, {"l": 35, "r": 268, "t": 86, "b": 292, "ty": 160}, {"l": 43, "r": 276, "t": 98, "b": 292, "ty": 186}, {"l": 66, "r": 300, "t": 132, "b": 292, "ty": 260}, {"l": 71, "r": 293, "t": 127, "b": 292, "ty": 279}, {"l": 73, "r": 281, "t": 122, "b": 292, "ty": 284}, {"l": 59, "r": 258, "t": 106, "b": 292, "ty": 287}, {"l": 79, "r": 257, "t": 86, "b": 292, "ty": 286}, {"l": 74, "r": 255, "t": 105, "b": 292, "ty": 286}, {"l": 78, "r": 259, "t": 106, "b": 292, "ty": 286}, {"l": 80, "r": 257, "t": 106, "b": 292, "ty": 286}, {"l": 82, "r": 261, "t": 106, "b": 292, "ty": 286}]}};
+var FILES={kat:'k_ataque.png',kfo:'k_forte.png',iwao:'iwao.png',fx:'fxc.png'},IM={},loaded=0,ready=false;
+Object.keys(FILES).forEach(function(k){var i=new Image();i.onload=function(){if(++loaded==4)ready=true};i.src=FILES[k];IM[k]=i});
+var TC={};
+function fxFrame(row,col,pal){var key=row+'_'+col+pal;if(TC[key])return TC[key];
+ var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+ g.drawImage(IM.fx,col*256,row*256,256,256,0,0,256,256);var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal];
+ for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}
+ g.putImageData(d,0,0);TC[key]=cv;return cv}
+function fx(c,row,tau,fps,pal,x,y,sc,o){o=o||{};if(tau<0)return;var f=Math.floor(tau*fps);if(f>5)return;
+ c.save();c.translate(x,y);c.rotate(o.rot||0);c.scale(sc*(o.sx||1),sc*(o.sy||1));c.imageSmoothingEnabled=false;c.drawImage(fxFrame(row,f,pal),-128,-128);c.restore()}
+var IW={idle:[0,8,8,1],hurt:[5,3,10,0]};
+function iwao(c,an,tau,x,o){o=o||{};var a=IW[an],f=Math.floor(Math.max(0,tau)*a[2]);f=a[3]?f%a[1]:Math.min(a[1]-1,f);var S=1.25;
+ c.save();c.translate(x,GY);c.scale(-S*(o.sx||1),S*(o.sy||1));c.imageSmoothingEnabled=false;c.drawImage(IM.iwao,f*192,a[0]*160,192,160,-96,-150,192,160);c.restore()}
+function kaen(c,key,pose,x,s){var g=GEO[key=='kat'?'ataque':'forte'],cell=g.cell,col=pose%g.cols,row=Math.floor(pose/g.cols),foot=g.poses[0].b;
+ c.save();c.translate(x,GY);c.scale(s,s);c.imageSmoothingEnabled=false;c.drawImage(IM[key],col*cell,row*cell,cell,cell,-cell/2,-foot,cell,cell);c.restore()}
+function stage(c){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d4636');g.addColorStop(.7,'#2c3326');g.addColorStop(.7,'#4d4a38');g.addColorStop(1,'#3a3829');c.fillStyle=g;c.fillRect(0,0,W,H);
+ c.fillStyle='rgba(0,0,0,.18)';for(var i=0;i<9;i++)c.fillRect(i*60+((i*37)%20),GY+10+((i*53)%40),26,2)}
+function dmg(c,tau,x,y,txt,big,life){life=life||.9;if(tau<0||tau>life)return;var k=tau/life;c.save();c.textAlign='center';c.font='bold '+(big?30:24)+'px "Space Grotesk",sans-serif';
+ var s=1+.5*Math.exp(-tau*14)*Math.cos(tau*18),al=k>.7?1-(k-.7)/.3:1;c.translate(x,y-30*eo(k*1.4));c.scale(s,s);c.globalAlpha=al;c.lineWidth=5;c.strokeStyle='#2a0d08';c.strokeText(txt,0,0);c.fillStyle='#fff4cf';c.fillText(txt,0,0);c.restore()}
+/* hit-stop: stops = momentos (tempo de jogo) em que congela */
+function warp(T,stops,d){var p=T;for(var i=0;i<stops.length;i++){var wall=stops[i]+i*d;p-=Math.min(Math.max(T-wall,0),d)}return p}
+function wallOf(i,stops,d){return stops[i]+i*d}
+/* cenas */
+var KX=190,EX=300,SC_A=108/GEO.ataque.poses[0].b*0+108/(GEO.ataque.poses[0].b-GEO.ataque.poses[0].t),SC_F=108/(GEO.forte.poses[0].b-GEO.forte.poses[0].t);
+var SCENES=[
+ {name:'Ataque básico: dois cortes',len:1.9,fps:20,stops:[5/20,10/20],d:.07,draw:function(c,T){
+  var st=this.stops,d=this.d,p=warp(T,st,d),pose=Math.min(15,Math.floor(p*this.fps)),w1=wallOf(0,st,d),w2=wallOf(1,st,d);
+  stage(c);
+  var hit1=T-w1,hit2=T-w2,s=SC_A;
+  var flinch=function(t,amp){return t<0?0:amp*Math.exp(-t*16)*(1-Math.exp(-t*50))};
+  var ex=EX+flinch(hit1,5)+flinch(hit2,7);
+  var hurtT=hit2>=0?hit2:hit1;
+  iwao(c,hit1>=0&&hurtT<.34?'hurt':'idle',hit1>=0?hurtT:T,ex);
+  kaen(c,'kat',pose,KX,s);
+  var tip1=[KX+(328-176)*s,GY-(324-194)*s],tip2=[KX+78,GY-52];
+  // corte 1 (horizontal) e corte 2 (diagonal para baixo)
+  fx(c,0,T-(w1-.15),18,'steel',KX+52,GY-76,.62,{rot:-.05});
+  fx(c,0,T-(w2-.14),18,'steel',KX+60,GY-52,.58,{rot:.6,sy:-1});
+  // contato
+  fx(c,3,hit1,20,'fire',tip1[0]+16,tip1[1],.5);fx(c,2,hit1-.02,22,'fire',tip1[0]+22,tip1[1],.34);
+  fx(c,3,hit2,20,'fire',tip2[0]+20,tip2[1],.55,{rot:.7});fx(c,2,hit2-.02,22,'fire',tip2[0]+26,tip2[1],.4);
+  dmg(c,hit1,EX-22,GY-112,'64',false,.5);dmg(c,hit2,EX+22,GY-136,'88',false)}},
+ {name:'Golpe forte: corte flamejante',len:2.3,fps:18,stops:[11/18],d:.1,draw:function(c,T){
+  var st=this.stops,d=this.d,p=warp(T,st,d),pose=Math.min(19,Math.floor(p*this.fps)),w1=wallOf(0,st,d);
+  stage(c);
+  var hit=T-w1,s=SC_F;
+  var kn=hit<0?0:16*(1-Math.exp(-hit*22))*Math.exp(-hit*2.4);
+  iwao(c,hit>=0&&hit<.36?'hurt':'idle',hit>=0?hit:T,EX+kn,{sx:1+(hit>=0?.12*Math.exp(-hit*10)*Math.cos(hit*26):0),sy:1-(hit>=0?.1*Math.exp(-hit*10)*Math.cos(hit*26):0)});
+  kaen(c,'kfo',pose,KX,s);
+  var tip=[KX+(300-160)*s,GY-(292-260)*s];
+  fx(c,0,T-(w1-.16),18,'fire',KX+58,GY-66,.66,{rot:1.25});
+  fx(c,3,hit,18,'fire',tip[0]+14,tip[1]-8,.7,{rot:.3});fx(c,2,hit-.02,20,'fire',tip[0]+22,tip[1]-14,.62);
+  dmg(c,hit,EX-4,GY-122,'212',true)}}];
+var cards=document.getElementById('cards'),state=[null,null],notes=[],cvs=[];
+SCENES.forEach(function(sc,e){
+ var card=document.createElement('section');card.className='card';
+ card.innerHTML='<h2>'+sc.name+'</h2><canvas width="'+W+'" height="'+H+'"></canvas><div class="votes"></div><textarea placeholder="O que mudar neste golpe? (opcional)"></textarea>';
+ var cv=card.querySelector('canvas'),vb=card.querySelector('.votes'),ta=card.querySelector('textarea');cvs.push(cv.getContext('2d'));
+ [['Aprovado','ok'],['Tem coisa pra mudar','mudar']].forEach(function(o){var b=document.createElement('button');b.textContent=o[0];b.setAttribute('aria-pressed','false');
+  b.onclick=function(){state[e]=o[1];[].forEach.call(vb.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');done()};vb.appendChild(b)});
+ ta.oninput=function(){notes[e]=ta.value;done()};cards.appendChild(card)});
+function done(){if(state.some(function(v){return v===null}))return;
+ var out=SCENES.map(function(s,i){return s.name+': '+(state[i]=='ok'?'aprovado':'mudar')+(notes[i]?' ('+notes[i]+')':'')});
+ document.getElementById('resTxt').textContent=out.join('\n');document.getElementById('result').hidden=false}
+var speed=1;function setS(v,id){speed=v;['s1','s2','s3'].forEach(function(k){document.getElementById(k).setAttribute('aria-pressed',k==id)})}
+document.getElementById('s1').onclick=function(){setS(1,'s1')};document.getElementById('s2').onclick=function(){setS(.5,'s2')};document.getElementById('s3').onclick=function(){setS(.25,'s3')};
+var clock=0,last=0;
+function loop(now){clock+=(now-last)/1000*speed;last=now;
+ if(ready)SCENES.forEach(function(s,i){var T=(window.__T!==undefined)?window.__T:clock%s.len;var c=cvs[i];c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);s.draw(c,T)});
+ requestAnimationFrame(loop)}
+requestAnimationFrame(function(n){last=n;requestAnimationFrame(loop)});
+})();
+</script>

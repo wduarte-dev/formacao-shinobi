@@ -1,0 +1,66 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste de golpes</title>
+<style>
+:root{--bg:#14110f;--panel:#1e1916;--line:#3a312b;--fg:#f1e7da;--mut:#a39382;--accent:#ff8a2a;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;padding:24px 16px 56px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}h1{font-size:26px;margin:0}p{margin:0;color:var(--mut)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--mut);font-size:13px;margin-top:8px}
+button{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;font:inherit}
+button[aria-pressed=true]{background:var(--accent);color:#1b0d05;border-color:var(--accent);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font-size:15px;margin:0;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+canvas{width:100%;max-width:720px;aspect-ratio:480/300;border-radius:8px;image-rendering:pixelated;background:#222;align-self:center}
+.votes{display:flex;gap:8px;flex-wrap:wrap}textarea{width:100%;min-height:60px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+.result{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px}.result pre{margin:0;white-space:pre-wrap}
+</style>
+<main>
+ <div><h1 id="tit"></h1><p>Cada golpe com os efeitos da receita, hit-stop e reação do alvo. Gerado por <code>tools/golpe_teste.py</code>.</p>
+  <div class="ctl"><span>Velocidade</span><button id="s1" aria-pressed="true">1x</button><button id="s2" aria-pressed="false">0,5x</button><button id="s3" aria-pressed="false">0,25x</button></div></div>
+ <div id="cards" style="display:flex;flex-direction:column;gap:20px"></div>
+ <div class="result" id="result" hidden><pre id="resTxt"></pre><p>Copie esse texto e cole no chat.</p></div>
+</main>
+<script>
+(function(){
+var D=__DATA__,W=480,H=300,GY=250,KX=190,EX=300;
+var PALS={fire:[[0,[42,13,8]],[.35,[122,42,18]],[.65,[232,116,42]],[.9,[255,199,102]],[1,[255,244,207]]],
+ steel:[[0,[22,30,44]],[.35,[70,92,120]],[.65,[150,176,204]],[.9,[222,234,246]],[1,[255,255,255]]],
+ earth:[[0,[36,26,16]],[.35,[90,70,48]],[.65,[160,134,96]],[.9,[216,196,154]],[1,[255,243,214]]],
+ blue:[[0,[13,22,48]],[.35,[31,61,122]],[.65,[63,134,216]],[.9,[159,214,255]],[1,[242,251,255]]]};
+function gm(st,l){for(var i=1;i<st.length;i++){if(l<=st[i][0]){var a=st[i-1],b=st[i],k=(l-a[0])/(b[0]-a[0]);return [0,1,2].map(function(c){return a[1][c]+(b[1][c]-a[1][c])*k})}}return st[st.length-1][1]}
+function cl(x){return Math.max(0,Math.min(1,x))}function eo(x){x=cl(x);return 1-(1-x)*(1-x)}
+var IM={},need=[],loaded=0,ready=false;
+function load(k,src){need.push(k);var i=new Image();i.onload=function(){if(++loaded==need.length)ready=true};i.src=src;IM[k]=i}
+load('alvo','alvo.png');D.folhas.forEach(function(f){load('fx_'+f,'fx_'+f+'.png')});D.golpes.forEach(function(g){load('anim_'+g.anim,'anim_'+g.anim+'.png')});
+var TC={};
+function fxFrame(fl,row,col,pal){var key=fl+row+'_'+col+pal;if(TC[key])return TC[key];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+ g.drawImage(IM['fx_'+fl],col*256,row*256,256,256,0,0,256,256);var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal]||PALS.fire;
+ for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0);TC[key]=cv;return cv}
+function fx(c,e,tau,x,y){if(tau<0)return;var f=Math.floor(tau*(e.fps||18));if(f>5)return;c.save();c.translate(x,y);c.rotate(e.rot||0);c.scale(e.esc*(e.sx||1),e.esc*(e.sy||1));c.imageSmoothingEnabled=false;c.drawImage(fxFrame(e.folha,e.linha,f,e.pal||'fire'),-128,-128);c.restore()}
+var IW={idle:[0,8,8,1],hurt:[5,3,10,0]};
+function alvo(c,an,tau,x,o){var a=IW[an],f=Math.floor(Math.max(0,tau)*a[2]);f=a[3]?f%a[1]:Math.min(a[1]-1,f);c.save();c.translate(x,GY);c.scale(-1.25*(o.sx||1),1.25*(o.sy||1));c.imageSmoothingEnabled=false;c.drawImage(IM.alvo,f*192,a[0]*160,192,160,-96,-150,192,160);c.restore()}
+function kaen(c,g,f){var cell=g.cell,col=f%g.cols,row=Math.floor(f/g.cols);c.save();c.translate(KX,GY);c.scale(g.s,g.s);c.imageSmoothingEnabled=false;c.drawImage(IM['anim_'+g.anim],col*cell,row*cell,cell,cell,-cell/2,-g.foot,cell,cell);c.restore()}
+function stage(c){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d4636');g.addColorStop(.7,'#2c3326');g.addColorStop(.7,'#4d4a38');g.addColorStop(1,'#3a3829');c.fillStyle=g;c.fillRect(0,0,W,H);c.fillStyle='rgba(0,0,0,.18)';for(var i=0;i<9;i++)c.fillRect(i*60+((i*37)%20),GY+10+((i*53)%40),26,2)}
+function dmg(c,tau,x,y,txt,life,big){if(tau<0||tau>life)return;var k=tau/life;c.save();c.textAlign='center';c.font='bold '+(big?30:24)+'px sans-serif';var s=1+.5*Math.exp(-tau*14)*Math.cos(tau*18),al=k>.7?1-(k-.7)/.3:1;c.translate(x,y-30*eo(k*1.4));c.scale(s,s);c.globalAlpha=al;c.lineWidth=5;c.strokeStyle='#2a0d08';c.strokeText(txt,0,0);c.fillStyle='#fff4cf';c.fillText(txt,0,0);c.restore()}
+function plan(g){var acc=0,w=[],st=[];g.contatos.forEach(function(c){var t=c.frame/g.fps,d=(c.hitstop||70)/1000;w.push(t+acc);st.push({t:t,d:d});acc+=d});g.walls=w;g.stops=st;g.len=(g.contatos.length?g.contatos[g.contatos.length-1].frame/g.fps+acc:0)+Math.max(1,g.n/g.fps*.4)+.6}
+function warp(T,st){var p=T,acc=0;st.forEach(function(s){var wall=s.t+acc;p-=Math.min(Math.max(T-wall,0),s.d);acc+=s.d});return p}
+function draw(c,g,T){stage(c);var p=warp(T,g.stops),f=Math.min(g.n-1,Math.floor(p*g.fps));
+ var off=0,sq=0,hurtT=-1,last=-1;g.contatos.forEach(function(ct,i){var tau=T-g.walls[i];if(tau>=0){last=i;hurtT=tau;off+=(ct.flinch||5)*Math.exp(-tau*(ct.squash?2.4:16))*(1-Math.exp(-tau*(ct.squash?22:50)));if(ct.squash)sq=Math.exp(-tau*10)*Math.cos(tau*26)}});
+ alvo(c,last>=0&&hurtT<.34?'hurt':'idle',last>=0?hurtT:T,EX+off,{sx:1+.12*sq,sy:1-.1*sq});
+ kaen(c,g,f);
+ g.contatos.forEach(function(ct,i){var tau=T-g.walls[i];(ct.efeitos||[]).forEach(function(e){var an=({ponta:ct.ponta,corpo:[KX,GY],alvo:[EX,GY-70]})[e.ancora||'ponta'];fx(c,e,tau-(e.inicio||0),an[0]+(e.dx||0),an[1]+(e.dy||0))});
+  if(ct.dano)dmg(c,tau,EX+(ct.dano_dx||0)-6,GY-118+(ct.dano_dy||0),ct.dano,ct.dano_vida||.9,!!ct.squash)})}
+D.golpes.forEach(plan);
+document.getElementById('tit').textContent=D.titulo;
+var cards=document.getElementById('cards'),st=D.golpes.map(function(){return null}),notes=[],ctxs=[];
+D.golpes.forEach(function(g,e){var card=document.createElement('section');card.className='card';card.innerHTML='<h2></h2><canvas width="'+W+'" height="'+H+'"></canvas><div class="votes"></div><textarea placeholder="O que mudar neste golpe? (opcional)"></textarea>';
+ card.querySelector('h2').textContent=g.nome;ctxs.push(card.querySelector('canvas').getContext('2d'));var vb=card.querySelector('.votes'),ta=card.querySelector('textarea');
+ [['Aprovado','ok'],['Tem coisa pra mudar','mudar']].forEach(function(o){var b=document.createElement('button');b.textContent=o[0];b.setAttribute('aria-pressed','false');b.onclick=function(){st[e]=o[1];[].forEach.call(vb.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');fim()};vb.appendChild(b)});
+ ta.oninput=function(){notes[e]=ta.value;fim()};cards.appendChild(card)});
+function fim(){if(st.some(function(v){return v===null}))return;document.getElementById('resTxt').textContent=D.golpes.map(function(g,i){return g.nome+': '+(st[i]=='ok'?'aprovado':'mudar')+(notes[i]?' ('+notes[i]+')':'')}).join('\n');document.getElementById('result').hidden=false}
+var speed=1;function setS(v,id){speed=v;['s1','s2','s3'].forEach(function(k){document.getElementById(k).setAttribute('aria-pressed',k==id)})}
+s1.onclick=function(){setS(1,'s1')};s2.onclick=function(){setS(.5,'s2')};s3.onclick=function(){setS(.25,'s3')};
+var clock=0,last=0;function loop(now){clock+=(now-last)/1000*speed;last=now;if(ready)D.golpes.forEach(function(g,i){var T=(window.__T!==undefined)?window.__T:clock%g.len,c=ctxs[i];c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);draw(c,g,T)});requestAnimationFrame(loop)}
+requestAnimationFrame(function(n){last=n;requestAnimationFrame(loop)});
+})();
+</script>
