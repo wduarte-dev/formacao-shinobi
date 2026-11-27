@@ -1,0 +1,138 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Derrota do Kaen</title>
+<style>
+:root{--bg:#f6f2ec;--fg:#241f2b;--card:#ffffff;--mut:#6b6370;--acc:#d9531e;--line:#d8d0c6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15121a;--fg:#f3ede4;--card:#201b28;--mut:#9b93a3;--acc:#ff7a3d;--line:#3a3344;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15121a;--fg:#f3ede4;--card:#201b28;--mut:#9b93a3;--acc:#ff7a3d;--line:#3a3344;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+h1{font-size:20px;margin:0 0 4px}
+p.sub{margin:0 0 14px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.card h2{font-size:15px;margin:2px 0 6px;color:var(--mut);font-weight:600}
+canvas{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+#reveal{border:1px dashed var(--acc);border-radius:12px;padding:12px;margin-top:8px}
+#reveal[hidden]{display:none}
+.hint{font-size:13px;color:var(--mut)}
+</style>
+<h1>Derrota do Kaen</h1>
+<p class="sub">Os dois lados começam juntos e repetem. Um cai de vez, o outro se machuca, segura e sai de cena. Você vota sem saber qual é qual.</p>
+
+<div class="grid">
+  <div class="card"><h2>Lado 1</h2><canvas id="c1" width="320" height="240"></canvas></div>
+  <div class="card"><h2>Lado 2</h2><canvas id="c2" width="320" height="240"></canvas></div>
+</div>
+
+<div class="btns">
+  <button id="v1" class="pri" disabled>Lado 1 melhor</button>
+  <button id="v2" class="pri" disabled>Lado 2 melhor</button>
+  <button id="v0" disabled>Tanto faz</button>
+</div>
+<textarea id="obs" placeholder="Observação (opcional): o que parece natural ou estranho em cada lado" disabled></textarea>
+
+<div id="reveal" hidden>
+  <p><strong id="revText"></strong></p>
+  <div class="btns"><button id="copy">Copiar resultado</button></div>
+  <textarea id="out" readonly></textarea>
+  <p class="hint" id="copyMsg"></p>
+</div>
+
+<script>
+// Quadros da tira: 0-4 = queda atual (8 fps); 5-10 = entrada (usada ao contrário); 11 = hurt.
+const CW = 192, CH = 160, FEETX = 96, FEETY = 150, SC = 1.2;
+const W = 320, H = 240, BASEX = 120, GROUND = 205;
+const LOOP = 2200;        // ciclo total (ms)
+const HOLD = 350;         // tempo de hurt segurado antes de sair (ms)
+const RET_DUR = 600;      // duração da retirada (ms): 6 quadros da entrada a 10 fps
+const RET_DX = -80;       // deslocamento da retirada (px do canvas, para trás)
+
+const img = new Image();
+img.src = "data:image/png;base64,__STRIP__";
+
+// Lado 1 e lado 2 são sorteados. O mapa só aparece depois do voto.
+const SWAP = Math.random() < 0.5;
+const SIDE1 = SWAP ? "retirada" : "queda";
+const SIDE2 = SWAP ? "queda" : "retirada";
+
+function stateOf(side, t) {
+  if (side === "queda") {
+    // queda atual: 5 quadros a 8 fps e fica no chão
+    return { cell: Math.min(4, Math.floor(t / 125)), x: 0, a: 1 };
+  }
+  // retirada: hurt segurado, depois a entrada ao contrário com recuo e sumiço
+  if (t < HOLD) return { cell: 11, x: 0, a: 1 };
+  const r = t - HOLD;
+  if (r < RET_DUR) {
+    const k = Math.min(5, Math.floor(r / 100));  // 0..5, a 10 fps
+    const prog = r / RET_DUR;
+    const ease = prog * prog;                    // começa devagar, acelera pra fora
+    const fade = prog > 0.6 ? 1 - (prog - 0.6) / 0.4 : 1;
+    return { cell: 5 + (5 - k), x: RET_DX * ease, a: fade };  // quadro 5 da entrada primeiro
+  }
+  return { cell: 0, x: 0, a: 0 };                // já saiu de cena
+}
+
+function draw(ctx, t, side) {
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = "rgba(128,128,128,.35)"; ctx.beginPath(); ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND); ctx.stroke();
+  const s = stateOf(side, t);
+  if (s.a > 0) {
+    ctx.fillStyle = "rgba(0,0,0,.18)";
+    ctx.beginPath(); ctx.ellipse(BASEX + s.x, GROUND, 52 * s.a, 6 * s.a, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.save();
+  ctx.globalAlpha = s.a;
+  ctx.translate(BASEX + s.x, GROUND);
+  ctx.drawImage(img, s.cell * CW, 0, CW, CH, -FEETX * SC, -FEETY * SC, CW * SC, CH * SC);
+  ctx.restore();
+}
+
+const c1 = document.getElementById("c1"), c2 = document.getElementById("c2");
+const x1 = c1.getContext("2d"), x2 = c2.getContext("2d");
+for (const c of [c1, c2]) { c.style.width = "100%"; c.width = W * devicePixelRatio; c.height = H * devicePixelRatio; }
+
+let t0 = null;
+function loop(now) {
+  if (t0 === null) t0 = now;
+  const t = (now - t0) % LOOP;
+  draw(x1, t, SIDE1);
+  draw(x2, t, SIDE2);
+  requestAnimationFrame(loop);
+}
+img.onload = () => requestAnimationFrame(loop);
+document.querySelectorAll("button").forEach(b => b.disabled = false);
+document.getElementById("obs").disabled = false;
+
+// Votação cega
+const LABEL = { queda: "queda atual (cai no chão e fica)", retirada: "retirada (hurt segurado, entrada ao contrário e sai de cena)" };
+const NAME = { v1: "Lado 1 melhor", v2: "Lado 2 melhor", v0: "Tanto faz" };
+const btns = ["v1", "v2", "v0"].map(id => document.getElementById(id));
+for (const b of btns) b.addEventListener("click", () => vote(b.id));
+
+function vote(id) {
+  for (const b of btns) b.disabled = true;
+  document.getElementById("obs").disabled = true;
+  const winner = id === "v1" ? SIDE1 : id === "v2" ? SIDE2 : null;
+  const pick = winner ? `Vencedor: ${LABEL[winner]}.` : "Empate: tanto faz.";
+  document.getElementById("revText").textContent =
+    `${NAME[id]}. Lado 1 = ${LABEL[SIDE1]}; Lado 2 = ${LABEL[SIDE2]}. ${pick}`;
+  document.getElementById("reveal").hidden = false;
+  const obs = document.getElementById("obs").value.trim();
+  document.getElementById("out").value =
+    `Lab derrota Kaen: ${NAME[id]}. Lado 1 = ${SIDE1}, Lado 2 = ${SIDE2}. ` +
+    `Resultado: ${winner || "empate"}.` + (obs ? ` Obs: ${obs}` : "");
+}
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const msg = document.getElementById("copyMsg"), ta = document.getElementById("out");
+  try { await navigator.clipboard.writeText(ta.value); msg.textContent = "Copiado."; }
+  catch (err) { ta.select(); msg.textContent = "Não consegui copiar sozinho: o texto já está selecionado, é só copiar."; }
+});
+</script>

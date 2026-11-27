@@ -1,0 +1,181 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Hop por código</title>
+<style>
+:root{--bg:#f6f2ec;--fg:#241f2b;--card:#ffffff;--mut:#6b6370;--acc:#d9531e;--line:#d8d0c6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15121a;--fg:#f3ede4;--card:#201b28;--mut:#9b93a3;--acc:#ff7a3d;--line:#3a3344;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15121a;--fg:#f3ede4;--card:#201b28;--mut:#9b93a3;--acc:#ff7a3d;--line:#3a3344;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+h1{font-size:20px;margin:0 0 4px}
+p.sub{margin:0 0 14px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.card h2{font-size:15px;margin:2px 0 6px;color:var(--mut);font-weight:600}
+canvas{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+textarea{width:100%;min-height:64px;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+#reveal{border:1px dashed var(--acc);border-radius:12px;padding:12px;margin-top:8px}
+#reveal[hidden]{display:none}
+.hint{font-size:13px;color:var(--mut)}
+</style>
+<h1>Lab: hop por código (Kaen)</h1>
+<p class="sub">Mesma trajetória e mesmo eco nos dois lados. Só muda o corpo: um usa os 3 quadros do hop do sprite, o outro usa o idle do Kaen com subida e squash em código.</p>
+
+<div class="grid">
+  <div class="card"><h2>Lado 1</h2><canvas id="c1" width="320" height="240"></canvas></div>
+  <div class="card"><h2>Lado 2</h2><canvas id="c2" width="320" height="240"></canvas></div>
+</div>
+
+<div class="btns">
+  <button id="v1" class="pri" disabled>Lado 1 melhor</button>
+  <button id="v2" class="pri" disabled>Lado 2 melhor</button>
+  <button id="v0" disabled>Tanto faz</button>
+</div>
+<textarea id="obs" placeholder="Observação (opcional): o que estranhou, onde o eco ficou bom ou ruim" disabled></textarea>
+
+<div id="reveal" hidden>
+  <p><strong id="revText"></strong></p>
+  <div class="btns"><button id="copy">Copiar resultado</button></div>
+  <textarea id="out" readonly></textarea>
+  <p class="hint" id="copyMsg"></p>
+</div>
+
+<script>
+// Parâmetros (px no canvas de 320x240, sprite em 1.2x). Vêm do sprite: pé em y=150 na célula de 192x160.
+const CW = 192, CH = 160, FEETX = 96, FEETY_CELL = 150, SC = 1.2;
+const W = 320, H = 240, BASEX = 90, GROUND = 205;
+const DX = 90;            // deslocamento horizontal do hop (px do canvas)
+const DUR = 190;          // duração do hop (ms), igual ao dashTo do jogo
+const LIFT = 10;          // altura do pulo em código (px); o sprite sobe ~10 px no quadro do pico
+const LIFE = 171;         // vida do eco (0.9 × DUR), igual ao hopEcho
+const GAP = 600;          // descanso entre ida e volta
+const BACK = DUR + GAP / 2;
+const PERIOD = BACK + DUR + GAP / 2;
+
+const STRIP = "__STRIP__"; // 7 quadros em uma linha: 0-3 = idle (fps 20), 4-6 = hop do sprite (fps 16)
+const img = new Image();
+img.src = "data:image/png;base64," + STRIP;
+
+// Lado 1 e Lado 2 são sorteados. O mapa só aparece depois do voto.
+const SWAP = Math.random() < 0.5;
+const SIDE1 = SWAP ? "codigo" : "sprite";
+const SIDE2 = SWAP ? "sprite" : "codigo";
+
+const hopCell = c => 4 + Math.min(2, Math.floor(c / 1000 * 16));
+const idleCell = c => Math.min(3, Math.floor(c / 1000 * 20));
+
+function hopState(c, x0, d, side) {
+  const t = c / DUR, e = 1 - (1 - t) * (1 - t);
+  const st = { x: x0 + d * DX * e, lift: 0, sx: 1, sy: 1, a: 1 };
+  if (side === "sprite") { st.cell = hopCell(c); }
+  else {
+    st.cell = idleCell(c);
+    st.lift = LIFT * Math.sin(Math.PI * t);
+    const sq = 0.07 * Math.max(0, 1 - t / 0.12) + 0.07 * Math.max(0, 1 - (1 - t) / 0.12);
+    st.sy = 1 - sq; st.sx = 1 + sq * 0.6;
+  }
+  return st;
+}
+
+function frameItems(cyc, side) {
+  const items = [];
+  // ecos: 2 cópias em 1/3 e 2/3 do trajeto, nascem no tempo do hop e apagam (como hopEcho)
+  for (const seg of [{ s: 0, x0: 0, d: 1 }, { s: BACK, x0: DX, d: -1 }]) {
+    const c = cyc - seg.s;
+    for (const k of [1, 2]) {
+      const f = k / 3, tk = f * DUR;
+      if (c >= tk && c < tk + LIFE) {
+        items.push({
+          cell: side === "sprite" ? hopCell(tk) : idleCell(tk),
+          x: seg.x0 + seg.d * DX * f,
+          lift: side === "codigo" ? LIFT * Math.sin(Math.PI * f) : 0,
+          sx: 1, sy: 1, a: 0.42 * (1 - (c - tk) / LIFE)
+        });
+      }
+    }
+  }
+  let body;
+  if (cyc < DUR) body = hopState(cyc, 0, 1, side);
+  else if (cyc < BACK) body = { cell: 0, x: DX, lift: 0, sx: 1, sy: 1, a: 1 };
+  else if (cyc < BACK + DUR) body = hopState(cyc - BACK, DX, -1, side);
+  else body = { cell: 0, x: 0, lift: 0, sx: 1, sy: 1, a: 1 };
+  items.push(body);
+  return items;
+}
+
+function draw(ctx, cyc, side) {
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = "rgba(128,128,128,.35)"; ctx.beginPath(); ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND); ctx.stroke();
+  const items = frameItems(cyc, side);
+  const corpo = items[items.length - 1];
+  // sombra acompanha o pé e encolhe conforme sobe
+  const k = 1 - corpo.lift / 40;
+  ctx.fillStyle = "rgba(0,0,0,.18)";
+  ctx.beginPath(); ctx.ellipse(BASEX + corpo.x, GROUND, 52 * k, 6 * k, 0, 0, Math.PI * 2); ctx.fill();
+  for (const it of items) {
+    ctx.save();
+    ctx.globalAlpha = it.a;
+    ctx.translate(BASEX + it.x, GROUND - it.lift);
+    ctx.scale(it.sx, it.sy);
+    ctx.drawImage(img, it.cell * CW, 0, CW, CH, -FEETX * SC, -FEETY_CELL * SC, CW * SC, CH * SC);
+    ctx.restore();
+  }
+}
+
+const c1 = document.getElementById("c1"), c2 = document.getElementById("c2");
+const x1 = c1.getContext("2d"), x2 = c2.getContext("2d");
+for (const c of [c1, c2]) { c.style.width = "100%"; c.width = W * devicePixelRatio; c.height = H * devicePixelRatio; }
+
+let t0 = null, running = true;
+// ?freeze=ms congela o laboratório num instante do ciclo (para print/autoinspeção)
+const FREEZE = new URLSearchParams(location.search).get("freeze");
+function loop(now) {
+  if (t0 === null) t0 = now;
+  const cyc = FREEZE !== null ? Number(FREEZE) : (now - t0) % PERIOD;
+  draw(x1, cyc, SIDE1);
+  draw(x2, cyc, SIDE2);
+  if (running && FREEZE === null) requestAnimationFrame(loop);
+}
+img.onload = () => requestAnimationFrame(loop);
+
+// Votação cega
+const btns = ["v1", "v2", "v0"].map(id => document.getElementById(id));
+const obs = document.getElementById("obs");
+const reveal = document.getElementById("reveal");
+let choice = null;
+const LABEL = { sprite: "hop do sprite (3 quadros)", codigo: "hop por código (idle + subida + squash)" };
+const NAME = { v1: "Lado 1 melhor", v2: "Lado 2 melhor", v0: "Tanto faz" };
+for (const b of btns) { b.disabled = false; b.addEventListener("click", () => vote(b.id)); }
+obs.disabled = false;
+
+function vote(id) {
+  choice = id;
+  for (const b of btns) b.disabled = true;
+  obs.disabled = true;
+  const winner = id === "v1" ? SIDE1 : id === "v2" ? SIDE2 : null;
+  const pick = winner ? `Vencedor: ${LABEL[winner]}.` : "Empate: tanto faz.";
+  document.getElementById("revText").textContent =
+    `${NAME[id]}. Lado 1 = ${LABEL[SIDE1]}; Lado 2 = ${LABEL[SIDE2]}. ${pick}`;
+  reveal.hidden = false;
+  document.getElementById("out").value =
+    `Lab hop Kaen: ${NAME[id]}. Lado 1 = ${SIDE1}, Lado 2 = ${SIDE2}. ` +
+    `Resultado: ${winner ? winner : "empate"}.` + (obs.value.trim() ? ` Obs: ${obs.value.trim()}` : "");
+}
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const msg = document.getElementById("copyMsg");
+  const ta = document.getElementById("out");
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    msg.textContent = "Copiado.";
+  } catch (err) {
+    ta.select();
+    msg.textContent = "Não consegui copiar sozinho: o texto já está selecionado, é só copiar.";
+  }
+});
+</script>
