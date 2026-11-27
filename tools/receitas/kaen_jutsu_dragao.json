@@ -1,0 +1,9 @@
+{
+ "titulo": "Jutsu do Kaen: Dragão de Brasa",
+ "anim": "jutsu",
+ "fps": 36,
+ "pose_armado": 4,
+ "pose_liberacao": 16,
+ "alvos": 3,
+ "dragao": {"escala": 0.38, "voo": 0.8, "segmentos": 4}
+}
