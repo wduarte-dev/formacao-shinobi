@@ -1,24 +1,25 @@
 {
  "padrao": {
-  "hash": "e80d17bc55c3149a",
-  "res": "lose",
+  "hash": "4adb48c2ce9b01f2",
+  "res": "win",
   "rodadas": 11,
-  "eventos": 381,
-  "acoes": 82,
-  "jutsus": 16,
-  "fortes": 7,
-  "perseguicoes": 48,
+  "eventos": 431,
+  "acoes": 91,
+  "jutsus": 20,
+  "fortes": 6,
+  "perseguicoes": 59,
   "maiorCombo": 4,
   "estados": {
-   "D": 17,
-   "R": 15,
-   "V": 15,
-   "L": 4
+   "D": 18,
+   "R": 20,
+   "V": 18,
+   "L": 6
   },
-  "danoP": 3911,
-  "danoE": 4081,
-  "absorvido": 1278,
-  "dot": 19,
-  "clones": 3
+  "danoP": 4806,
+  "danoE": 3386,
+  "absorvido": 1403,
+  "dot": 27,
+  "clones": 3,
+  "copia": []
  }
 }

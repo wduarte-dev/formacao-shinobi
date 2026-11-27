@@ -21,7 +21,7 @@ function mundo(){
     clearStatus(u){ u.seal=u.blind=u.sleep=0; },
     refundJutsu(u){ ctx.refunded.push(u); }};
   vm.createContext(ctx);
-  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome,vista,mostra,mostraChakra});',ctx);
+  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome,chakraGain,CHAKRA_START,CHAKRA_MAX,vista,mostra,mostraChakra});',ctx);
   ctx.evs=[]; for(const k of ['dano','substitui'])ctx.BUS.on(k,e=>ctx.evs.push([k,e]));
   return ctx;
 }
@@ -126,5 +126,9 @@ const ninja=(o={})=>({side:'e',alive:true,hp:1000,max:1000,shield:0,def:0,atk:10
     for(const bad of ['u.hp','u.max','u.shield','u.shM','u.alive','u.stunned','u.armedSkill','u.cd','u.dot','u.seal','u.blind','u.sleep','u.power',
                       'chakra[','canPrepareJutsu','selectedJutsu','availableJutsu','fieldA'])
       assert.ok(!b.replace(/u\.v\b/g,'').includes(bad),`${name} (${file}) lê ${bad} da regra; use a cópia da tela`); } }
+
+// curva de chakra: 20, 20, 40, 40, 60, 60, 80…; a luta começa em 0 (rodada 1 abre com 20); teto 100
+{ const w=mundo(); assert.deepEqual([1,2,3,4,5,6,7].map(w.chakraGain),[20,20,40,40,60,60,80]);
+  assert.equal(w.CHAKRA_START,0); assert.equal(w.CHAKRA_MAX,100); }
 
 console.log('ok');

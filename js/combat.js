@@ -626,12 +626,12 @@ async function run(){
   try{
     outer: while(true){
       round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; BUS.emit('rodada'); log('Rodada '+round,'r');
+      for(const side of ['p','e']){   // curva de chakra (regra.js): rodada 1 já ganha (+20), depois 20, 40, 40, 60…
+        const bonus=fieldA?.side===side?fieldA.fx.chakra||0:0;
+        chakra[side]=Math.min(CHAKRA_MAX,chakra[side]+chakraGain(round)+bonus);
+      }
+      mostraChakra();
       if(round>1){
-        for(const side of ['p','e']){
-          const bonus=fieldA?.side===side?fieldA.fx.chakra||0:0;
-          chakra[side]=Math.min(100,chakra[side]+20+bonus);
-        }
-        mostraChakra();
         sfx.round(); sfx.chakra();
         for(const u of all())if(u.alive&&u.cd>0){ u.cd--; mostra(u); }
         if(fieldA&&--fieldA.rounds<=0)await dismissField();

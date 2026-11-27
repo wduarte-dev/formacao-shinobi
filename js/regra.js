@@ -28,6 +28,8 @@ function vista(u){
   return {hp:u.hp,max:u.max,shield:u.shield,shM:u.shM,alive:u.alive,stunned:!!u.stunned,dot:!!u.dot,
     seal:u.seal|0,blind:u.blind|0,sleep:u.sleep|0,cd:u.cd|0,armed:u.armedSkill||null,power:!!u.power,field:fieldA?.owner===u};
 }
+// curva de chakra (regra do jogo, dos dois times; dono 28/11): a luta começa em CHAKRA_START e cada rodada dá 20, 20, 40, 40, 60, 60, 80… (sobe 20 a cada 2 rodadas); teto do chakra 100
+const CHAKRA_START=0, CHAKRA_MAX=100, chakraGain=r=>20*Math.ceil(r/2);
 function mostra(u){ BUS.emit('unidade',{u,v:vista(u)}); }
 function mostraChakra(){ BUS.emit('chakra',{p:chakra.p,e:chakra.e}); }
 

@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.20 · 28/11/2026 · Curva de chakra
+
+- **O chakra agora cresce com a luta (vale pros dois times):** a luta abre com **20** e cada rodada dá mais: +20, +40, +40, +60, +60, +80… (sobe 20 a cada 2 rodadas). O teto continua 100. Começo mais apertado (na rodada 1 ninguém tem chakra pra jutsu), final explosivo.
+- O bônus de chakra do Plano da Forja (Kazan) continua somando por cima.
+- Campo de Provas: nova semente padrão (10) que cobre todas as mecânicas com a curva nova.
+
 ## 1.19.4 · 28/11/2026 · Regra de combate separada (fatia 3a: cópia da tela)
 
 - **Por dentro, nada muda na luta:** a barra de vida, o escudo, as marcas (P/E/D/S/C/Z), o chakra e os botões de jutsu agora desenham uma **cópia** que a regra anuncia (`unidade`, `chakra`, e a foto que vem junto com cada `dano`), em vez de ler a unidade da regra direto. É o preparo pra regra calcular a luta adiantada e a tela só tocar.

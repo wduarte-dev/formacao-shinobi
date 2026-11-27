@@ -6,7 +6,7 @@ const TIPS=['Perseguição: quem derruba (D), lança (L) ou repele (R) abre comb
  'Cada passo da perseguição dá +10% de dano. Combo longo é dano de verdade.',
  'Cada ninja só faz uma perseguição por rodada. Escolha bem quem abre o combo.',
  'Quem tem golpe Forte tem 30% de chance de soltar ele no lugar do básico.',
- 'O chakra sobe 20 por rodada. Jutsu caro na hora errada é chakra jogado fora.',
+ 'O chakra começa em 20 e o ganho cresce: +20, +40, +40, +60… (máximo 100). Jutsu caro na hora errada é chakra jogado fora.',
  'Sem o Auto, o botão do jutsu pulsa um pouco antes da vez de quem pode usar. É a sua deixa!',
  'Jutsu instantâneo sai entre ações. A Aura Relâmpago ainda deixa Keshin atacar na vez dele.',
  'Clique num inimigo pra marcar o alvo dos seus jutsus.',
@@ -48,7 +48,7 @@ function startBattle2(){
   foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad||prova?0:foeIx);
   U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
   loadSfx([...U.p,...U.e].map(u=>u.id));
-  chakra={p:40,e:40}; round=0; paused=false; syncTimeHold(); maxCombo=0; hitsR={p:0,e:0};
+  chakra={p:CHAKRA_START,e:CHAKRA_START}; round=0; paused=false; syncTimeHold(); maxCombo=0; hitsR={p:0,e:0};
   if(prova)provaApply();   // Campo de Provas: semente, chances, vida, fichas alteradas
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';

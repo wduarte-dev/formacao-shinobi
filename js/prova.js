@@ -7,11 +7,11 @@
 //                   patch = mescla profunda na ficha N[id] SÓ desse ninja (ex.: {chase:{tsunami:1}}, {dodge:0})
 //   chance.strong   chance do golpe Forte (padrão STRONG_CHANCE); chance.initiative = face fixa do d6 (1..6)
 //   ai, auto        taxa de jutsu do inimigo / Auto do jogador (true/false)
-//   chakra {p,e}    chakra inicial; rounds = limite de rodadas; speed = velocidade (2 = normal rápido)
+//   chakra {p,e}    chakra antes do ganho da rodada 1 (padrão = jogo: CHAKRA_START); rounds = limite de rodadas; speed = velocidade (2 = normal rápido)
 "use strict";
 let prova=null, provaEvs=[];
-const PROVA_BASE={name:'Campo de Provas',lvl:'Laboratório',bg:'dojo',seed:5,mult:1,ai:1,auto:true,speed:16,rounds:20,   // semente 5: cobre D/V/R/L, escudo, DoT, Forte, clones (varredura de 27/11); speed não muda o resultado (mesmo hash em 2, 8 e 16)
-  chakra:{p:40,e:40},chance:{},
+const PROVA_BASE={name:'Campo de Provas',lvl:'Laboratório',bg:'dojo',seed:10,mult:1,ai:1,auto:true,speed:16,rounds:20,   // semente 10: cobre D/V/R/L, escudo, DoT, Forte, clones (varredura de 28/11, com a curva de chakra; a 5 parou de invocar clones); speed não muda o resultado (mesmo hash em 2, 8 e 16)
+  chakra:{p:CHAKRA_START,e:CHAKRA_START},chance:{},
   // cobertura máxima: perseguição por estado e por combo, D/V/R/L, instantâneo, clones, paralisia | escudo, cura/Tsunami, campo, contador
   p:[{id:'kaen',row:1,depth:0},{id:'keshin',row:0,depth:1},{id:'utsushi',row:2,depth:1},{id:'hiyori',row:1,depth:2}],
   e:[{id:'iwao',row:1,depth:0},{id:'mizuha',row:0,depth:1},{id:'mayoi',row:2,depth:1},{id:'kazan',row:1,depth:2}]};
