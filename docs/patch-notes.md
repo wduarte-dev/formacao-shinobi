@@ -3,10 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
-## 1.16.2 · 27/11/2026 · Kaen: defesa e reações novas
+## 1.17 · 27/11/2026 · Kaen todo no estilo novo
 
-- O Kaen ganhou no estilo novo: defesa (que também vale pro dano), selo montado parado, voo, caído, derrota e vitória.
-- Idle, corrida, jutsu, perseguição e buffs ainda são os antigos e entram nas próximas versões.
+- O Kaen ganhou todas as animações novas: idle de luta (50 quadros), corrida, pulo no lugar do dash, entrada pelo ar na abertura, defesa, selo montado, jutsu com selos e liberação, Chute Meteoro (agacha, mergulho com contato e pouso), voo, caído, derrota e vitória.
+- O dano e a esquiva usam as poses novas (dano = defesa com o tranco de sempre; esquiva = pulo).
+- Ainda falta: o dragão em peças com cut-in em faixa, as estrelas do atordoado e o efeito de buff, que vêm do kit de efeitos.
 
 ## 1.16 · 27/11/2026 · Golpes do Kaen
 

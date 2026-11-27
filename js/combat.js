@@ -599,7 +599,7 @@ async function castInstants(opening=false){
   }while(cast&&all().some(u=>u.armedSkill?.instant));
 }
 async function intro(){
-  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':'move',Math.random()*8|0);}
+  for(const u of all()){u.mv.style.transition='none'; u.mv.style.transform=`translate(${(u.side==='p'?-1:1)*640}px,0)`; setAnim(u,u.d.stationary?'walk':an_of(u).entrada?'entrada':'move',an_of(u).entrada?0:Math.random()*8|0);}
   $('rd').textContent=foe.name; await sleep(120);
   const ENTRY_MS=700;   // deslocamento e corrida acabam juntos em qualquer velocidade (transição escala com speed, como o sleep)
   for(const u of all()){u.mv.style.transition=`transform ${ENTRY_MS/speed}ms linear`; u.mv.style.transform='';}

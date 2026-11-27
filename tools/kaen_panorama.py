@@ -8,14 +8,15 @@ from atlas_registry import registry
 
 R = Path(__file__).resolve().parent.parent
 spec = registry((R / 'js/sprites.js').read_text())['kaen']
-NOVO = {'attack': 'Corte Ardente (1.16)', 'strong': 'Corte Flamejante (1.16)', 'guard': 'Defesa (1.16.1)', 'hurt': 'Dano = quadro da defesa + tranco',
+NOVO = {'attack': 'Corte Ardente (1.16)', 'strong': 'Corte Flamejante (1.16)', 'guard': 'Defesa', 'hurt': 'Dano = quadro da defesa + tranco',
         'seals': 'Selo montado, estático', 'victory': 'Vitória', 'defeat': 'Derrota', 'knockback': 'Voo (repelido)',
-        'launched': 'Voo (lançado)', 'knockdown': 'Caído'}
-PEND = {'idle': 'arte nova ainda não gerada (idle de luta)', 'walk': 'opcional: pulo e entrada substituem', 'dash': 'depende do pulo/entrada (arte pendente)',
-        'jutsu': 'Dragão de Brasa aprovado, falta integrar no motor (itens 4/8)', 'chase': 'Chute Meteoro aprovado, falta integrar (item 9)',
-        'rise': 'Chute Meteoro aprovado, falta integrar (item 9)', 'meteor': 'Chute Meteoro aprovado, falta integrar (item 9)',
-        'landing': 'Chute Meteoro aprovado, falta integrar (item 9)', 'dodge': 'vira hop invertido em código (item 6)',
-        'buff': 'vira efeito recolorível do kit (item 6)', 'stun': 'idle lento + estrelas do kit (item 6)'}
+        'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 50 quadros)', 'walk': 'Caminhada nova',
+        'dash': 'Corrida (caminhada nova, usada na entrada/carregamento)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
+        'entrada': 'Entrada pelo ar na abertura da luta', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
+        'rise': 'Chute Meteoro: agacha e sobe', 'meteor': 'Chute Meteoro: mergulho (contato no último quadro)', 'landing': 'Chute Meteoro: pouso',
+        'chase': 'prévia do Chute Meteoro', 'dodge': 'Esquiva = pulo (passo pra trás em código)', 'stun': 'Atordoado = idle lento (estrelas do kit: pendente)',
+        'buff': 'Buff = selo (efeito recolorível do kit: pendente)'}
+PEND = {}
 anims = []
 for n, a in spec.animations.items():
     seq = list(a.sequence) or list(range(a.frames))

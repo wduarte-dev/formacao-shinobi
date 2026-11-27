@@ -203,7 +203,7 @@ async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
   zoomOut(true); sceneOff(); await sleep(250); }
 function endCine(){ $('jtag').classList.remove('on'); }
 async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
-  if(!keep)setAnim(u,'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
+  if(!keep)setAnim(u,an_of(u).hop?'hop':'move'); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 function home(u){u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,u.d.stationary&&u.stunned?'stun':'idle');}
 // frasco que se multiplica no ar (split): sobe até um ponto no meio do campo, estoura em vários e cada um cai num alvo
 async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.reduce((m,t)=>m+cur(t).x,0)/ts.length, m={x:(a.x+ax)/2, y:a.y-190};
