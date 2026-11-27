@@ -11,7 +11,7 @@ spec = registry((R / 'js/sprites.js').read_text())['kaen']
 NOVO = {'attack': 'Corte Ardente (1.16)', 'strong': 'Corte Flamejante (1.16)', 'guard': 'Defesa', 'hurt': 'Dano = quadro da defesa + tranco',
         'seals': 'Selo montado, estático', 'victory': 'Vitória', 'defeat': 'Derrota', 'knockback': 'Voo (repelido)',
         'launched': 'Voo (lançado)', 'knockdown': 'Caído', 'idle': 'Idle de luta (Bitmapflow, 50 quadros, regerado com a cabeça dos golpes)', 'hop': 'Pulo do ataque (3 poses, no lugar do dash)',
-        'entrada': 'Entrada: cai pela diagonal do plano (a regerar)', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
+        'entrada': 'Entrada: cai pela diagonal do plano e pousa com a mão no chão (regerada)', 'jutsu': 'Dragão de Brasa: selos + liberação (40 quadros)',
         'rise': 'Chute Meteoro: agacha e sobe', 'meteor': 'Chute Meteoro: mergulho (contato no último quadro)', 'landing': 'Chute Meteoro: pouso',
         'chase': 'prévia do Chute Meteoro', 'dodge': 'Esquiva = pulo (passo pra trás em código)', 'stun': 'Atordoado = idle lento (estrelas do kit: pendente)',
         'buff': 'Buff = selo (efeito recolorível do kit: pendente)'}

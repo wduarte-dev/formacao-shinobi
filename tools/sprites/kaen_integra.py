@@ -21,7 +21,7 @@ STANCE_FRAME = {'idle': 0, 'pulo': 0, 'entrada': 5, 'jutsu': 0, 'meteoro': 19, '
 SRC = {
     'idle':      ('idle', range(50), 20, 1, 0, 'mass', 'g'),
     'hop':       ('pulo', range(3), 16, 0, 0, 'mass', 'g'),
-    'entrada':   ('entrada', range(6), 8, 0, 0, 'mass', 'f'),
+    'entrada':   ('entrada', range(6), 10, 0, 0, 'mass', 'f'),
     'guard':     ('outros', [0], 8, 0, 0, 'mass', 'o'),
     'seals':     ('outros', [1], 12, 0, 0, 'mass', 'o'),
     'jutsu':     ('jutsu', range(40), 24, 0, 0, 'mass', 'g'),
