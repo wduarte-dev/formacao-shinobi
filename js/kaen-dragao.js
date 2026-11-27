@@ -136,7 +136,7 @@ async function kaenDragonJutsu(u,main,sk,ts){
       ctx.setTransform(1,0,0,1,0,0); kdCutin(ctx,T-M.tR,sk.name);
       u.mv.style.transform=`translate(${dir*M.kxo(t)}px,0)`;
       if(T>M.tR+KD.CUT&&!fired.has('h1')&&t>=M.h1){ fired.add('h1'); setAnim(u,'atk2',28,true); }
-      if(T>=M.tR&&!fired.has('c')){ fired.add('c'); sfx.heavy(); flashSoft(); }
+      if(T>=M.tR&&!fired.has('c')){ fired.add('c'); sfx.dragonRoar(); flashSoft(); }
       wallHit.forEach((w,j)=>{ if(T>=w&&!fired.has('t'+j)){ fired.add('t'+j); const o=M.tg[j]; sfx.hit(); shake(.5); hitStep(o.t,.4,false); } });
       if(T>=wallSlam&&!fired.has('s')){ fired.add('s'); sfx.heavy(); shake(1.4); flash(); M.tg.forEach(o=>hitStep(o.t,.6,true)); sfx.thud(); }
       if(T>=M.LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }

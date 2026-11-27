@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.18 · 27/11/2026 · Dragão de Brasa e formação livre
+
+- **Dragão de Brasa do Kaen** completo: selos, mãos abrindo, cut-in em faixa com o dragão rugindo, o dragão em peças sai das mãos (Kaen é empurrado pra trás com poeira), cruza a fileira queimando, sai da tela, volta por cima e cai na vertical se desintegrando, com destroços no chão. O dano acontece nos contatos reais (40% na travessia, 60% na queda).
+- Formação livre: dá pra lutar com 1, 2, 3 ou 4 ninjas. O botão **Pronto** não pede mais time cheio.
+- A galeria de ninjas não tem mais os botões de ver animações.
+
 ## 1.17 · 27/11/2026 · Kaen todo no estilo novo
 
 - O Kaen ganhou todas as animações novas: idle de luta (50 quadros), corrida, pulo no lugar do dash, entrada pelo ar na abertura, defesa, selo montado, jutsu com selos e liberação, Chute Meteoro (agacha, mergulho com contato e pouso), voo, caído, derrota e vitória.
