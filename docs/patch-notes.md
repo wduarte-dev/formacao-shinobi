@@ -3,6 +3,10 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.16.1 · 27/11/2026 · Defesa do Kaen
+
+- O Kaen ganhou a pose de defesa nova (braços cruzados à frente, no mesmo estilo dos golpes). Ela também aparece quando ele leva dano: a pose segura com o tranco de sempre.
+
 ## 1.16 · 27/11/2026 · Golpes do Kaen
 
 - O Corte Ardente ganhou 32 quadros e dois contatos sincronizados com a lâmina. Os cortes mostram arco de aço, impacto e uma pausa curta no acerto.
