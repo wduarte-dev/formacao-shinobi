@@ -51,7 +51,7 @@ const VAR={swing:11,hit:7,heavy:6,chase:3,cast:8,heal:5,shield:5}, V=k=>Array.fr
 const RECORDED=IDS.filter(id=>N[id].customSfx!==false);
 const FORGE_SFX=['pour','dragon','fireball','guard','blast'];
 const SFILES=('dado-giro dado-resultado amb-cinzas amb-dojo amb-floresta amb-noite amb-sakura amb-santuario aplic-burn aplic-freeze aplic-poison aplic-stun arm chakra-ganho chase-inicio chase-pronta combo-1 combo-2 combo-3 combo-4 dash dot-burn dot-poison dot end escudo-absorve escudo-quebra fumaca-sumir knock-D knock-L knock-R lose ninja-derrota parede-racha pouso rodada-inicio shoot start state sting-ultimo thud ui-cancela ui-clique ui-confirma ui-desbloqueio ui-missao ui-pegar ui-soltar ui-titulo vida-baixa win '
-  +RECORDED.map(n=>`${n}-atk${N[n].chase?` ${n}-chase esq-${n}`:''}`+(N[n].strong?` ${n}-forte`:'')).join(' ')+' '
+  +RECORDED.map(n=>`${n}-atk${N[n].chase?` ${n}-chase esq-${n}`:''}`+(N[n].strong&&N[n].strong.customSfx!==false?` ${n}-forte`:'')).join(' ')+' '
   +'fire water lightning earth wind mist ice poison sound space'.split(' ').map(e=>`selos-${e} impacto-${e} proj-${e}`).join(' ')+' '
   +'fogo agua raio terra vento nevoa gelo veneno som espaco'.split(' ').map(e=>'jutsu-'+e).join(' ')).split(' ').filter(x=>x&&!x.startsWith('amb-')).concat(Object.keys(VAR).flatMap(V))
   .concat(RECORDED.flatMap(n=>['jutsu','golpe','dor','queda'].flatMap(t=>[1,2].map(i=>`voz-${n}-${t}_${i}`))))

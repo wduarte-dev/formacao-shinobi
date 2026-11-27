@@ -1,7 +1,7 @@
 # Auditoria automática de atlas (192x160 por célula): acha corte vertical/horizontal no corpo, sprite encostando na borda da célula,
 # retângulo/risco solto e moldura. Uso: python3 tools/sprites/audit_atlas.py [spr/ninja_atlas.png ...]   (sem args: todos os spr/*_atlas.png)
 # Gera prévia ampliada dos defeitos em /tmp/audit/<ninja>.png. Sai com código 1 se achar algo (dá pra usar antes de commitar).
-import sys, glob, os, numpy as np
+import sys, glob, os, json, numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 from pathlib import Path
@@ -77,7 +77,8 @@ def seam_repair(cell):
 
 def anim_rows(root):
     atlases = registry((Path(root) / 'js/sprites.js').read_text(encoding='utf-8'))
-    return {ninja: {anim.row: (name, anim.frames) for name, anim in atlas.animations.items()}
+    return {ninja: {(anim.row + frame // atlas.columns, frame % atlas.columns): (name, frame)
+                    for name, anim in atlas.animations.items() for frame in range(anim.frames)}
             for ninja, atlas in atlases.items()}
 
 
@@ -113,19 +114,29 @@ def fix(path, rows):
         for c in range(W // CW):
             iss = [x for x in audit_cell(a[r * CH:(r + 1) * CH, c * CW:(c + 1) * CW]) if x.startswith('!')]
             if (name, r, c) == ('utsushi', 19, 2): continue
-            if iss and r in rows.get(name, {}) and c < rows[name][r][1]: bad.setdefault(rows[name][r][0], []).append(c)
+            entry = rows.get(name, {}).get((r, c))
+            if iss and entry:
+                anim, frame = entry
+                bad.setdefault(anim, []).append(frame)
     print(f'{name}: {frag} fragmento(s) de borda apagado(s), {seams} corte(s) vertical(is) remendado(s); frames graves: {bad or "nenhum"}'); return name, bad
 
 if __name__ == '__main__':
     if '--fix' in sys.argv:
-        root = os.path.join(os.path.dirname(__file__), '..', '..'); rows = anim_rows(root); allbad = {}
-        for f in [x for x in sys.argv[1:] if x != '--fix'] or sorted(glob.glob(os.path.join(root, 'spr', '*_atlas.png'))):
+        root = Path(__file__).resolve().parents[2]
+        rows = anim_rows(root)
+        registry_path = root / 'js/badframes.js'
+        paths = [x for x in sys.argv[1:] if x != '--fix']
+        allbad = json.loads(registry_path.read_text().split('const BADF=', 1)[1].strip().removesuffix(';')) if paths else {}
+        for f in paths or sorted(glob.glob(os.path.join(root, 'spr', '*_atlas.png'))):
             n, b = fix(f, rows)
-            if b: allbad[n] = b
-        import json; man = os.path.join(os.path.dirname(__file__), 'badframes_manual.json')   # defeitos vistos a olho (ex.: 2 corpos colados) que o detector não pega
+            if b:
+                allbad[n] = b
+            else:
+                allbad.pop(n, None)
+        man = os.path.join(os.path.dirname(__file__), 'badframes_manual.json')   # defeitos vistos a olho (ex.: 2 corpos colados) que o detector não pega
         for n, d in (json.load(open(man)) if os.path.exists(man) else {}).items():
             for an, fr in d.items(): allbad.setdefault(n, {}).setdefault(an, []); allbad[n][an] = sorted(set(allbad[n][an]) | set(fr))
-        open(os.path.join(root, 'js', 'badframes.js'), 'w').write('// GERADO por tools/sprites/audit_atlas.py --fix: quadros com defeito (corpo cortado, corte, grade) que o jogo pula. Não editar à mão.\nconst BADF=' + __import__('json').dumps(allbad, separators=(',', ':')) + ';\n')
+        registry_path.write_text('// GERADO por tools/sprites/audit_atlas.py --fix: quadros com defeito (corpo cortado, corte, grade) que o jogo pula. Não editar à mão.\nconst BADF=' + json.dumps(allbad, separators=(',', ':')) + ';\n')
         sys.exit(0)
     fs = sys.argv[1:] or sorted(glob.glob(os.path.join(os.path.dirname(__file__), '..', '..', 'spr', '*_atlas.png')))
     sys.exit(1 if sum([run(f) for f in fs]) else 0)

@@ -80,7 +80,7 @@ function damageRoll(atk,def,element,form,aura,mult,field,roll){
   return Math.max(1,Math.round(element*atk*form*aura*mult*field*(.92+roll*.16)*100/(100+def)));
 }
 // null indica que a Substituição também evitou o estado associado ao contato.
-function landHit(a,t,m,basic,cls,area=false,el){
+function landHit(a,t,m,basic,cls,area=false,el,impact){
   if(t.d.passive==='Substituição'&&t.subRound!==round){
     const clone=livingClones(t)[0];
     if(clone){
@@ -93,9 +93,9 @@ function landHit(a,t,m,basic,cls,area=false,el){
   const damage=damageRoll(a.atk,t.def,factor,1+(unl(a)?.uDmg||0),1+(a.power?.dmg||0),m,fieldMul(a,basic),battleRandom());
   const adv=Math.sign(factor-1);
   const evt=adv>0?`${element} vence ${t.d.el}`:adv<0?`${t.d.el} resiste a ${element}`:'';
-  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls,{adv,evt});
+  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls,{adv,evt,impact});
 }
-function hurt(t,d,cls,{pierce=false,adv=0,evt=''}={}){
+function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
   const cost=cls==='cost';
   let r=d; if(!pierce&&t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
   const hp0=t.hp; if(!cost&&cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
@@ -106,8 +106,13 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt=''}={}){
     upd(t); return r;
   }
   if(r>0&&cls!=='dot'&&t.sleep>0&&t.alive){ t.sleep=0; fl(t,'Acordou','info2'); }
-  t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':'')); if(adv&&r>0)fl(t,evt,'elem'+(adv>0?' adv':' dis'));
-  const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
+  t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':''),impact);
+  if(adv&&r>0&&(!impact||impact.showElement)){
+    fl(t,evt,'elem'+(adv>0?' adv':' dis'),impact?{textX:105,textY:-18,textMs:750}:undefined);
+  }
+  if(!impact){
+    const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
+  }
   if(cls!=='dot'){hitsR[curSide]++; showHits();}
   if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
   if(t.hp<=0&&t.owner){ vanishClone(t); return r; }
@@ -164,6 +169,51 @@ async function strikeSequence(u,sk){
     chainOpenJ=false; comboShow(u,t); await chain(u.side,t,1,u);
     if(t.alive){ await sleep(140); setState(t,null); t.el.style.zIndex=t.z; }
   }
+  await sleep(160);
+}
+async function playContactStrike(u,t,sk,an,contacts,dodged){
+  const basic=sk===u.d.normal, dir=u.side==='p'?1:-1, anim=an_of(u)[an];
+  const onFrame=new Map();
+  function at(frame,action){
+    if(!onFrame.has(frame))onFrame.set(frame,[]);
+    onFrame.get(frame).push(action);
+  }
+  let damage=0, hits=0, dodge;
+  for(const contact of contacts){
+    for(const effect of contact.effects){
+      if(!dodged||effect.arc)at(effect.frame,()=>{if(t.alive||effect.arc)contactFx(u,effect);});
+    }
+    at(contact.frame,()=>{
+      if(dodged){dodge||=evade(t,true).then(()=>null,error=>({error}));return;}
+      if(!t.alive)return;
+      if(!hits)sfx.voz(u,'golpe',basic?.3:.7);
+      sfx.hit(u,basic?'atk':sk.customSfx===false?'':'forte');
+      const dealt=landHit(u,t,sk.mult/contacts.length,basic,'',false,undefined,{...contact,showElement:damage===0});
+      hits++;
+      if(dealt!==null){
+        damage+=dealt;
+        if(t.alive)t.st.animate([
+          {translate:`${dir*contact.recoil}px 0`,scale:contact.squash?'1.12 .9':'1'},
+          {translate:'0 0',scale:'1'},
+        ],{duration:(contact.squash?240:135)/speed,easing:'ease-out'});
+        hitstop(contact.stop).catch(error=>{if(error!==ABORT)console.error(error);});
+      }
+    });
+  }
+  sfx.swing();
+  await dashTo(u,t);
+  setAnim(u,an,0,true);
+  u.onFrame=frame=>onFrame.get(frame)?.forEach(action=>action());
+  try{
+    await sleep(animMs(u,an));
+    while(u.af<seqN(anim)-1||frozen)await sleep(16);
+    const failedDodge=dodge&&await dodge;
+    if(failedDodge)throw failedDodge.error;
+  }finally{delete u.onFrame;}
+  if(dodged)log(`${nm(t)} desvia de <b>${sk.name}</b>`);
+  else log(`${nm(u)} usa <b>${sk.name}</b>${hits>1?` (${hits} golpes)`:''}: ${damage} de dano`);
+  endCine();
+  home(u);
   await sleep(160);
 }
 async function doSkill(u,sk,isJ){
@@ -230,6 +280,11 @@ async function doSkill(u,sk,isJ){
     // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
     const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
     if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
+    if(u.id==='kaen'&&(sk===u.d.normal||sk===u.d.strong)){
+      const an=sk.an||'atk1';
+      await playContactStrike(u,main,sk,an,KAEN_STRIKES[an],dodged);
+      return;
+    }
     if(combo){ sceneOn([u,...ts]); markTargets(ts); }
     if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
     let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles

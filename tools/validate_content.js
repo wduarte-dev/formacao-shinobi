@@ -42,9 +42,9 @@ for(const [id,v] of Object.entries(V2)){
   check(SH[id].W===w&&SH[id].H===h,'V2.'+id,'dimensões divergentes do PNG');
   for(const [name,[row,frames,fps,,,seq]] of Object.entries(v.a)){
     const path='V2.'+id+'.'+name;
-    check(Number.isInteger(row)&&row>=0&&(row+1)*160<=h,path,'linha fora do atlas');
-    check(Number.isInteger(frames)&&frames>0&&frames*192<=w&&Number.isFinite(fps)&&fps>0,path,'quadros ou FPS inválidos');
-    if(seq)check(seq.length&&seq.every(x=>Number.isInteger(x)&&x>=0&&x<frames),path,'sequência fora da linha');
+    check(Number.isInteger(row)&&row>=0&&(row+Math.ceil(frames/(w/192)))*160<=h,path,'animação fora do atlas');
+    check(Number.isInteger(frames)&&frames>0&&Number.isFinite(fps)&&fps>0,path,'quadros ou FPS inválidos');
+    if(seq)check(seq.length&&seq.every(x=>Number.isInteger(x)&&x>=0&&x<frames),path,'sequência fora da animação');
   }
 }
 for(const [id,effect] of Object.entries(FXA)){

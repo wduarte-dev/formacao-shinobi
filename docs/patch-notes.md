@@ -3,6 +3,11 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.16 · 27/11/2026 · Golpes do Kaen
+
+- O Corte Ardente ganhou 32 quadros e dois contatos sincronizados com a lâmina. Os cortes mostram arco de aço, impacto e uma pausa curta no acerto.
+- O Corte Flamejante entrou na batalha. Tem 30% de chance de sair em uma ação sem jutsu e causa 1,4× de dano a um alvo da frente.
+
 ## 1.15.1 · 26/11/2026 · Galeria com busca e filtros
 - A lista de ninjas da galeria agora é uma faixa horizontal no rodapé: setas andam 4 retratos, arrastar com o dedo ou o mouse rola, e a faixa centraliza no ninja escolhido. Nada mais vaza da moldura nem esconde ninja.
 - Busca por nome (sem acento e sem diferenciar maiúscula) e botão **Filtros**: elemento, estado que causa, estado que persegue e "tem perseguição por combo". Os filtros são só ícones (elementos, Derrubado, Lançado, Voo, Repelido e combo): passar o mouse, clicar, tocar ou segurar o dedo mostra o nome num balão. Os filtros se combinam (só aparece quem bate em todos). Bloqueados somem quando há busca ou filtro.

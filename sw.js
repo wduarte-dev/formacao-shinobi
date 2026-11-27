@@ -1,5 +1,5 @@
 // O HTML e seus scripts são instalados juntos. Mídia visitada fica em outro cache.
-const APP_VERSION='1.15.1';
+const APP_VERSION='1.16';
 const CORE='shinobi-core-'+APP_VERSION, MEDIA='shinobi-media-v1';
 const scope=new URL(self.registration.scope);
 const withinScope=url=>url.origin===scope.origin&&url.pathname.startsWith(scope.pathname);
@@ -19,7 +19,7 @@ async function installCore(){
   }
   const cache=await caches.open(CORE);
   const shell=['css/style.css','manifest.webmanifest','icons/icon-192.png','bg/sakura.png',
-    'spr/iniciativa.png',...scripts.filter(name=>name!=='js/data.js')];
+    'spr/iniciativa.png','spr/kaen_atlas.png','spr/kaen_golpes.png',...scripts.filter(name=>name!=='js/data.js')];
   await cache.addAll(shell.map(name=>new Request(new URL(name,scope),options)));
   await cache.put(dataURL,data);
   await cache.put(entry,html);

@@ -214,8 +214,9 @@ const FXMOVE={pour:'fall',bigfire:'spin',proj:'slide',hit:'slide',jutsu:'rise',c
 // pré-carga: cada atlas decodificado ocupa ~11-16MB; sem isso o 1º jutsu trava enquanto o navegador decodifica. Guarda as Images pra não serem descartadas.
 // Devolve uma Promise; onp(feito,total) alimenta a barra da tela de carregamento.
 const KEEP={};
-const INITIATIVE_ATLAS='spr/iniciativa.png';
+const INITIATIVE_ATLAS='spr/iniciativa.png', KAEN_STRIKE_ATLAS='spr/kaen_golpes.png';
 function preloadFx(ids,onp){ const fs=[INITIATIVE_ATLAS]; for(const id of new Set(ids)){ fs.push(`spr/${id}_atlas.png`,`spr/${id}_fx.png`); if(N[id]?.jutsu.clones)fs.push('spr/utsushic_atlas.png'); if(id==='kazan')fs.push(...Object.keys(KAZAN_ART).map(kazanArtPath));
+    if(id==='kaen')fs.push(KAEN_STRIKE_ATLAS);
     const plan=PLAN_SCENES[N[id]?.jutsu.fieldFx?.visual];
     if(plan)fs.push(plan.image); if(SH[id+'r'])fs.push(`spr/${id}r_atlas.png`); }
   for(const k of Object.keys(KEEP))if(!fs.includes(k))delete KEEP[k];   // solta o que não é desta luta (cada atlas decodificado pesa ~16MB; sem isso o cache só crescia ao trocar de time)
@@ -229,6 +230,20 @@ function clearBattleFx(){
   fxLive=0;
   $('fx').replaceChildren();
   if(fxDirty){ fxc.clearRect(0,0,384,216); fxDirty=false; }
+}
+function contactFx(u,fx){
+  const p=pos(u), shift=new DOMMatrixReadOnly(getComputedStyle(u.mv).transform), dir=u.side==='p'?1:-1;
+  const scale=u.sc*SH.kaen.k, size=256*fx.scale*scale;
+  const box=document.createElement('div');
+  box.className='fxs kaen-strike-fx';
+  box.style.cssText=`left:${p.x+shift.m41+fx.x*scale*dir-size/2}px;top:${p.y+shift.m42+fx.y*scale-size/2}px;width:${size}px;height:${size}px;background-image:url(${KAEN_STRIKE_ATLAS});background-size:${6*size}px ${4*size}px;transform:scaleX(${dir}) rotate(${fx.rotation}rad) scaleY(${fx.flipY?-1:1});image-rendering:pixelated`;
+  $('fx').appendChild(box);
+  const draw=frame=>{
+    if(frame===6){box.remove();return;}
+    box.style.backgroundPosition=`${-frame*size}px ${-fx.row*size}px`;
+    battleAfter(()=>draw(frame+1),1000/fx.fps/speed);
+  };
+  draw(0);
 }
 function fxSpr(id,name,o){ const A=FXA[id]; if(!A||!A.a[name])return 0; if(fxLive>=(lite?3:7)&&o.lo)return 0; if(fxLive>=(lite?5:12))return 0;
   const [r,n]=A.a[name], sc=o.sc||1, w=288*sc*(o.sx||1), h=192*sc, fps=o.fps||12, dur=n*1000/fps, tk=token, d=o.dir||1;

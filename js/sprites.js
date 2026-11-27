@@ -7,7 +7,7 @@ const SPR={}, SH={};
 // seq (opcional) = ordem dos quadros, repetindo os que devem durar mais (ex.: o Gigante de Pedra do Iwao fica ~2,5s na tela)
 // hd = centro do rosto no quadro do idle (enquadra retratos e o corte do jutsu)
 const V2={
- kaen:{hd:[99,60],W:2304,H:3360,a:{idle:[0,6,6,1,1],walk:[1,10,10,1,0],dash:[2,10,14,1,0],attack:[3,8,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,8,12,0,0],seals:[8,8,12,0,0],jutsu:[9,9,12,0,0],buff:[10,7,10,0,0],stun:[11,6,8,1,0],victory:[12,7,8,1,0],defeat:[13,9,8,0,0],knockback:[14,9,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,10,12,0,0],rise:[18,8,16,0,0],meteor:[19,5,16,0,0],landing:[20,6,12,0,0]}},
+ kaen:{hd:[99,60],W:2304,H:4480,a:{idle:[0,6,6,1,1],walk:[1,10,10,1,0],dash:[2,10,14,1,0],attack:[21,32,40,0,0],strong:[24,40,36,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],dodge:[7,8,12,0,0],seals:[8,8,12,0,0],jutsu:[9,9,12,0,0],buff:[10,7,10,0,0],stun:[11,6,8,1,0],victory:[12,7,8,1,0],defeat:[13,9,8,0,0],knockback:[14,9,10,0,0],launched:[15,8,10,0,0],knockdown:[16,8,8,0,0],chase:[17,10,12,0,0],rise:[18,8,16,0,0],meteor:[19,5,16,0,0],landing:[20,6,12,0,0]}},
  mizuha:{hd:[91,66],H:2880,a:{idle:[0,8,8,1,0],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,6,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],hurt:[6,3,10,0,0],seals:[7,8,12,0,0],jutsu:[8,7,12,0,0],buff:[9,7,10,0,0],stun:[10,4,8,1,0],victory:[11,6,8,1,0],defeat:[12,8,8,0,0],knockback:[13,8,10,0,0],launched:[14,8,10,0,0],knockdown:[15,8,8,0,0],chase:[16,8,12,0,0],dodge:[17,7,12,0,0]}},
  raiden:{hd:[102,68],H:2880,a:{idle:[0,6,6,1,1],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,8,12,0,0],strong:[4,7,12,0,0],guard:[5,4,8,0,0],seals:[6,6,12,0,0],jutsu:[7,8,12,0,0],buff:[8,7,10,0,0],stun:[9,4,8,1,0],victory:[10,7,8,1,0],defeat:[11,7,8,0,0],knockback:[12,8,10,0,0],launched:[13,8,10,0,0],knockdown:[14,8,8,0,0],chase:[15,8,12,0,0],hurt:[16,3,10,0,0],dodge:[17,5,12,0,0]}},
  iwao:{hd:[98,69],H:2880,a:{idle:[0,8,8,1,0],walk:[1,8,10,1,0],dash:[2,8,14,1,0],attack:[3,8,12,0,0],guard:[4,4,8,0,0],hurt:[5,3,10,0,0],strong:[6,7,12,0,0],seals:[7,8,12,0,0,[0,1,2,3,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,7]],jutsu:[8,8,12,0,0,[0,1,1,2,2,3,3,3,4,4,4,5,5,5,6,6,7]],buff:[9,7,10,0,0,[0,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,4,4,5,5,5,6]],stun:[10,4,8,1,0],victory:[11,6,8,1,0,[0,1,1,1,1,1,1,1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,5,5]],defeat:[12,8,8,0,0,[0,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,6,7]],knockback:[13,8,10,0,0],launched:[14,8,10,0,0],knockdown:[15,8,8,0,0],chase:[16,8,12,0,0,[0,0,1,1,2,2,3,3,4,4,4,4,5,5,5,5,6,7,7]],dodge:[17,7,12,0,0]}},
@@ -27,7 +27,7 @@ const V2={
 // Correções de proporção medidas contra o idle. Vetores seguem os quadros físicos,
 // inclusive quando uma sequência repete um quadro. A escala mantém a âncora no chão.
 const ATLAS_SCALE={
- kaen:{walk:1.06,dash:1.08,attack:1.07,strong:1.06,jutsu:1.08,chase:1.06,meteor:1.09},
+ kaen:{walk:1.06,dash:1.08,jutsu:1.08,chase:1.06,meteor:1.09},
  mizuha:{strong:1.06,hurt:1.06},
  raiden:{guard:.94,hurt:.95,defeat:.94},
  iwao:{dash:1.06,hurt:1.06,stun:1.08},
@@ -95,7 +95,8 @@ function drawFrame(u){
   const changed=u.frame!==f||u.frameAnim!==u.an;
   u.frame=f; u.frameAnim=u.an;
   const scale=frameScale(u), cssScale=scale===1?'':String(scale);
-  u.spr.style.backgroundPosition=`${-(a[1]+f)*S.cw*e}px ${-a[0]*S.ch*e}px`;
+  const columns=S.W/S.cw, cell=a[1]+f;
+  u.spr.style.backgroundPosition=`${-(cell%columns)*S.cw*e}px ${-(a[0]+Math.floor(cell/columns))*S.ch*e}px`;
   if(prevScale!==cssScale)u.spr.style.scale=cssScale;
   if(u.gl)for(const c of u.gl){
     c.style.backgroundPosition=u.spr.style.backgroundPosition;
@@ -136,7 +137,12 @@ function tick(ts){
     for(const u of ACT){ if(u.pin)continue; const a=an_of(u)[u.an], per=1000/a[4]; u.at+=dt*(u.ts??1);   // u.ts: câmera lenta por unidade (ex.: capuz do Yugami)
       while(u.at>=per){ u.at-=per;
         if(u.af<seqN(a)-1)u.af++; else if(a[3])u.af=0; else if(a[5]&&!u.hold){setAnim(u,a[5]);break;} else{u.at=0;break;}
-        drawFrame(u);} }
+        drawFrame(u);
+        u.onFrame?.(u.frame);
+        if(frozen){u.at=0;break;}
+      }
+      if(frozen)break;
+    }
   }
   if(battleOn&&!paused&&!devFrozen)fxStep(dt/16.7,Math.min(250,elapsed)*speed);
   autoLite(elapsed);

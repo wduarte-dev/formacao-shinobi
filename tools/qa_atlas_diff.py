@@ -40,8 +40,12 @@ def load_image(source):
 def atlas_row(image, atlas, animation):
     if image is None or animation is None:
         return None
-    y = animation.row * CH
-    return image.crop((0, y, atlas.columns * CW, y + CH))
+    strip = Image.new('RGBA', (max(atlas.columns, animation.frames) * CW, CH))
+    for index in range(0, animation.frames, atlas.columns):
+        y = (animation.row + index // atlas.columns) * CH
+        width = min(atlas.columns, animation.frames - index) * CW
+        strip.paste(image.crop((0, y, width, y + CH)), (index * CW, 0))
+    return strip
 
 
 @dataclass

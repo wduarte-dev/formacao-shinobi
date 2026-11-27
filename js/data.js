@@ -10,7 +10,8 @@ const ST={D:'Derrubado',L:'Lançado',V:'Voo',R:'Repelido'};
 const TG={random:'inimigo aleatório',mark:'alvo marcado (senão aleatório)',front:'frente da fileira',row:'fileira inteira',all:'todos os inimigos',weak:'inimigo mais fraco',allies:'todos os aliados',self:'o próprio ninja'};
 const N={
  kaen:{name:'Kaen',el:'Fogo',c:'#e5533d',role:'Atacante',hp:950,atk:135,def:20,
-  normal:{name:'Corte Ardente',mult:1,target:'front',hits:[.3,.7]},
+  normal:{name:'Corte Ardente',mult:1,target:'front'},
+  strong:{name:'Corte Flamejante',an:'atk3',mult:1.4,target:'front',customSfx:false},
   jutsu:{name:'Dragão de Brasa',cost:40,cd:3,mult:1.5,target:'row',cause:'R',an:'atk2',dot:{mult:.35,rounds:2},desc:'queima a fileira'},
   chase:{name:'Chute Meteoro',on:'V',cause:'D',mult:.7},
   combo:{name:'Chuva de Brasas',at:18,star:2,target:'all',ranged:true,an:'atk2',mult:.5,dot:{mult:.25,rounds:2}}},
@@ -123,7 +124,7 @@ const IDS=Object.keys(N).filter(id=>!N[id].npc);
 // chance (%) de resistir a um status (atordoar, veneno, Selamento, Cegueira, Sono): tanque 30, atacante 15, suporte/controle 20, esquiva/velocista 10
 const RES={iwao:30,kazan:30,kaen:15,raiden:15,fuuka:15,keshin:15,mestre:30,mizuha:20,hiyori:20,doku:20,yugami:20,utsushi:20,mayoi:10,poko:10};
 const resOf=u=>RES[u.id]??20;
-const VERSION={v:'1.15.1',d:'26/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
+const VERSION={v:'1.16',d:'27/11/2026'};   // sobe com tools/bump_version.py (junto com version.json)
 let acadDone=[], acad=null;   // estrelas dos Testes de Perseguição (índices) e o teste em andamento (null = missão normal)
 let placed=[], unlocked=0, sel='kaen', foeIx=0, lite=false, own=[], dev=false;   // own: ninjas bloqueados já liberados; dev: Modo dev (libera tudo)
 const have=id=>!LOCK[id]||dev||own.includes(id);

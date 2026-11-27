@@ -171,7 +171,7 @@ function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)al
 // marca quem vai levar o golpe (jutsu, perseguição, tsunami): círculo vermelho pulsando nos pés
 function markTargets(ts){ ts.forEach(t=>{ sceneAdd(t); t.el.classList.add('tgt'); }); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
-async function evade(t){ sfx.dodge(t); fxAt(t,'dodge',t,.9);
+async function evade(t,quiet=false){ sfx.dodge(t); if(!quiet)fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
   await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
   if(t.alive&&!t.state)setAnim(t,'idle'); }

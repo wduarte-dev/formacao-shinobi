@@ -81,7 +81,14 @@ function upd(u){
 // clique no inimigo: marca em azul até clicar de novo (os jutsus do jogador miram nele, ver pick)
 function markFoe(u){ if(!u.alive)return; const old=mark; mark=old===u?null:u;
   if(old)old.el.classList.remove('mk'); if(mark)mark.el.classList.add('mk'); sfx.arm(); }
-function fl(u,txt,cls){const f=document.createElement('div'); f.className='fl '+(cls||''); f.textContent=txt; u.mv.appendChild(f); battleAfter(()=>f.remove(),cls==='ord'?1150:950);}
+function fl(u,txt,cls,impact){const f=document.createElement('div'); f.className='fl '+(cls||''); f.textContent=txt;
+  if(impact){
+    f.style.left=(impact.textX*(u.side==='e'?1:-1))+'px';
+    f.style.top='calc(var(--h)*-1 - 64px + '+impact.textY+'px)';
+    f.style.animationName='strikeUp';
+    f.style.animationDuration=(impact.textMs/speed)+'ms';
+  }
+  u.mv.appendChild(f); battleAfter(()=>f.remove(),impact?impact.textMs/speed+100:cls==='ord'?1150:950);}
 function log(html,cls){const l=$('log'), d=document.createElement('div'); if(cls)d.className=cls; d.innerHTML=html; l.appendChild(d); while(l.children.length>7)l.firstChild.remove();}
 const nm=u=>`<span style="color:${u.d.c}">${u.d.name}</span>`;
 function setState(t,s){if(s&&t.d.immuneState){ kazanGuard(t); return; } t.state=s; t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
