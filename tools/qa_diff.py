@@ -14,6 +14,8 @@ PORTRAITS = {'index.html', 'js/cine.js', 'js/sprites.js', 'js/data.js', 'tools/q
 # cenários compartilhados até que sua responsabilidade esteja clara.
 PRESENTATION = {'js/ambient.js', 'js/audio.js', 'js/patch.js', 'js/screens.js'}
 REPLAY_TOOLS = {'index.html', 'tools/qa_anim.py'}
+# Campo de Provas: a luta inteira com impressão digital, quando a regra pode ter mudado.
+PROVA = {'index.html', 'tools/prova.py', 'tools/prova/digital.json'}
 # O jutsu em área cobre um caminho diferente das perseguições.
 SCENARIOS = {
     'kaen': [('meteoro', ['--expect-hits', '1']),
@@ -56,6 +58,8 @@ def select_tasks(paths):
     if all_portraits or portraits:
         ids = [] if all_portraits else sorted(portraits)
         tasks.append(('retratos', [sys.executable, 'tools/qa_retratos.py', *ids]))
+    if scripts - PRESENTATION or paths & PROVA:
+        tasks.append(('prova', [sys.executable, 'tools/prova.py']))
     if scripts - PRESENTATION or paths & REPLAY_TOOLS:
         ninjas.update(SCENARIOS)
     for ninja in sorted(ninjas):

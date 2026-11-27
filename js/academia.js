@@ -62,7 +62,7 @@ function drawAcad(){ BOARD=LAB_BOARD; ACT=[];
 // o time do Laboratório cumpre o desafio? (4 ninjas; no de Fogo, alguém de Fogo). Se não, o Lutar fica cinza: o card já diz o requisito
 const acadReady=c=>labTeam.length===4&&(!c.fire||labTeam.some(p=>N[p.id].el.includes('Fogo')));
 function acadFight(i){ const c=ACAD[i]; if(!acadReady(c))return;
-  sfx.ui('confirma'); acad={i,done:false}; startBattle(); }
+  sfx.ui('confirma'); acad={i,done:false}; provaOff(); startBattle(); }
 $('aUse').onclick=()=>{ if(!labTeam.length)return; placed.length=0; labTeam.forEach(p=>placed.push({...p})); save(); sfx.ui('confirma'); const b=$('aUse'); b.textContent='Copiado!'; setTimeout(()=>b.textContent='Usar este time',1400); };
 $('aClear').onclick=()=>{ labTeam.length=0; sfx.ui('cancela'); drawAcad(); };
 $('aBack').onclick=()=>{ sfx.ui('cancela'); show('sForm'); };

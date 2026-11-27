@@ -34,6 +34,10 @@ class SelectTasksTest(unittest.TestCase):
         self.assertEqual(tasks['sintaxe-js-mecanica_nova.js'], ['node', '--check', new_module])
         self.assertIn('utsushi-rajada-3', tasks)
         self.assertIn('fuuka-tufao', tasks)
+        self.assertEqual(tasks['prova'][1:], ['tools/prova.py'])
+
+    def test_atlas_alone_skips_full_battle(self):
+        self.assertNotIn('prova', dict(select_tasks({'spr/kaen_atlas.png'})))
 
     def test_documentation_selects_no_game_checks(self):
         self.assertEqual(select_tasks({'tools/README.md'}), [])

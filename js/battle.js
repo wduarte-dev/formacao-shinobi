@@ -30,7 +30,8 @@ function ldTip(){ const t=$('ldTip'); t.classList.add('out'); setTimeout(()=>{ t
 // tela de carregamento: decodifica atlas + efeitos de todo mundo da luta antes de começar (nada de carregar imagem no meio do golpe)
 // enquanto isso: cenário da missão no fundo, dica girando e o time do jogador correndo em fila no canto (atores normais, o tick anima)
 // missão normal ou Teste de Perseguição (acad): de onde vem o inimigo e o time
-const curFoe=()=>acad?ACAD_FOE:FOES[foeIx], battleTeam=()=>acad?labTeam:placed;
+// Campo de Provas (prova.js) também: missão-laboratório fora do mapa
+const curFoe=()=>prova?provaFoe():acad?ACAD_FOE:FOES[foeIx], battleTeam=()=>prova?prova.p:acad?labTeam:placed;
 function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'), bar=L.querySelector('.lbar i'), f=curFoe();
   bar.style.transform='scaleX(0)'; $('ldPct').textContent='0%'; bgExt($('ldBg'),`bg/${f.bg}.png`); $('ldT').textContent=acad?f.name+' · '+ACAD[acad.i].name:f.name;
   const R=$('ldRun'); R.innerHTML=''; ACT=[];   // sem walk/run: a tela de carregamento não mostra mais o time correndo
@@ -44,10 +45,11 @@ function startBattle(){ if(loadingB)return; loadingB=true; const L=$('loading'),
 function startBattle2(){
   cancelBattleWork();
   setDevFreeze(false);
-  foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad?0:foeIx);
+  foe=curFoe(); if(acad)acad.done=false; initAudio(); show('sBattle'); musStart(acad||prova?0:foeIx);
   U={clones:[],p:battleTeam().map((p,i)=>mk(p.id,'p',i,p.row,p.depth,1)), e:foe.team.map((t,i)=>mk(t[0],'e',i,t[1],t[2],foe.mult))};
   loadSfx([...U.p,...U.e].map(u=>u.id));
   chakra={p:40,e:40}; round=0; paused=false; syncTimeHold(); maxCombo=0; hitsR={p:0,e:0};
+  if(prova)provaApply();   // Campo de Provas: semente, chances, vida, fichas alteradas
   $('bPause').textContent='Pausar'; $('resWin').classList.add('hide');
   $('log').innerHTML=''; $('units').innerHTML=''; $('clist').innerHTML=''; $('field').className='field';
   $('units').classList.remove('waiting-entry');

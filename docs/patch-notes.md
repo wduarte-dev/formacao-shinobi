@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.19.1 · 28/11/2026 · Campo de Provas (laboratório de testes)
+
+- **Campo de Provas** (`js/prova.js`): missão-laboratório fora do mapa, no "modo criativo". Times livres (1 a 9 por lado), qualquer ficha alterável por ninja (chances, esquiva, vida, resistência), semente fixa, iniciativa, chakra, limite de rodadas e velocidade. Não salva progresso nem libera nada.
+- **Impressão digital da luta:** a prova grava os eventos da regra (ação, dano, estado, perseguição, foto de cada rodada) e gera um hash. Mesma semente = mesma luta em qualquer velocidade (conferido em 2x, 8x e 16x). Se uma mudança no código alterar o combate sem querer, o teste aponta exatamente o que mudou.
+- **Teste mais enxuto:** `python3 tools/prova.py` substitui as 5 missões no CI (uma luta de ~30 s que cobre Derrubado/Voo/Repelido/Lançado, escudo, veneno, Forte, jutsu, perseguição e clones). É a rede de segurança para separar a regra de combate da apresentação.
+
 ## 1.19 · 28/11/2026 · Canal beta do Kaen, impacto e estrelas
 
 - **Canal beta** (`beta/index.html`, jogo separado, save separado, faixa BETA): uma luta real contra 4 ninjas de verdade em que o Kaen mostra cada animação e golpe como tutorial (entrada, idle, corrida, pulo, ataque, forte, jutsu armado, Dragão de Brasa, Chute Meteoro, dano, esquiva, atordoado, buff, estados, derrota, vitória). Cada passo tem **APROVADO / NÃO APROVADO** (com comentário) e no fim sai um resumo em formato de prompt.

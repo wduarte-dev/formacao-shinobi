@@ -1,0 +1,24 @@
+{
+ "padrao": {
+  "hash": "e80d17bc55c3149a",
+  "res": "lose",
+  "rodadas": 11,
+  "eventos": 381,
+  "acoes": 82,
+  "jutsus": 16,
+  "fortes": 7,
+  "perseguicoes": 48,
+  "maiorCombo": 4,
+  "estados": {
+   "D": 17,
+   "R": 15,
+   "V": 15,
+   "L": 4
+  },
+  "danoP": 3911,
+  "danoE": 4081,
+  "absorvido": 1278,
+  "dot": 19,
+  "clones": 3
+ }
+}

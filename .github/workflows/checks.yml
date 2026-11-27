@@ -37,7 +37,7 @@ jobs:
           for suite in test_abort test_iniciativa test_status test_jutsu test_pausa test_utsushi test_academia test_planos test_robustez test_combo test_kaen_golpes; do
             python "tools/$suite.py" > "/tmp/shinobi-ci/$suite.log" 2>&1 || { tail -80 "/tmp/shinobi-ci/$suite.log"; exit 1; }
           done
-          python tools/test_battle.py . /tmp/shinobi-ci/shots --strict
+          python tools/prova.py --repete 2 --out /tmp/shinobi-ci/prova
       - name: QA das diferenças
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}

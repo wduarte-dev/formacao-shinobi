@@ -16,6 +16,18 @@ Vitória e derrota contam como missão concluída. A etapa retorna erro se a bat
 
 O teste de retratos aciona a apresentação real do jutsu no Chromium, congela a faixa já aberta e salva `retratos.png` com aliado e inimigo lado a lado. Estima quatro pontos da cabeça pela silhueta do primeiro quadro de selos e verifica recorte e sobreposição com a caixa do título no navegador a 1152×648. Cabelo, capuz, efeitos e espaços entre letras podem afetar essa estimativa. Use a prancha para julgar os casos marcados. A pose durante o restante da luta e os retratos de seleção têm enquadramentos próprios.
 
+## Campo de Provas (rede de segurança do combate)
+
+```sh
+python3 tools/prova.py                 # luta padrão: invariantes + impressão digital
+python3 tools/prova.py --repete 2      # exige o mesmo hash nas duas (determinismo)
+python3 tools/prova.py --grava         # mudança PROPOSITAL de comportamento: regrava tools/prova/digital.json
+python3 tools/prova.py --cfg '{"seed":3,"chance":{"strong":1}}'
+python3 tools/prova.py --set e.1.patch.chase.tsunami=1 --set p.0.hp=0.2
+```
+
+Missão-laboratório (`js/prova.js`, `provaStart(cfg)` no console) com tudo manipulável: times de 1 a 9 por lado, `patch` profundo na ficha de cada ninja, `hp`, `mult`, `res`, `state`, semente, `chance.strong`, `chance.initiative`, `ai`, `auto`, `chakra`, `rounds`, `speed`. Fica fora do mapa e não salva nada. O gravador embrulha `hurt`, `knock`, `setState`, `doSkill`, `chain` e a linha de rodada do `log`, e o hash cobre ação, dano, estado, perseguição e uma foto por rodada. A velocidade não muda o hash: a regra não depende do tempo da animação. A luta padrão (semente 5) precisa passar por D/V/R/L, escudo, DoT, Forte, jutsu, perseguição e clones. Se uma mudança tirar essa cobertura, troque a semente e regrave. Substitui as 5 missões no CI, e o `qa_diff` a roda quando um módulo de regra muda. Print e log de eventos só saem quando falha.
+
 ## QA pelo diff
 
 ```sh

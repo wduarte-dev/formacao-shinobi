@@ -617,7 +617,7 @@ async function intro(){
   await Promise.all(all().filter(u=>u.d.stationary).map(kazanSit));
   $('rd').textContent='Rodada 1'; ink('Rodada 1'); await sleep(700);
 }
-function rollInitiative(){ return 1+Math.floor(battleRandom()*6); }
+function rollInitiative(){ return prova?.chance?.initiative||1+Math.floor(battleRandom()*6); }   // Campo de Provas pode fixar a face
 const initiativeSide=face=>face%2===0?'p':'e';
 function* turnOrder(face){
   const eligible=side=>byFormationCell(team(side).filter(u=>u.alive&&(!u.owner||u.summonedRound<round)));
@@ -698,7 +698,7 @@ async function run(){
             sk=commitJutsu(u); isJ=true;
           }
         }
-        if(!isJ&&u.d.strong&&battleRandom()<STRONG_CHANCE)sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte
+        if(!isJ&&u.d.strong&&battleRandom()<strongChance())sk=u.d.strong;   // ação sem jutsu tem STRONG_CHANCE (30%) de virar o golpe Forte (o Campo de Provas pode mudar)
         if(u.blind>0&&!isJ){ fl(u,'Cego: sem básico','info2'); log(`${nm(u)} está cego e não ataca`); }   // cegueira: só o jutsu sai
         else{ u.el.classList.add('turn'); drawJ(); await doSkill(u,sk,isJ); u.el.classList.remove('turn'); }
         if(u.alive){ if(u.seal>0)u.seal--; if(u.blind>0)u.blind--; upd(u); }
@@ -708,7 +708,7 @@ async function run(){
       }
       await castInstants();
       if((res=result()))break;
-      if(round>=20){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=acad?'lose':s('p')>s('e')?'win':'lose'; byTime=!acad; break;}
+      if(round>=(prova?.rounds||20)){const s=t=>U[t].reduce((a,u)=>a+u.hp/u.max,0); res=acad?'lose':s('p')>s('e')?'win':'lose'; byTime=!acad; break;}
     }
     if(fieldA)await dismissField();
     musStop(); await sleep(350);
@@ -716,14 +716,15 @@ async function run(){
     $('flash').className='long'; sfx.end(); ink('FIM DO COMBATE',true); await sleep(1500);
   }catch(e){ if(e===ABORT)return; throw e; }
   sfx[res](); battleOn=false; ACT=[];
-  const hasNext=!acad&&res==='win'&&foeIx<FOES.length-1;
-  if(!acad&&res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
-  const newN=!acad&&res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); battleAfter(()=>sfx.ui('desbloqueio'),900);}
+  const story=!acad&&!prova;   // Campo de Provas não libera missão nem ninja
+  const hasNext=story&&res==='win'&&foeIx<FOES.length-1;
+  if(story&&res==='win'&&foeIx>=unlocked&&foeIx<FOES.length-1){unlocked=foeIx+1;save();}
+  const newN=story&&res==='win'&&FOES[foeIx].unlock&&!have(FOES[foeIx].unlock)?FOES[foeIx].unlock:null; if(newN){own.push(newN);save(); battleAfter(()=>sfx.ui('desbloqueio'),900);}
   if(acad&&res==='win'&&!acadDone.includes(acad.i)){acadDone.push(acad.i); save();}
   $('ink').className=''; $('clist').innerHTML='';
   $('ovT').textContent=acad?(res==='win'?'Desafio concluído!':'Desafio falhou'):res==='win'?'Vitória':'Derrota';
   $('ovP').textContent=`${foe.name} · ${round} rodada${round>1?'s':''}`+(byTime?' · decidido por tempo (mais vida restante)':'');
-  $('ovQ').textContent=acad?`Meta: ${ACAD[acad.i].name} · seu maior combo: x${maxCombo||1}`+(res!=='win'&&!U.e.some(u=>u.alive)?' · o Mestre caiu: o teste é de perseguição, não de dano':''):`Seu maior combo: x${maxCombo||1}`+(res==='win'&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'')+(newN?` · ${N[newN].name} desbloqueado! Ele já está na Formação.`:'');
+  $('ovQ').textContent=acad?`Meta: ${ACAD[acad.i].name} · seu maior combo: x${maxCombo||1}`+(res!=='win'&&!U.e.some(u=>u.alive)?' · o Mestre caiu: o teste é de perseguição, não de dano':''):`Seu maior combo: x${maxCombo||1}`+(res==='win'&&!prova&&foeIx===FOES.length-1?' · Você venceu todas as missões!':'')+(newN?` · ${N[newN].name} desbloqueado! Ele já está na Formação.`:'');
   $('ovN').classList.toggle('hide',!hasNext); $('ovB').textContent=acad?'Academia':'Mapa';
   $('resWin').classList.remove('hide');
 }

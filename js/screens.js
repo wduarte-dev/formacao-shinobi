@@ -174,7 +174,7 @@ function drawMap(){
   s.innerHTML=`<h4>${foeIx+1}. ${f.name}</h4><div>Dificuldade: <b>${f.lvl}</b></div><div>Inimigos:</div><div id="mFoes"></div><div>${f.team.map(t=>N[t[0]].name+' ('+N[t[0]].el+')').join(', ')}</div>`;
   ACT=[]; f.team.forEach((t,i)=>actor(t[0],1.75,44+i*70,136,$('mFoes'),true));   // cabe no painel (antes o 4º saía pra fora)
   const b=document.createElement('button'); b.className='btn'; b.textContent=placed.length?'Lutar':'Montar o time';
-  b.onclick=()=>{ if(!placed.length)show('sForm'); else{ acad=null; startBattle(); } }; s.appendChild(b);
+  b.onclick=()=>{ if(!placed.length)show('sForm'); else{ acad=null; provaOff(); startBattle(); } }; s.appendChild(b);
 }
 
 /* ---- galeria ---- */

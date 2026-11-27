@@ -8,7 +8,7 @@ As instruções de trabalho completas, as pendências (`ondas`), as fichas, os p
 2. Ler o `CLAUDE.md` de lá (regras completas, tom, fluxo de ondas, commits, testes) e a seção "Estado atual" do `CHAT_GPT.md` de lá. Na raiz do repo de contexto: `CLAUDE.md`, `CHAT_GPT.md`, `docs/`.
 3. Ao terminar: atualizar "Estado atual" e os docs **no repo de contexto** (commit + push lá), e o código aqui (`git push origin HEAD:main`).
 **⭐ Regra prioritária (do dono): dinâmica de aprovação** — antes de mexer, perguntas cirúrgicas pra ele (opções clicáveis); design visual vira prompt de imagem pra ele gerar e decidir; depois de implementar, testar, inspecionar o próprio print atrás de defeito e mandar print + "aprovado?"; só fecha com o aprovado dele. Detalhes no `CLAUDE.md` do repo de contexto.
-Regras que valem sempre aqui: testar com `python3 tools/test_battle.py . /tmp/shots` antes de commitar; commits pequenos em português direto na `main`; ao mexer no jogo, notas em `docs/patch-notes.md` + `python3 tools/patch_notes.py` + `python3 tools/bump_version.py <n>`. Nunca colocar chaves de API no repo. Se não conseguir acessar o repo de contexto, **pare e avise o dono** em vez de adivinhar as regras.
+Regras que valem sempre aqui: testar com `python3 tools/prova.py` (luta inteira + impressão digital; mexeu na regra de propósito: `--grava`) e `python3 tools/qa_diff.py` antes de commitar; commits pequenos em português direto na `main`; ao mexer no jogo, notas em `docs/patch-notes.md` + `python3 tools/patch_notes.py` + `python3 tools/bump_version.py <n>`. Nunca colocar chaves de API no repo. Se não conseguir acessar o repo de contexto, **pare e avise o dono** em vez de adivinhar as regras.
 Sprites novos: o dono gera os sheets e coloca em `sprites_novos/` (só o que ainda não foi processado; depois de usar, `python3 tools/sprites/arquivar_usados.py` move pra `sprites_usados/<grupo>/` com nome claro); o Claude recorta quando ele avisar (prompts de lote vão no chat, gerados por `tools/sprites/gen_prompts_lotes.py`).
 Ferramentas que escrevem doc (`gen_prompts_lotes.py`, `new_ninja.py`) usam `../formacao-shinobi-ctx/docs/` quando existe.
 
@@ -36,7 +36,8 @@ Ferramentas que escrevem doc (`gen_prompts_lotes.py`, `new_ninja.py`) usam `../f
 | `spr/`, `bg/`, `ui/` | atlas + efeitos (`<ninja>_atlas.png`/`_fx.png`), cenários IA 1152x648 (um por missão; menus usam o `sakura`), UI 9-slice |
 | `audio/` | `sfx/*.ogg` (efeitos e ambientes do ElevenLabs), `music/` (faixas, quando ele mandar) |
 | `tools/gen_sfx.py`, `tools/audio/` | gera SFX pela API do ElevenLabs (prompts em `docs/prompts-sfx.md`) → WAV em `tools/audio/src/sfx/` → `convert_sfx.py` → OGG |
-| `tools/test_battle.py` | teste automático com Playwright |
+| `tools/test_battle.py` | teste automático com Playwright (uma missão do mapa) |
+| `js/prova.js`, `tools/prova.py` | **Campo de Provas**: missão-laboratório (modo criativo, tudo manipulável) + impressão digital da luta (hash dos eventos da regra, mesma semente = mesma luta em qualquer velocidade). Rede de segurança do combate; substitui as 5 missões no CI. Mudou o combate de propósito: `--grava`. Ver `tools/README.md` |
 | `tools/qa_gemini.py` | 2ª opinião por visão (Gemini): `strip` (tiras do `qa_anim`), `atlas` (uma chamada por animação), `scene`. Devolve só SUSPEITOS; conferir o quadro antes de agir. Gera `/tmp/gem/gemini.txt` |
 | `tools/sprites/` | pipeline de recorte: `shinobi_atlas.py`, `config/<ninja>.json`, `src/<ninja>/` (sheets originais) |
 | `docs/` | ondas, observações, ninjas, pipeline, prompts de sprite |
