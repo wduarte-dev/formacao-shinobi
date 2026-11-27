@@ -1,5 +1,5 @@
 // O HTML e seus scripts são instalados juntos. Mídia visitada fica em outro cache.
-const APP_VERSION='1.16';
+const APP_VERSION='1.17';
 const CORE='shinobi-core-'+APP_VERSION, MEDIA='shinobi-media-v1';
 const scope=new URL(self.registration.scope);
 const withinScope=url=>url.origin===scope.origin&&url.pathname.startsWith(scope.pathname);
