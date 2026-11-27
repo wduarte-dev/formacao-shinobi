@@ -27,7 +27,7 @@ NINJAS = ['KESHIN', 'KENSHIN', 'MAYOI', 'KAZAN', 'UTSUSHI', 'IWAO', 'FUUKA', 'HI
 # nomes claros ao arquivar (o nome original vem do ChatGPT/GitHub e confunde); o sufixo (.png, _aligned.gif) é preservado
 RENAME = {'Folha de sprites do ninja Kaen': 'KAEN_outros_16', 'Folha de sprites_ ataque flamejante de Kaen': 'KAEN_forte_20',
           'Ninja Kaen em animação de ataque em pixel art': 'KAEN_ataque_16', 'Sequência de Selos do Ninja Kaen': 'KAEN_jutsu_20',
-          'Sequência de aterrissagem do ninja Kaen': 'KAEN_entrada_6', 'Sprite de Kaen em Animação de Salto': 'KAEN_pulo_3',
+          'Sequência de aterrissagem do ninja Kaen': 'KAEN_entrada_6', 'Sprite de Kaen em Animação de Salto': 'KAEN_pulo_3', 'Sequência de Chute Meteórico do Ninja Kaen': 'KAEN_meteoro_20',
           'Folha de Sprites Pixelados de Efeitos': 'kit1_brilhos', 'Sprite de efeitos pixel art monocromáticos': 'kit_teste',
           'Folha de Sprites de Efeitos Pixelados': 'kitA_poeira', 'Sprites de Energia e Cura em Pixel Art': 'kitB_status',
           'Folha de Sprites de Impactos Pixelados': 'kitC_golpes',

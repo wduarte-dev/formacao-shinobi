@@ -29,6 +29,9 @@ Gerado por `python3 tools/sprites/arquivar_usados.py`. **`sprites_novos/` só te
 - KAEN_idle_25_aligned.gif
 - KAEN_jutsu_20.png
 - KAEN_jutsu_20_aligned.gif
+- KAEN_meteoro_20.png
+- KAEN_meteoro_20_aligned.gif
+- KAEN_meteoro_aligned.png
 - KAEN_outros_16.png
 - KAEN_outros_16_aligned.gif
 - KAEN_pulo_3.png

@@ -1,0 +1,9 @@
+{
+ "titulo": "Perseguição do Kaen: Chute Meteoro",
+ "anim": "meteoro",
+ "fps": 16,
+ "pose_contato": 10,
+ "pose_pouso": 14,
+ "alvo_x": 310,
+ "alvo_alt": 45
+}
