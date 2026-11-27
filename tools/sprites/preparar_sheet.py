@@ -65,8 +65,13 @@ def prepare(path, outdir=None, anchor=None, ground=None, cell=None, ms=100):
     print(f"OK {stem}: {n} poses ({C}x{R}), âncora {anchor}/{ground}, célula {cell}, corpo {min(info['heights'])}-{max(info['heights'])} px, GIF com {chk_n} quadros -> {outdir}")
     return dict(poses=n, gif_frames=chk_n, cell=cell, cols=C, rows=R, anchor=anchor, ground=ground, out=outdir)
 
-def watch(folder, **kw):
-    folder = os.path.expanduser(folder); seen = {}; print(f'vigiando {folder} (Ctrl+C pra parar). Saídas em {folder}/sprites_prontos/')
+def watch(folder, existing=False, **kw):
+    folder = os.path.expanduser(folder); seen = {}
+    if not existing:                                                            # por padrão IGNORA o que já está na pasta e só prepara o que chegar depois
+        for fn in os.listdir(folder):
+            p = os.path.join(folder, fn)
+            if os.path.isfile(p): st = os.stat(p); seen[fn] = (st.st_mtime, st.st_size)
+    print(f'vigiando {folder} (Ctrl+C pra parar), {"incluindo o que já está lá" if existing else "só arquivos NOVOS"}. Saídas em {folder}/sprites_prontos/')
     while True:
         for fn in sorted(os.listdir(folder)):
             p = os.path.join(folder, fn); stem, ext = os.path.splitext(fn)
@@ -81,10 +86,10 @@ def watch(folder, **kw):
         time.sleep(2)
 
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); ap.add_argument('files', nargs='*'); ap.add_argument('--watch')
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); ap.add_argument('files', nargs='*'); ap.add_argument('--watch'); ap.add_argument('--tudo', action='store_true', help='com --watch: prepara também os arquivos que JÁ estão na pasta')
     ap.add_argument('--out'); ap.add_argument('--anchor', choices=['feet', 'torso']); ap.add_argument('--ground', choices=['each', 'global']); ap.add_argument('--cell', type=int); ap.add_argument('--ms', type=int, default=100)
     a = ap.parse_args(); kw = dict(outdir=a.out, anchor=a.anchor, ground=a.ground, cell=a.cell, ms=a.ms)
-    if a.watch: watch(a.watch, **kw)
+    if a.watch: watch(a.watch, existing=a.tudo, **kw)
     elif a.files:
         for f in a.files: prepare(os.path.expanduser(f), **kw)
     else: ap.print_help()
