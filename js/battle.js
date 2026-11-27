@@ -97,6 +97,6 @@ function fl(u,txt,cls,impact){const f=document.createElement('div'); f.className
   u.mv.appendChild(f); battleAfter(()=>f.remove(),impact?impact.textMs/speed+100:cls==='ord'?1150:950);}
 function log(html,cls){const l=$('log'), d=document.createElement('div'); if(cls)d.className=cls; d.innerHTML=html; l.appendChild(d); while(l.children.length>7)l.firstChild.remove();}
 const nm=u=>`<span style="color:${u.d.c}">${u.d.name}</span>`;
-function setState(t,s){if(s&&t.d.immuneState){ kazanGuard(t); return; } t.state=s; t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
+function setState(t,s){if(s&&t.d.immuneState){ kazanGuard(t); BUS.emit('estado',{t,s:t.state||'imune'}); return; } t.state=s; if(s)BUS.emit('estado',{t,s:t.state||'imune'}); t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
   if(!s){t.off={x:0,y:0}; t.mv.style.transform='';}}
 function dust(t,n){const p=cur(t); em(n,()=>prt(p.x,p.y,R(-8,8),-R(0,6),R(-2.6,2.6),R(-1.6,-.2),.03,R(14,26),R(4,8),0,pk(['#ffffff','#e8d8b8','#bfae8e']),1));}

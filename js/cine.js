@@ -75,6 +75,7 @@ async function smash(att,t,state){
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Voo sobe alto, Lançado (rasteira) sai do chão baixo, Derrubado desaba no chão
 async function knock(t,state,quietCamera=false){
+  BUS.emit('estado',{t,s:t.d.immuneState?'imune':state});   // knock define o estado sem passar pelo setState
   if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);

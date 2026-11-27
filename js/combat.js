@@ -73,55 +73,32 @@ async function dismissField(){
   if(fieldA?.fx.visual)await transitionField(fieldA.fx.visual,false,clearField);
   else clearField();
 }
-// triângulo elemental (docs/referencia-no.md §15): Fogo>Vento>Raio>Terra>Água>Fogo; Névoa e Gelo herdam Água, Som herda Vento; Espaço e Veneno neutros
-const ELBASE={Fogo:'Fogo','Vento':'Vento',Raio:'Raio',Terra:'Terra','Água':'Água','Névoa':'Água',Gelo:'Água',Som:'Vento'}, ELBEAT={Fogo:'Vento',Vento:'Raio',Raio:'Terra',Terra:'Água','Água':'Fogo'}, ELADV=1.25, ELDIS=.8;
-function elemMul(a,t,el=a.d.el){ const x=ELBASE[el], y=ELBASE[t.d.el]; if(!x||!y)return 1; if(ELBEAT[x]===y)return ELADV; if(ELBEAT[y]===x)return ELDIS; return 1; }
-function damageRoll(atk,def,element,form,aura,mult,field,roll){
-  return Math.max(1,Math.round(element*atk*form*aura*mult*field*(.92+roll*.16)*100/(100+def)));
-}
-// null indica que a Substituição também evitou o estado associado ao contato.
-function landHit(a,t,m,basic,cls,area=false,el,impact){
-  if(t.d.passive==='Substituição'&&t.subRound!==round){
-    const clone=livingClones(t)[0];
-    if(clone){
-      t.subRound=round; sceneAdd(clone); vanishClone(clone); dust(t,8);
-      fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>');
-      hitsR[curSide]++; showHits(); return null;
-    }
-  }
-  const element=el??a.d.el, factor=elemMul(a,t,element);
-  const damage=damageRoll(a.atk,t.def,factor,1+(unl(a)?.uDmg||0),1+(a.power?.dmg||0),m,fieldMul(a,basic),battleRandom());
-  const adv=Math.sign(factor-1);
-  const evt=adv>0?`${element} vence ${t.d.el}`:adv<0?`${t.d.el} resiste a ${element}`:'';
-  return hurt(t,area&&t.owner?Math.max(damage,t.hp+t.shield):damage,cls,{adv,evt,impact});
-}
-function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
-  const cost=cls==='cost';
-  let r=d; if(!pierce&&t.shield>0){const ab=Math.min(t.shield,r); t.shield-=ab; r-=ab; if(t.shield<=0)sfx.sbreak(); else sfx.absorb();}
-  const hp0=t.hp; if(!cost&&cls!=='dot'&&r>0&&t.hp-r>0)sfx.voz(t,'dor',.3);
-  if(cost){
-    t.hp-=r;
+// apresentação do dano (escuta o evento 'dano' da regra em regra.js): som, texto flutuante, tranco, contador, morte
+BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e;
+  if(e.shHit){ if(t.shield<=0)sfx.sbreak(); else sfx.absorb(); }
+  if(cls!=='cost'&&cls!=='dot'&&r>0&&e.hp0-r>0)sfx.voz(t,'dor',.3);
+  if(cls==='cost'){
     if(r>0)fl(t,'-'+r+' PV','dot');
-    if(t.side==='p'&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
-    upd(t); return r;
+    if(t.side==='p'&&e.hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+    upd(t); return;
   }
-  if(r>0&&cls!=='dot'&&t.sleep>0&&t.alive){ t.sleep=0; fl(t,'Acordou','info2'); }
-  t.hp=Math.max(0,t.hp-r); fl(t,r>0?'-'+r:'bloqueou',(cls||'')+(adv>0?' adv':adv<0?' dis':''),impact);
+  if(e.woke)fl(t,'Acordou','info2');
+  fl(t,r>0?'-'+r:'bloqueou',cls+(adv>0?' adv':adv<0?' dis':''),impact);
   if(adv&&r>0&&(!impact||impact.showElement)){
     fl(t,evt,'elem'+(adv>0?' adv':' dis'),impact?{textX:105,textY:-18,textMs:750}:undefined);
   }
   if(!impact){
     const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   }
-  if(cls!=='dot'){hitsR[curSide]++; showHits();}
-  if(t.alive&&t.side==='p'&&t.hp>0&&hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
-  if(t.hp<=0&&t.owner){ vanishClone(t); return r; }
-  if(t.hp<=0&&t.alive){t.alive=false; sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); t.dot=null; clearStatus(t); if(t===mark){mark=null; t.el.classList.remove('mk');} t.stunned=false; t.state=null; t.st.className='st'; setAnim(t,'die');
+  if(cls!=='dot')showHits();
+  if(t.side==='p'&&t.hp>0&&e.hp0>=t.max*.25&&t.hp<t.max*.25)sfx.lowhp();
+  if(e.clone)return;
+  if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.st.className='st'; setAnim(t,'die');
     if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; battleAfter(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
-    refundJutsu(t);}
+  }
   else if(t.alive&&!t.state)setAnim(t,'hurt');
-  upd(t); return r;
-}
+  upd(t); });
+BUS.on('substitui',({t,clone})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(); });
 function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
   if(mode==='random')return fs[Math.floor(battleRandom()*fs.length)];
@@ -217,6 +194,7 @@ async function playContactStrike(u,t,sk,an,contacts,dodged){
   await sleep(160);
 }
 async function doSkill(u,sk,isJ){
+  BUS.emit('acao',{u,sk,isJ});   // vez do ninja (regra.js)
   const battleToken=token;
   curSide=u.side; const dir=u.side==='p'?1:-1;
   try{
@@ -463,6 +441,7 @@ async function landKeshinKick(c,t,put,dir,aim,connected){
   setAnim(c,land,0,true); await sleep(animMs(c,land));
 }
 async function chain(side,t,count,src){
+  BUS.emit('persegue',{side,t,n:count});
   const c=byFormationCell(team(side)).find(x=>canChase(x,t.state));
   if(!c)return;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
@@ -634,7 +613,7 @@ async function run(){
   let res=null, byTime=false, firstInitiative=1; finDone=false;
   try{
     outer: while(true){
-      round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; log('Rodada '+round,'r');
+      round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; BUS.emit('rodada'); log('Rodada '+round,'r');
       if(round>1){
         for(const side of ['p','e']){
           const bonus=fieldA?.side===side?fieldA.fx.chakra||0:0;

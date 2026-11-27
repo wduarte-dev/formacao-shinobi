@@ -39,15 +39,12 @@ function provaApply(){
 // ---------- gravador: eventos da regra (sem tempo, sem DOM) -> impressão digital ----------
 function provaEv(k,o){ if(prova&&U)provaEvs.push({r:round,k,...o}); }
 function provaSnap(){ return all().map(u=>[provaKey(u),u.alive?u.hp:0,u.shield|0,u.state||'',u.dot?u.dot.rounds:0,u.stunned?1:0]); }
-{ const wrap=(name,fn)=>{ const f=globalThis[name]; globalThis[name]=fn(f); };   // embrulha a função global sem mexer no corpo dela
-  // hurt: dano real aplicado (depois do escudo); cls distingue dot/cost
-  wrap('hurt',f=>function(t,d,cls,o){ const sh=t.shield, r=f.apply(this,arguments); provaEv('dano',{t:provaKey(t),d:r,esc:sh-t.shield,cls:cls||'',hp:t.hp}); return r; });
-  wrap('knock',f=>function(t,state){ provaEv('estado',{t:provaKey(t),s:t.d.immuneState?'imune':state}); return f.apply(this,arguments); });   // knock define o estado sem passar pelo setState
-  wrap('setState',f=>function(t,s){ const r=f.apply(this,arguments); if(s)provaEv('estado',{t:provaKey(t),s:t.state||'imune'}); return r; });
-  wrap('doSkill',f=>function(u,sk,isJ){ provaEv('acao',{u:provaKey(u),sk:sk?.name||'',j:isJ?1:0,forte:sk===u.d.strong?1:0}); return f.apply(this,arguments); });
-  wrap('chain',f=>function(side,t,count){ provaEv('persegue',{side,t:provaKey(t),n:count}); return f.apply(this,arguments); });
-  wrap('log',f=>function(text,cls){ if(cls==='r')provaEv('rodada',{ch:[chakra.p,chakra.e],u:provaSnap()}); return f.apply(this,arguments); });
-}
+// escuta os eventos que a regra anuncia (BUS em regra.js); nada de embrulhar função do motor
+BUS.on('dano',e=>provaEv('dano',{t:provaKey(e.t),d:e.d,esc:e.esc,cls:e.cls,hp:e.hp}));   // dano real aplicado (depois do escudo); cls distingue dot/cost
+BUS.on('estado',e=>provaEv('estado',{t:provaKey(e.t),s:e.s}));
+BUS.on('acao',e=>provaEv('acao',{u:provaKey(e.u),sk:e.sk?.name||'',j:e.isJ?1:0,forte:e.sk===e.u.d.strong?1:0}));
+BUS.on('persegue',e=>provaEv('persegue',{side:e.side,t:provaKey(e.t),n:e.n}));
+BUS.on('rodada',()=>provaEv('rodada',{ch:[chakra.p,chakra.e],u:provaSnap()}));
 // resumo + hash (FNV-1a 32 bits, duas passadas) do log de eventos
 function provaDigital(){
   const s=JSON.stringify(provaEvs); let h1=0x811c9dc5, h2=0x01000193;

@@ -3,6 +3,12 @@
 Regra de versão: **atualização grande** sobe o segundo número (1.4 → 1.5); **correção/ajuste pequeno** ganha um terceiro (1.5 → 1.5.1).
 Fluxo: escrever as notas aqui (mais nova em cima) → `python3 tools/patch_notes.py` (gera `js/patch.js`, que a tela **Novidades** do menu lê) → `python3 tools/bump_version.py <versão>` → commit.
 
+## 1.19.2 · 28/11/2026 · Regra de combate separada (fatia 1)
+
+- **Por dentro, nada muda na luta:** o cálculo de dano agora mora em `js/regra.js`, sem tela, sem som e sem espera. A regra anuncia o que aconteceu (dano, vez do ninja, estado, perseguição, rodada) e a tela, o som e o Campo de Provas só escutam.
+- **Teste sem navegador:** `node tools/test_regra.js` confere fórmula, escudo, morte, clones, custo em vida, veneno, sono e Substituição em menos de 1 segundo (entrou no CI).
+- A impressão digital da prova ficou idêntica (mesma luta, evento por evento, em 4 sementes).
+
 ## 1.19.1 · 28/11/2026 · Campo de Provas (laboratório de testes)
 
 - **Campo de Provas** (`js/prova.js`): missão-laboratório fora do mapa, no "modo criativo". Times livres (1 a 9 por lado), qualquer ficha alterável por ninja (chances, esquiva, vida, resistência), semente fixa, iniciativa, chakra, limite de rodadas e velocidade. Não salva progresso nem libera nada.
