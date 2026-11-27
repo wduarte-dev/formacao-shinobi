@@ -24,7 +24,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=ROOT)
     page.route("**/*", lambda route: route.continue_() if route.request.url.startswith(origin + "/")
                else route.fulfill(status=200, body=""))
     page.add_init_script("""localStorage.setItem('shinobi-save', JSON.stringify({
-      unlocked:3, acadDone:[0,0,1.5], lite:false,
+      unlocked:3, acadDone:[0,0,1.5], lite:false, own:['mizuha','raiden'],   // Mizuha e Raiden liberados (checklist do remaster: LOCK em todos menos o Kaen)
       placed:[null,{id:'raiden',row:99,depth:0},{id:'kaen',row:0,depth:0},
         {id:'iwao',row:0,depth:0},{id:'mizuha',row:1,depth:0},{id:'kaen',row:2,depth:0}]
     }));""")

@@ -108,12 +108,14 @@ const ACAD=[
 ].map(c=>({...c,reward:null}));
 const ACAD_FOE={name:'Teste de Perseguição',lvl:'Academia',bg:'dojo',mult:1,ai:1,team:[['mestre',1,0]]};
 // ninjas bloqueados: id -> missão (índice em FOES) que, vencida, libera. O Modo dev (configurações) libera todos.
-const LOCK={poko:2};   // Fuuka/Hiyori/Mayoi/Doku saíram do LOCK em 22/11/2026, depois de regerados no estilo realista. Modo dev libera
+// CHECKLIST DO REMASTER (dono, 28/11/2026): até a v1.0 só o Kaen fica liberado; ninja refeito/regerado no estilo novo → sai daqui.
+// 9 = nenhuma missão libera (aparece '???' na Formação/Galeria, segue como inimigo nas missões). Modo dev e Campo de Provas liberam todos.
+const LOCK={mizuha:9,raiden:9,iwao:9,fuuka:9,mayoi:9,hiyori:9,doku:9,yugami:9,poko:9,utsushi:9,kazan:9,keshin:9};
 
 const FOES=[
  {name:'Patrulha da Névoa',lvl:'Fácil',bg:'sakura',mult:.8,ai:.4,team:[['iwao',1,0],['kaen',0,1],['doku',2,1],['mizuha',1,2]]},
  {name:'Esquadrão Trovão',lvl:'Médio',bg:'santuario',mult:1,ai:.7,team:[['iwao',1,0],['fuuka',0,1],['raiden',2,0],['hiyori',1,2]]},
- {name:'Irmandade do Gelo',lvl:'Médio',bg:'noite',mult:1.05,ai:.85,team:[['hiyori',1,0],['raiden',0,0],['poko',2,1],['mizuha',1,2]],unlock:'poko'},
+ {name:'Irmandade do Gelo',lvl:'Médio',bg:'noite',mult:1.05,ai:.85,team:[['hiyori',1,0],['raiden',0,0],['poko',2,1],['mizuha',1,2]]},   // unlock:'poko' saiu (checklist do remaster: Poko só volta refeito)
  {name:'Guarda Sombria',lvl:'Difícil',bg:'floresta',mult:1.15,ai:1,team:[['iwao',1,0],['fuuka',0,2],['kaen',2,0],['mayoi',1,1]]},
  {name:'Mestres das Cinzas',lvl:'Muito difícil',bg:'cinzas',mult:1.3,ai:1,team:[['iwao',1,0],['kaen',0,0],['mayoi',2,1],['hiyori',1,2]]}
 ];
