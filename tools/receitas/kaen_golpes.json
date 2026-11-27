@@ -1,0 +1,20 @@
+{
+ "titulo": "Golpes do Kaen (com Bitmapflow)",
+ "alvo": "iwao",
+ "golpes": [
+  {"nome": "Ataque básico: dois cortes", "anim": "ataque", "fps": 40, "corpo_px": 108, "contatos": [
+    {"pose": 5, "hitstop": 70, "dano": "64", "dano_dx": -16, "dano_dy": 6, "dano_vida": 0.5, "flinch": 5, "efeitos": [
+      {"folha": "kitC", "linha": 0, "inicio": -0.15, "fps": 18, "pal": "steel", "ancora": "corpo", "dx": 52, "dy": -76, "esc": 0.62, "rot": -0.05},
+      {"folha": "kitC", "linha": 3, "inicio": 0, "fps": 20, "pal": "fire", "ancora": "ponta", "dx": 16, "dy": 0, "esc": 0.5},
+      {"folha": "kitC", "linha": 2, "inicio": -0.02, "fps": 22, "pal": "fire", "ancora": "ponta", "dx": 22, "dy": 0, "esc": 0.34}]},
+    {"pose": 10, "hitstop": 70, "dano": "88", "dano_dx": 28, "dano_dy": -18, "flinch": 7, "efeitos": [
+      {"folha": "kitC", "linha": 0, "inicio": -0.14, "fps": 18, "pal": "steel", "ancora": "corpo", "dx": 60, "dy": -52, "esc": 0.58, "rot": 0.6, "sy": -1},
+      {"folha": "kitC", "linha": 3, "inicio": 0, "fps": 20, "pal": "fire", "ancora": "corpo", "dx": 98, "dy": -52, "esc": 0.55, "rot": 0.7},
+      {"folha": "kitC", "linha": 2, "inicio": -0.02, "fps": 22, "pal": "fire", "ancora": "corpo", "dx": 104, "dy": -52, "esc": 0.4}]}]},
+  {"nome": "Golpe forte: corte flamejante", "anim": "forte", "fps": 36, "corpo_px": 108, "contatos": [
+    {"pose": 11, "hitstop": 100, "dano": "212", "dano_dx": 2, "flinch": 16, "squash": true, "efeitos": [
+      {"folha": "kitC", "linha": 0, "inicio": -0.16, "fps": 18, "pal": "fire", "ancora": "corpo", "dx": 58, "dy": -66, "esc": 0.66, "rot": 1.25},
+      {"folha": "kitC", "linha": 3, "inicio": 0, "fps": 18, "pal": "fire", "ancora": "ponta", "dx": 14, "dy": -22, "esc": 0.7, "rot": 0.3},
+      {"folha": "kitC", "linha": 2, "inicio": -0.02, "fps": 20, "pal": "fire", "ancora": "ponta", "dx": 22, "dy": -28, "esc": 0.62}]}]}
+ ]
+}
