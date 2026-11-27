@@ -1,0 +1,21 @@
+sheet,frame,detector,defeito,motivo,veredito,data
+R04,2,gemini,verde_no_sprite,vazamento de verde (#00FF00) visível na parte inferior das faixas roxas nas cost,s,2026-11-26
+R10,6,gemini,verde_no_sprite,resquicio de verde no cachecol,s,2026-11-26
+R09,1,controle,controle,,s,2026-11-26
+R05,4,gemini,corpo_translucido,Efeito translúcido na parte inferior da roupa.,n,2026-11-26
+R03,7,gemini,acessorio_faltando,A lanterna está sem a borboleta ou efeito de luz pendurado na base que aparece n,n,2026-11-26
+R09,4,local:verde_halo,verde_no_sprite,tom verde 245 px (mediana do sheet 115),s,2026-11-26
+R10,3,gemini,corpo_translucido,O cachecol e parte do corpo estão semitransparentes/fantasmas na esquerda.,n,2026-11-26
+R07,3,gemini,acessorio_faltando,A lanterna/cajado sumiu das mãos do personagem,n,2026-11-26
+R05,7,controle,controle,,s,2026-11-26
+R01,6,controle,controle,,n,2026-11-26
+R07,5,gemini,membro_duplicado,Há uma mão extra flutuando abaixo do braço estendido.,n,2026-11-26
+R01,3,gemini,acessorio_faltando,lanterna sumiu do cabo,n,2026-11-26
+R06,3,gemini,acessorio_faltando,A lanterna que o personagem segurava sumiu e aparece presa ao cajado de forma in,n,2026-11-26
+R08,6,gemini,acessorio_duplicado,A lanterna aparece pendurada na mão e também na cintura.,n,2026-11-26
+R07,2,local:verde_halo,verde_no_sprite,tom verde 160 px (mediana do sheet 65),n,2026-11-26
+R10,7,gemini,verde_no_sprite,resquicio de verde no cachecol,s,2026-11-26
+R02,6,gemini,verde_no_sprite,"Pixels verdes isolados no meio das borboletas roxas. | dono: não é verde, mas a mão esquerda está dentro do corpo e não aparece (mao_escondida)",n,2026-11-26
+R02,7,controle,controle,"dono: SIM, a mão: IA 'emenda' a mão com acessório/corpo (mao_emendada)",s,2026-11-26
+R11,5,controle,controle,"dono: parcial: sobra o vão entre o laço/cachecol e o vestido, que deveria ter sido removido (vao_fundo)",s,2026-11-26
+R09,3,gemini,acessorio_faltando,"A lanterna sumiu da mão direita do personagem neste quadro. | dono: nada de acessório faltando, mas mãos emendadas e sujeira fora do sprite (mao_emendada; sujeira_fora)",n,2026-11-26

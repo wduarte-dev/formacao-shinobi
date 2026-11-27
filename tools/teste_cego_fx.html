@@ -1,0 +1,154 @@
+<title>Teste Cego de Efeitos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: uma coluna, um cartão por efeito, A e B lado a lado em palco escuro (fundo de batalha). */
+:root{--bg:#14110f;--panel:#1e1916;--line:#3a312b;--fg:#f1e7da;--mut:#a39382;--accent:#ff8a2a;--good:#7bd88f;--stage:#2a2a22;--ground:#4a4636;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Inter",system-ui,sans-serif;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font:700 26px/1.2 "Space Grotesk",system-ui,sans-serif;margin:0;text-wrap:balance}
+p{margin:0;color:var(--mut)}
+.top{display:flex;flex-direction:column;gap:8px}
+.speed{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:13px}
+.speed button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit}
+.speed button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font:600 15px/1.3 "Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.pair{display:flex;gap:12px;flex-wrap:wrap}
+.box{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:8px;align-items:center}
+.stage{width:100%;max-width:256px;aspect-ratio:1;background:linear-gradient(#34382d,var(--stage) 78%,var(--ground) 78%);border-radius:8px;position:relative;overflow:hidden}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.tag{font:600 13px "Space Grotesk",sans-serif;color:var(--mut)}
+.tag b{color:var(--fg);font-size:18px;margin-right:6px}
+.reveal{color:var(--accent);font-weight:600;min-height:1.4em}
+.votes{display:flex;gap:8px;flex-wrap:wrap}
+.votes button{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;font:inherit}
+.votes button:hover{border-color:var(--accent)}
+.votes button[aria-pressed=true]{background:var(--accent);color:#1b0d05;border-color:var(--accent);font-weight:600}
+.votes button:focus-visible,.speed button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.result{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.result pre{margin:0;white-space:pre-wrap;color:var(--fg);font:14px/1.5 ui-monospace,monospace}
+@media (prefers-reduced-motion:reduce){.stage canvas{animation:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<main>
+ <div class="top">
+  <h1>Teste cego de efeitos</h1>
+  <p>Quatro efeitos, cada um com duas versões (A e B) na mesma cor, tamanho e duração. Escolha a que você usaria no jogo. Quem é sprite e quem é código só aparece depois do último voto.</p>
+  <div class="speed"><span>Velocidade</span><button id="s1" aria-pressed="true">1x</button><button id="s2" aria-pressed="false">0,5x</button></div>
+ </div>
+ <div id="cards"></div>
+ <div class="result" id="result" hidden><h2 style="margin:0;font:600 15px 'Space Grotesk',sans-serif">Resultado</h2><pre id="resTxt"></pre><p>Copie esse texto e cole no chat.</p></div>
+</main>
+<script>
+(function(){
+var NAMES=['Anel de choque','Setas de buff','Estrelas tontas','Poeira de pouso'];
+var STOPS=[[0,[42,13,8]],[.35,[122,42,18]],[.65,[232,116,42]],[.9,[255,199,102]],[1,[255,244,207]]];
+var PAL={dk:'#2a0d08',sh:'#7a2a12',md:'#e8742a',lt:'#ffc766',hi:'#fff4cf'};
+function gmap(l){for(var i=1;i<STOPS.length;i++){if(l<=STOPS[i][0]){var a=STOPS[i-1],b=STOPS[i],k=(l-a[0])/(b[0]-a[0]);return [0,1,2].map(function(c){return a[1][c]+(b[1][c]-a[1][c])*k})}}return STOPS[4][1]}
+var D=0.9,P=1.3,speed=1;
+var img=new Image(),frames=[],ready=false;
+function ease(x){return x<0?0:x>1?1:x*x*(3-2*x)}
+function eo(x){x=Math.max(0,Math.min(1,x));return 1-(1-x)*(1-x)}
+function cl(x){return Math.max(0,Math.min(1,x))}
+/* ---------- versão sprite: recorta e pinta o sheet ---------- */
+function buildFrames(){
+ for(var r=0;r<4;r++){frames[r]=[];for(var c=0;c<6;c++){
+  var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');
+  g.imageSmoothingEnabled=false;g.drawImage(img,c*256,r*256,256,256,0,0,256,256);
+  var d=g.getImageData(0,0,256,256),p=d.data;
+  for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255;var m=gmap(l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}
+  g.putImageData(d,0,0);frames[r][c]=cv}}
+ ready=true}
+function drawSprite(ctx,e,t){
+ ctx.clearRect(0,0,256,256);
+ var f=Math.min(5,Math.floor(t*6)),s=.94+.12*t,fade=t>.88?1-(t-.88)/.12:1;
+ ctx.imageSmoothingEnabled=false;ctx.globalAlpha=Math.max(0,fade);
+ ctx.save();var ay=(e==3)?256:128;ctx.translate(128,ay);ctx.scale(s,s);ctx.translate(-128,-ay);
+ ctx.drawImage(frames[e][f],0,0);ctx.restore();ctx.globalAlpha=1}
+/* ---------- versão código: desenho em grade 64x64 ---------- */
+function mk(g){
+ var o={};
+ o.px=function(x,y,c){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),1,1)};
+ o.rect=function(x,y,w,h,c){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),w,h)};
+ o.disc=function(cx,cy,r,c){g.fillStyle=c;r=Math.max(0,r);var R=Math.ceil(r);for(var y=-R;y<=R;y++)for(var x=-R;x<=R;x++)if(x*x+y*y<=r*r+.3)g.fillRect(Math.round(cx)+x,Math.round(cy)+y,1,1)};
+ o.ring=function(cx,cy,r,th,c){g.fillStyle=c;var n=Math.max(16,Math.ceil(r*8));for(var i=0;i<n;i++){var a=i/n*6.2832;for(var k=0;k<th;k++){var rr=r-k;g.fillRect(Math.round(cx+Math.cos(a)*rr),Math.round(cy+Math.sin(a)*rr),1,1)}}};
+ return o}
+var STAR=['....#....','...###...','...###...','#########','.#######.','..#####..','..##.##..','.##...##.','.#.....#.'];
+function star(o,cx,cy,col){
+ var pts=[];for(var y=0;y<9;y++)for(var x=0;x<9;x++)if(STAR[y][x]=='#')pts.push([x-4,y-4]);
+ var set={};pts.forEach(function(p){set[p[0]+','+p[1]]=1});
+ pts.forEach(function(p){[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var k=(p[0]+d[0])+','+(p[1]+d[1]);if(!set[k])o.px(cx+p[0]+d[0],cy+p[1]+d[1],PAL.dk)})});
+ pts.forEach(function(p){o.px(cx+p[0],cy+p[1],col)});o.px(cx-1,cy-1,PAL.hi);o.px(cx,cy-2,PAL.hi)}
+function chev(o,cx,y,hw,col){
+ for(var i=0;i<=hw+1;i++)for(var t=-1;t<=4;t++){o.px(cx-i,y+i+t,PAL.dk);o.px(cx+i,y+i+t,PAL.dk)}
+ for(var i2=0;i2<=hw;i2++)for(var t2=0;t2<4;t2++){o.px(cx-i2,y+i2+t2,col);o.px(cx+i2,y+i2+t2,col)}
+ for(var j=0;j<=hw;j++){o.px(cx-j,y+j,PAL.hi);o.px(cx+j,y+j,PAL.hi)}}
+function fx(o,g,e,t){
+ g.clearRect(0,0,64,64);
+ if(e==0){
+  if(t<.68){var u=t/.68,r=3+23*eo(u),th=Math.max(1,Math.round(3-2*u));
+   o.ring(32,32,r+1,th+2,PAL.dk);o.ring(32,32,r,th,PAL.lt);if(th>1)o.ring(32,32,r,1,PAL.hi);}
+  else{var w=(t-.68)/.32,n=10;for(var i=0;i<n;i++){var a=i/n*6.2832+.2,rr=25+4*eo(w),len=Math.max(0,(1-w*1.6)*5),sz=w>.6?1:2;
+    for(var k=0;k<=len;k++){var aa=a+k/rr;o.rect(32+Math.cos(aa)*rr-1,32+Math.sin(aa)*rr-1,sz+1,sz+1,PAL.dk);}
+    for(var k2=0;k2<=len;k2++){var a2=a+k2/rr;o.rect(32+Math.cos(a2)*rr,32+Math.sin(a2)*rr,sz,sz,PAL.lt)}}}
+ }else if(e==1){
+  var cols=[PAL.hi,PAL.lt,PAL.md],gy=50-34*ease(t),hw=Math.round(11-6*cl((t-.62)/.38));
+  for(var i3=2;i3>=0;i3--){if(t<(2-i3)*.1)continue;chev(o,32,gy+i3*9,hw,cols[i3]);}
+ }else if(e==2){
+  var A=6.2832*t,list=[];for(var k3=0;k3<3;k3++){var a3=A+k3*2.0944;list.push({x:32+22*Math.cos(a3),y:34+8.5*Math.sin(a3),d:Math.sin(a3),a:a3})}
+  list.forEach(function(s){for(var q=1;q<14;q++){var at=s.a-q*.1,x2=32+22*Math.cos(at),y2=34+8.5*Math.sin(at);o.rect(x2,y2,2,1,q<7?PAL.md:PAL.sh)}});
+  list.sort(function(a,b){return a.d-b.d});list.forEach(function(s){star(o,s.x,s.y,s.d>0?PAL.lt:PAL.md)});
+ }else{
+  var gy2=58,N=12;
+  for(var b=0;b<N;b++){var dir=(b%2?1:-1),f=.12+(b>>1)*.15,sz2=3+((b*7)%4)*1.3,dl=(b%3)*.04,u2=cl((t-dl)/(1-dl));
+   var gr=u2<.3?.3+.7*(u2/.3):1-.8*cl((u2-.3)/.7),rad=sz2*gr;if(rad<.6)continue;
+   var sx=32+dir*f*27*eo(u2),by=gy2-rad*.8-(6+(b%4)*3.5)*eo(u2)*(1-f*.5)*(u2>.6?1-(u2-.6)*1.2:1);
+   o.disc(sx,by,rad+1,PAL.dk);o.disc(sx,by,rad,PAL.lt);o.disc(sx+rad*.25,by+rad*.3,rad*.55,PAL.md);o.disc(sx-rad*.3,by-rad*.35,rad*.3,PAL.hi);}
+ }}
+/* ---------- página ---------- */
+var cards=document.getElementById('cards'),boxes=[],votes=[null,null,null,null];
+cards.style.cssText='display:flex;flex-direction:column;gap:20px';
+for(var e=0;e<4;e++)(function(e){
+ var flip=Math.random()<.5,order=flip?['code','sprite']:['sprite','code'];
+ var card=document.createElement('section');card.className='card';
+ card.innerHTML='<h2>Efeito '+(e+1)+' de 4</h2><div class="pair"></div><div class="votes"></div>';
+ var pair=card.querySelector('.pair'),vb=card.querySelector('.votes');
+ order.forEach(function(kind,i){
+  var box=document.createElement('div');box.className='box';
+  var st=document.createElement('div');st.className='stage';
+  var cv=document.createElement('canvas');var sz=kind=='code'?64:256;cv.width=sz;cv.height=sz;st.appendChild(cv);
+  var tag=document.createElement('div');tag.className='tag';tag.innerHTML='<b>'+'AB'[i]+'</b>';
+  var rv=document.createElement('div');rv.className='reveal';
+  box.appendChild(st);box.appendChild(tag);box.appendChild(rv);pair.appendChild(box);
+  boxes.push({e:e,kind:kind,ctx:cv.getContext('2d'),rv:rv,letter:'AB'[i]})});
+ [['A',order[0]],['B',order[1]],['Tanto faz','tie']].forEach(function(o,i){
+  var b=document.createElement('button');b.textContent=i<2?'Prefiro '+o[0]:o[0];b.setAttribute('aria-pressed','false');
+  b.onclick=function(){votes[e]=o[1];[].forEach.call(vb.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');check()};
+  vb.appendChild(b)});
+ cards.appendChild(card)})(e);
+function label(k){return k=='sprite'?'sprite + c\u00f3digo':k=='code'?'c\u00f3digo puro':'empate'}
+function check(){
+ if(votes.some(function(v){return v===null}))return;
+ boxes.forEach(function(b){b.rv.textContent=label(b.kind)});
+ var s=0,c=0,t=0,lines=votes.map(function(v,i){if(v=='sprite')s++;else if(v=='code')c++;else t++;return NAMES[i]+': '+label(v)});
+ document.getElementById('resTxt').textContent=lines.join('\n')+'\n\nPlacar: sprite '+s+' x código '+c+' (empates '+t+')';
+ var r=document.getElementById('result');r.hidden=false;r.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function setSpeed(v){speed=v;document.getElementById('s1').setAttribute('aria-pressed',v==1);document.getElementById('s2').setAttribute('aria-pressed',v!=1)}
+document.getElementById('s1').onclick=function(){setSpeed(1)};document.getElementById('s2').onclick=function(){setSpeed(.5)};
+var helpers=boxes.map(function(b){return b.kind=='code'?mk(b.ctx):null});
+var t0=performance.now(),clock=0,last=t0;
+function loop(now){
+ clock+=(now-last)/1000*speed;last=now;
+ var ph=(window.__t!==undefined)?window.__t:(clock%P)/D, t=Math.min(1,ph);
+ var hold=ph>1;
+ boxes.forEach(function(b,i){
+  if(hold){b.ctx.clearRect(0,0,256,256);return}
+  if(b.kind=='sprite'){if(ready)drawSprite(b.ctx,b.e,t)}
+  else fx(helpers[i],b.ctx,b.e,t)});
+ requestAnimationFrame(loop)}
+img.onload=function(){buildFrames()};
+img.src='kit_teste.png';
+requestAnimationFrame(function(n){last=n;requestAnimationFrame(loop)});
+})();
+</script>

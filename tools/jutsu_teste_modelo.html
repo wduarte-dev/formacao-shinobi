@@ -1,0 +1,154 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste de jutsu</title>
+<style>
+:root{--bg:#14110f;--panel:#1e1916;--line:#3a312b;--fg:#f1e7da;--mut:#a39382;--accent:#ff8a2a;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;padding:24px 16px 56px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}h1{font-size:26px;margin:0}p{margin:0;color:var(--mut)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--mut);font-size:13px}
+button{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;font:inherit}
+button[aria-pressed=true]{background:var(--accent);color:#1b0d05;border-color:var(--accent);font-weight:600}
+canvas{width:100%;max-width:720px;aspect-ratio:480/300;border-radius:8px;image-rendering:pixelated;background:#222;align-self:center}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.votes{display:flex;gap:8px;flex-wrap:wrap}textarea{width:100%;min-height:60px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+.result{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px}.result pre{margin:0;white-space:pre-wrap}
+</style>
+<main>
+ <div><h1 id="tit"></h1><p>O ninja fica parado no selo montado até executar. O dragão sai das mãos em peças, cruza a fileira, bate nos alvos e no chão e se desintegra peça por peça. Gerado por <code>tools/jutsu_teste.py</code>.</p></div>
+ <div class="card">
+  <canvas id="cv" width="480" height="300"></canvas>
+  <div class="ctl"><span>Velocidade</span><button id="s1" aria-pressed="true">1x</button><button id="s2" aria-pressed="false">0,5x</button><button id="s3" aria-pressed="false">0,25x</button></div>
+  <div class="votes" id="vb"></div><textarea id="ta" placeholder="O que mudar? (opcional)"></textarea>
+ </div>
+ <div class="result" id="result" hidden><pre id="resTxt"></pre><p>Copie esse texto e cole no chat.</p></div>
+</main>
+<script>
+(function(){
+var D=__DATA__,W=480,H=300,GY=D.gy,KX=D.kx,DR=D.dragao;
+var PALS={brasa:[[0,[44,12,8]],[.35,[118,34,20]],[.65,[206,76,34]],[.9,[250,152,72]],[1,[255,226,172]]],
+ earth:[[0,[36,26,16]],[.35,[90,70,48]],[.65,[160,134,96]],[.9,[216,196,154]],[1,[255,243,214]]]};
+function gm(st,l){for(var i=1;i<st.length;i++){if(l<=st[i][0]){var a=st[i-1],b=st[i],k=(l-a[0])/(b[0]-a[0]);return [0,1,2].map(function(c){return a[1][c]+(b[1][c]-a[1][c])*k})}}return st[st.length-1][1]}
+function cl(x,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?1:b,x))}
+function eo(x){x=cl(x);return 1-(1-x)*(1-x)}function es(x){x=cl(x);return x*x*(3-2*x)}
+var NAMES=['cabeca','corpo','cauda','cabeca_desintegra','corpo_desintegra','cauda_desintegra','impacto_chao','fragmentos','fogo_crista','fogo_corpo','fogo_cauda','brasas','impacto_brasa','queima_loop','chuva_brasa','fogo_chao'];
+var IM={},need=[],loaded=0,ready=false;
+function load(k,src){need.push(k);var i=new Image();i.onload=function(){if(++loaded==need.length)ready=true};i.src=src;IM[k]=i}
+load('kaen','kaen.png');load('frente','frente.png');load('invoc','invoc.png');load('alvo','alvo.png');load('kitA','fx_kitA.png');NAMES.forEach(function(n){load(n,'p_'+n+'.png')});
+var TC={};
+function frame(name,col,pal){var key=name+col+pal;if(TC[key])return TC[key];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+ g.drawImage(IM[name],col*256,0,256,256,0,0,256,256);if(pal&&pal!=='none'){var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal];for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0)}
+ TC[key]=cv;return cv}
+var IFC={};function ifr(row,f){var k=row+'_'+f;if(IFC[k])return IFC[k];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(IM.invoc,f*256,row*256,256,256,0,0,256,256);IFC[k]=cv;return cv}
+function sI(c,row,tau,fps,x,y,sc,o){o=o||{};if(tau<0)return;var f=o.f!==undefined?o.f:Math.floor(tau*fps);if(f>5){if(!o.loop)return;f%=6}c.save();c.translate(x,y);c.scale(sc,sc);c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;c.drawImage(ifr(row,f),-128,o.bottom?-246:-128);c.restore()}
+var FFC={};function ffr(f){var k='f'+f;if(FFC[k])return FFC[k];var cw=IM.frente.width/2,ch=IM.frente.height/3,cv=document.createElement('canvas');cv.width=cw;cv.height=ch;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(IM.frente,(f%2)*cw,Math.floor(f/2)*ch,cw,ch,0,0,cw,ch);
+ var d=g.getImageData(0,0,cw,ch),p=d.data,st=PALS.brasa;for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0);FFC[k]=cv;return cv}
+function kitFrame(row,col,pal){pal=pal||'earth';var key='kA'+row+col+pal;if(TC[key])return TC[key];var cv=document.createElement('canvas');cv.width=256;cv.height=256;var g=cv.getContext('2d');g.imageSmoothingEnabled=false;
+ g.drawImage(IM.kitA,col*256,row*256,256,256,0,0,256,256);var d=g.getImageData(0,0,256,256),p=d.data,st=PALS[pal];for(var i=0;i<p.length;i+=4){if(!p[i+3])continue;var l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)/255,m=gm(st,l);p[i]=m[0];p[i+1]=m[1];p[i+2]=m[2]}g.putImageData(d,0,0);TC[key]=cv;return cv}
+/* peça: ancora (ax,ay) em coordenadas da célula 256, posição (x,y) no palco */
+function piece(c,cv,x,y,sc,rot,ax,ay,o){o=o||{};c.save();c.translate(x,y);c.rotate(rot||0);c.scale(sc*(o.fx||1),sc);c.globalAlpha=o.a===undefined?1:o.a;c.imageSmoothingEnabled=false;c.drawImage(cv,-ax,-ay);c.restore()}
+/* geometria do dragão */
+var P=D.pecas,sc=DR.escala,bodyEsp=(P.corpo.espL+P.corpo.espR)/2;
+var sH=sc*bodyEsp/P.cabeca.espL,sT=sc*bodyEsp/P.cauda.espR;
+var Lb=(P.corpo.r-P.corpo.l)*sc,Lt=(P.cauda.r-P.cauda.l)*sT,N=DR.segmentos;
+var aH=[P.cabeca.l,P.cabeca.cyL],aB=[(P.corpo.l+P.corpo.r)/2,(P.corpo.cyL+P.corpo.cyR)/2],aT=[P.cauda.r,P.cauda.cyR];
+var TARG=[300,352,404],Lh=(P.cabeca.r-P.cabeca.l)*sH,tipOff=Lh*.85,x0=D.ponta[0]+4,y0=D.ponta[1];
+/* caminho em COMPRIMENTO DE ARCO: (1) travessia horizontal rápida pela fileira e saída da tela; (2) reentrada por CIMA e queda vertical (mais rápida) */
+var vA=1100,vB=1700,XE=W+260,Gx=Lh+N*Lb+Lt+120,D1=(XE-x0)+Gx,XS=TARG[Math.min(1,D.alvos-1)],YS0=-(Lh+80),yEnd=GY-Lh+6,D2=yEnd-YS0,Lend=D1+D2;
+function pathAt(L){if(L<=D1)return [x0+L,y0-8*Math.sin(L*.01)];return [XS,YS0+(L-D1)]}
+function angAt(L){if(L<=D1)return Math.atan(-.08*Math.cos(L*.01));return Math.PI/2}
+var tArm=.7,tR=tArm+(D.liberacao-D.armado)/D.fps,tTP=tR+D1/vA,tSlam=tTP+D2/vB;
+function Lof(t){if(t<=tR)return 0;if(t<tTP)return vA*(t-tR);return D1+vB*(t-tTP)}
+function dieOf(sv){return tSlam+sv/(vB*.8)}   // desintegra peça por peça (cabeça, depois corpo, depois cauda)
+var tauT=N*Lb/vA,RECOIL=30;
+var hitG=TARG.slice(0,D.alvos).map(function(x){return tR+(x-tipOff-x0)/vA});
+var CUT=1.0;var STOPS=[{t:tR,d:CUT}].concat(hitG.map(function(t){return {t:t,d:.08}})).concat([{t:tSlam,d:.16}]);
+function tgOf(T){var p=T,acc=0;STOPS.forEach(function(s){var w=s.t+acc;p-=Math.min(Math.max(T-w,0),s.d);acc+=s.d});return p}
+function Wof(te){var acc=0;STOPS.forEach(function(s){if(s.t<=te)acc+=s.d});return te+acc}
+var LEN=tSlam+(N*Lb+Lt)/(vB*.8)+.5+2.4+.4+CUT+.4;
+/* alvos e utilidades */
+var IW={idle:[0,8,8,1],hurt:[5,3,10,0]};
+function alvo(c,an,tau,x,o){var a=IW[an],f=Math.floor(Math.max(0,tau)*a[2]);f=a[3]?f%a[1]:Math.min(a[1]-1,f);c.save();c.translate(x,GY);c.scale(-1*(o.sx||1),1*(o.sy||1));c.imageSmoothingEnabled=false;c.drawImage(IM.alvo,f*192,a[0]*160,192,160,-96,-150,192,160);c.restore()}
+function kaen(c,f,dx){var cell=D.cell,col=f%D.cols,row=Math.floor(f/D.cols);c.save();c.translate(KX+(dx||0),GY);c.scale(D.s,D.s);c.imageSmoothingEnabled=false;c.drawImage(IM.kaen,col*cell,row*cell,cell,cell,-cell/2,-D.foot,cell,cell);c.restore()}
+function stage(c){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d4636');g.addColorStop(.7,'#2c3326');g.addColorStop(.7,'#4d4a38');g.addColorStop(1,'#3a3829');c.fillStyle=g;c.fillRect(0,0,W,H);c.fillStyle='rgba(0,0,0,.18)';for(var i=0;i<9;i++)c.fillRect(i*60+((i*37)%20),GY+10+((i*53)%40),26,2)}
+function dmg(c,tau,x,y,txt,big){var life=big?1.1:.9;if(tau<0||tau>life)return;var k=tau/life;c.save();c.textAlign='center';c.font='bold '+(big?30:24)+'px sans-serif';var s=1+.5*Math.exp(-tau*14)*Math.cos(tau*18),al=k>.7?1-(k-.7)/.3:1;c.translate(x,y-30*eo(k*1.4));c.scale(s,s);c.globalAlpha=al;c.lineWidth=5;c.strokeStyle='#2a0d08';c.strokeText(txt,0,0);c.fillStyle='#fff4cf';c.fillText(txt,0,0);c.restore()}
+function strip(c,name,tau,fps,x,y,sc2,o){o=o||{};if(tau<0)return;var f=Math.floor(tau*fps);if(f>5){if(!o.loop)return;f=f%6}piece(c,frame(name,f,o.pal||'none'),x,y,sc2,o.rot,128,o.bottom?246:128,o)}
+function draw(c,T){stage(c);var t=tgOf(T),h1=tR+tauT+.2,Lw=Lof(t);
+ var kxo=function(tt){if(tt<=tR)return 0;if(tt<=h1)return -RECOIL*eo((tt-tR)/(h1-tR));return -RECOIL*(1-es((tt-h1)/.5))};
+ // alvos: reagem ao focinho (travessia) e, bem mais forte, à queda vertical
+ var tauS=T-Wof(tSlam);
+ TARG.slice(0,D.alvos).forEach(function(x,j){var tau=T-Wof(hitG[j]),big=tauS>=0,tt=big?tauS:tau,off=0,sq=0;if(tt>=0){var amp=big?18:10;off=amp*Math.exp(-tt*9)*(1-Math.exp(-tt*40));sq=(big?1.6:1)*Math.exp(-tt*10)*Math.cos(tt*26)}
+  alvo(c,tt>=0&&tt<.34?'hurt':'idle',tt>=0?tt:t,x+off,{sx:.85*(1+.12*sq),sy:.85*(1-.1*sq)})});
+ // fogo no chão e queima nos alvos ficam ATRÁS do dragão pra desintegração aparecer
+ if(tauS>=0)strip(c,'fogo_chao',tauS,10,XS,GY+8,.72,{bottom:1,loop:1,a:.8*(tauS>1.7?Math.max(0,1-(tauS-1.7)/.5):1)});
+ TARG.slice(0,D.alvos).forEach(function(x,j){var tau=T-Wof(hitG[j]),tb=tauS>=0?tauS:tau,burnS=tauS>=0?.55:.5;
+  if(tb>=0&&tb<1.9){var fa=(tb>1.55?1-(tb-1.55)/.35:1);strip(c,'queima_loop',tb,10,x,GY+4,burnS,{loop:1,bottom:1,a:.85*fa});strip(c,'fogo_chao',tb,10,x,GY+4,.4,{loop:1,bottom:1,a:.8*fa});strip(c,'chuva_brasa',tb,8,x,GY-55,.5,{loop:1,a:.75*fa})}});
+ for(var i=0;i*.07<h1-tR;i++){var te=tR+i*.07,td=T-Wof(te);if(td>=0){var df=Math.floor(td*14);if(df<=5)piece(c,kitFrame(0,df),KX+kxo(te)-14,GY+6,.38,0,128,246,{fx:-1})}}
+ var f;if(t<tArm)f=D.armado;else if(t<tR)f=D.armado+Math.floor((t-tArm)*D.fps);else if(t<h1)f=D.liberacao;else f=Math.min(D.n-1,D.liberacao+Math.floor((t-h1)*D.fps));
+ kaen(c,f,kxo(t));
+ // invocação nas mãos: concentra enquanto as mãos abrem; portal e cone ficam abertos enquanto o dragão sai; fecham
+ var t0=T-Wof(tR),tg0=T-Wof(tR-.35),emDur=Wof(h1)-Wof(tR);
+ if(tg0>=0&&tg0<.35)sI(c,2,tg0,12,x0-6,y0,.36,{loop:1,a:.95});
+ if(t0>=0&&t0<emDur+.3){var fo=t0>emDur?1-(t0-emDur)/.3:1;
+  var fr1=t0<.25?Math.floor(t0*12):(t0<emDur?3+Math.floor((t0-.25)*10)%2:5);
+  var fr0=t0<.25?Math.floor(t0*12):(t0<emDur?2+Math.floor((t0-.25)*10)%2:Math.min(5,4+Math.floor((t0-emDur)*10)));
+  sI(c,1,t0,12,x0+8,y0-4,.52,{f:fr1,a:fo});sI(c,0,t0,12,x0+30,y0-6,.5,{f:fr0,a:.9*fo});strip(c,'brasas',t0,10,x0-4,y0,.4,{loop:1,a:.8*fo})}
+ // dragão: peças por comprimento de arco (s = distância atrás do pescoço); morrem só na batida vertical
+ var ph=Math.floor(T*12);
+ var sTail=N*Lb,LpT=Lw-sTail;
+ if(LpT>0){var lc=Math.min(LpT,Lend),p=pathAt(lc),r=angAt(lc),dT=dieOf(sTail);
+  if(t<dT){piece(c,frame('fogo_cauda',(ph+1)%6,'none'),p[0],p[1],sT,r,aT[0],aT[1],{a:.9});piece(c,frame('cauda',(ph+3)%6,'brasa'),p[0],p[1],sT,r,aT[0],aT[1])}
+  else if((t-dT)*12<=5.99)piece(c,frame('cauda_desintegra',Math.floor((t-dT)*12),'brasa'),p[0],p[1],sT,r,aT[0],aT[1])}
+ for(var k=N-1;k>=0;k--){var sk=(k+.5)*Lb,Lk=Lw-sk;if(Lk<=0)continue;var lk=Math.min(Lk,Lend),p2=pathAt(lk),r2=angAt(lk),die=dieOf(sk);
+  if(t<die){piece(c,frame('fogo_corpo',(ph+k+2)%6,'none'),p2[0],p2[1]-3,sc,r2,aB[0],aB[1],{a:.9});piece(c,frame('corpo',(ph+k)%6,'brasa'),p2[0],p2[1],sc,r2,aB[0],aB[1])}
+  else{var fd=Math.floor((t-die)*12);if(fd<=5){piece(c,frame('corpo_desintegra',fd,'brasa'),p2[0],p2[1],sc,r2,aB[0],aB[1]);strip(c,'impacto_brasa',(t-die),12,p2[0],p2[1],.3)}strip(c,'brasas',T-Wof(die),10,p2[0],p2[1]-6,.4)}}
+ if(Lw>0){var lh=Math.min(Lw,Lend),hp=pathAt(lh),hr=angAt(lh);
+  if(t<tSlam){piece(c,frame('fogo_crista',(ph+2)%6,'none'),hp[0]-4,hp[1]-2,sH,hr,aH[0],aH[1],{a:.9});piece(c,frame('cabeca',ph%6,'brasa'),hp[0],hp[1],sH,hr,aH[0],aH[1])}
+  else{var fh=Math.floor((t-tSlam)*12);if(fh<=5){piece(c,frame('cabeca_desintegra',fh,'brasa'),hp[0],hp[1],sH,hr,aH[0],aH[1],{a:cl(1-(t-tSlam-.04)/.26)});strip(c,'impacto_brasa',(t-tSlam),12,hp[0],hp[1]+10,.5)}}}
+ // fogo sutil nas emendas
+ for(var j=0;j<=N;j++){var sj=j*Lb,Lj=Lw-sj;if(Lj<=0)continue;if(t>=dieOf(sj)+.02)continue;var lj=Math.min(Lj,Lend),pj=pathAt(lj),rj=angAt(lj);piece(c,frame('fogo_corpo',(ph+j*2)%6,'none'),pj[0],pj[1]+4,sc*.42,rj,128,170,{a:.9})}
+ // destroços que ACUMULAM no chão (um monte por peça, aparecem quando a peça se desfaz e somem devagar)
+ var svs=[0];for(var kq=0;kq<N;kq++)svs.push((kq+.5)*Lb);svs.push(N*Lb);
+ svs.forEach(function(sv,qi){var td=T-Wof(dieOf(sv));if(td>=.18&&td<2.1){var al=td>1.3?Math.max(0,1-(td-1.3)/.8):1,xo=XS-56+qi*(104/(svs.length-1))+((qi*37)%9-4);
+  piece(c,frame('impacto_chao',4+(qi%2),'brasa'),xo,GY+8,.55,0,128,246,{a:al});piece(c,frame('impacto_chao',5,'brasa'),xo+10,GY+8,.42,0,128,246,{a:al*.9,fx:-1})}});
+ if(tauS>=0&&tauS<1.7)strip(c,'fragmentos',tauS,8,XS,GY-50,.6,{loop:1,pal:'brasa',a:.85*(tauS>1.3?Math.max(0,1-(tauS-1.3)/.4):1)});
+ // BATIDA VERTICAL: explosões bem maiores que as da travessia (dentro do palco); poeira e estilhaços do kit, separados do dragão
+ if(tauS>=0){strip(c,'impacto_brasa',tauS,12,XS-8,GY-72,.86);
+  var dd=Math.floor(tauS*12);if(dd<=5){piece(c,kitFrame(0,dd),XS-64,GY+8,.8,0,128,246);piece(c,kitFrame(0,dd),XS+64,GY+8,.8,0,128,246,{fx:-1});piece(c,kitFrame(2,Math.min(5,Math.floor(tauS*10)),'brasa'),XS,GY-20,.9,0,128,128)}}
+ // contato na travessia e impacto individual na queda
+ TARG.slice(0,D.alvos).forEach(function(x,j){var tau=T-Wof(hitG[j]);
+  strip(c,'impacto_brasa',tau,14,x,GY-56,.68);strip(c,'impacto_brasa',tau-.04,14,x+6,GY-70,.42);strip(c,'fragmentos',tau-.04,10,x-8,GY-70,.5,{pal:'brasa'});
+  if(tauS>=0)strip(c,'impacto_brasa',tauS-.02,14,x,GY-56,.8);
+  dmg(c,tau,x-4,GY-122,['152','148','210'][j%3],false);dmg(c,tauS-.02,x+(j-1)*16,GY-150-j*26,['412','398','520'][j%3],true)});
+ cutin(c,T)}
+
+/* CUT-IN em faixa horizontal (layout do Naruto Online): cena escurece, faixa 25%-74% da altura, linhas de velocidade, arte à direita,
+   nome em pincelada à esquerda com !!, etiqueta com retrato mini embaixo à esquerda. Arte provisória = cabeça de lado (trocar pelo sheet de frente). */
+function cutin(c,T){var tc=T-tR;if(tc<0||tc>CUT)return;
+ var k=Math.min(es(tc/.09),es((CUT-tc)/.09)),y0=H*.25,y1=H*.74,cy=(y0+y1)/2,hh=(y1-y0)/2*k;
+ c.fillStyle='rgba(0,0,0,'+(.62*k).toFixed(2)+')';c.fillRect(0,0,W,H);
+ c.save();c.beginPath();c.rect(0,cy-hh,W,hh*2);c.clip();
+ var g=c.createLinearGradient(0,y0,0,y1);g.addColorStop(0,'#1a0806');g.addColorStop(.5,'#5a1a0c');g.addColorStop(1,'#1a0806');c.fillStyle=g;c.fillRect(0,y0,W,y1-y0);
+ c.strokeStyle='rgba(255,220,170,.38)';c.lineWidth=1.5;c.beginPath();for(var i=0;i<28;i++){var ly=y0+((i*37)%100)/100*(y1-y0),sp=320+((i*53)%220),lx=((tc*sp+i*71)%(W+120))-60,ll=40+((i*29)%80);c.moveTo(lx,ly);c.lineTo(lx+ll,ly)}c.stroke();
+ var ff=tc<.62?Math.min(5,Math.floor(tc*8)):4+(Math.floor(tc*14)%2),sh=tc>.55?Math.sin(tc*90)*2.4*Math.exp(-(tc-.55)*2.5):0,zz=1+.025*Math.sin(tc*9);
+ strip(c,'chuva_brasa',tc,8,300,cy,.95,{loop:1,a:.55});
+ c.save();c.translate(300+sh,cy+4);c.scale(.5*zz,.5*zz);c.imageSmoothingEnabled=false;var cvF=ffr(ff);c.drawImage(cvF,-cvF.width/2,-cvF.height/2);c.restore();
+ var ts=tc-.1;if(ts>=0){var s2=1+.55*Math.exp(-ts*16);c.save();c.translate(26,cy+12);c.rotate(-.1);c.scale(s2,s2);c.font='italic 900 34px Impact,"Arial Black",sans-serif';c.textBaseline='alphabetic';c.lineJoin='round';
+  var L1='DRAGÃO',L2='DE BRASA';c.lineWidth=7;c.strokeStyle='#000';c.strokeText(L1,0,-16);c.strokeText(L2,6,22);c.fillStyle='#fff6e6';c.fillText(L1,0,-16);c.fillText(L2,6,22);
+  c.font='italic 900 30px Impact,"Arial Black",sans-serif';c.lineWidth=6;c.strokeText('!!',150,-30);c.fillStyle='#ff7a2a';c.fillText('!!',150,-30);c.restore()}
+ var tg=Math.min(1,Math.max(0,(tc-.15)/.12));if(tg>0){c.save();c.globalAlpha=tg;c.fillStyle='rgba(0,0,0,.75)';c.fillRect(0,y1-24,150,24);c.fillStyle='#ff8a2a';c.fillRect(0,y1-24,3,24);
+  var cc=D.cell,col=D.armado%D.cols,row=Math.floor(D.armado/D.cols);c.imageSmoothingEnabled=false;c.drawImage(IM.kaen,col*cc+cc/2-44,row*cc+D.top-2,88,88,6,y1-22,20,20);
+  c.fillStyle='#fff';c.font='bold 11px sans-serif';c.fillText(D.nome_jutsu,32,y1-9);c.restore()}
+ c.restore();
+ c.fillStyle='rgba(255,170,90,'+k.toFixed(2)+')';c.fillRect(0,cy-hh-1,W,2);c.fillRect(0,cy+hh-1,W,2)}
+var st=null,notes='',vb=document.getElementById('vb');
+document.getElementById('tit').textContent=D.titulo;
+[['Aprovado','ok'],['Tem coisa pra mudar','mudar']].forEach(function(o){var b=document.createElement('button');b.textContent=o[0];b.setAttribute('aria-pressed','false');b.onclick=function(){st=o[1];[].forEach.call(vb.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');fim()};vb.appendChild(b)});
+document.getElementById('ta').oninput=function(e){notes=e.target.value;fim()};
+function fim(){if(!st)return;document.getElementById('resTxt').textContent=D.titulo+': '+(st=='ok'?'aprovado':'mudar')+(notes?' ('+notes+')':'');document.getElementById('result').hidden=false}
+var speed2=1;function setS(v,id){speed2=v;['s1','s2','s3'].forEach(function(k){document.getElementById(k).setAttribute('aria-pressed',k==id)})}
+s1.onclick=function(){setS(1,'s1')};s2.onclick=function(){setS(.5,'s2')};s3.onclick=function(){setS(.25,'s3')};
+var c=document.getElementById('cv').getContext('2d'),clock=0,last=0;
+function loop(now){clock+=(now-last)/1000*speed2;last=now;if(ready){var T=(window.__T!==undefined)?window.__T:clock%LEN;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);draw(c,T)}requestAnimationFrame(loop)}
+window.__LEN=LEN;requestAnimationFrame(function(n){last=n;requestAnimationFrame(loop)});
+})();
+</script>
