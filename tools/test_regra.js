@@ -21,7 +21,7 @@ function mundo(){
     clearStatus(u){ u.seal=u.blind=u.sleep=0; },
     refundJutsu(u){ ctx.refunded.push(u); }};
   vm.createContext(ctx);
-  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome,chakraGain,CHAKRA_START,CHAKRA_MAX,vista,mostra,mostraChakra});',ctx);
+  vm.runInContext(src+'\n;Object.assign(globalThis,{BUS,hurt,landHit,damageRoll,elemMul,ELADV,ELDIS,canChase,chaseStart,chaseTsunami,chaseOutcome,poeEstado,soltaEstado,recolheClones,chakraGain,CHAKRA_START,CHAKRA_MAX,vista,mostra,mostraChakra});',ctx);
   ctx.evs=[]; for(const k of ['dano','substitui'])ctx.BUS.on(k,e=>ctx.evs.push([k,e]));
   return ctx;
 }
@@ -131,4 +131,16 @@ const ninja=(o={})=>({side:'e',alive:true,hp:1000,max:1000,shield:0,def:0,atk:10
 { const w=mundo(); assert.deepEqual([1,2,3,4,5,6,7].map(w.chakraGain),[20,20,40,40,60,60,80]);
   assert.equal(w.CHAKRA_START,0); assert.equal(w.CHAKRA_MAX,100); }
 
+
+// estado D/L/V/R (fatia 3b): a regra grava e anuncia; imune (Kazan) só anuncia; soltar não anuncia
+{ const w=mundo(), est=[]; w.BUS.on('estado',e=>est.push([e.t,e.s]));
+  const t=ninja(), k=ninja({d:{el:'Fogo',immuneState:true}});
+  assert.equal(w.poeEstado(t,'V'),true); assert.equal(t.state,'V');
+  assert.equal(w.poeEstado(k,'D'),false); assert.equal(k.state,null);
+  w.soltaEstado(t); assert.equal(t.state,null);
+  assert.deepEqual(est,[[t,'V'],[k,'imune']]); }
+
+// clone morto sai da lista só quando a regra recolhe (começo da rodada), nunca por timer da tela
+{ const w=mundo(), a=ninja({owner:{}}), b=ninja({owner:{},alive:false});
+  w.U.clones=[a,b]; w.recolheClones(); assert.deepEqual(w.U.clones,[a]); }
 console.log('ok');

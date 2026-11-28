@@ -33,7 +33,7 @@ function provaApply(){
     if(c.mult){ u.max=Math.round(u.d.hp*c.mult); u.hp=u.max; u.atk=u.d.atk*c.mult; }
     if(c.hp!=null)u.hp=Math.max(1,Math.round(c.hp<=1?u.max*c.hp:c.hp));
     if(c.res!=null)u.res=c.res;
-    if(c.state)u.state=c.state; });
+    if(c.state)u.state=u.vs=c.state; });
   provaEvs=[];
 }
 // ---------- gravador: eventos da regra (sem tempo, sem DOM) -> impressão digital ----------

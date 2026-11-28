@@ -27,7 +27,7 @@ function refundJutsu(u){
 function armClick(u){ if(!battleOn||result()||!prepareJutsu(u,availableJutsu(u)))return; sfx.arm(); drawJ(); }
 // barra de jutsus: desenha SÓ pela cópia da tela (vChakra + u.v), como a HUD
 let vChakra={p:0,e:0};
-BUS.on('chakra',c=>{ vChakra={p:c.p,e:c.e}; });
+telaOn('chakra',c=>{ vChakra={p:c.p,e:c.e}; });
 const shownJutsu=u=>u.v?.armed||(u.d.recast&&u.v?.field?u.d.recast:u.d.jutsu);
 const shownReady=(u,j)=>{ const v=u.v; return !!(j&&v&&v.alive&&v.cd===0&&!v.armed&&vChakra[u.side]>=j.cost); };
 function drawJ(){
@@ -85,7 +85,7 @@ async function dismissField(){
 }
 // apresentação do dano (escuta o evento 'dano' da regra em regra.js): som, texto flutuante, tranco, contador, morte
 // lê só o evento e a foto que veio com ele (e.v), nunca a unidade da regra
-BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
+telaOn('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
   if(e.shHit){ if(v.shield<=0)sfx.sbreak(); else sfx.absorb(); }
   if(cls!=='cost'&&cls!=='dot'&&r>0&&e.hp0-r>0)sfx.voz(t,'dor',.3);
   if(cls==='cost'){
@@ -104,12 +104,12 @@ BUS.on('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
   if(cls!=='dot')showHits();
   if(t.side==='p'&&v.hp>0&&e.hp0>=v.max*.25&&v.hp<v.max*.25)sfx.lowhp();
   if(e.clone)return;
-  if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.v?.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.st.className='st'; setAnim(t,'die');
+  if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.v?.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.vs=null; t.st.className='st'; setAnim(t,'die');
     if(t.off&&t.off.y<0){ t.off.y=0; t.mv.style.transition='transform .35s cubic-bezier(.55,0,.9,.55)'; t.mv.style.transform=`translate(${t.off.x}px,0)`; battleAfter(()=>{t.mv.style.transition='';},420); }   // morreu no ar: cai até o chão em vez de ficar flutuando
   }
-  else if(v.alive&&!t.state)setAnim(t,'hurt');   // t.state ainda é da apresentação (knock/setState); sai na 3b
+  else if(v.alive&&!t.vs)setAnim(t,'hurt');   // t.vs = pose de estado da tela (a regra grava t.state, a tela não lê)
   upd(t); });
-BUS.on('substitui',({t,clone})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(); });
+telaOn('substitui',({t,clone})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(); });
 function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
   if(mode==='random')return fs[Math.floor(battleRandom()*fs.length)];
@@ -166,28 +166,34 @@ async function playContactStrike(u,t,sk,an,contacts,dodged){
     if(!onFrame.has(frame))onFrame.set(frame,[]);
     onFrame.get(frame).push(action);
   }
+  // REGRA em laço fixo (fatia 3b): os contatos são resolvidos já, na ordem; antes o dano saía do laço de quadros do sprite (tick)
   let damage=0, hits=0, dodge;
-  for(const contact of contacts){
+  const plan=adianta(()=>contacts.map(contact=>{
+    if(dodged||!t.alive)return null;
+    const dealt=landHit(u,t,sk.mult/contacts.length,basic,'',false,undefined,{...contact,showElement:damage===0});
+    hits++; if(dealt!==null)damage+=dealt;
+    return {dealt,n:marca()}; }));
+  // APRESENTAÇÃO: cada contato toca no quadro dele
+  let shown=0;
+  contacts.forEach((contact,i)=>{
     for(const effect of contact.effects){
-      if(!dodged||effect.arc)at(effect.frame,()=>{if(t.alive||effect.arc)contactFx(u,effect);});
+      if(!dodged||effect.arc)at(effect.frame,()=>{if(t.v?.alive||effect.arc)contactFx(u,effect);});
     }
     at(contact.frame,()=>{
       if(dodged){dodge||=evade(t,true).then(()=>null,error=>({error}));return;}
-      if(!t.alive)return;
-      if(!hits)sfx.voz(u,'golpe',basic?.3:.7);
+      const r=plan[i]; if(!r)return;
+      tocaAte(r.n);
+      if(!shown++)sfx.voz(u,'golpe',basic?.3:.7);
       sfx.hit(u,basic?'atk':sk.customSfx===false?'':'forte');
-      const dealt=landHit(u,t,sk.mult/contacts.length,basic,'',false,undefined,{...contact,showElement:damage===0});
-      hits++;
-      if(dealt!==null){
-        damage+=dealt;
-        if(t.alive)t.st.animate([
+      if(r.dealt!==null){
+        if(t.v?.alive)t.st.animate([
           {translate:`${dir*contact.recoil}px 0`,scale:contact.squash?'1.12 .9':'1'},
           {translate:'0 0',scale:'1'},
         ],{duration:(contact.squash?240:135)/speed,easing:'ease-out'});
         hitstop(contact.stop).catch(error=>{if(error!==ABORT)console.error(error);});
       }
     });
-  }
+  });
   sfx.swing();
   await dashTo(u,t);
   setAnim(u,an,0,true);
@@ -197,7 +203,7 @@ async function playContactStrike(u,t,sk,an,contacts,dodged){
     while(u.af<seqN(anim)-1||frozen)await sleep(16);
     const failedDodge=dodge&&await dodge;
     if(failedDodge)throw failedDodge.error;
-  }finally{delete u.onFrame;}
+  }finally{delete u.onFrame; tocaTudo();}
   if(dodged)log(`${nm(t)} desvia de <b>${sk.name}</b>`);
   else log(`${nm(u)} usa <b>${sk.name}</b>${hits>1?` (${hits} golpes)`:''}: ${damage} de dano`);
   endCine();
@@ -357,27 +363,34 @@ const airTorso=u=>spritePoint(u,AIR_TORSO[sid(u)]||[96,96]);
 // Cada palma sai no quadro da mão estendida e viaja até o corpo visível do alvo.
 async function cloneVolley(owner,target){
   const dir=owner.side==='p'?1:-1;
-  // cada clone arma a palma em paralelo (escalonados em 90 ms); antes era um por vez e a repulsão do alvo esperava a fila toda (~2 s)
-  const one=async(clone,delay)=>{
+  // REGRA em laço fixo (ordem dos clones, fatia 3b): as palmas são resolvidas já, na ordem; antes a ordem dos acertos dependia do relógio
+  // (mudava com a velocidade). Quem acha o alvo já caído não ataca. A tela só toca cada palma no contato (tocaAte).
+  const plan=adianta(()=>{ const out=[];
+    for(const clone of livingClones(owner)){
+      if(!target.alive)break;
+      const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
+      out.push({clone,dealt,n:marca()});
+    }
+    return out; });
+  // APRESENTAÇÃO: cada clone arma a palma em paralelo (escalonados em 90 ms); antes era um por vez e a repulsão do alvo esperava a fila toda (~2 s)
+  const one=async({clone,dealt,n},delay)=>{
     await sleep(delay);
-    if(!clone.alive||!target.alive)return 0;
     const palm=3, step=1000/an_of(clone).atk1[4];
     sceneAdd(clone); setAnim(clone,'atk1');
     await sleep(palm*step);
-    if(!clone.alive||!target.alive)return 0;
     setAnim(clone,'atk1',palm);
     const from=spritePoint(clone,[160,81]), to=airTorso(target);
     const travel=Math.max(115,Math.min(230,Math.hypot(to.x-from.x,to.y-from.y)*.36));
     const proj=FXUSE[owner.id].proj, frames=FXA[owner.id].a[proj][1];
     fxSpr(owner.id,proj,{...from,to,dir,flip:dir<0,sc:.51,fps:1000*frames/travel,linear:true});
     await sleep(travel);
-    if(!target.alive)return 0;   // outra palma já derrubou o alvo
-    const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
+    tocaAte(n);   // contato: número, som e barra desta palma
     if(dealt===null)return 0;
     chaseContact(to,owner.d.c,6); return dealt;
   };
-  const dealt=await Promise.all(livingClones(owner).map((c,i)=>one(c,i*90)));
-  return dealt.reduce((a,b)=>a+b,0);
+  try{ const dealt=await Promise.all(plan.map((p,i)=>one(p,i*90)));
+    return dealt.reduce((a,b)=>a+b,0); }
+  finally{ tocaTudo(); }
 }
 function chaseContact(point,color,count){
   em(count,i=>{
@@ -460,7 +473,7 @@ async function chain(side,t,count,src){
   acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
   const CH=c.d.chase, cause=P.cause, an=an_of(c).chase?'chase':{R:'atk3',V:'atk2',L:'atk1',D:'atk1'}[cause];
   const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
-  const air=!!an_of(c).rise&&t.state==='V';
+  const air=!!an_of(c).rise&&CH.on==='V';   // CH.on = estado em que a regra pegou o alvo (chaseStart)
   const dir=side==='p'?1:-1, h0=pos(c), tb=cur(t);
   const put=(u,x,y,tr)=>{u.mv.style.transition=tr||''; u.mv.style.transform=`translate(${x}px,${y}px)`;};
   let kickAim;
@@ -499,7 +512,7 @@ async function chain(side,t,count,src){
   sfx.chase(c);
   if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8); }
   const ch=P.hits, cm=P.mult; let d=0, connected=false;
-  if(t.state)fl(t,ST[t.state],'state');   // etiqueta do estado em que o alvo foi pego
+  fl(t,ST[CH.on],'state');   // etiqueta do estado em que o alvo foi pego
   for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
     const dealt=landHit(c,t,cm/ch.length,false,'chase',tsu);
     if(dealt!==null){connected=true; d+=dealt;} }
@@ -625,7 +638,7 @@ async function run(){
   let res=null, byTime=false, firstInitiative=1; finDone=false;
   try{
     outer: while(true){
-      round++; hitsR={p:0,e:0}; $('rd').textContent='Rodada '+round; BUS.emit('rodada'); log('Rodada '+round,'r');
+      round++; hitsR={p:0,e:0}; recolheClones(); $('rd').textContent='Rodada '+round; BUS.emit('rodada'); log('Rodada '+round,'r');
       for(const side of ['p','e']){   // curva de chakra (regra.js): rodada 1 já ganha (+20), depois 20, 40, 40, 60…
         const bonus=fieldA?.side===side?fieldA.fx.chakra||0:0;
         chakra[side]=Math.min(CHAKRA_MAX,chakra[side]+chakraGain(round)+bonus);

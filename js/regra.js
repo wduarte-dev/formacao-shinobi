@@ -5,7 +5,7 @@
 //   'acao'      {u,sk,isJ}                       vez de um ninja (doSkill começou)
 //   'dano'      {t,d,esc,cls,hp,hp0,adv,evt,impact,woke,died,clone}  dano aplicado (d = depois do escudo)
 //   'substitui' {t,clone}                        Substituição do Utsushi engoliu o golpe
-//   'estado'    {t,s}                            estado D/L/V/R aplicado ('imune' no Kazan)
+//   'estado'    {t,s}                            estado D/L/V/R aplicado ('imune' no Kazan); quem grava é poeEstado (a tela só anima, em t.vs)
 //   'persegue'  {side,t,n}                       um passo de perseguição começou (antes de saber se alguém entra)
 //   'perseguidor' {side,c,t,n,cause,mult,hits}   a regra escolheu quem persegue (n = passo do combo, mult = dano total do passo)
 //   'tsunami'   {c,t,alvos,mult}                 a Onda virou Tsunami (alvos = time inteiro, mult = dano em cada um que não é o alvo)
@@ -70,6 +70,17 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
   }
   e.hp=t.hp; e.v=vista(t); BUS.emit('dano',e); return r;
 }
+
+// estado D/L/V/R (fatia 3b): a REGRA grava t.state e anuncia; a tela (knock/poseEstado) só anima e guarda a pose em t.vs
+// imune (Kazan): não grava, anuncia 'imune' (ou o estado que já tinha). Devolve se aplicou.
+function poeEstado(t,s){
+  if(t.d.immuneState){ BUS.emit('estado',{t,s:t.state||'imune'}); return false; }
+  t.state=s; BUS.emit('estado',{t,s}); return true;
+}
+function soltaEstado(t){ t.state=null; }
+// clone que sumiu sai da lista no começo da rodada seguinte (fatia 3b). Antes um timer da ANIMAÇÃO tirava ele de U.clones,
+// e a foto da rodada (Campo de Provas) mudava com a carga da CPU (semente 2: clone morto no fim da rodada 8 aparecia ou não na 9).
+function recolheClones(){ U.clones=U.clones.filter(c=>c.alive); }   // levanta (fim da perseguição ou golpe que errou): sem anúncio, como antes
 
 // ── perseguição: decisão pura ──
 // pode perseguir: vivo, não perseguiu na rodada, não paralisado, e o 'on' bate com o estado do alvo

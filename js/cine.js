@@ -75,7 +75,7 @@ async function smash(att,t,state){
 }
 // arremessa o alvo conforme o estado: Repelido bate na borda da tela, Voo sobe alto, Lançado (rasteira) sai do chão baixo, Derrubado desaba no chão
 async function knock(t,state,quietCamera=false){
-  BUS.emit('estado',{t,s:t.d.immuneState?'imune':state});   // knock define o estado sem passar pelo setState
+  poeEstado(t,state);   // regra grava/anuncia (imune: só anuncia); daqui pra baixo é só a pose
   if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);
@@ -83,7 +83,7 @@ async function knock(t,state,quietCamera=false){
   else if(state==='V'){t.off.x=lim(t.off.x+d*60); t.off.y=-230;}
   else if(state==='L'){t.off.x=lim(t.off.x+d*40); t.off.y=-56;}
   else{t.off.x=lim(t.off.x+d*46); t.off.y=0;}
-  t.state=state; t.st.className='st '+state; setAnim(t,stAnim(t,state)); t.el.style.zIndex=55;
+  t.vs=state; t.st.className='st '+state; setAnim(t,stAnim(t,state)); t.el.style.zIndex=55;
   { const p1=cur(t); trailFx(p0.x,p0.y-60,p1.x,p1.y-60,state); }   // rastro de vento no canvas (antes: drop-shadow de 60px no sprite)
   t.el.classList.add('fly','fly'+state);
   t.mv.style.transform=`translate(${t.off.x}px,${t.off.y}px)`;
@@ -175,7 +175,7 @@ function markTargets(ts){ ts.forEach(t=>{ sceneAdd(t); t.el.classList.add('tgt')
 async function evade(t,quiet=false){ sfx.dodge(t); if(!quiet)fxAt(t,'dodge',t,.9);
   retrig(t.st,'dodge'); if(an_of(t).dodge)setAnim(t,'dodge',0,true);   // passo pra trás em CSS + anim do atlas, se tiver
   await sleep(Math.max(320,animMs(t,'dodge'))); t.st.classList.remove('dodge');
-  if(t.alive&&!t.state)setAnim(t,'idle'); }
+  if(t.v?.alive&&!t.vs)setAnim(t,'idle'); }
 // espera os efeitos de partícula acabarem (cada jutsu dura o que o efeito dele dura), entre min e max ms
 async function fxWait(min,max){ await sleep(min); for(let t=min;t<max&&(FX.length||BOLT.length);t+=60)await sleep(60); }
 
@@ -212,11 +212,11 @@ async function dashTo(u,t,keep){const a=pos(u), b=cur(t), dir=u.side==='p'?1:-1;
   if(!keep&&an_of(u).hop)setAnim(u,'hop');   // sem pulo próprio (ainda), desliza no idle: walk/run foram removidos
   if(!keep&&an_of(u).hop)hopEcho(u,b.x-dir*82*((u.d.size||1)+(t.d.size||1))/2-a.x,b.y-a.y+2,190); u.el.style.zIndex=60; const reach=82*((u.d.size||1)+(t.d.size||1))/2; u.mv.style.transform=`translate(${b.x-dir*reach-a.x}px,${b.y-a.y+2}px)`; await sleep(190);}
 // volta do golpe: quem tem pulo volta PULANDO pra trás (mesma pose do pulo, inclinado, ~1,3x o tempo da ida, sem echo); os demais deslizam em idle
-function home(u){ const moved=u.alive&&!u.state&&!u.d.stationary&&an_of(u).hop&&u.mv.style.transform&&!/^translate\(0(px)?,\s*0(px)?\)$/.test(u.mv.style.transform), dir=u.side==='p'?1:-1;
+function home(u){ const moved=u.v?.alive&&!u.vs&&!u.d.stationary&&an_of(u).hop&&u.mv.style.transform&&!/^translate\(0(px)?,\s*0(px)?\)$/.test(u.mv.style.transform), dir=u.side==='p'?1:-1;
   if(moved){ const ms=250; u.mv.style.transition=`transform ${ms/speed}ms cubic-bezier(.3,.7,.4,1)`; u.mv.style.transform=''; u.el.style.zIndex=u.z; setAnim(u,'hop',0,true);
     u.st.animate([{rotate:'0deg'},{rotate:`${-dir*7}deg`,offset:.5},{rotate:'0deg'}],{duration:ms/speed,easing:'ease-in-out'});
-    battleAfter(()=>{ u.mv.style.transition=''; if(u.alive&&!u.state&&u.an==='hop')setAnim(u,'idle'); },ms/speed+20); return; }
-  u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.alive&&!u.state)setAnim(u,u.d.stationary&&u.stunned?'stun':'idle'); }
+    battleAfter(()=>{ u.mv.style.transition=''; if(u.v?.alive&&!u.vs&&u.an==='hop')setAnim(u,'idle'); },ms/speed+20); return; }
+  u.mv.style.transform=''; u.el.style.zIndex=u.z; if(u.v?.alive&&!u.vs)setAnim(u,u.d.stationary&&u.v.stunned?'stun':'idle'); }
 // frasco que se multiplica no ar (split): sobe até um ponto no meio do campo, estoura em vários e cada um cai num alvo
 async function shootSplit(u,ts){ const a=cur(u), d=u.side==='p'?1:-1, ax=ts.reduce((m,t)=>m+cur(t).x,0)/ts.length, m={x:(a.x+ax)/2, y:a.y-190};
   if(!fxShot(u,{x:m.x,y:m.y+66},220))flyDot(u,m,190); await sleep(220);

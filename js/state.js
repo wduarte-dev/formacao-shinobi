@@ -28,7 +28,7 @@ function battleAfter(fn,ms,onAbort){
   if(!timeHeld)armBattleTimer(timer);
 }
 function cancelBattleWork(){
-  token++;
+  token++; filaZera();
   for(const timer of battleTimers){
     clearTimeout(timer.id);
     timer.onAbort?.();
@@ -105,12 +105,12 @@ function summonClones(owner,sk){
   return group;
 }
 function vanishClone(c){
-  c.alive=false; c.hp=0; c.dot=null; c.state=null; c.st.className='st';
+  c.alive=false; c.hp=0; c.dot=null; c.state=null; c.vs=null; c.st.className='st';
   if(mark===c){mark=null; c.el.classList.remove('mk');}
   setAnim(c,'vanish',0,true); dust(c,8); mostra(c);
   const battle=U;
-  battleAfter(()=>{
-    c.el.remove(); battle.clones=battle.clones.filter(u=>u!==c);
+  battleAfter(()=>{   // só a tela: quem tira o clone da lista é a regra (recolheClones, começo da rodada)
+    c.el.remove();
     if(U===battle)ACT=ACT.filter(u=>u!==c);
   },animMs(c,'vanish')/speed);
 }

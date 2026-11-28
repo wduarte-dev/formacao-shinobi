@@ -71,7 +71,7 @@ function mountUnit(u){
 // barra branca do escudo no topo: cria se faltar (index.html antigo em cache + JS novo derrubava a luta na 1.6/1.7)
 function tshEl(s){ const S=s.toUpperCase(); let el=$('tsh'+S); if(!el){ el=document.createElement('i'); el.id='tsh'+S; el.className='shw'; $('thp'+S).parentNode.appendChild(el); } return el; }
 // HUD da unidade: desenha SÓ pela cópia da tela (u.v, última foto anunciada pela regra em 'unidade'/'dano'), nunca pelos campos da regra
-BUS.on('unidade',({u,v})=>{ u.v=v; if(u.el)upd(u); });
+telaOn('unidade',({u,v})=>{ u.v=v; if(u.el)upd(u); });
 function upd(u){
   const v=u.v; if(!v)return;
   if(v.alive&&v.stunned&&!u.d.stationary&&typeof kitStars==='function')kitStars(u);
@@ -101,6 +101,8 @@ function fl(u,txt,cls,impact){const f=document.createElement('div'); f.className
   u.mv.appendChild(f); battleAfter(()=>f.remove(),impact?impact.textMs/speed+100:cls==='ord'?1150:950);}
 function log(html,cls){const l=$('log'), d=document.createElement('div'); if(cls)d.className=cls; d.innerHTML=html; l.appendChild(d); while(l.children.length>7)l.firstChild.remove();}
 const nm=u=>`<span style="color:${u.d.c}">${u.d.name}</span>`;
-function setState(t,s){if(s&&t.d.immuneState){ kazanGuard(t); BUS.emit('estado',{t,s:t.state||'imune'}); return; } t.state=s; if(s)BUS.emit('estado',{t,s:t.state||'imune'}); t.st.className='st'+(s?' '+s:''); if(t.alive)setAnim(t,stAnim(t,s));
+// estado D/L/V/R: a regra grava (poeEstado/soltaEstado em regra.js); a tela anima a POSE e guarda em t.vs (nunca lê t.state)
+function poseEstado(t,s){ if(s&&t.d.immuneState){ kazanGuard(t); return; } t.vs=s; t.st.className='st'+(s?' '+s:''); if(t.v?.alive)setAnim(t,stAnim(t,s));
   if(!s){t.off={x:0,y:0}; t.mv.style.transform='';}}
+function setState(t,s){ if(s)poeEstado(t,s); else soltaEstado(t); poseEstado(t,s); }   // regra + pose no mesmo instante (até a 3b-2 separar os pontos de chamada)
 function dust(t,n){const p=cur(t); em(n,()=>prt(p.x,p.y,R(-8,8),-R(0,6),R(-2.6,2.6),R(-1.6,-.2),.03,R(14,26),R(4,8),0,pk(['#ffffff','#e8d8b8','#bfae8e']),1));}

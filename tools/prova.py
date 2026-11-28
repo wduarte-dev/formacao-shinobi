@@ -5,6 +5,7 @@ Uso:
   python3 tools/prova.py                      # luta padrão; confere invariantes + impressão digital
   python3 tools/prova.py --grava              # regrava a impressão digital (mudança de comportamento PROPOSITAL)
   python3 tools/prova.py --repete 2           # roda 2x e exige o mesmo hash (determinismo)
+  python3 tools/prova.py --cpu 8              # CPU 8x mais lenta (CDP): lógica presa ao relógio da animação muda o hash
   python3 tools/prova.py --cfg '{"seed":3}'   # config livre (JSON inline ou caminho .json); não compara impressão
   python3 tools/prova.py --set chance.strong=1 --set e.0.hp=0.1
 Saída: uma linha por luta. Print e log de eventos só quando falha (pasta impressa).
@@ -78,6 +79,7 @@ def main():
     ap.add_argument('--set', action='append', default=[], metavar='CAMINHO=VALOR')
     ap.add_argument('--grava', action='store_true', help='regrava a impressão digital da luta padrão')
     ap.add_argument('--repete', type=int, default=1, help='quantas vezes rodar (todas precisam dar o mesmo hash)')
+    ap.add_argument('--cpu', type=float, default=1, help='estrangula a CPU N vezes (determinismo sob carga; mesmo hash esperado)')
     ap.add_argument('--timeout', type=int, default=300, help='segundos por luta')
     ap.add_argument('--out', default='', help='pasta para print/log em caso de falha')
     args = ap.parse_args()
@@ -99,6 +101,8 @@ def main():
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page(service_workers='block', viewport={'width': 1152, 'height': 648})
+            if args.cpu > 1:
+                page.context.new_cdp_session(page).send('Emulation.setCPUThrottlingRate', {'rate': args.cpu})
             page.on('pageerror', lambda e: errors.append(str(e)))
             page.on('console', lambda m: m.type == 'error' and 'fonts.g' not in m.location.get('url', '')
                     and errors.append(m.text))

@@ -135,11 +135,14 @@ async function kaenDragonJutsu(u,main,sk,ts){
   await sleep(rel);
   // ---- liberação: congela com as mãos abertas, cut-in, depois o dragão ----
   setAnim(u,'atk2',28,'frame'); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; mostra(u);
-  const hitStep=(t,share,big)=>{ if(!t.alive)return; fxAt(u,'imp',t,.55,-8); const dealt=landHit(u,t,sk.mult*share,false,'big',true); if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,big?12:8); } };
+  // REGRA em laço fixo (fatia 3b): parede na fileira (ordem do x = ordem do tempo) e depois a queda em todos, resolvidas já; a tela toca cada uma no seu instante
+  const plan=adianta(()=>{ const step=(t,share)=>{ if(!t.alive)return null; const dealt=landHit(u,t,sk.mult*share,false,'big',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {t,dealt,n:marca()}; };
+    return {wall:M.tg.map(o=>step(o.t,.4)), slam:M.av.map(o=>step(o.t,.6))}; });
+  const hitStep=(r,big)=>{ if(!r)return; fxAt(u,'imp',r.t,.55,-8); tocaAte(r.n); if(r.dealt!==null)spark(r.t,u.d.c,big?12:8); };
   const fired=new Set(), T0=performance.now(); let T=0, last=T0, released=false;
   const wallHit=M.hitG.map(t=>M.Wof(t)-.08), wallSlam=M.Wof(M.tSlam)-.16;
   const mvx=0; u.mv.style.transition='none';
-  await new Promise((resolve,reject)=>{
+  try{ await new Promise((resolve,reject)=>{
     const tok=token, tick=now=>{
       if(tok!==token){ ctx.clearRect(0,0,KD.W,KD.H); return reject(ABORT); }
       if(paused){ last=now; requestAnimationFrame(tick); return; }
@@ -152,11 +155,12 @@ async function kaenDragonJutsu(u,main,sk,ts){
       u.mv.style.transform=`translate(${dir*M.kxo(t)}px,0)`;
       if(T>M.tR+KD.CUT&&!fired.has('h1')&&t>=M.h1){ fired.add('h1'); setAnim(u,'atk2',28,true); }
       if(T>=M.tR&&!fired.has('c')){ fired.add('c'); sfx.dragonRoar(); flashSoft(); }
-      wallHit.forEach((w,j)=>{ if(T>=w&&!fired.has('t'+j)){ fired.add('t'+j); const o=M.tg[j]; sfx.hit(); shake(.5); hitStep(o.t,.4,false); } });
-      if(T>=wallSlam&&!fired.has('s')){ fired.add('s'); sfx.heavy(); shake(1.1); M.av.forEach(o=>hitStep(o.t,.6,true)); sfx.thud(); }
+      wallHit.forEach((w,j)=>{ if(T>=w&&!fired.has('t'+j)){ fired.add('t'+j); sfx.hit(); shake(.5); hitStep(plan.wall[j],false); } });
+      if(T>=wallSlam&&!fired.has('s')){ fired.add('s'); sfx.heavy(); shake(1.1); plan.slam.forEach(r=>hitStep(r,true)); sfx.thud(); }
       if(T>=M.LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }
       requestAnimationFrame(tick); };
-    requestAnimationFrame(now=>{ last=now; tick(now); }); });
+    requestAnimationFrame(now=>{ last=now; tick(now); }); }); }
+  finally{ tocaTudo(); }
   u.mv.style.transition=''; u.mv.style.transform='';
   connected.forEach(t=>{ if(!t.alive)return;
     if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; mostra(t); });
@@ -184,9 +188,11 @@ async function kaenRainCombo(u,sk,ts){
   const p=pos(u), hand={x:p.x+dir*KDG.ponta[0],y:p.y+KDG.ponta[1]}, pts=vs.map(t=>({t,...cur(t)}));
   const C={x:pts.reduce((a,o)=>a+o.x,0)/pts.length,y:pts.reduce((a,o)=>a+o.y,0)/pts.length}, apex={x:C.x,y:Math.max(60,C.y-250)};
   const fires=[], tA=.6, tB=.42, LEN=tA+tB+.07*pts.length+1.6, fired=new Set(); let T=0, last=performance.now();
-  const hit=(o,j)=>{ const t=o.t; if(!t.alive)return; const dealt=landHit(u,t,sk.mult,false,'chase',true); if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,10); }
+  // REGRA em laço fixo (fatia 3b): as quatro bolas caem na ordem das casas (j), resolvidas já; a tela toca cada uma quando a bola chega
+  const plan=adianta(()=>pts.map(o=>{ const t=o.t; if(!t.alive)return null; const dealt=landHit(u,t,sk.mult,false,'chase',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {dealt,n:marca()}; }));
+  const hit=(o,j)=>{ const t=o.t, r=plan[j]; if(!r)return; tocaAte(r.n); if(r.dealt!==null)spark(t,u.d.c,10);
     kitAdd({sheet:'im',row:1,fps:12,sc:.6,x:o.x,y:o.y+2,ay:GFXA.impacto[1]}); fires.push([o,performance.now()]); sfx.heavy(); if(!j){ shake(.7); flashSoft(); } };
-  await new Promise((resolve,reject)=>{
+  try{ await new Promise((resolve,reject)=>{
     const tok=token, tick=now=>{
       if(tok!==token){ ctx.clearRect(0,0,KD.W,KD.H); return reject(ABORT); }
       if(paused){ last=now; requestAnimationFrame(tick); return; }
@@ -205,7 +211,8 @@ async function kaenRainCombo(u,sk,ts){
           const tau=tj-tB; kdFire(c,tau,o.x,o.y+2,1.0,true,1.2,.95); } });
       if(T>=LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }
       requestAnimationFrame(tick); };
-    requestAnimationFrame(now=>{ last=now; tick(now); }); });
+    requestAnimationFrame(now=>{ last=now; tick(now); }); }); }
+  finally{ tocaTudo(); }
   connected.forEach(t=>{ if(!t.alive)return; if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds,el:u.d.el}; mostra(t); });
   if(sk.dot)sfx.apply('burn');
   log(`${nm(u)} solta <b>${sk.name}</b>: ${tot} de dano`);

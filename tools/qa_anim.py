@@ -60,7 +60,8 @@ HOOK = r"""()=>{ window.QAL=[]; const L=(k,o)=>QAL.push(Object.assign({},o||{},{
  wrapA('chain',(side,t,count)=>L('chain',{t:nm(t),st:t.state}));
  wrap('comboLine',(name,count,id)=>L('chasePlayed',{u:id,s:name}));
  wrap('setAnim',(u,n)=>{ if(u&&u.side)L('anim',{u:nm(u),n}); });
- wrap('hurt',(t,d,c)=>L('hurt',{u:nm(t),d,c}));
+ // acerto = quando a TELA mostra o dano (tocador.js), não quando a regra calcula: na fatia 3b a regra resolve adiantada
+ if(typeof TELA==='object'&&TELA.dano){ const o=TELA.dano; TELA.dano=e=>{ try{L('hurt',{u:nm(e.t),d:e.d+(e.esc||0),c:e.cls});}catch(_){} return o(e); }; } else wrap('hurt',(t,d,c)=>L('hurt',{u:nm(t),d,c}));
  wrap('knock',(t,s)=>L('knock',{u:nm(t),s}));
  wrap('retrig',(el)=>{ if(el.id==='cut')L('fx',{n:'cut-in'}); });
  wrap('ink',text=>L('fx',{n:text}));
