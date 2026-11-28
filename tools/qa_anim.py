@@ -110,7 +110,7 @@ REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
     Math.random = () => .5;
     const hp = target.hp, before = hitsR[side];
     if (kind === 'chase') {
-        await knock(target, skill.on);
+        poeEstado(target, skill.on); await knock(target, skill.on);   // fatia 3b: a regra grava o estado, o knock só posa
         const u = actor.id + ':' + side;
         QAL.push({k:'act', u, s:skill.name, kind, ts:Date.now()});
         try { await chain(side, target, 1); }
@@ -123,7 +123,8 @@ REPLAY_ACTION = """async ({side, kind, ko, rate}) => {
         try {
             if (kind === 'dragao') {
                 setField(actor, actor.d.jutsu.field);
-                await kazanSkill(actor, actor.d.recast);
+                const R = adianta(() => resolveKazan(actor, actor.d.recast));   // fatia 3b: regra resolve, a tela toca
+                try { await kazanSkill(R); } finally { tocaTudo(); }
             } else if (kind === 'contador') {
                 window.qaReplayCounter = true;
                 hitsR[side] = actor.d.combo.at; actor.comboUsed = false;

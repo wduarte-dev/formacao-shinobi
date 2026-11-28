@@ -56,28 +56,34 @@ function fieldMul(a,basic){ if(!fieldA)return 1; const fx=fieldA.fx, mine=a.side
   if(mine)return fx.allyAll?.[a.d.el]||(basic&&fx.ally?.[a.d.el])||1; if(!mine&&fx.foe&&fx.foe[a.d.el])return fx.foe[a.d.el]; return 1;}
 const unl=u=>u.solto?u.d.jutsu:null;   // forma solta do Yugami: bônus de dano/esquiva vêm do jutsu (uDmg/uDodge)
 function dodgeOf(t){return (t.d.dodge||0)+(unl(t)?unl(t).uDodge||0:0)+(fieldA&&fieldA.owner===t?fieldA.fx.dodge||0:0);}
+// campo (regra): liga/desliga e anuncia 'campo'; a tela (telaOn abaixo) troca o cenário, a névoa, o log e a barra
 function setField(u,rounds){
   clearField();
   fieldA={side:u.side,rounds,owner:u,fx:u.d.jutsu.fieldFx||{}};
   mostra(u);   // botão do dono troca pro relançamento (vista.field)
-  showFieldScene(fieldA.fx.visual||null); drawJ();
+  BUS.emit('campo',{on:true,fx:fieldA.fx});
 }
+telaOn('campo',e=>{
+  if(e.on)showFieldScene(e.fx.visual||null);
+  else{ $('fog').classList.remove('on'); if(!e.keep)showFieldScene(null);
+    if(!e.consumed)log(e.fx.visual==='forge'?'O Plano da Forja se apaga':'O campo de névoa se dissipa'); }
+  drawJ(); });
 // Status: Resistiu (chance por ninja, RES em data.js); seal = sem jutsu, blind = sem básico, sleep = perde a ação e acorda com dano
 const STATUS={seal:{name:'Selado',tag:'S'},blind:{name:'Cego',tag:'C'},sleep:{name:'Sono',tag:'Z'}};
-function tryStatus(t){ if(battleRandom()*100<resOf(t)){ fl(t,'Resistiu','info2'); return false; } return true; }
+function tryStatus(t){ if(battleRandom()*100<resOf(t)){ BUS.emit('nota',{t,txt:'Resistiu',cls:'info2'}); return false; } return true; }
+// texto flutuante que é RESULTADO da regra (Resistiu, Selado, nome do Selo Final): entra na fila e aparece quando a tela chega lá
+telaOn('nota',({t,txt,cls})=>fl(t,txt,cls));
 const clearStatus=u=>{ u.seal=u.blind=u.sleep=0; };
 function clearField(consumed=false,keepForgeScene=false){
   if(!fieldA)return;
   const {owner,fx}=fieldA;
-  fieldA=null; $('fog').classList.remove('on');
-  if(!keepForgeScene)showFieldScene(null);
+  fieldA=null;
   if(owner.d.recast){
     if(owner.armedSkill===owner.d.recast){ refundJutsu(owner); mostra(owner); }
     if(!consumed)owner.cd=owner.d.recast.cd;
   }
   mostra(owner);
-  if(!consumed)log(fx.visual==='forge'?'O Plano da Forja se apaga':'O campo de névoa se dissipa');
-  drawJ();
+  BUS.emit('campo',{on:false,fx,consumed,keep:keepForgeScene});
 }
 async function dismissField(){
   if(fieldA?.fx.visual)await transitionField(fieldA.fx.visual,false,clearField);
@@ -101,7 +107,7 @@ telaOn('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
   if(!impact){
     const hs=[t.spr,...(t.gl||[])]; hs.forEach(x=>x.classList.add('hit')); battleAfter(()=>hs.forEach(x=>x.classList.remove('hit')),120);
   }
-  if(cls!=='dot')showHits();
+  if(cls!=='dot')showHits(e.hits,e.side);
   if(t.side==='p'&&v.hp>0&&e.hp0>=v.max*.25&&v.hp<v.max*.25)sfx.lowhp();
   if(e.clone)return;
   if(e.died){ sfx.death(); sfx.voz(t,'queda'); if(t.side==='p'&&U.p.filter(x=>x.v?.alive&&x!==t).length===1)sfx.last(); if(e.wasMark)t.el.classList.remove('mk'); t.vs=null; t.st.className='st'; setAnim(t,'die');
@@ -109,7 +115,15 @@ telaOn('dano',e=>{ const {t,d:r,cls,adv,evt,impact}=e, v=e.v; t.v=v;
   }
   else if(v.alive&&!t.vs)setAnim(t,'hurt');   // t.vs = pose de estado da tela (a regra grava t.state, a tela não lê)
   upd(t); });
-telaOn('substitui',({t,clone})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(); });
+telaOn('substitui',({t,clone,hits,side})=>{ sceneAdd(clone); dust(t,8); fl(t,t.d.passive,'info2'); log(nm(t)+' usa <b>Substituição</b>'); showHits(hits,side); });
+// clones: a regra cria/some (state.js); a tela monta e anima quando tocar
+telaOn('nasce',({c})=>{ mountUnit(c); ACT.push(c); setAnim(c,'birth'); sceneAdd(c); });
+telaOn('some',({c,wasMark})=>{
+  c.vs=null; c.st.className='st'; if(wasMark)c.el.classList.remove('mk');
+  setAnim(c,'vanish',0,true); dust(c,8);
+  const battle=U;
+  battleAfter(()=>{ c.el.remove(); if(U===battle)ACT=ACT.filter(u=>u!==c); },animMs(c,'vanish')/speed);
+});
 function pick(u,mode,isJ){
   const fs=foes(u); if(!fs.length)return null;
   if(mode==='random')return fs[Math.floor(battleRandom()*fs.length)];
@@ -121,60 +135,88 @@ function pick(u,mode,isJ){
     const c=fs.filter(x=>x.row===r).sort((a,b)=>a.depth-b.depth); if(c.length)return c[0]; }
   return fs[0];
 }
-async function strikeSequence(u,sk){
+// ───────── AÇÃO = a regra resolve tudo de uma vez + a tela toca o roteiro (fatia 3b) ─────────
+// resolve*(…) é só REGRA: síncrona, sem espera. Sorteia, aplica dano/estado/efeito na ordem de sempre (o battleRandom e o hash
+// não mudam) e devolve o ROTEIRO: o que aconteceu, com as marcas da FILA (tocador.js) de cada acerto.
+// toca*(R) é só TELA: anima lendo o roteiro, a cópia da HUD (u.v) e a pose (t.vs); no contato chama tocaAte(marca).
+// A tela nunca lê t.alive/t.state/hp da regra: quando ela toca, a regra já está no FIM da ação.
+// abriu perseguição: grava o estado (imune não grava nem anuncia, como o smash fazia), fixa quem vai combar (antes de gastar as
+// perseguições), resolve a cadeia inteira e levanta o alvo. openJ undefined = não mexe no chainOpenJ (Dragão do Kaen e Kazan: como antes)
+function resolveKo(R,u,t,cause,openJ){
+  if(!t.d.immuneState)poeEstado(t,cause);
+  if(openJ!==undefined)chainOpenJ=openJ;
+  R.cmb=comboPlan(u.side,t.state); R.chain=resolveChain(u.side,t,1);
+  R.levanta=t.alive; if(t.alive)soltaEstado(t);
+}
+async function tocaKo(R,u,t){
+  comboShowList(u,t,R.cmb); await tocaChain(R.chain,u);
+  if(R.levanta){ await sleep(140); poseEstado(t,null); t.el.style.zIndex=t.z; }
+}
+// Combo em sequência (Keshin): golpes em cadeia; morreu o alvo, escolhe outro e se aproxima de novo
+function resolveSequence(u,sk){
   const extra=u.power?.bonusHits[Math.min(round-u.power.start,u.power.bonusHits.length-1)]||0;
   const last=sk.sequence.length-1, total=sk.sequence.length+extra;
-  let t=null, dodged=false, launched=false, damage=0, hits=0;
+  const R={kind:'sequence',u,sk,steps:[],damage:0,hits:0};
+  let t=null, dodged=false;
   for(let i=0;i<total;i++){
+    const novo=!t?.alive;
+    if(novo){ t=pick(u,sk.target,false); if(!t)break; dodged=!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t); }
+    const finisher=i===total-1, part=finisher?last:i%last;
+    const st={t,novo,finisher,part,an:sk.sequence[part],dodged}; R.steps.push(st);
+    if(dodged)break;
+    st.dealt=landHit(u,t,sk.mult,true,''); st.n=marca();
+    if(st.dealt!==null){ R.damage+=st.dealt; R.hits++; }
+    if(result()){ st.fim=true; break; }
+    if(finisher&&st.dealt!==null&&t.alive&&sk.cause){ st.launch=true; R.t=t; resolveKo(R,u,t,sk.cause,false); break; }
+  }
+  return R;
+}
+async function tocaSequence(R){
+  const {u,sk}=R; let t=null;
+  for(const st of R.steps){
     await gate();
-    if(!t?.alive){
-      t=pick(u,sk.target,false);
-      if(!t)break;
-      dodged=!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
-      await dashTo(u,t);
-    }
-    const finisher=i===total-1, part=finisher?last:i%last, an=sk.sequence[part];
-    const ms=animMs(u,an), impact=ms*sk.hits[part];
-    sfx.swing(); setAnim(u,an,0,true); await sleep(impact);
-    if(dodged){ await evade(t); log(`${nm(t)} desvia de <b>${sk.name}</b>`); break; }
-    strikeFx(u,t,sk.contactY?.[part]??-75,finisher);
-    sfx.hit(u,'atk'); if(i===0)sfx.voz(u,'golpe',.6);
-    const dealt=landHit(u,t,sk.mult,true,'');
-    if(dealt!==null){ damage+=dealt; hits++; strikeRecoil(t,u.side==='p'?1:-1,finisher); }
-    if(result()){ await finale(t); break; }
-    if(finisher){
+    if(st.novo){ t=st.t; await dashTo(u,t); }
+    const ms=animMs(u,st.an), impact=ms*sk.hits[st.part];
+    sfx.swing(); setAnim(u,st.an,0,true); await sleep(impact);
+    if(st.dodged){ await evade(t); log(`${nm(t)} desvia de <b>${sk.name}</b>`); break; }
+    strikeFx(u,t,sk.contactY?.[st.part]??-75,st.finisher);
+    sfx.hit(u,'atk'); if(st===R.steps[0])sfx.voz(u,'golpe',.6);
+    tocaAte(st.n);
+    if(st.dealt!==null)strikeRecoil(t,u.side==='p'?1:-1,st.finisher);
+    if(st.fim){ await finale(t); break; }
+    if(st.finisher){
       shake(.65);
-      if(dealt!==null&&t.alive&&sk.cause){ launched=true; await smash(u,t,sk.cause); break; }
+      if(st.launch){ await smash(u,t,sk.cause); break; }
       sfx.heavy();
     }
     // Troca parte da recuperação pela pausa no contato, mantendo o ritmo do combo.
-    const stop=finisher?70:48;
+    const stop=st.finisher?70:48;
     await hitstop(stop); await sleep(Math.max(0,ms-impact+28-stop));
   }
-  if(hits)log(`${nm(u)} usa <b>${sk.name}</b> (${hits} golpes): ${damage} de dano`);
+  if(R.hits)log(`${nm(u)} usa <b>${sk.name}</b> (${R.hits} golpes): ${R.damage} de dano`);
   home(u);
-  if(launched){
-    chainOpenJ=false; comboShow(u,t); await chain(u.side,t,1,u);
-    if(t.alive){ await sleep(140); setState(t,null); t.el.style.zIndex=t.z; }
-  }
+  if(R.chain)await tocaKo(R,u,R.t);
   await sleep(160);
 }
-async function playContactStrike(u,t,sk,an,contacts,dodged){
+// Golpes do Kaen com contato no quadro (KAEN_STRIKES): regra em laço fixo, a tela toca cada contato no quadro dele
+function resolveContato(R){
+  const {u,main:t,sk,dodged,contacts}=R, basic=sk===u.d.normal;
+  R.damage=0; R.hits=0;
+  R.plan=contacts.map(contact=>{
+    if(dodged||!t.alive)return null;
+    const dealt=landHit(u,t,sk.mult/contacts.length,basic,'',false,undefined,{...contact,showElement:R.damage===0});
+    R.hits++; if(dealt!==null)R.damage+=dealt;
+    return {dealt,n:marca()}; });
+}
+async function playContactStrike(R){
+  const {u,main:t,sk,an,contacts,dodged,plan}=R;
   const basic=sk===u.d.normal, dir=u.side==='p'?1:-1, anim=an_of(u)[an];
   const onFrame=new Map();
   function at(frame,action){
     if(!onFrame.has(frame))onFrame.set(frame,[]);
     onFrame.get(frame).push(action);
   }
-  // REGRA em laço fixo (fatia 3b): os contatos são resolvidos já, na ordem; antes o dano saía do laço de quadros do sprite (tick)
-  let damage=0, hits=0, dodge;
-  const plan=adianta(()=>contacts.map(contact=>{
-    if(dodged||!t.alive)return null;
-    const dealt=landHit(u,t,sk.mult/contacts.length,basic,'',false,undefined,{...contact,showElement:damage===0});
-    hits++; if(dealt!==null)damage+=dealt;
-    return {dealt,n:marca()}; }));
-  // APRESENTAÇÃO: cada contato toca no quadro dele
-  let shown=0;
+  let dodge, shown=0;
   contacts.forEach((contact,i)=>{
     for(const effect of contact.effects){
       if(!dodged||effect.arc)at(effect.frame,()=>{if(t.v?.alive||effect.arc)contactFx(u,effect);});
@@ -203,124 +245,169 @@ async function playContactStrike(u,t,sk,an,contacts,dodged){
     while(u.af<seqN(anim)-1||frozen)await sleep(16);
     const failedDodge=dodge&&await dodge;
     if(failedDodge)throw failedDodge.error;
-  }finally{delete u.onFrame; tocaTudo();}
+  }finally{ delete u.onFrame; const n=plan.reduce((m,r)=>r?r.n:m,0); tocaAte(n); }   // contato que o quadro não tocou aparece aqui
   if(dodged)log(`${nm(t)} desvia de <b>${sk.name}</b>`);
-  else log(`${nm(u)} usa <b>${sk.name}</b>${hits>1?` (${hits} golpes)`:''}: ${damage} de dano`);
+  else log(`${nm(u)} usa <b>${sk.name}</b>${R.hits>1?` (${R.hits} golpes)`:''}: ${R.damage} de dano`);
   endCine();
   home(u);
   await sleep(160);
 }
-async function doSkill(u,sk,isJ){
-  BUS.emit('acao',{u,sk,isJ});   // vez do ninja (regra.js)
-  const battleToken=token;
-  curSide=u.side; const dir=u.side==='p'?1:-1;
-  try{
-    if(u.d.stationary){ await kazanSkill(u,sk); return; }
-    if(sk.sequence){ await strikeSequence(u,sk); return; }
-    if(sk.clones){
+// golpe comum (básico, Forte, jutsu de alvo/área, perseguição por combo); os três especiais do Kaen saem daqui pro roteiro próprio
+function resolveGolpe(u,sk,isJ){
+  const main=pick(u,sk.target,isJ); if(!main)return null;
+  const area=sk.target==='row'||sk.target==='all';
+  // split (Doku): chance do frasco se multiplicar no ar e cair em TODOS os inimigos, mesmo dano, como o Tsunami (todos aparecem e ficam marcados)
+  const split=!isJ&&sk.split&&foes(u).length>1&&battleRandom()<sk.split;
+  const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):sk.n>1?randomFoes(u,main,sk.n):[main];
+  const combo=!!sk.at;   // perseguição por combo: não é desviável, marca os alvos e mostra a legenda lateral
+  // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
+  const canDodge=t=>!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
+  const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
+  // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
+  const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]);
+  const R={kind:'golpe',u,sk,isJ,main,area,split,ts,combo,dodged,dodgedSet};
+  if(isJ&&u.id==='kaen'&&sk===u.d.jutsu){ R.kind='dragao'; resolveDragao(R); return R; }
+  if(u.id==='kaen'&&sk===u.d.combo){ R.kind='chuva'; resolveChuva(R); return R; }
+  if(u.id==='kaen'&&(sk===u.d.normal||sk===u.d.strong)){ R.kind='contato'; R.an=sk.an||'atk1'; R.contacts=KAEN_STRIKES[R.an]; resolveContato(R); return R; }
+  const nh=(sk.hits||[0]).length, connected=new Set();
+  R.rounds=[]; R.tot=0; R.connected=connected;
+  if(!dodged){
+    for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano
+      if(k&&!ts.some(t=>t.alive&&!dodgedSet.has(t)))break;
+      R.rounds.push(ts.map(t=>{ if(dodgedSet.has(t)||!t.alive)return null;
+        const dealt=landHit(u,t,sk.mult/nh,sk===u.d.normal,isJ?'big':combo?'chase':'',area||split);
+        if(dealt!==null){ R.tot+=dealt; connected.add(t); }
+        return {t,dealt,n:marca()}; }));
+    }
+    connected.forEach(t=>{ if(!t.alive)return;
+      if(sk.dot&&tryStatus(t))t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all')&&tryStatus(t))t.stunned=true;
+      if(sk.instakill&&t.alive){ BUS.emit('nota',{t,txt:sk.name+'!',cls:'state'}); hurt(t,t.hp,'big',{pierce:true}); }   // Selo Final: derruba o alvo, ignora escudo
+      if(sk.status)for(const [k,n] of Object.entries(sk.status))if(tryStatus(t)){ t[k]=Math.max(t[k]||0,n); BUS.emit('nota',{t,txt:STATUS[k].name,cls:'state'}); }   // seal / blind / sleep (rodadas = ações do alvo)
+      mostra(t); });
+    R.nEfeito=marca();
+    if(sk.dispel&&fieldA){ R.campo=fieldA.fx.visual||null; clearField(); R.nCampo=marca(); }
+    R.fim=!!result();
+  }
+  const stateHit=connected.has(main)&&sk.cause&&main.alive;
+  R.guard=stateHit&&main.d.immuneState;
+  R.ko=stateHit&&!main.d.immuneState;
+  if(R.ko)resolveKo(R,u,main,sk.cause,isJ);
+  return R;
+}
+async function tocaGolpe(R){
+  const {u,sk,isJ,main,area,split,ts,combo,dodged,dodgedSet}=R, dir=u.side==='p'?1:-1;
+  if(R.kind==='dragao'){ await kaenDragonJutsu(R); return; }
+  if(R.kind==='chuva'){ await kaenRainCombo(R); return; }
+  if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
+  if(R.kind==='contato'){ await playContactStrike(R); return; }
+  if(combo){ sceneOn([u,...ts]); markTargets(ts); }
+  if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
+  let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
+  const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
+  if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
+  else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split||combo&&ts.length>1){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
+  else if(isJ&&sk.cast){an=sk.an||'atk2'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*40}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}   // invoca de onde está (ex.: Prisão de Gelo): só um passo à frente
+  else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
+  if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
+  for(const t of dodgedSet)evade(t).catch(error=>{if(error!==ABORT)console.error(error);});
+  if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
+  else{
+    for(let k=0;k<nh;k++){   // cada soco do golpe toca a sua parte, com faísca e hit-stop próprios
+      if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(k>=R.rounds.length)break; }
+      R.rounds[k].forEach(r=>{ if(!r)return; const t=r.t;
+        if(!(isJ&&sk.wave))fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
+        tocaAte(r.n); if(r.dealt!==null)spark(t,u.d.c,isJ?10:6); });
+      if(nh>1&&k<nh-1)sfx.hit(); }
+    tocaAte(R.nEfeito);
+    if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
+    if(R.campo!==undefined){ if(R.campo)await transitionField(R.campo,false,()=>tocaAte(R.nCampo)); else tocaAte(R.nCampo); }
+    if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
+    log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${combo?` (combo ${sk.at})`:''}${nh>1?` (${nh} golpes)`:''}: ${R.tot} de dano`,combo?'x':undefined);
+    if(combo&&R.connected.size)comboLine(sk.name,1,u.id,u.side);
+    if(R.fim)await finale(main); }
+  if(R.guard)kazanGuard(main);
+  if(R.ko){ endCine(); await smash(u,main,sk.cause); } else if(!dodged)await hitstop(isJ?70:25);
+  // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
+  if(R.ko)await sleep(60); else{ await sleep(Math.max(isJ?0:200, animMs(u,an)-hit)); if(isJ)await fxWait(420,1400); }   // abriu combo: a perseguição começa já (antes esperava ~650ms o resto da anim do atacante)
+  endCine(); home(u);
+  if(R.ko)await tocaKo(R,u,main);
+  await sleep(160);
+}
+// jutsus sem alvo inimigo (invocação, aura, lacre, campo, cura/escudo): regra curta + cena
+function resolveAcao(u,sk,isJ){
+  if(u.d.stationary)return resolveKazan(u,sk);
+  if(sk.sequence)return resolveSequence(u,sk);
+  if(sk.clones)return {kind:'clones',u,sk,group:summonClones(u,sk),n:marca()};
+  if(sk.aura){
+    const paid=hurt(u,Math.min(u.hp-1,Math.round(u.max*sk.lifeCost)),'cost',{pierce:true});
+    u.power={...sk.aura,start:u.power?.start??round,end:round+sk.aura.rounds};
+    mostra(u); return {kind:'aura',u,sk,paid,n:marca()};
+  }
+  if(sk.unleash){ const was=u.solto; u.sR=sk.unleash; if(!was)u.solto=true; return {kind:'unleash',u,sk,isJ,was}; }   // Lacre Rompido (Yugami): forma solta por N rodadas
+  if(sk.field){ setField(u,sk.field); return {kind:'field',u,sk,n:marca()}; }
+  if(sk.target==='allies'){
+    const al=team(u.side).filter(a=>a.alive), R={kind:'allies',u,sk,isJ,al,recs:[]};
+    for(const a of al){ const r={a};
+      if(sk.heal){ r.h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+r.h); }
+      if(sk.shield){ a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shM=a.shield; a.shR=2; }
+      mostra(a); r.n=marca(); R.recs.push(r); }
+    return R;
+  }
+  return resolveGolpe(u,sk,isJ);
+}
+async function tocaAcao(A){
+  if(!A)return;
+  const {u,sk}=A;
+  switch(A.kind){
+    case 'kazan': await kazanSkill(A); return;
+    case 'sequence': await tocaSequence(A); return;
+    case 'clones':{
       await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
       const hit=hitAt(u,'atk2'); await sleep(hit); sfx.jutsu(u); sfx.voz(u,'jutsu');
-      const group=summonClones(u,sk);
-      jutsuFx(u,group); group.forEach(c=>fxAt(u,'jutsu',c,1.05,15));
-      log(nm(u)+' usa <b>'+sk.name+'</b> ('+group.length+' clones)');
-      await sleep(animMs(u,'atk2')-hit); home(u); return;
-    }
-    if(sk.aura){
+      tocaAte(A.n);   // os clones nascem aqui
+      jutsuFx(u,A.group); A.group.forEach(c=>fxAt(u,'jutsu',c,1.05,15));
+      log(nm(u)+' usa <b>'+sk.name+'</b> ('+A.group.length+' clones)');
+      await sleep(animMs(u,'atk2')-hit); home(u); return; }
+    case 'aura':
       await cine(u,sk,[u]); setAnim(u,'atk2',0,true);
       await sleep(hitAt(u,'atk2'));
-      const paid=hurt(u,Math.min(u.hp-1,Math.round(u.max*sk.lifeCost)),'cost',{pierce:true});
-      u.power={...sk.aura,start:u.power?.start??round,end:round+sk.aura.rounds};
-      mostra(u); sfx.jutsu(u); sfx.voz(u,'jutsu');
+      tocaAte(A.n); sfx.jutsu(u); sfx.voz(u,'jutsu');
       fxAt(u,'jutsu',u,1.16,12); auraBurst(u); flashSoft();
       fl(u,sk.name,'shieldf');
-      log(`${nm(u)} ativa <b>${sk.name}</b> e gasta ${paid} PV`);
+      log(`${nm(u)} ativa <b>${sk.name}</b> e gasta ${A.paid} PV`);
       await sleep(animMs(u,'atk2')-hitAt(u,'atk2')); home(u); return;
-    }
-    if(sk.unleash){   // Lacre Rompido (Yugami): tira o capuz, troca pro atlas solto + distorção em código, buff por N rodadas
-      const was=u.solto;
-      if(isJ&&!was){await cine(u,sk,[u]); sfx.jutsu(u);}   // sem kiai: o som do lacre quebrando com glitch já diz tudo
-      u.sR=sk.unleash; if(!was){ setForm(u,true); setAnim(u,'unhood'); fxAt(u,'jutsu',u,1.3); fl(u,'capuz solto','shieldf'); const p=pos(u);
+    case 'unleash':   // tira o capuz: troca pro atlas solto + distorção em código
+      if(A.isJ&&!A.was){await cine(u,sk,[u]); sfx.jutsu(u);}   // sem kiai: o som do lacre quebrando com glitch já diz tudo
+      if(!A.was){ setForm(u,true); setAnim(u,'unhood'); fxAt(u,'jutsu',u,1.3); fl(u,'capuz solto','shieldf'); const p=pos(u);
         em(22,i=>{const g=i/22*6.28; return prt(p.x,p.y-30,Math.cos(g)*10,Math.sin(g)*6,Math.cos(g)*1.8,Math.sin(g)*1.4,0,R(14,22),4,0,pk(PAL['Espaço']));}); }
       log(`${nm(u)} usa <b>${sk.name}</b>: +${Math.round((sk.uDmg||0)*100)}% de dano e +${sk.uDodge||0}% de esquiva por ${sk.unleash} rodadas`);
       await sleep(Math.max(700,animMs(u,'unhood'))); setAnim(u,'idle'); return;
-    }
-    if(sk.field){
+    case 'field':
       skTag(u,sk.name); setAnim(u,'cast',0,true);
       sfx.cast(u); fxAt(u,'aura',u,1.04);
       await sleep(animMs(u,'cast')*.65);
       sfx.jutsu(u);
-      await transitionField(sk.fieldFx.visual,true,()=>setField(u,sk.field));
+      await transitionField(sk.fieldFx.visual,true,()=>tocaAte(A.n));
       log(`${nm(u)} usa <b>${sk.name}</b> por ${sk.field} rodadas`);
       setAnim(u,'idle'); return;
-    }
-    if(sk.target==='allies'){
-      const al=team(u.side).filter(a=>a.alive);
-      if(isJ){await cine(u,sk,al); sfx.jutsu(u);}   // cura/escudo/campo: sem kiai (o grito ficava sem sentido, ex.: Iwao gemendo ao erguer o Gigante)
+    case 'allies':
+      if(A.isJ){await cine(u,sk,A.al); sfx.jutsu(u);}   // cura/escudo/campo: sem kiai (o grito ficava sem sentido, ex.: Iwao gemendo ao erguer o Gigante)
       setAnim(u,'cast');
-      al.forEach(a=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1);
-        if(sk.heal){sfx.heal(); healRain(a); const h=Math.round(u.atk*sk.heal); a.hp=Math.min(a.max,a.hp+h); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
-        if(sk.shield){sfx.shield(); stoneWall(a); kitBuff(a); a.shield=Math.max(a.shield,Math.round(u.atk*sk.shield)); a.shM=a.shield; a.shR=2; fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
-        mostra(a);});
+      A.recs.forEach(({a,h,n})=>{ const p=pos(a); fxAt(u,'jutsu',a,1.1);
+        if(sk.heal){sfx.heal(); healRain(a); fl(a,'+'+h,'heal'); em(12,()=>prt(p.x,p.y,R(-14,14),-R(0,40),0,R(-1.6,-.6),0,R(24,40),R(3,5),0,pk(['#7dffa6','#ffffff','#3fd07a'])));}
+        if(sk.shield){sfx.shield(); stoneWall(a); kitBuff(a); fl(a,'escudo','shieldf'); em(18,i=>{const g=i/18*6.28;return prt(p.x,p.y,Math.cos(g)*8,-28+Math.sin(g)*8,Math.cos(g)*1.6,Math.sin(g)*1.6,0,R(14,20),4,0,pk(['#8fd0ff','#ffffff']));});}
+        tocaAte(n); });
       log(`${nm(u)} usa <b>${sk.name}</b>`); await sleep(Math.max(650,animMs(u,'cast'))); setAnim(u,'idle'); return;
-    }
-    const main=pick(u,sk.target,isJ); if(!main)return;
-    const area=sk.target==='row'||sk.target==='all';
-    // split (Doku): chance do frasco se multiplicar no ar e cair em TODOS os inimigos, mesmo dano, como o Tsunami (todos aparecem e ficam marcados)
-    const split=!isJ&&sk.split&&foes(u).length>1&&battleRandom()<sk.split;
-    const ts=split?foes(u):sk.target==='row'?foes(u).filter(x=>x.row===main.row):sk.target==='all'?foes(u):sk.n>1?randomFoes(u,main,sk.n):[main];
-    const combo=!!sk.at;   // perseguição por combo: não é desviável, marca os alvos e mostra a legenda lateral
-    // esquiva: só golpe de alvo único (básico ou jutsu de um alvo); paralisado não desvia
-    const canDodge=t=>!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t);
-    const dodged=!split&&(sk.target==='front'||sk.target==='weak')&&canDodge(main);
-    // ataque básico em área (Rajada Leve): cada alvo testa a esquiva; jutsu de todos não é desviável
-    const dodgedSet=new Set(sk.target==='all'&&!isJ&&!combo?ts.filter(t=>!t.owner&&canDodge(t)):[]), connected=new Set();
-    if(isJ&&u.id==='kaen'&&sk===u.d.jutsu){ await kaenDragonJutsu(u,main,sk,ts); return; }
-    if(u.id==='kaen'&&sk===u.d.combo){ await kaenRainCombo(u,sk,ts); return; }
-    if(isJ)await cine(u,sk,ts); else if(sk===u.d.strong||combo)skTag(u,sk.name);
-    if(u.id==='kaen'&&(sk===u.d.normal||sk===u.d.strong)){
-      const an=sk.an||'atk1';
-      await playContactStrike(u,main,sk,an,KAEN_STRIKES[an],dodged);
-      return;
-    }
-    if(combo){ sceneOn([u,...ts]); markTargets(ts); }
-    if(split){ sceneOn([u,...ts]); markTargets(ts); ink(sk.splitName||'MULTIPLICOU!'); }
-    let an, hit; const H=sk.hits||[0], nh=H.length, HA=(u,a)=>sk.hits?Math.max(120,H[0]*animMs(u,a)):hitAt(u,a);   // sk.hits: momentos (fração da anim) de cada soco; o dano se divide entre eles
-    const adv=area&&!(sk.ranged&&!isJ);   // área à distância fica parada
-    if(adv){an=sk.an||'atk3'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*82}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    else if(sk.ranged&&!isJ){an=sk.an||(sk.target==='all'?'atk1':'atk2'); setAnim(u,an,0,true); sfx.shoot(u); await sleep(hit=HA(u,an)*.9); if(split||combo&&ts.length>1){await shootSplit(u,ts); hit+=480;} else{await shoot(u,main); hit+=190;}}
-    else if(isJ&&sk.cast){an=sk.an||'atk2'; u.el.style.zIndex=60; u.mv.style.transform=`translate(${dir*40}px,0)`; setAnim(u,an,0,true); await sleep(hit=HA(u,an));}   // invoca de onde está (ex.: Prisão de Gelo): só um passo à frente
-    else{an=sk.an||(isJ?'atk3':'atk1'); sfx.swing(); await dashTo(u,main); setAnim(u,an,0,true); await sleep(hit=HA(u,an));}
-    if(isJ){sfx.jutsu(u); sfx.voz(u,'jutsu'); (sk.wave?soundWave:elFx)(u,ts); if(!sk.wave)jutsuFx(u,ts);} else sfx.voz(u,'golpe',sk===u.d.strong?.7:.3);   // jutsu de onda (Poko): anéis em código no lugar das partículas do elemento
-    for(const t of dodgedSet)evade(t).catch(error=>{if(error!==ABORT)console.error(error);});
-    if(dodged){ await evade(main); log(`${nm(main)} desvia de <b>${sk.name}</b>`); }
-    else{ let tot=0;
-      for(let k=0;k<nh;k++){   // cada soco do golpe causa a sua parte do dano, com faísca e hit-stop próprios
-        if(k){ const w=Math.max(70,(H[k]-H[k-1])*animMs(u,an)); await sleep(w); hit+=w; if(!ts.some(t=>t.alive&&!dodgedSet.has(t)))break; }
-        ts.forEach(t=>{ if(dodgedSet.has(t)||!t.alive)return; if(!(isJ&&sk.wave))fxAt(u,k?'hit':isJ?'jutsu':'hit',t,k?.7:isJ?1.3:sk.target==='all'?.7:.85); fxAt(u,'imp',t,.55,-8);
-          const dealt=landHit(u,t,sk.mult/nh,sk===u.d.normal,isJ?'big':combo?'chase':'',area||split);
-          if(dealt!==null){ tot+=dealt; connected.add(t); spark(t,u.d.c,isJ?10:6); } });
-        if(nh>1&&k<nh-1)sfx.hit(); }
-      connected.forEach(t=>{ if(!t.alive)return;
-        if(sk.dot&&tryStatus(t))t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; if(sk.stun&&(t===main||sk.stun==='all')&&tryStatus(t))t.stunned=true;
-        if(sk.instakill&&t.alive){ fl(t,sk.name+'!','state'); hurt(t,t.hp,'big',{pierce:true}); }   // Selo Final: derruba o alvo, ignora escudo
-        if(sk.status)for(const [k,n] of Object.entries(sk.status))if(tryStatus(t)){ t[k]=Math.max(t[k]||0,n); fl(t,STATUS[k].name,'state'); }   // seal / blind / sleep (rodadas = ações do alvo)
-        mostra(t); });
-      if(sk.dot)sfx.apply(u.d.el==='Fogo'?'burn':'poison'); if(sk.stun)sfx.apply(u.d.el==='Gelo'?'freeze':'stun');
-      if(sk.dispel)await dismissField();
-      if(isJ){shake();flash();sfx.heavy();sfx.impact(u);}else sfx.hit(u,sk===u.d.normal?'atk':sk===u.d.strong?'forte':'');
-      log(`${nm(u)} ${isJ?'solta':'usa'} <b>${sk.name}</b>${combo?` (combo ${sk.at})`:''}${nh>1?` (${nh} golpes)`:''}: ${tot} de dano`,combo?'x':undefined);
-      if(combo&&connected.size)comboLine(sk.name,1,u.id);
-      if(result())await finale(main); }
-    const stateHit=connected.has(main)&&sk.cause&&main.alive;
-    if(stateHit&&main.d.immuneState)kazanGuard(main);
-    const ko=stateHit&&!main.d.immuneState;
-    if(ko){ endCine(); await smash(u,main,sk.cause); } else if(!dodged)await hitstop(isJ?70:25);
-    // sem duração fixa: espera o resto da anim do atacante e, no jutsu, o efeito acabar
-    if(ko)await sleep(60); else{ await sleep(Math.max(isJ?0:200, animMs(u,an)-hit)); if(isJ)await fxWait(420,1400); }   // abriu combo: a perseguição começa já (antes esperava ~650ms o resto da anim do atacante)
-    endCine(); home(u);
-    if(ko){ chainOpenJ=isJ; comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){await sleep(140); setState(main,null); main.el.style.zIndex=main.z;}}
-    await sleep(160);
-  }finally{ if(battleToken===token){ endCine(); sceneOff(); } }
+    default: await tocaGolpe(A);
+  }
+}
+async function doSkill(u,sk,isJ){
+  BUS.emit('acao',{u,sk,isJ});   // vez do ninja (regra.js)
+  const battleToken=token;
+  curSide=u.side;
+  const R=adianta(()=>resolveAcao(u,sk,isJ));   // REGRA: a ação inteira, já (perseguições e efeitos inclusos)
+  try{ await tocaAcao(R); }                     // TELA: toca o roteiro
+  finally{ if(battleToken===token){ tocaTudo(); endCine(); sceneOff(); } }
 }
 // quem vai entrar na perseguição, na ordem (mesma regra do chain: on do próximo = cause do anterior, sem repetir)
 function comboPlan(side,state){ const seen=new Set(), out=[]; let s=state;
@@ -344,8 +431,8 @@ async function comboReactions(){
     await doSkill(c,cc.use?c.d[cc.use]:cc,false);
   }
 }
-// no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa
-function comboShow(u,t){ const pl=comboPlan(u.side,t.state); if(!pl.length)return;
+// no começo do combo já destaca TODOS que vão combar (estilo NO), não só quem começa; a lista vem do roteiro (comboPlan na regra)
+function comboShowList(u,t,pl){ if(!pl?.length)return;
   if(!scene.on)sceneOn([u,t]); pl.forEach(x=>{ sceneAdd(x); x.el.classList.add('cmb'); }); }
 function spritePoint(u,point){
   const p=cur(u), offset=spriteOffset(u,point);
@@ -360,19 +447,20 @@ const AIR_TORSO={
   utsushic:[91,92],utsushi:[90,89],keshin:[85,86],mestre:[85,86],yugami:[96,93],yugamir:[96,93]
 };
 const airTorso=u=>spritePoint(u,AIR_TORSO[sid(u)]||[96,96]);
-// Cada palma sai no quadro da mão estendida e viaja até o corpo visível do alvo.
-async function cloneVolley(owner,target){
+// palmas dos clones (Rajada Fantasma do Utsushi). REGRA em laço fixo, na ordem dos clones: antes a ordem dos acertos dependia do
+// relógio (mudava com a velocidade). Quem acha o alvo já caído não ataca.
+function resolveVolley(owner,target){
+  const out=[];
+  for(const clone of livingClones(owner)){
+    if(!target.alive)break;
+    const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
+    out.push({clone,dealt,n:marca()});
+  }
+  return out;
+}
+// TELA: cada clone arma a palma em paralelo (escalonados em 90 ms); antes era um por vez e a repulsão do alvo esperava a fila toda (~2 s)
+async function cloneVolley(owner,target,plan){
   const dir=owner.side==='p'?1:-1;
-  // REGRA em laço fixo (ordem dos clones, fatia 3b): as palmas são resolvidas já, na ordem; antes a ordem dos acertos dependia do relógio
-  // (mudava com a velocidade). Quem acha o alvo já caído não ataca. A tela só toca cada palma no contato (tocaAte).
-  const plan=adianta(()=>{ const out=[];
-    for(const clone of livingClones(owner)){
-      if(!target.alive)break;
-      const dealt=landHit(clone,target,owner.d.chase.cloneHit,false,'chase');
-      out.push({clone,dealt,n:marca()});
-    }
-    return out; });
-  // APRESENTAÇÃO: cada clone arma a palma em paralelo (escalonados em 90 ms); antes era um por vez e a repulsão do alvo esperava a fila toda (~2 s)
   const one=async({clone,dealt,n},delay)=>{
     await sleep(delay);
     const palm=3, step=1000/an_of(clone).atk1[4];
@@ -385,12 +473,11 @@ async function cloneVolley(owner,target){
     fxSpr(owner.id,proj,{...from,to,dir,flip:dir<0,sc:.51,fps:1000*frames/travel,linear:true});
     await sleep(travel);
     tocaAte(n);   // contato: número, som e barra desta palma
-    if(dealt===null)return 0;
-    chaseContact(to,owner.d.c,6); return dealt;
+    if(dealt===null)return;
+    chaseContact(to,owner.d.c,6);
   };
-  try{ const dealt=await Promise.all(plan.map((p,i)=>one(p,i*90)));
-    return dealt.reduce((a,b)=>a+b,0); }
-  finally{ tocaTudo(); }
+  try{ await Promise.all(plan.map((p,i)=>one(p,i*90))); }
+  finally{ if(plan.length)tocaAte(plan[plan.length-1].n); }
 }
 function chaseContact(point,color,count){
   em(count,i=>{
@@ -424,53 +511,81 @@ async function aimChaseKick(c,t,put,dir){
   sfx.hit(c,'atk');
   return {ground,dx,step};
 }
-async function finishWindKick(c,t,put,dir,aim,connected,P){
+async function finishWindKick(c,t,put,dir,aim,P){
   const {phases:[,strike,land],kick}=c.d.chase;
   const {ground,dx,step}=aim, h=pos(c);
   await hitstop(65);
   const ms=animMs(c,strike)-step*kick.frame;
   put(c,ground.x+dx-h.x-dir*65,ground.y-h.y,`transform ${ms/speed}ms cubic-bezier(.35,0,.85,.7)`);
-  const volley=connected?cloneVolley(c,t):Promise.resolve(0);   // as palmas saem já durante a queda do chute
+  const volley=P.connected?cloneVolley(c,t,P.volley):Promise.resolve();   // as palmas saem já durante a queda do chute
   await sleep(ms);
   c.mv.style.transition='';
   setAnim(c,land);
   const landing=sleep(animMs(c,land));
-  const extra=await volley;
+  await volley;
   // a repulsão sai assim que a última palma acerta; o pouso do Utsushi termina em paralelo (antes a repulsão esperava o pouso inteiro, ~0,5 s a mais)
-  chaseOutcome(P,connected);   // regra decide depois das palmas
   if(P.s)await knock(t,P.s);
   await landing;
-  if(result())await finale(t);
-  return extra;
+  if(P.fim)await finale(t);
 }
-async function landKeshinKick(c,t,put,dir,aim,connected,P){
+async function landKeshinKick(c,t,put,dir,aim,P){
   const {phases:[,slam,land],kick}=c.d.chase;
   const {ground,dx,step}=aim, home=pos(c), x=ground.x+dx;
   await hitstop(80);
   const ms=step*(kick.landing-kick.frame);
   const fall=`transform ${ms/speed}ms cubic-bezier(.55,0,.9,.55)`;
-  if(connected&&(t.alive||!t.owner))put(t,dx,0,fall);
+  const hitBody=P.connected&&(t.v?.alive||!t.owner);
+  if(hitBody)put(t,dx,0,fall);
   put(c,x-dir*38-home.x,ground.y-home.y,fall);
   speedLines('D');
   await sleep(ms);
   setAnim(c,slam,kick.landing,true);
   c.mv.style.transition='';
-  if(connected&&(t.alive||!t.owner)){
+  if(hitBody){
     t.off={x:dx,y:0}; t.mv.style.transition='';
-    if(P.s){ setState(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
+    if(P.s){ poseEstado(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
     slamFx(t,c.d.c); crack(x,ground.y); shake(1.15); sfx.thud();
   }
-  if(result())await finale(t);
+  if(P.fim)await finale(t);
   await sleep(animMs(c,slam)-step*kick.landing);
   setAnim(c,land,0,true); await sleep(animMs(c,land));
 }
-// perseguição = APRESENTAÇÃO: quem entra, multiplicador, Tsunami e estado são decididos em regra.js (chaseStart/chaseTsunami/chaseOutcome)
-async function chain(side,t,count,src){
-  const P=chaseStart(side,t,count);
-  if(!P)return;
-  const c=P.c; count=P.n;
+// ── perseguição: REGRA resolve a cadeia inteira (passo a passo, na ordem de sempre); a TELA toca passo a passo ──
+// passo = o que chaseStart devolve + o que aconteceu: hitsR (acertos no alvo), tsR (Tsunami nos outros), volley (palmas), d, connected, s, next, fim
+function resolveChain(side,t,count){
+  const steps=[];
+  for(;;){
+    const P=chaseStart(side,t,count);
+    if(!P)break;
+    count=P.n; P.side=side;
+    P.acad=acadCheck(side,count); if(side==='p')maxCombo=Math.max(maxCombo,count);
+    const CH=P.c.d.chase;
+    chaseTsunami(P);
+    let d=0, connected=false;
+    P.hitsR=[];
+    for(let k=0;k<P.hits.length&&t.alive;k++){
+      const dealt=landHit(P.c,t,P.mult/P.hits.length,false,'chase',P.tsu);
+      P.hitsR.push({dealt,n:marca()}); if(dealt!==null){connected=true; d+=dealt;}
+    }
+    P.tsR=P.alvos.map(o=>{ if(o===t||!o.alive)return null; landHit(P.c,o,P.tsMult,false,'chase',true); return {o,n:marca()}; });
+    P.volley=CH.kick&&CH.cloneHit&&connected?resolveVolley(P.c,t):[];
+    for(const v of P.volley)if(v.dealt!==null)d+=v.dealt;
+    chaseOutcome(P,connected);   // decide o estado e se o combo segue
+    if(P.s)poeEstado(t,P.s); else if(P.s===null)soltaEstado(t);
+    P.d=d; P.fim=!!result();
+    steps.push(P);
+    if(!P.next)break;
+  }
+  return steps;
+}
+async function tocaChain(steps,src){ for(let i=0;i<steps.length;i++)await tocaPasso(steps[i],i?null:src); }
+// compatibilidade (diretor do beta): resolve e toca uma perseguição a partir do estado atual do alvo
+async function chain(side,t,count,src){ await tocaChain(adianta(()=>resolveChain(side,t,count)),src); }
+async function tocaPasso(P,src){
+  const c=P.c, t=P.t, side=P.side, count=P.n;
   if(!scene.on)sceneOn([src,t].filter(Boolean)); sceneAdd(c); sceneAdd(t); t.el.classList.add('tgt');   // perseguição também é cena isolada; quem entra fica visível e o alvo fica marcado
-  acadCheck(side,count); sfx.chaseGo(); sfx.voz(c,'golpe',.6); if(side==='p')maxCombo=Math.max(maxCombo,count);
+  if(P.acad)ink('DESAFIO CONCLUÍDO!');
+  sfx.chaseGo(); sfx.voz(c,'golpe',.6);
   const CH=c.d.chase, cause=P.cause, an=an_of(c).chase?'chase':{R:'atk3',V:'atk2',L:'atk1',D:'atk1'}[cause];
   const CHA=(u,a)=>CH.hits?Math.max(120,CH.hits[0]*animMs(u,a)):hitAt(u,a);
   const air=!!an_of(c).rise&&CH.on==='V';   // CH.on = estado em que a regra pegou o alvo (chaseStart)
@@ -489,19 +604,19 @@ async function chain(side,t,count,src){
     put(c,tb.x-dir*54-h0.x,tb.y-52-h0.y,`transform ${contactMs/speed}ms cubic-bezier(.65,0,1,.45)`);   // mergulho com vontade
     await sleep(contactMs);
     setAnim(c,'meteor',seqN(an_of(c).meteor)-1,true);   // garante a pose do contato mesmo com queda de FPS
-  }else if(c.d.chase.mv==='slam'){   // salta alto por cima do alvo e despenca nele
+  }else if(CH.mv==='slam'){   // salta alto por cima do alvo e despenca nele
     // a anim do golpe começa JÁ no salto: ele sobe, segura no alto e despenca de modo que o pouso caia exatamente no quadro do soco
     const hitT=Math.max(430,CHA(c,an)); setAnim(c,an,0,true); sfx.swing(); c.el.style.zIndex=60;
     put(c,tb.x-dir*70-h0.x,tb.y-190-h0.y,`transform ${300/speed}ms cubic-bezier(.2,.9,.35,1)`); await sleep(hitT-130);
     put(c,tb.x-dir*64-h0.x,tb.y+2-h0.y,`transform ${130/speed}ms cubic-bezier(.6,0,1,.6)`); await sleep(130);
     dust(c,14); shake(); sfx.thud();   // pouso = soco: poeira, tremor, som e (logo abaixo) o dano no mesmo instante
-  }else if(c.d.chase.cast){   // invocador (Onda da Mizuha): chega só até uma distância segura, faz o selo/jutsu e a magia surge no alvo (nada de ir socar)
+  }else if(CH.cast){   // invocador (Onda da Mizuha): chega só até uma distância segura, faz o selo/jutsu e a magia surge no alvo (nada de ir socar)
     const ja=an_of(c).atk2?'atk2':an, gx=tb.x-dir*250*(c.d.size||1);
     if((gx-(h0.x+c.off.x))*dir>30){ sfx.swing(); put(c,gx-h0.x,tb.y-h0.y,'transform .26s cubic-bezier(.2,.8,.3,1)'); await sleep(260); }
     setAnim(c,ja,0,true); sfx.cast(c); await sleep(Math.min(420,hitAt(c,ja)*.7));
-  }else if(c.d.chase.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
+  }else if(CH.ranged){ sfx.swing(); setAnim(c,an,0,true); await sleep(CHA(c,an)); await shoot(c,t); }   // fica parado, o enxame voa até o alvo
   else{ sfx.swing(); await dashTo(c,t); setAnim(c,an,0,true); await sleep(CHA(c,an)); }
-  const tsu=chaseTsunami(P), tsFoes=P.alvos;
+  const tsu=P.tsu, tsFoes=P.alvos;
   if(tsu){ ink('TSUNAMI!'); sfx.heavy(); shake(.6);   // parede de água desenhada em código: brota do chão, sobe, avança e desaba no time inteiro
     tsFoes.forEach(o=>{ sceneAdd(o); o.el.classList.add('tgt'); o.el.style.zIndex=55; });   // todo mundo que vai levar o golpe aparece e fica marcado; z 55 = ABAIXO do canvas de efeitos (#fxc, 66): a onda passa por cima deles
     const W=tsunamiFx(dir); for(let n=0;!W.hit&&n<90;n++){ await gate(); await sleep(30); }   // espera a crista bater (respeita pausa/velocidade; teto de segurança)
@@ -511,27 +626,25 @@ async function chain(side,t,count,src){
     fxAt(c,'hit',t,1.1,-20); sfx.heavy(); }
   sfx.chase(c);
   if(!kickAim){ spark(t,c.d.c,10); if(!air&&!CH.surge)fxAt(c,'chase',t,1.25); fxAt(c,'imp',t,.6,-8); }
-  const ch=P.hits, cm=P.mult; let d=0, connected=false;
+  const ch=P.hits;
   fl(t,ST[CH.on],'state');   // etiqueta do estado em que o alvo foi pego
-  for(let k=0;k<ch.length&&t.alive;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
-    const dealt=landHit(c,t,cm/ch.length,false,'chase',tsu);
-    if(dealt!==null){connected=true; d+=dealt;} }
-  if(tsu){ for(const o of tsFoes){ if(o===t||!o.alive)continue; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); landHit(c,o,P.tsMult,false,'chase',true);
-      if(o.alive&&!o.d.stationary){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
-        battleAfter(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; battleAfter(()=>{o.mv.style.transition='';},340); },240/speed); } }
-    battleAfter(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.state)o.el.style.zIndex=o.z; }),900/speed); }
-  if(kickAim&&CH.cloneHit)d+=await finishWindKick(c,t,put,dir,kickAim,connected,P);   // decide dentro, depois das palmas
-  else chaseOutcome(P,connected);   // regra decide o estado e se o combo segue; daqui pra baixo só executa
-  if(!air&&!kickAim&&result())await finale(t);
-  comboLine(c.d.chase.name,count,c.id); fl(t,count+' Perseguição!','chasec');
-  log(`↳ ${nm(c)}: <b>${c.d.chase.name}</b> ${d} (combo x${count})`,'x');
+  for(let k=0;k<P.hitsR.length;k++){ if(k){ await sleep(Math.max(70,(ch[k]-ch[k-1])*animMs(c,an))); fxAt(c,'imp',t,.6,-8); spark(t,c.d.c,6); sfx.hit();}
+    tocaAte(P.hitsR[k].n); }
+  if(tsu){ tsFoes.forEach((o,i)=>{ const r=P.tsR[i]; if(!r)return; fxAt(c,'hit',o,1.2,-10); fxAt(c,'imp',o,.6,-8); spark(o,c.d.c,10); tocaAte(r.n);
+      if(o.v?.alive&&!o.d.stationary){ const of=o.off||{x:0,y:0}; o.mv.style.transition='transform .16s ease-out'; o.mv.style.transform=`translate(${of.x+dir*52}px,${of.y}px)`;   // a água empurra todo mundo (só visual)
+        battleAfter(()=>{ o.mv.style.transition='transform .3s ease-in-out'; o.mv.style.transform=`translate(${of.x}px,${of.y}px)`; battleAfter(()=>{o.mv.style.transition='';},340); },240/speed); } });
+    battleAfter(()=>tsFoes.forEach(o=>{ if(o!==t&&!o.vs)o.el.style.zIndex=o.z; }),900/speed); }
+  if(kickAim&&CH.cloneHit)await finishWindKick(c,t,put,dir,kickAim,P);
+  if(!air&&!kickAim&&P.fim)await finale(t);
+  comboLine(CH.name,count,c.id,side); fl(t,count+' Perseguição!','chasec');
+  log(`↳ ${nm(c)}: <b>${CH.name}</b> ${P.d} (combo x${count})`,'x');
   if(air){
     const ground=pos(t), landX=Math.max(70,Math.min(1082,tb.x+dir*36)), fallMs=140;
     const fall=`transform ${fallMs/speed}ms cubic-bezier(.65,0,1,.5)`;
-    if(connected){
+    if(P.connected){
       impactFx(t,{pow:1.9,color:'#ff9a4a',cam:true,stop:0,dir,air:true});   // CONTATO no ar: sem poeira de chão (ela só vem no pouso)
       await hitstop(80);
-      if(t.alive||!t.owner){
+      if(t.v?.alive||!t.owner){
         put(t,landX-ground.x,0,fall);
         trailFx(tb.x,tb.y-50,landX,ground.y-50,'D');
       }
@@ -540,27 +653,25 @@ async function chain(side,t,count,src){
     await sleep(fallMs);
     c.mv.style.transition='';
     setAnim(c,'landing',0,true);
-    if(connected&&(t.alive||!t.owner)){
+    if(P.connected&&(t.v?.alive||!t.owner)){
       t.off={x:landX-ground.x,y:0}; t.mv.style.transition='';
-      if(P.s){ setState(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
+      if(P.s){ poseEstado(t,P.s); fl(t,ST[P.s]+'!','state'); sfx.knock(P.s); }
       slamFx(t,c.d.c); sfx.thud();
       if(c.id==='kaen')impactFx(t,{pow:2,color:'#ff9a4a',crack:true,stop:70,dir:dir,cam:true});   // pouso do Chute Meteoro: camada de impacto
     }
-    if(result())await finale(t);
+    if(P.fim)await finale(t);
     await sleep(animMs(c,'landing'));
-    if(P.s===null)setState(t,null);
+    if(P.s===null)poseEstado(t,null);
     home(c);
-    if(P.next)await chain(side,t,count);
     return;
   }
   if(kickAim){
-    if(!CH.cloneHit)await landKeshinKick(c,t,put,dir,kickAim,connected,P);
-    if(P.s===null&&t.alive)setState(t,null);
+    if(!CH.cloneHit)await landKeshinKick(c,t,put,dir,kickAim,P);
+    if(P.s===null&&t.v?.alive)poseEstado(t,null);
     home(c);
-    if(P.next)await chain(side,t,count);
     return;
   }
-  if(P.s===null){ setState(t,null); home(c); return; }
+  if(P.s===null){ poseEstado(t,null); home(c); return; }
   if(P.s){
     if(CH.mv==='rise'&&cause==='V'){ const g=pos(t);   // sobe junto com o alvo lançado e depois desce
       put(c,tb.x-dir*76-h0.x,g.y-170-h0.y,'transform .3s cubic-bezier(.15,.85,.3,1)'); }
@@ -568,15 +679,14 @@ async function chain(side,t,count,src){
     if(CH.mv==='rise'&&cause==='V'){ put(c,cur(t).x-dir*76-h0.x,pos(t).y-h0.y,'transform .2s cubic-bezier(.55,0,.9,.55)'); await sleep(200); dust(c,8); c.mv.style.transition=''; }
   }else await hitstop(40);
   await sleep(110); home(c);
-  if(P.next)await chain(side,t,count);
 }
 function result(){const p=U.p.some(u=>u.alive), e=U.e.some(u=>u.alive);
   if(acad)return !e||!p?'lose':acad.done?'win':null;   // Mestre caído ou time derrotado = falhou
   return !e?'win':!p?'lose':null;}
 // Teste de Perseguição: a cadeia do jogador chegou na meta (e cumpre o extra do desafio)?
 let chainOpenJ=false;
-function acadCheck(side,count){ if(!acad||acad.done||side!=='p')return; const c=ACAD[acad.i];
-  if(count>=c.goal&&(!c.jutsu||chainOpenJ)&&(!c.fire||U.p.some(u=>u.d.el.includes('Fogo')))){ acad.done=true; ink('DESAFIO CONCLUÍDO!'); } }
+function acadCheck(side,count){ if(!acad||acad.done||side!=='p')return false; const c=ACAD[acad.i];
+  if(count>=c.goal&&(!c.jutsu||chainOpenJ)&&(!c.fire||U.p.some(u=>u.d.el.includes('Fogo')))){ acad.done=true; return true; } return false; }   // o banner sai no passo (tocaPasso)
 function wants(u,j,rate){
   if(j.unleash)return !u.solto&&battleRandom()<rate;
   if(j.heal)return team(u.side).some(a=>a.alive&&a.hp<a.max*.65);
@@ -650,7 +760,7 @@ async function run(){
         if(fieldA&&--fieldA.rounds<=0)await dismissField();
         for(const u of all()){ if(!u.alive)continue; if(u.owner&&round>=u.expires){vanishClone(u);continue;} if(u.shR>0&&--u.shR===0){u.shield=0; mostra(u);}
           if(u.power&&round>=u.power.end){u.power=null; mostra(u);}
-          if(u.sR>0&&--u.sR===0&&u.solto){ log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
+          if(u.sR>0&&--u.sR===0&&u.solto){ u.solto=false; log(`${nm(u)} recoloca o capuz`); await rehoodCine(u); }
           if(u.dot){sfx.dot(u.dot.el); curSide=u.side==='p'?'e':'p'; hurt(u,u.dot.dmg,'dot'); spark(u,'#ef9a5b',5); if(u.alive&&--u.dot.rounds<=0)u.dot=null; mostra(u);} }
       }
       all().forEach(u=>{ u.chaseUsed=false; u.comboUsed=false; });

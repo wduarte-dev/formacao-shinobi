@@ -39,19 +39,19 @@ function kitTick(now){ const c=kitCtx, dt=Math.min(.05,(now-kitLast)/1000)*(type
     c.save(); c.translate(x,y); if(e.rot)c.rotate(e.rot); if(e.plane)planeXf(c,e.pf); c.scale(e.sc,e.sc); c.globalAlpha=e.a*fade; c.imageSmoothingEnabled=false; c.drawImage(kitCell(e.sheet,e.row,f,e.color),-(e.ax||128),-(e.ay||128)); c.restore(); return true; });
   if(kitList.length)requestAnimationFrame(kitTick); else{ kitOn=false; c.clearRect(0,0,1152,648); } }
 // estrelas tontas em órbita acima da cabeça enquanto o ninja estiver atordoado (só quem usa o kit no lugar do sprite: STUN_KIT)
-function kitStars(u){ if(u._ks||!kitIM.fx)return; u._ks=1; kitAdd({row:2,fps:9,loop:true,sc:.5,follow:u,sock:'head',oy:-8,plane:true,pf:.8,stop:()=>!(u.alive&&u.stunned),end:()=>{u._ks=0;}}); }
+function kitStars(u){ if(u._ks||!kitIM.fx)return; u._ks=1; kitAdd({row:2,fps:9,loop:true,sc:.5,follow:u,sock:'head',oy:-8,plane:true,pf:.8,stop:()=>!(u.v?.alive&&u.v.stunned),end:()=>{u._ks=0;}}); }
 // setas de buff subindo pelo corpo, na cor do ninja
 function kitBuff(u,color){ const s=sockOf(u,'chest'), sz=u.d?.size||1; kitAdd({row:1,fps:10,sc:.55*sz,x:s.x,y:s.y+8*sz,rise:34,color:color||u.d?.c||'#ffffff'}); kitAdd({row:1,fps:10,sc:.4*sz,x:s.x,y:s.y+18*sz,rise:26,color:'#ffffff',delay:.12,a:.8}); }
 // AURA do jutsu (folha gfx do dono, branca e recolorível, já desenhada no plano): ACENDE -> loop (mais forte enquanto executa o jutsu) -> APAGA. Liga com u._aura=true; u._casting=true = intensa
 function kitAura(u){ if(u._ka||!kitIM.au)return; u._ka=1; const sz=u.d?.size||1, col=u.d?.c||'#ffffff';
   const play=(row,loop,stop)=>new Promise(res=>{ if(!kitAdd({sheet:'au',row,fps:loop?10:12,loop,sc:.62*sz,ay:GFXA.aura[row],follow:u,sock:'feet',oy:2,color:col,a:.95,stop,end:res}))res(); });
-  (async()=>{ try{ await play(2,false); while(u.alive&&u._aura){ const hot=!!u._casting; await play(hot?1:0,true,()=>!(u.alive&&u._aura)||(!!u._casting!==hot)); } await play(3,false); }catch(e){} u._ka=0; })(); }
+  (async()=>{ try{ await play(2,false); while(u.v?.alive&&u._aura){ const hot=!!u._casting; await play(hot?1:0,true,()=>!(u.v?.alive&&u._aura)||(!!u._casting!==hot)); } await play(3,false); }catch(e){} u._ka=0; })(); }
 // CAMADA DE IMPACTO: golpes pesados e jutsus (golpes sutis NÃO usam). o={at:{x,y},pow,color,dir,stop,cam,crack,air}  air:true = contato com o alvo NO AR: só flash, faíscas e tranco, sem poeira/anéis/rachaduras de chão
 async function impactFx(t,o={}){ const p=o.at||(t?cur(t):{x:576,y:400}), pow=o.pow||1, col=o.color||'#ffb060', y=p.y-48*Math.min(1.4,pow);
   flash(); shake(.8+.5*pow);
   kitAdd({sheet:'br',row:0,fps:18,sc:.8*pow,x:p.x,y,color:'#ffffff'}); if(!o.air){ const R=pow>=1.5?0:pow>=.9?1:3, S=Math.min(1.3,.5+.4*pow); kitAdd({sheet:'im',row:R,fps:12,sc:S,x:p.x,y:p.y+2,ay:GFXA.impacto[R]}); }   // anel + poeira no plano (folha gfx do dono)
   kitAdd({sheet:'br',row:2,fps:12,sc:1.0*pow,x:p.x,y,color:col}); kitAdd({sheet:'br',row:3,fps:14,sc:.38*pow,x:p.x,y:y-10,color:'#ffffff',delay:.04});
   if(o.dir)speedLines(o.dir<0?'R':'D'); else speedLines('D'); if(o.crack&&!o.air)kitAdd({sheet:'im',row:2,fps:10,sc:Math.min(1.2,.5+.35*pow),x:p.x,y:p.y+2,ay:GFXA.impacto[2],delay:.05});   // rachaduras no plano (gfx)
-  if(t&&t.alive&&t.st)t.st.animate([{scale:'1.22 .8'},{scale:'.94 1.06',offset:.45},{scale:'1'}],{duration:260/speed,easing:'ease-out'});
+  if(t&&t.v?.alive&&t.st)t.st.animate([{scale:'1.22 .8'},{scale:'.94 1.06',offset:.45},{scale:'1'}],{duration:260/speed,easing:'ease-out'});
   if(o.cam){ zoomTo(p.x,p.y-60,1.08); battleAfter(()=>zoomOut(),280/speed); }
   if(o.stop!==0)await hitstop(o.stop||90); }

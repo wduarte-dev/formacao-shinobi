@@ -55,10 +55,10 @@ for(const [id,v] of Object.entries(V2)){
   SPR[id]=`url(spr/${id}_atlas.png)`;
   SH[id]={cw:192,ch:160,ax:96,ay:150,W:v.W||1536,H:v.H,k:1/3,hd:v.hd||[96,50],anim:T};
 }
-// forma solta (Yugami sem capuz): outro atlas (<id>r) com os mesmos nomes de anim; u.solto liga a troca
-const sid=u=>u.solto&&SH[u.id+'r']?u.id+'r':u.id;
+// forma solta (Yugami sem capuz): outro atlas (<id>r) com os mesmos nomes de anim; u.vsolto (tela) liga a troca, u.solto é da regra
+const sid=u=>u.vsolto&&SH[u.id+'r']?u.id+'r':u.id;
 const an_of=u=>SH[sid(u)].anim;
-function setForm(u,on){ u.solto=!!on; const id=sid(u), S=SH[id], e=u.sc*S.k; u.spr.style.backgroundImage=SPR[id]; u.spr.style.backgroundSize=`${S.W*e}px ${S.H*e}px`; glitchSet(u,u.solto); if(S.anim[u.an])drawFrame(u);else setAnim(u,'idle'); }
+function setForm(u,on){ u.vsolto=!!on; const id=sid(u), S=SH[id], e=u.sc*S.k; u.spr.style.backgroundImage=SPR[id]; u.spr.style.backgroundSize=`${S.W*e}px ${S.H*e}px`; glitchSet(u,u.solto); if(S.anim[u.an])drawFrame(u);else setAnim(u,'idle'); }
 // distorção por código: o corpo vira 3 faixas horizontais que escorregam de lado (clones recortados do mesmo quadro)
 function glitchSet(u,on){ (u.gl||[]).forEach(c=>c.remove()); u.gl=[]; u.spr.classList.toggle('gl0',on); if(!on)return;
   for(const k of [1,2]){ const c=u.spr.cloneNode(); c.classList.remove('gl0'); c.classList.add('gl'+k); u.spr.after(c); u.gl.push(c); } }

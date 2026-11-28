@@ -159,7 +159,7 @@ async function kazanSit(u){
   await sleep(animMs(u,'sit')-240); kazanShock(p,.7); setAnim(u,'idle');
 }
 function kazanGuard(u){
-  if(!u.alive)return;
+  if(!u.v?.alive)return;   // tela: lê a cópia (u.v), não a regra
   const b=kazanFramePoint(u,[106,115]);
   setAnim(u,'guard'); sfx.forge('guard',sfx.absorb);
   kazanEffect(490,(c,k,t)=>{
@@ -385,22 +385,65 @@ async function kazanContact(u,anim,p,onContact){
   // A pose do quadro 4 continua pelo passo repetido em seq, depois do hit-stop.
   await sleep(animMs(u,anim)-impact);
 }
+// ── Kazan (fatia 3b): regra (resolveKazan*) resolve a ação inteira já; a tela (kazan*) toca o roteiro ──
+// queimadura do Kazan (regra): devolve se pegou (a tela toca o som da queima no acerto)
 function kazanBurn(u,t){
-  if(!t.alive)return;
+  if(!t.alive)return false;
   const dot=N.kaen.jutsu.dot;
   t.dot={dmg:Math.round(u.atk*dot.mult),rounds:dot.rounds,el:'Fogo'};
-  sfx.apply('burn'); mostra(t);
+  mostra(t); return true;
 }
-function kazanHit(u,t,sk,mult,cls){
-  fxAt(u,'imp',t,.69,-12);
-  spark(t,u.d.c,9);
-  return landHit(u,t,mult,sk===u.d.normal,cls,sk.target==='all',sk.el);
+const kazanLand=(u,t,sk,mult,cls)=>landHit(u,t,mult,sk===u.d.normal,cls,sk.target==='all',sk.el);
+// tela do acerto: faísca, impacto e o que a regra já aplicou (fila até a marca)
+function kazanHitFx(u,r){ fxAt(u,'imp',r.t,.69,-12); spark(r.t,u.d.c,9); tocaAte(r.n); if(r.burn)sfx.apply('burn'); }
+function resolveKazan(u,sk){
+  const R={kind:'kazan',u,sk};
+  if(sk===u.d.normal){   // Martelada: 1 ou 2 chamas; cada alvo testa a esquiva; queima pra todos ou pra ninguém
+    const enemies=foes(u);
+    if(!enemies.length){ R.nada=true; return R; }   // sem alvo: a tela só volta pra pose (como antes)
+    const first=kazanPick(enemies), ts=[first];
+    if(enemies.length>1&&battleRandom()<sk.twoFlames)ts.push(kazanPick(enemies.filter(t=>t!==first)));
+    const burns=battleRandom()<sk.burnChance;
+    R.ts=ts; R.first=first; R.damage=0;
+    R.hits=ts.map(t=>{
+      if(!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t))return {t,dodged:true};
+      const dealt=kazanLand(u,t,sk,sk.mult/ts.length,''), r={t,dealt};
+      if(dealt!==null){ R.damage+=dealt; if(burns)r.burn=kazanBurn(u,t); }
+      r.n=marca(); return r; });
+    R.fim=!!result();
+  }else if(sk===u.d.jutsu){ setField(u,sk.field); R.n=marca(); }   // Plano da Forja
+  else if(sk===u.d.recast){   // Dragão de Lava: consome o campo, acerta todos, queima e repele; o primeiro não imune abre perseguição
+    if(fieldA?.owner!==u){ R.nada=true; return R; }
+    clearField(true,true); R.nCampo=marca();
+    const ts=foes(u); R.ts=ts;
+    if(!ts.length)return R;
+    R.damage=0; R.hits=[]; const connected=[];
+    for(const t of ts){
+      const dealt=kazanLand(u,t,sk,sk.mult,'big'), r={t,dealt};
+      if(dealt!==null){ R.damage+=dealt; r.burn=kazanBurn(u,t); if(t.alive)connected.push(t); }
+      r.n=marca(); R.hits.push(r);
+    }
+    R.connected=connected; const primary=connected.find(t=>!t.d.immuneState);
+    connected.forEach(t=>poeEstado(t,sk.cause));   // imune (Kazan) só anuncia
+    R.fim=!!result();
+    R.after=connected.map(t=>{ if(!t.state)return null;
+      const a={t}; if(t===primary){ a.cmb=comboPlan(u.side,t.state); a.chain=resolveChain(u.side,t,1); }
+      a.levanta=t.alive; if(t.alive)soltaEstado(t); return a; });
+  }else if(sk===u.d.volley){   // Bola de Fogo (Combo 10): cada bola sorteia o seu alvo, inclusive quem já levou e segue vivo
+    R.vivos=foes(u); R.shots=[]; R.damage=0;
+    for(let i=0;i<sk.shots;i++){
+      const t=kazanPick(foes(u));
+      if(!t)break;
+      const dealt=kazanLand(u,t,sk,sk.mult,'volley');
+      R.damage+=dealt||0; R.shots.push({t,dealt,n:marca()});
+    }
+    R.last=R.shots.length?R.shots[R.shots.length-1].t:null;
+    R.fim=!!result();
+  }
+  return R;
 }
-async function kazanBasic(u,sk){
-  const enemies=foes(u);
-  if(!enemies.length)return;
-  const first=kazanPick(enemies), ts=[first];
-  if(enemies.length>1&&battleRandom()<sk.twoFlames)ts.push(kazanPick(enemies.filter(t=>t!==first)));
+async function kazanBasic(R){
+  const {u,sk,ts,first}=R;
   const a=kazanAnvil(u);
   await kazanRitual(u);
   setAnim(u,'atk1',0,true);
@@ -414,18 +457,16 @@ async function kazanBasic(u,sk){
   await sleep(180);
   kazanCinders(a,16); sfx.shoot(u);
   await Promise.all(ts.map(t=>kazanFlight(u,t,a,540)));
-  let damage=0;
-  const burns=battleRandom()<sk.burnChance;
-  await Promise.all(ts.map(async t=>{
-    if(!t.stunned&&!t.state&&battleRandom()*100<dodgeOf(t)){ await evade(t); return; }
-    const dealt=kazanHit(u,t,sk,sk.mult/ts.length,'');
-    if(dealt!==null){ damage+=dealt; if(burns)kazanBurn(u,t); }
+  await Promise.all(R.hits.map(async r=>{
+    if(r.dodged){ await evade(r.t); return; }
+    kazanHitFx(u,r);
   }));
-  log(`${nm(u)} usa <b>${sk.name}</b>: ${damage} de dano`);
-  if(result())await finale(ts.find(t=>!t.alive)||first);
+  log(`${nm(u)} usa <b>${sk.name}</b>: ${R.damage} de dano`);
+  if(R.fim)await finale(ts.find(t=>!t.v?.alive)||first);
   else await hitstop(30);
 }
-async function kazanForge(u,sk){
+async function kazanForge(R){
+  const {u,sk}=R;
   skTag(u,sk.name);
   setAnim(u,'cast',0,true); sfx.cast(u);
   await sleep(animMs(u,'cast')*.74);
@@ -435,14 +476,13 @@ async function kazanForge(u,sk){
   const p=kazanAnvil(u), dir=kazanDir(u);
   fxSpr(u.id,'wave',{x:p.x,y:p.y+22,sc:.72,dir,flip:dir<0});
   kazanCinders(p,19,12);
-  await transitionField('forge',true,()=>setField(u,sk.field));
+  await transitionField('forge',true,()=>tocaAte(R.n));
   log(`${nm(u)} ativa <b>${sk.name}</b> por ${sk.field} rodadas`);
 }
-async function kazanDragonSkill(u,sk){
-  if(fieldA?.owner!==u)return;
-  clearField(true,true);
-  const ts=foes(u);
-  if(!ts.length){ await transitionField('forge',false,()=>showFieldScene(null)); return; }
+async function kazanDragonSkill(R){
+  const {u,sk,ts}=R;
+  tocaAte(R.nCampo);   // o campo se consome já (o cenário da forja fica até o fim)
+  if(!R.hits){ await transitionField('forge',false,()=>showFieldScene(null)); return; }
   setAnim(u,'idle',0,true); u.ts=0;
   await cine(u,sk,ts);
   sfx.voz(u,'jutsu',.65);
@@ -458,28 +498,23 @@ async function kazanDragonSkill(u,sk){
   await sleep(290); u.kazanRecoil=0;
   while(!flight.impact){ await gate(); await sleep(28); }
   kazanDragonBurst(b,ts);
-  const connected=[];
-  let damage=0;
-  for(const t of ts){
-    const dealt=kazanHit(u,t,sk,sk.mult,'big');
-    if(dealt!==null){ damage+=dealt; kazanBurn(u,t); if(t.alive)connected.push(t); }
-  }
-  log(`${nm(u)} solta <b>${sk.name}</b>: ${damage} de dano`);
-  const primary=connected.find(t=>!t.d.immuneState);
+  R.hits.forEach(r=>kazanHitFx(u,r));
+  log(`${nm(u)} solta <b>${sk.name}</b>: ${R.damage} de dano`);
   await hitstop(165);
   $('cam').classList.remove('tracking');
   zoomOut(true);
-  await Promise.all(connected.map(t=>knock(t,sk.cause,true)));
-  if(result())await finale(ts.find(t=>!t.alive)||ts[0]);
-  for(const t of connected){
-    if(!t.state)continue;
-    if(t===primary){ endCine(); comboShow(u,t); await chain(u.side,t,1,u); }
-    if(t.alive){ setState(t,null); t.el.style.zIndex=t.z; }
+  await Promise.all(R.connected.map(t=>knock(t,sk.cause,true)));
+  if(R.fim)await finale(ts.find(t=>!t.v?.alive)||ts[0]);
+  for(const x of R.after){
+    if(!x)continue;
+    if(x.chain){ endCine(); comboShowList(u,x.t,x.cmb); await tocaChain(x.chain,u); }
+    if(x.levanta){ poseEstado(x.t,null); x.t.el.style.zIndex=x.t.z; }
   }
   await sleep(205);
   await transitionField('forge',false,()=>showFieldScene(null));
 }
-async function kazanVolley(u,sk){
+async function kazanVolley(R){
+  const {u,sk}=R;
   await kazanRitual(u);
   const p=kazanFramePoint(u,[123,48]);
   let shots;
@@ -487,36 +522,33 @@ async function kazanVolley(u,sk){
     sfx.forge('fireball',()=>sfx.hit(u,'atk'));
     fxSpr(u.id,'bigfire',{x:p.x,y:p.y,sc:.6,dir:kazanDir(u),flip:u.side==='e',fps:16});
     skTag(u,sk.name);
-    shots=sleep(140).then(()=>kazanVolleyShots(u,sk,p)).catch(error=>({error}));
+    shots=sleep(140).then(()=>kazanVolleyShots(R,p)).then(()=>({}),error=>({error}));
   });
-  const {damage,last,error}=await shots;
+  const {error}=await shots;
   if(error)throw error;
-  log(`${nm(u)} dispara <b>${sk.name}</b>: ${damage} de dano`);
-  if(last&&result())await finale(last);
+  log(`${nm(u)} dispara <b>${sk.name}</b>: ${R.damage} de dano`);
+  if(R.last&&R.fim)await finale(R.last);
 }
-async function kazanVolleyShots(u,sk,p){
-  let damage=0, last=null;
-  sceneOn([u,...foes(u)]);
-  // Cada bola rola seu próprio alvo, incluindo alvos já atingidos que continuem vivos.
-  for(let i=0;i<sk.shots;i++){
-    const t=kazanPick(foes(u));
-    if(!t)break;
+async function kazanVolleyShots(R,p){
+  const {u}=R;
+  sceneOn([u,...R.vivos]);
+  for(let i=0;i<R.shots.length;i++){
+    const r=R.shots[i], t=r.t;
     const from={x:p.x+i*11*kazanDir(u),y:p.y-i*9};
     markTargets([t]); sfx.shoot(u);
     await kazanFlight(u,t,from,425,true);
     kazanCinders(cur(t),7,4);
-    damage+=kazanHit(u,t,sk,sk.mult,'volley')||0;
-    last=t;
+    kazanHitFx(u,r);
   }
-  return {damage,last};
 }
-async function kazanSkill(u,sk){
-  const battleToken=token;
+async function kazanSkill(R){
+  const {u,sk}=R, battleToken=token;
   try{
-    if(sk===u.d.normal)await kazanBasic(u,sk);
-    else if(sk===u.d.jutsu)await kazanForge(u,sk);
-    else if(sk===u.d.recast)await kazanDragonSkill(u,sk);
-    else if(sk===u.d.volley)await kazanVolley(u,sk);
+    if(R.nada)return;
+    if(sk===u.d.normal)await kazanBasic(R);
+    else if(sk===u.d.jutsu)await kazanForge(R);
+    else if(sk===u.d.recast)await kazanDragonSkill(R);
+    else if(sk===u.d.volley)await kazanVolley(R);
   }finally{
     if(sk===u.d.recast){ u.ts=1; u.kazanRecoil=0; }
     if(battleToken===token)home(u);

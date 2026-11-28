@@ -65,7 +65,7 @@ function bigSlash(x,y,att,state){ const dir=att.side==='p'?1:-1, ang={R:-6,L:-24
 function speedLines(state){ slineFx(state); }   // desenhadas no canvas #fxc (antes: camada de 1552x1048 animando background-position = repintura gigante)
 function crack(x,y){ const c=document.createElement('div'); c.className='crack'; c.style.left=x+'px'; c.style.top=y+'px';
   for(let i=0;i<9;i++){const l=document.createElement('i'); l.style.rotate=`${i*40+R(-14,14)}deg`; l.style.setProperty('--w',R(40,110)+'px'); c.appendChild(l);} $('fx').appendChild(c); battleAfter(()=>c.remove(),560); }
-// golpe que muda o estado do alvo: zoom no ponto do corte, câmera lenta, e o alvo sai voando
+// golpe que muda o estado do alvo: zoom no ponto do corte, câmera lenta, e o alvo sai voando. SÓ TELA: a regra já gravou o estado (poeEstado)
 async function smash(att,t,state){
   if(t.d.immuneState){ kazanGuard(t); return; }
   const p=cur(t);
@@ -73,9 +73,8 @@ async function smash(att,t,state){
   await hitstop(80);
   zoomOut(true); await knock(t,state);
 }
-// arremessa o alvo conforme o estado: Repelido bate na borda da tela, Voo sobe alto, Lançado (rasteira) sai do chão baixo, Derrubado desaba no chão
+// arremessa o alvo conforme o estado: Repelido bate na borda da tela, Voo sobe alto, Lançado (rasteira) sai do chão baixo, Derrubado desaba no chão (só a pose; quem grava é a regra)
 async function knock(t,state,quietCamera=false){
-  poeEstado(t,state);   // regra grava/anuncia (imune: só anuncia); daqui pra baixo é só a pose
   if(t.d.immuneState){ kazanGuard(t); return; }
   const b=pos(t), d=t.side==='p'?-1:1, lim=x=>Math.max(70-b.x,Math.min(1082-b.x,x)); if(!t.off)t.off={x:0,y:0};
   const wasAir=t.off.y<0, p0=cur(t);
@@ -159,16 +158,16 @@ async function showInitiative(face){
     }
   }
 }
-function showHits(){ const n=hitsR[curSide]; if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=curSide==='p'?'':'24px'; h.style.right=curSide==='p'?'24px':''; retrig(h,'on');
-  if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(curSide==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
-function comboLine(name,count,id){const c=$('clist'); c.className=curSide==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,.8,30,30); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}
+function showHits(n,side){ if(n<2)return; const h=$('hits'); h.textContent=n+' Hit'; h.style.left=side==='p'?'':'24px'; h.style.right=side==='p'?'24px':''; retrig(h,'on');
+  if(n>=10&&n%10===0){ const b=$('hband'); b.textContent=`MAIS DE ${n} COMBO`; b.className='hband '+(side==='p'?'r':'l'); void b.offsetWidth; b.classList.add('on'); } }   // faixa a cada 10 hits
+function comboLine(name,count,id,side=curSide){const c=$('clist'); c.className=side==='p'?'l':'r'; const d=document.createElement('div'); d.className='ci'; d.innerHTML=`<i class="cip"></i>${name}<b>${count} Combo</b>`; if(id)portrait(d.firstChild,id,.8,30,30); sfx.combo(count); c.appendChild(d); battleAfter(()=>d.remove(),1900);}
 
 // cena isolada (jutsu e perseguição): fundo escuro e só os participantes visíveis, do começo ao fim.
 // sceneAdd revela mais gente (a perseguição acumula); sceneOff só roda quando todos voltaram pra casa.
 const scene={on:false};
-function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().forEach(x=>x.el.classList.toggle('ghost',!list.includes(x))); }
-function sceneAdd(u){ if(scene.on)u.el.classList.remove('ghost'); }
-function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el.classList.remove('ghost','cmb','tgt')); }
+function sceneOn(list){ $('field').classList.add('dim'); scene.on=true; all().forEach(x=>x.el?.classList.toggle('ghost',!list.includes(x))); }   // x.el: clone que a regra criou e a tela ainda não montou
+function sceneAdd(u){ if(scene.on)u.el?.classList.remove('ghost'); }
+function sceneOff(){ scene.on=false; $('field').classList.remove('dim'); if(U)all().forEach(x=>x.el?.classList.remove('ghost','cmb','tgt')); }
 // marca quem vai levar o golpe (jutsu, perseguição, tsunami): círculo vermelho pulsando nos pés
 function markTargets(ts){ ts.forEach(t=>{ sceneAdd(t); t.el.classList.add('tgt'); }); }
 // esquiva: anim 'dodge' do atlas se existir; senão um passo pra trás translúcido. Sem número, sem texto.
@@ -200,7 +199,7 @@ async function rehoodCine(u){ const p=cur(u), sz=u.d.size||1;
   sceneOn([u]); zoomTo(p.x,p.y-70*sz,1.9,true); sfx.cast(u); await sleep(300);
   const ms=Math.max(300,animMs(u,'rehood')); u.ts=Math.min(1,ms/2300); setAnim(u,'rehood',0,true); fxAt(u,'aura',u,1.1,0,{fps:5}); sfx.rehood();
   try{ await sleep(ms/u.ts); } finally{ u.ts=1; }
-  if(u.solto)setForm(u,false); setAnim(u,'idle'); flashSoft(); fl(u,'capuz lacrado','shieldf'); await sleep(400);
+  if(u.vsolto)setForm(u,false); setAnim(u,'idle'); flashSoft(); fl(u,'capuz lacrado','shieldf'); await sleep(400);
   zoomOut(true); sceneOff(); await sleep(250); }
 function endCine(){ $('jtag').classList.remove('on'); }
 // echo do pulo (ida): cópias atrasadas do próprio quadro, sutis, só transform/opacity (modo leve: 1 cópia). Posições ao longo do caminho nos instantes em que o ninja passa por elas

@@ -3,7 +3,7 @@
 // a apresentação (combat.js: som, texto flutuante, tranco, barra), o Campo de Provas (prova.js) e os testes em Node.
 // Eventos (payload com as unidades, não com o DOM):
 //   'acao'      {u,sk,isJ}                       vez de um ninja (doSkill começou)
-//   'dano'      {t,d,esc,cls,hp,hp0,adv,evt,impact,woke,died,clone}  dano aplicado (d = depois do escudo)
+//   'dano'      {t,d,esc,cls,hp,hp0,adv,evt,impact,woke,died,clone,v,hits,side}  dano aplicado (d = depois do escudo; hits = contador do time na hora)
 //   'substitui' {t,clone}                        Substituição do Utsushi engoliu o golpe
 //   'estado'    {t,s}                            estado D/L/V/R aplicado ('imune' no Kazan); quem grava é poeEstado (a tela só anima, em t.vs)
 //   'persegue'  {side,t,n}                       um passo de perseguição começou (antes de saber se alguém entra)
@@ -16,7 +16,7 @@
 // Cópia da tela (fatia 3a): a apresentação nunca lê vida/escudo/chakra da unidade da regra, só a última foto anunciada.
 // Assim, quando o motor passar a simular adiantado (3b), a HUD mostra o momento que está sendo TOCADO, não o futuro.
 // Perseguição (fatia 2): a regra só DECIDE (chaseStart/chaseTsunami/chaseOutcome); chain() em combat.js anima e executa o decidido.
-// Dívida das próximas fatias: vanishClone (state.js) e refundJutsu (combat.js) ainda são chamados daqui.
+// Dívida das próximas fatias: vanishClone (state.js, já só regra + evento 'some') e refundJutsu (combat.js) ainda moram fora daqui.
 "use strict";
 const BUS={ L:{},
   on(k,fn){ (this.L[k]||(this.L[k]=[])).push(fn); return fn; },
@@ -44,7 +44,7 @@ function landHit(a,t,m,basic,cls,area=false,el,impact){
     const clone=livingClones(t)[0];
     if(clone){
       t.subRound=round; hitsR[curSide]++;
-      BUS.emit('substitui',{t,clone});   // a apresentação põe o clone na cena antes de ele sumir
+      BUS.emit('substitui',{t,clone,hits:hitsR[curSide],side:curSide});   // a apresentação põe o clone na cena antes de ele sumir
       vanishClone(clone); return null;
     }
   }
@@ -68,7 +68,7 @@ function hurt(t,d,cls,{pierce=false,adv=0,evt='',impact}={}){
     else if(t.hp<=0&&t.alive){ e.died=true; e.wasMark=t===mark;
       t.alive=false; t.dot=null; clearStatus(t); if(t===mark)mark=null; t.stunned=false; t.state=null; refundJutsu(t); }
   }
-  e.hp=t.hp; e.v=vista(t); BUS.emit('dano',e); return r;
+  e.hp=t.hp; e.v=vista(t); e.hits=hitsR[curSide]; e.side=curSide; BUS.emit('dano',e); return r;
 }
 
 // estado D/L/V/R (fatia 3b): a REGRA grava t.state e anuncia; a tela (knock/poseEstado) só anima e guarda a pose em t.vs

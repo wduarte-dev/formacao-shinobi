@@ -123,21 +123,35 @@ function kdCutin(c,tc,name){
   c.restore();
   c.fillStyle=`rgba(255,170,90,${k.toFixed(2)})`; c.fillRect(0,cy-hh-1,W,2); c.fillRect(0,cy+hh-1,W,2);
 }
-// jutsu completo do Kaen (motor): selos -> liberação -> cut-in -> dragão cruza a fileira -> reentra por cima e cai -> desintegra
-async function kaenDragonJutsu(u,main,sk,ts){
-  const dir=u.side==='p'?1:-1, connected=new Set(); let tot=0;
+// REGRA do Dragão de Brasa (fatia 3b), laço fixo: parede na fileira (ordem do x no palco = ordem em que o dragão passa) e depois a queda
+// em todos os vivos; queima; abriu Repelido → perseguição. Tudo já, na ordem de sempre; a tela toca cada acerto no instante dele
+function resolveDragao(R){
+  const {u,main,sk,ts}=R, dir=u.side==='p'?1:-1, connected=new Set(); let tot=0;
+  const wall=[...ts].sort((a,b)=>(pos(a).x-pos(b).x)*dir);
+  R.av=foes(u).filter(t=>t.alive);
+  const step=(t,share)=>{ if(!t.alive)return null; const dealt=landHit(u,t,sk.mult*share,false,'big',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {t,dealt,n:marca()}; };
+  R.wallBy=new Map(wall.map(t=>[t,step(t,.4)]));
+  R.slam=R.av.map(t=>step(t,.6));
+  connected.forEach(t=>{ if(!t.alive)return;
+    if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; mostra(t); });
+  R.nEfeito=marca(); R.tot=tot; R.fim=!!result();
+  const stateHit=connected.has(main)&&sk.cause&&main.alive;
+  R.guard=stateHit&&main.d.immuneState; R.ko=stateHit&&!main.d.immuneState;
+  if(R.ko)resolveKo(R,u,main,sk.cause);   // como antes: o Dragão não mexe no chainOpenJ
+}
+// jutsu completo do Kaen (TELA): selos -> liberação -> cut-in -> dragão cruza a fileira -> reentra por cima e cai -> desintegra
+async function kaenDragonJutsu(R){
+  const {u,main,sk,ts}=R, dir=u.side==='p'?1:-1;
   const done=kdLoad(); const ctx=kdCanvas(); ctx.clearRect(0,0,KD.W,KD.H);
-  sceneOn([u]); skTag(u,sk.name); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); u._casting=true; mostra(u);   // aura do kit em loop até soltar
+  sceneOn([u]); skTag(u,sk.name); setAnim(u,'cast'); sfx.cast(u); fxAt(u,'aura',u,1.05,18); u._casting=true; upd(u);   // aura do kit em loop até soltar
   await sleep(520); await done;
   if(ts.some(t=>t.side!==u.side))markTargets(ts); else ts.forEach(sceneAdd);
   u.el.style.zIndex=60; setAnim(u,'atk2',0,true);
-  const rel=Math.max(300,animMs(u,'atk2')*.7), M=kdModel(u,ts,foes(u).filter(t=>t.alive));
+  const rel=Math.max(300,animMs(u,'atk2')*.7), M=kdModel(u,ts,R.av);   // R.av: vivos quando a regra resolveu (a regra já está no fim da ação)
   await sleep(rel);
   // ---- liberação: congela com as mãos abertas, cut-in, depois o dragão ----
-  setAnim(u,'atk2',28,'frame'); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; mostra(u);
-  // REGRA em laço fixo (fatia 3b): parede na fileira (ordem do x = ordem do tempo) e depois a queda em todos, resolvidas já; a tela toca cada uma no seu instante
-  const plan=adianta(()=>{ const step=(t,share)=>{ if(!t.alive)return null; const dealt=landHit(u,t,sk.mult*share,false,'big',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {t,dealt,n:marca()}; };
-    return {wall:M.tg.map(o=>step(o.t,.4)), slam:M.av.map(o=>step(o.t,.6))}; });
+  setAnim(u,'atk2',28,'frame'); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; upd(u);
+  const plan={wall:M.tg.map(o=>R.wallBy.get(o.t)), slam:R.slam};
   const hitStep=(r,big)=>{ if(!r)return; fxAt(u,'imp',r.t,.55,-8); tocaAte(r.n); if(r.dealt!==null)spark(r.t,u.d.c,big?12:8); };
   const fired=new Set(), T0=performance.now(); let T=0, last=T0, released=false;
   const wallHit=M.hitG.map(t=>M.Wof(t)-.08), wallSlam=M.Wof(M.tSlam)-.16;
@@ -160,36 +174,39 @@ async function kaenDragonJutsu(u,main,sk,ts){
       if(T>=M.LEN){ ctx.clearRect(0,0,KD.W,KD.H); return resolve(); }
       requestAnimationFrame(tick); };
     requestAnimationFrame(now=>{ last=now; tick(now); }); }); }
-  finally{ tocaTudo(); }
+  finally{ tocaAte(R.nEfeito); }   // acertos e queimadura (o que vem depois, perseguição, toca em seguida)
   u.mv.style.transition=''; u.mv.style.transform='';
-  connected.forEach(t=>{ if(!t.alive)return;
-    if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds+(fieldA&&u.side===fieldA.side&&fieldA.fx.dot?fieldA.fx.dot[u.d.el]||0:0),el:u.d.el}; mostra(t); });
   if(sk.dot)sfx.apply('burn');
-  log(`${nm(u)} solta <b>${sk.name}</b>: ${tot} de dano`);
-  if(result())await finale(main);
-  const stateHit=connected.has(main)&&sk.cause&&main.alive, ko=stateHit&&!main.d.immuneState;
-  if(stateHit&&main.d.immuneState)kazanGuard(main);
-  if(ko){ endCine(); await smash(u,main,sk.cause); } else await hitstop(70);
+  log(`${nm(u)} solta <b>${sk.name}</b>: ${R.tot} de dano`);
+  if(R.fim)await finale(main);
+  if(R.guard)kazanGuard(main);
+  if(R.ko){ endCine(); await smash(u,main,sk.cause); } else await hitstop(70);
   endCine(); home(u); u.el.style.zIndex=u.z;
-  if(ko){ comboShow(u,main); await chain(u.side,main,1,u); if(main.alive){ await sleep(140); setState(main,null); main.el.style.zIndex=main.z; } }
+  if(R.ko)await tocaKo(R,u,main);
   await sleep(160);
 }
 
 // COMBO 18 do Kaen, Chuva de Brasas: ele joga UMA bola de fogo no meio da malha inimiga; no alto ela se divide em quatro e cada uma cai na sua casa. Tudo no plano do chão
 // (sombra, fogo, poeira e anéis deitados). Placeholder visual com as peças do dragão; o definitivo vem de sheets gerados pelo dono.
-async function kaenRainCombo(u,sk,ts){
-  const dir=u.side==='p'?1:-1, connected=new Set(); let tot=0;
+// REGRA (fatia 3b): as bolas caem na ordem das casas dos vivos (j), resolvidas já
+function resolveChuva(R){
+  const {u,sk,ts}=R, connected=new Set(); let tot=0;
+  R.vs=ts.filter(t=>t.alive);
+  R.plan=R.vs.map(t=>{ if(!t.alive)return null; const dealt=landHit(u,t,sk.mult,false,'chase',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {dealt,n:marca()}; });
+  connected.forEach(t=>{ if(!t.alive)return; if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds,el:u.d.el}; mostra(t); });
+  R.tot=tot; R.fim=!!result();
+}
+async function kaenRainCombo(R){
+  const {u,sk,vs,plan}=R, dir=u.side==='p'?1:-1;
   const done=kdLoad(), ctx=kdCanvas(); ctx.clearRect(0,0,KD.W,KD.H);
-  const vs=ts.filter(t=>t.alive); if(!vs.length)return;
-  sceneOn([u,...vs]); markTargets(vs); setAnim(u,'cast'); sfx.cast(u); u._casting=true; mostra(u);
+  if(!vs.length)return;
+  sceneOn([u,...vs]); markTargets(vs); setAnim(u,'cast'); sfx.cast(u); u._casting=true; upd(u);
   await sleep(380); await done;
   u.el.style.zIndex=60; setAnim(u,'atk2',0,true); await sleep(Math.max(300,animMs(u,'atk2')*.7));
-  setAnim(u,'atk2',28,true); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; mostra(u);
+  setAnim(u,'atk2',28,true); sfx.jutsu(u); sfx.voz(u,'jutsu'); u._casting=false; upd(u);
   const p=pos(u), hand={x:p.x+dir*KDG.ponta[0],y:p.y+KDG.ponta[1]}, pts=vs.map(t=>({t,...cur(t)}));
   const C={x:pts.reduce((a,o)=>a+o.x,0)/pts.length,y:pts.reduce((a,o)=>a+o.y,0)/pts.length}, apex={x:C.x,y:Math.max(60,C.y-250)};
   const fires=[], tA=.6, tB=.42, LEN=tA+tB+.07*pts.length+1.6, fired=new Set(); let T=0, last=performance.now();
-  // REGRA em laço fixo (fatia 3b): as quatro bolas caem na ordem das casas (j), resolvidas já; a tela toca cada uma quando a bola chega
-  const plan=adianta(()=>pts.map(o=>{ const t=o.t; if(!t.alive)return null; const dealt=landHit(u,t,sk.mult,false,'chase',true); if(dealt!==null){ tot+=dealt; connected.add(t); } return {dealt,n:marca()}; }));
   const hit=(o,j)=>{ const t=o.t, r=plan[j]; if(!r)return; tocaAte(r.n); if(r.dealt!==null)spark(t,u.d.c,10);
     kitAdd({sheet:'im',row:1,fps:12,sc:.6,x:o.x,y:o.y+2,ay:GFXA.impacto[1]}); fires.push([o,performance.now()]); sfx.heavy(); if(!j){ shake(.7); flashSoft(); } };
   try{ await new Promise((resolve,reject)=>{
@@ -213,9 +230,8 @@ async function kaenRainCombo(u,sk,ts){
       requestAnimationFrame(tick); };
     requestAnimationFrame(now=>{ last=now; tick(now); }); }); }
   finally{ tocaTudo(); }
-  connected.forEach(t=>{ if(!t.alive)return; if(sk.dot)t.dot={dmg:Math.round(u.atk*sk.dot.mult),rounds:sk.dot.rounds,el:u.d.el}; mostra(t); });
   if(sk.dot)sfx.apply('burn');
-  log(`${nm(u)} solta <b>${sk.name}</b>: ${tot} de dano`);
-  if(result())await finale(vs[0]);
+  log(`${nm(u)} solta <b>${sk.name}</b>: ${R.tot} de dano`);
+  if(R.fim)await finale(vs[0]);
   endCine(); home(u); u.el.style.zIndex=u.z; await sleep(160);
 }

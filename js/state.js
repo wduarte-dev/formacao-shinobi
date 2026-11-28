@@ -100,19 +100,16 @@ function summonClones(owner,sk){
       hp:Math.round(owner.max*.35),atk:owner.atk*.35,def:owner.def,dodge:owner.d.dodge};
     const c=mk('utsushic',owner.side,owner.slot,row,depth,1,d,3*d.size);
     c.owner=owner; c.summonedRound=round; c.expires=round+sk.duration; U.clones.push(c); group.push(c); side.push(c);
-    mountUnit(c); ACT.push(c); setAnim(c,'birth'); sceneAdd(c); mostra(c);
+    BUS.emit('nasce',{c}); mostra(c);   // a tela monta o clone quando tocar (telaOn 'nasce')
   }
   return group;
 }
+// clone some (regra): morto, sem estado, sai da marca; a tela anima o sumiço (telaOn 'some'). Sai de U.clones só em recolheClones
 function vanishClone(c){
-  c.alive=false; c.hp=0; c.dot=null; c.state=null; c.vs=null; c.st.className='st';
-  if(mark===c){mark=null; c.el.classList.remove('mk');}
-  setAnim(c,'vanish',0,true); dust(c,8); mostra(c);
-  const battle=U;
-  battleAfter(()=>{   // só a tela: quem tira o clone da lista é a regra (recolheClones, começo da rodada)
-    c.el.remove();
-    if(U===battle)ACT=ACT.filter(u=>u!==c);
-  },animMs(c,'vanish')/speed);
+  const wasMark=mark===c;
+  c.alive=false; c.hp=0; c.dot=null; c.state=null;
+  if(wasMark)mark=null;
+  BUS.emit('some',{c,wasMark}); mostra(c);
 }
 const BATTLE_GAP=14;   // cada time recua um pouco da linha do meio: mais espaço entre os ninjas na luta (a Formação não muda)
 function pos(u){const c=cell(u.row,u.depth); return{x:u.side==='p'?c.x-BATTLE_GAP:1152-c.x+BATTLE_GAP,y:c.y};}

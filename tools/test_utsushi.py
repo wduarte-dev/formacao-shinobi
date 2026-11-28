@@ -70,10 +70,10 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       const count=hitsR.p; await chain('p',chaseTarget,1,owner);
       check(hitsR.p===count+4 && chaseTarget.state==='R','perseguição e três contatos extras');
       vanishClone(remaining[0]);
-      const two=hitsR.p; await cloneVolley(owner,chaseTarget);
+      const two=hitsR.p; adianta(()=>resolveVolley(owner,chaseTarget)); tocaTudo();   // regra das palmas (fatia 3b): resolveVolley
       check(hitsR.p===two+2,'apenas clones vivos participam');
       const hpLast=chaseTarget.hp; chaseTarget.hp=1;
-      const one=hitsR.p; await cloneVolley(owner,chaseTarget);
+      const one=hitsR.p; adianta(()=>resolveVolley(owner,chaseTarget)); tocaTudo();
       check(!chaseTarget.alive && hitsR.p===one+1,'fim da rajada quando o alvo cai');
       chaseTarget.alive=true; chaseTarget.hp=hpLast;
       const blockers=[];
@@ -87,16 +87,18 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
       check(result()==='win','vitória mesmo com clones inimigos vivos');
     }""")
     # O contador pode subir mesmo quando o sprite do chute passa longe do alvo.
+    # Fatia 3b: a regra resolve adiantada; o contato é conferido quando a TELA mostra o primeiro acerto no alvo (TELA.dano).
     page.reload()
     page.evaluate("""async () => {
       loadSfx=()=>{}; run=()=>{};
       placed=[{id:'utsushi',row:1,depth:1}]; FOES[0].team=[['mizuha',1,1]];
       await preloadFx(['utsushi','mizuha']); startBattle2(); speed=2;
-      const owner=U.p[0], target=U.e[0], original=landHit;
-      await knock(target,'V'); curSide=owner.side;
-      let checked=false;
-      landHit=(u,t,...args)=>{
-        if(u===owner && t===target){
+      const owner=U.p[0], target=U.e[0], original=TELA.dano;
+      poeEstado(target,'V'); await knock(target,'V'); curSide=owner.side;
+      let checked=false, first=true;
+      TELA.dano=e=>{
+        const u=owner, t=e.t;
+        if(first && t===target){ first=false;
           const foot=u.spr.getBoundingClientRect(), body=t.spr.getBoundingClientRect();
           const [x,y]=u.d.chase.kick.foot;
           const px=Math.round((1-(foot.left+foot.width*x/192-body.left)/body.width)*192);
@@ -107,7 +109,7 @@ with ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, dir
           if(u.frame!==2||ctx.getImageData(px,py,1,1).data[3]<140)throw Error('chute fora do corpo da Mizuha');
           checked=true;
         }
-        return original(u,t,...args);
+        return original(e);
       };
       await chain('p',target,1,owner);
       if(!checked)throw Error('faltou contato da Rajada Fantasma');
